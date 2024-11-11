@@ -1,0 +1,39 @@
+services:
+  simplebudget:
+    build:
+      context: .
+      target: dev
+    image: simplebudget
+    command: poetry run uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=local
+      - POSTGRES_PASSWORD=local
+      - POSTGRES_DB=local
+    ports:
+      - "8000:8000"  # Use a different port for dev
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - alembic-upgrader
+  alembic-upgrader:
+    build:
+      context: .
+      target: dev
+    image: simplebudget
+    command: poetry run alembic upgrade head
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=local
+      - POSTGRES_PASSWORD=local
+      - POSTGRES_DB=local
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=local
+      - POSTGRES_PASSWORD=local
+      - POSTGRES_DB=local

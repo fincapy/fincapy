@@ -3,6 +3,14 @@ import TenantRepository from '@/backend/adapters/repositories/tenantRepository';
 import { db } from '@/backend/adapters/database';
 
 export const POST = async (req) => {
+  const tenantApiKey = process.env.TENANT_API_KEY;
+
+  if (req.headers.get('x-tenant-api-key') !== tenantApiKey) {
+    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+      status: 401,
+    });
+  }
+
   const body = await req.json();
   const { tenantId } = body;
 

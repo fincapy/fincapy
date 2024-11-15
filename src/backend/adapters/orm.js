@@ -7,14 +7,14 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
-export const tenant = pgTable('tenant', {
+export const tenantTable = pgTable('tenant', {
   tenantId: uuid('tenant_id'),
   plaidAccessToken: varchar('plaid_access_token'),
   createdAt: timestamp('created_at'),
   updatedAt: timestamp('updated_at'),
 });
 
-export const categories = pgTable(
+export const categoriesTable = pgTable(
   'category',
   {
     tenantId: uuid('tenant_id'),

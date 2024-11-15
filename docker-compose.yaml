@@ -1,16 +1,9 @@
 services:
-  simplebudget:
-    build:
-      context: .
-    image: simplebudget
-    command: npm run dev
-    ports:
-      - "3000:3000"  # Use a different port for dev
-    volumes:
-      - ./src:/app/src
   postgres:
     image: postgres
     environment:
       - POSTGRES_USER=local
       - POSTGRES_PASSWORD=local
       - POSTGRES_DB=simplebudget
+    ports:
+      - '5432:5432'

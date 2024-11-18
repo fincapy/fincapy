@@ -27,8 +27,8 @@ export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex flex-col w-full flex-grow gap-4">
-      <div className="flex flex-col gap-1">
+    <div className="flex flex-col w-full flex-grow gap-4 mt-4">
+      {/* <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-center">
           <div className="flex flex-row w-11/12 lg:w-3/4 justify-between">
             <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -42,19 +42,16 @@ export default function Dashboard() {
         <div className="flex flex-row justify-center">
           <Separator className="w-11/12 lg:w-3/4" />
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col justify-center items-center">
-        <div className="flex flex-col w-10/12 lg:w-2/3 shadow-md">
+        <div className="flex flex-col w-11/12 lg:w-3/4 shadow-md">
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-            <Card className="shadow-none">
+            <Card className="shadow-none bg-zinc-950">
               <CardHeader>
                 <CardTitle>
                   <div className="flex flex-row justify-between items-center -mb-3">
                     <span>Fixed Costs</span>
-                    <Button
-                      className="bg-lime-600 hover:bg-lime-800"
-                      size="icon"
-                    >
+                    <Button variant="ghost" size="icon">
                       <Pencil />
                     </Button>
                   </div>
@@ -89,7 +86,7 @@ export default function Dashboard() {
               </CardFooter>
             </Card>
             <CollapsibleContent className="transition-all duration-300 ease-in">
-              <Card className="shadow-none bg-slate-100">
+              <Card className="shadow-none bg-zinc-950">
                 <CardHeader className="p-0 ml-6 mr-6 mt-4 mb-4">
                   <CardTitle>
                     <div className="flex flex-row justify-between items-center -mb-3">

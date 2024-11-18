@@ -5,7 +5,7 @@ export default function Layout({ children }) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full">
+      <main className="w-full bg-stone-100">
         <SidebarTrigger />
         {children}
       </main>

@@ -5,6 +5,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Separator } from '@/components/ui/separator';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname } from 'next/navigation';
+import { ModeToggle } from '@/components/mode-toggle';
 
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input
@@ -19,7 +20,7 @@ export default function Layout({ children }) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="dark"
+      defaultTheme="system"
       enableSystem
       disableTransitionOnChange
     >
@@ -32,6 +33,9 @@ export default function Layout({ children }) {
               <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
                 {capitalizedPageName}
               </h1>
+              <div className="flex flex-row justify-end flex-grow mr-2">
+                <ModeToggle />
+              </div>
             </div>
             <Separator />
           </div>

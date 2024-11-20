@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname } from 'next/navigation';
 import { ModeToggle } from '@/components/mode-toggle';
+import { useEffect } from 'react';
 
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input

@@ -12,16 +12,17 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  BadgePlus,
+  HandCoins,
+  Hand,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
 import { NavProjects } from '@/components/nav-projects';
-import { NavUser } from '@/components/nav-user';
-import { TeamSwitcher } from '@/components/team-switcher';
+import { BudgetSwitcher } from '@/components/budget-switcher';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
@@ -33,28 +34,22 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
+  budgets: [
     {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
+      name: 'Budget 1',
     },
     {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
+      name: 'Budget 2',
     },
     {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
+      name: 'Budget 3',
     },
   ],
   navMain: [
     {
-      title: 'Playground',
+      title: 'Spending',
       url: '#',
-      icon: SquareTerminal,
+      icon: HandCoins,
       isActive: true,
       items: [
         {
@@ -72,9 +67,9 @@ const data = {
       ],
     },
     {
-      title: 'Models',
+      title: 'Income',
       url: '#',
-      icon: Bot,
+      icon: BadgePlus,
       items: [
         {
           title: 'Genesis',
@@ -86,52 +81,6 @@ const data = {
         },
         {
           title: 'Quantum',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
           url: '#',
         },
       ],
@@ -160,11 +109,10 @@ export function AppSidebar({ ...props }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <BudgetSwitcher budgets={data.budgets} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

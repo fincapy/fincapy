@@ -1,24 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  BadgePlus,
-  HandCoins,
-  Hand,
-} from 'lucide-react';
+import { Frame, Map, PieChart, BadgePlus, HandCoins } from 'lucide-react';
 
-import { NavMain } from '@/components/nav-main';
-import { NavProjects } from '@/components/nav-projects';
+import { NavTrack } from '@/components/nav-track';
+import { NavLink } from '@/components/nav-link';
 import { BudgetSwitcher } from '@/components/budget-switcher';
 import {
   Sidebar,
@@ -112,7 +98,8 @@ export function AppSidebar({ ...props }) {
         <BudgetSwitcher budgets={data.budgets} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavTrack items={data.navMain} />
+        <NavLink items={data.projects} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

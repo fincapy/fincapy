@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-export function NavMain({ items }) {
+export function NavTrack({ items }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Track</SidebarGroupLabel>

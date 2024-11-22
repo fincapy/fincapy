@@ -7,12 +7,17 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
-export const tenantTable = pgTable('tenant', {
-  tenantId: uuid('tenant_id'),
-  plaidAccessToken: varchar('plaid_access_token'),
-  createdAt: timestamp('created_at'),
-  updatedAt: timestamp('updated_at'),
-});
+export const plaidItemTable = pgTable(
+  'plaid_item',
+  {
+    id: uuid('id'),
+    tenantId: uuid('tenant_id'),
+    accessToken: varchar('access_token'),
+  },
+  (table) => {
+    return [primaryKey({ columns: [table.tenantId, table.id] })];
+  }
+);
 
 export const categoriesTable = pgTable(
   'category',

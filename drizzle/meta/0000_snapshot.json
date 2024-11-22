@@ -1,5 +1,5 @@
 {
-  "id": "3a05e452-1b75-4c69-b19c-1000760f64d3",
+  "id": "dad87de7-8e53-4d2f-a2ba-695de401ab80",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -61,38 +61,40 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenant": {
-      "name": "tenant",
+    "public.plaid_item": {
+      "name": "plaid_item",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "tenant_id": {
           "name": "tenant_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "plaid_access_token": {
-          "name": "plaid_access_token",
+        "access_token": {
+          "name": "access_token",
           "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "plaid_item_tenant_id_id_pk": {
+          "name": "plaid_item_tenant_id_id_pk",
+          "columns": [
+            "tenant_id",
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

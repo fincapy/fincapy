@@ -1,4 +1,4 @@
-import { PubSub } from '@google-cloud/pubsub';
+const { PubSub } = require('@google-cloud/pubsub');
 
 const projectId = process.env.PUBSUB_PROJECT_ID;
 const pubSubClient = new PubSub({ projectId });
@@ -6,12 +6,10 @@ const pubSubClient = new PubSub({ projectId });
 const setupTopicsAndSubscriptions = async () => {
   let topic = null;
   try {
-    const [new_topic] = await pubSubClient.createTopic(
-      'transactions-new-customer'
-    );
+    const [new_topic] = await pubSubClient.createTopic('plaid-item-created');
     topic = new_topic;
   } catch (err) {
-    topic = await pubSubClient.topic('transactions-new-customer');
+    topic = await pubSubClient.topic('plaid-item-created');
   }
 
   const pushConfig = {
@@ -20,7 +18,7 @@ const setupTopicsAndSubscriptions = async () => {
     },
   };
   try {
-    await topic.createSubscription('setup-new-customer', pushConfig);
+    await topic.createSubscription('plaid-item-created', pushConfig);
   } catch (err) {}
 };
 

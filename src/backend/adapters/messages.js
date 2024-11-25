@@ -10,7 +10,7 @@ class Message {
 class PlaidItemCreatedMessage extends Message {
   constructor({ topicName, tenantId, institutionId }) {
     super({ topicName });
-    this.payload = { tenantId, institutionId };
+    this.payload = { tenantId, institutionId, eventType: 'PLAID_ITEM_CREATED' };
   }
 }
 

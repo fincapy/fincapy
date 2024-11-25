@@ -8,12 +8,11 @@ class PubSubAdapter {
     this.client = client;
   }
 
-  async publish({ topicName, data }) {
+  async publish({ topicName, message }) {
     const topic = this.client.topic(topicName);
     await topic.publishMessage({
-      data: Buffer.from(JSON.stringify(data)),
+      data: Buffer.from(JSON.stringify(message)),
     });
-    console.log('message sent!');
   }
 }
 

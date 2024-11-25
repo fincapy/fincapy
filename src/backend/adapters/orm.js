@@ -44,7 +44,6 @@ export const outboxTable = pgTable(
     createdAt: timestamp('created_at'),
     topicName: varchar('topic_name'),
     payload: varchar('payload'),
-    createdAt: timestamp('created_at'),
   },
   (table) => {
     return [index('outbox_created_at_idx').on(table.createdAt)];

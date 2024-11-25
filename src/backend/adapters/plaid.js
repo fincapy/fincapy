@@ -11,8 +11,6 @@ const configuration = new Configuration({
 });
 const client = new PlaidApi(configuration);
 
-client.transactionsSync();
-
 class PlaidAdapter {
   constructor(client) {
     this.client = client;

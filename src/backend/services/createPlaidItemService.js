@@ -2,7 +2,13 @@ import { PlaidItem } from '@/backend/domain/plaidItem';
 import { PlaidItemCreatedMessage } from '@/backend/adapters/messages';
 
 class CreatePlaidItemService {
-  constructor({ plaidItemRepositoryFactory, db, plaidAdapter, pubsubAdapter }) {
+  constructor({
+    plaidItemRepositoryFactory,
+    outboxRepositoryFactory,
+    db,
+    plaidAdapter,
+    pubsubAdapter,
+  }) {
     this.plaidItemRepositoryFactory = plaidItemRepositoryFactory;
     this.outboxRepositoryFactory = outboxRepositoryFactory;
     this.db = db;
@@ -11,6 +17,7 @@ class CreatePlaidItemService {
   }
 
   async execute({ tenantId, institutionId, institutionName, publicToken }) {
+    let plaidItemCreatedMessage = null;
     await this.db.transaction(async (tx) => {
       const outboxRepository = new this.outboxRepositoryFactory({ tx });
       const plaidItemRepository = new this.plaidItemRepositoryFactory({ tx });
@@ -36,9 +43,10 @@ class CreatePlaidItemService {
       });
       await plaidItemRepository.add(plaidItem);
 
-      const plaidItemCreatedMessage = new PlaidItemCreatedMessage({
+      plaidItemCreatedMessage = new PlaidItemCreatedMessage({
         tenantId,
         institutionId,
+        topicName: 'plaid-item-created',
       });
       await outboxRepository.add(plaidItemCreatedMessage);
     });
@@ -46,8 +54,8 @@ class CreatePlaidItemService {
     await this.db.transaction(async (tx) => {
       const outboxRepository = new this.outboxRepositoryFactory({ tx });
       await this.pubsubAdapter.publish({
-        topicName: 'plaid-items',
-        data: plaidItemCreatedMessage,
+        topicName: 'plaid-item-created',
+        message: plaidItemCreatedMessage,
       });
       await outboxRepository.delete(plaidItemCreatedMessage.messageId);
     });

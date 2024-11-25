@@ -16,7 +16,11 @@ export default function Home() {
   }, []);
 
   const onSuccess = async (public_token, metadata) => {
-    await exchangePublicToken(public_token);
+    await exchangePublicToken({
+      publicToken: public_token,
+      institutionId: metadata.institution.institution_id,
+      institutionName: metadata.institution.name,
+    });
   };
 
   const { open, ready } = usePlaidLink({

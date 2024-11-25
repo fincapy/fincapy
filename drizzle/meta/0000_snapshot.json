@@ -1,5 +1,5 @@
 {
-  "id": "dad87de7-8e53-4d2f-a2ba-695de401ab80",
+  "id": "707a433b-4521-4550-8a62-44046b3aca72",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -65,9 +65,15 @@
       "name": "plaid_item",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
+        "institution_id": {
+          "name": "institution_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "institution_name": {
+          "name": "institution_name",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -87,11 +93,11 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "plaid_item_tenant_id_id_pk": {
-          "name": "plaid_item_tenant_id_id_pk",
+        "plaid_item_tenant_id_institution_id_pk": {
+          "name": "plaid_item_tenant_id_institution_id_pk",
           "columns": [
             "tenant_id",
-            "id"
+            "institution_id"
           ]
         }
       },

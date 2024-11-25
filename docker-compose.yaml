@@ -7,3 +7,35 @@ services:
       - POSTGRES_DB=simplebudget
     ports:
       - '5432:5432'
+  pubsub:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    ports:
+      - '8085:8085'
+    environment:
+      - PUBSUB_PROJECT_ID=spendmore
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+      - pubsub
+    volumes:
+      - .:/app
+    command: npm run dev
+    environment:
+      - AUTH0_SECRET=${AUTH0_SECRET}
+      - AUTH0_BASE_URL=${AUTH0_BASE_URL}
+      - AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - TENANT_API_KEY=${TENANT_API_KEY}
+      - PLAID_CLIENT_ID=${PLAID_CLIENT_ID}
+      - PLAID_SECRET=${PLAID_SECRET}
+      - PUBSUB_EMULATOR_HOST=${PUBSUB_EMULATOR_HOST}
+      - PUBSUB_PROJECT_ID=${PUBSUB_PROJECT_ID}
+      - NODE_ENV=${NODE_ENV}

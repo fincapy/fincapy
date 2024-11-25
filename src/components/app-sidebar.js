@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Frame, Map, PieChart, BadgePlus, HandCoins } from 'lucide-react';
 
 import { NavTrack } from '@/components/nav-track';
-import { NavLink } from '@/components/nav-link';
 import { BudgetSwitcher } from '@/components/budget-switcher';
 import {
   Sidebar,
@@ -99,7 +98,6 @@ export function AppSidebar({ ...props }) {
       </SidebarHeader>
       <SidebarContent>
         <NavTrack items={data.navMain} />
-        <NavLink items={data.projects} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

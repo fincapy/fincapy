@@ -11,13 +11,15 @@ const configuration = new Configuration({
 });
 const client = new PlaidApi(configuration);
 
+client.transactionsSync();
+
 class PlaidAdapter {
   constructor(client) {
     this.client = client;
   }
 
   async createLinkToken({ tenantId }) {
-    const response = await this.client.linkTokenCreate({
+    const payload = {
       user: {
         client_user_id: tenantId, // Replace with a unique identifier for your user
       },
@@ -25,16 +27,33 @@ class PlaidAdapter {
       products: ['transactions'], // Specify the products you need
       country_codes: ['US'],
       language: 'en',
-      redirect_uri: '', // For OAuth flows
-    });
+    };
+    const response = await this.client.linkTokenCreate(payload);
     return response.data.link_token;
   }
 
-  async exchangePublicToken(public_token) {
+  async exchangePublicToken({ publicToken }) {
+    // add a check to make sure that the user_id and institution_id don't already exist
     const response = await this.client.itemPublicTokenExchange({
-      public_token: public_token,
+      public_token: publicToken,
     });
     return response.data.access_token;
+  }
+
+  async getTransactions({ accessToken, cursor }) {
+    const response = await this.client.transactionsSync({
+      access_token: accessToken,
+      cursor,
+    });
+
+    return response.data;
+  }
+
+  async refreshTransactions({ accessToken }) {
+    const response = await this.client.transactionsRefresh({
+      access_token: accessToken,
+    });
+    return response.data;
   }
 }
 

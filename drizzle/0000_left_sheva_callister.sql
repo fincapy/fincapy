@@ -9,8 +9,9 @@ CREATE TABLE IF NOT EXISTS "category" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "plaid_item" (
-	"id" uuid,
+	"institution_id" varchar,
+	"institution_name" varchar,
 	"tenant_id" uuid,
 	"access_token" varchar,
-	CONSTRAINT "plaid_item_tenant_id_id_pk" PRIMARY KEY("tenant_id","id")
+	CONSTRAINT "plaid_item_tenant_id_institution_id_pk" PRIMARY KEY("tenant_id","institution_id")
 );

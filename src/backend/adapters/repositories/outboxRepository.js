@@ -1,8 +1,8 @@
 import { PlaidItem } from '@/backend/domain/plaidItem';
 import { eq, and } from 'drizzle-orm';
-import { plaidItemTable } from '../orm';
+import { outboxTable } from '../orm';
 
-class PlaidItemRepository {
+class OutboxRepository {
   constructor({ tx }) {
     this.tx = tx;
   }

@@ -14,7 +14,8 @@ const setupTopicsAndSubscriptions = async () => {
 
   const pushConfig = {
     pushConfig: {
-      pushEndpoint: 'http://nextjs:3000/api/webhook', // Your webhook endpoint
+      pushEndpoint:
+        'http://nextjs:3000/api/message-handlers/setup-transaction-ingest', // Your webhook endpoint
     },
   };
   try {

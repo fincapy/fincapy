@@ -1,0 +1,13 @@
+The transaction information is as follows:
+{
+  "amount": 2078.5,
+  "merchantName": null,
+  "category": "GENERAL_MERCHANDISE",
+  "categoryConfidenceLevel": "LOW",
+  "originalDescription": "AUTOMATIC PAYMENT - THANK",
+  "eventType": "TRANSACTION_CREATED",
+  "subAccountType": "credit card",
+}
+
+Select one of the following categories for the transaction:
+fixed_costs.utilities,fixed_costs.rent,fixed_costs.groceries,fixed_costs.healthcare,investments.401k,investments.uncategorized,savings.uncategorized,uncategorized.uncategorized,uncategorized.uncategorized,guilt_free_spending.restaurants,guilt_free_spending.artwork

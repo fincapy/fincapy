@@ -11,6 +11,16 @@ const configuration = new Configuration({
 });
 const client = new PlaidApi(configuration);
 
+class PlaidTransactions {
+  constructor({ accounts, added, removed, modified, next_cursor }) {
+    this.accounts = accounts;
+    this.added = added;
+    this.removed = removed;
+    this.modified = modified;
+    this.next_cursor = next_cursor;
+  }
+}
+
 class PlaidAdapter {
   constructor(client) {
     this.client = client;
@@ -39,12 +49,37 @@ class PlaidAdapter {
   }
 
   async getTransactions({ accessToken, cursor }) {
-    const response = await this.client.transactionsSync({
-      access_token: accessToken,
-      cursor,
-    });
+    const added = [];
+    const removed = [];
+    const modified = [];
+    const accounts = {};
+    let modifiable_cursor = cursor;
+    let response = null;
+    do {
+      response = await this.client.transactionsSync({
+        access_token: accessToken,
+        cursor: modifiable_cursor,
+        options: {
+          include_original_description: true,
+        },
+      });
 
-    return response.data;
+      added.push(...response.data.added);
+      removed.push(...response.data.removed);
+      modified.push(...response.data.modified);
+      for (const account of response.data.accounts) {
+        accounts[account.account_id] = account;
+      }
+      modifiable_cursor = response.data.next_cursor;
+    } while (response.data.has_more);
+
+    return new PlaidTransactions({
+      accounts: accounts,
+      added: added,
+      removed: removed,
+      modified: modified,
+      next_cursor: modifiable_cursor,
+    });
   }
 
   async refreshTransactions({ accessToken }) {

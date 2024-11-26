@@ -23,10 +23,10 @@ class PlaidItemRepository {
     }
 
     return new PlaidItem({
-      tenantId: plaidItemObject[0].tenant_id,
+      tenantId: plaidItemObject[0].tenantId,
       institutionId: plaidItemObject[0].institutionId,
-      institutionName: plaidItemObject[0].institution_name,
-      accessToken: plaidItemObject[0].access_token,
+      institutionName: plaidItemObject[0].institutionName,
+      accessToken: plaidItemObject[0].accessToken,
     });
   }
 

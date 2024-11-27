@@ -3,7 +3,7 @@ import { eq, and } from 'drizzle-orm';
 import { SpendingSubcategory } from '@/backend/domain/spendingSubcategory';
 
 class SpendingSubcategoryRepository {
-  constructor(tx) {
+  constructor({ tx }) {
     this.tx = tx;
   }
 
@@ -14,7 +14,10 @@ class SpendingSubcategoryRepository {
       .where(
         and(
           eq(spendingSubcategoryTable.tenantId, tenantId),
-          eq(spendingSubcategoryTable.subcategoryId, spendingSubcategoryId)
+          eq(
+            spendingSubcategoryTable.spendingSubcategoryId,
+            spendingSubcategoryId
+          )
         )
       );
 
@@ -24,8 +27,8 @@ class SpendingSubcategoryRepository {
 
     return new SpendingSubcategory({
       tenantId: spendingSubcategoryObject[0].tenantId,
-      subcategoryId: spendingSubcategoryObject[0].spendingSubcategoryId,
-      categoryId: spendingSubcategoryObject[0].categoryId,
+      spendingSubcategoryId: spendingSubcategoryObject[0].spendingSubcategoryId,
+      spendingCategoryId: spendingSubcategoryObject[0].spendingCategoryId,
       name: spendingSubcategoryObject[0].name,
       monthlySpendGoal: spendingSubcategoryObject[0].monthlySpendGoal,
       yearlySpendGoal: spendingSubcategoryObject[0].yearlySpendGoal,
@@ -35,7 +38,9 @@ class SpendingSubcategoryRepository {
   }
 
   async add(spendingSubcategory) {
-    await this.tx.insert(spendingSubcategoryTable).values(spendingSubcategory);
+    await this.tx
+      .insert(spendingSubcategoryTable)
+      .values({ ...spendingSubcategory });
   }
 
   async update(spendingSubcategory) {

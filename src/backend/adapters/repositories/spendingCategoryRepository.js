@@ -1,8 +1,8 @@
 import { spendingCategoryTable } from '../orm';
 import { eq, and } from 'drizzle-orm';
-import { SpendingCategory } from '@/backend/domain/spendingSpendingCategory';
+import { SpendingCategory } from '@/backend/domain/spendingCategory';
 
-export class SpendingCategoryRepository {
+class SpendingCategoryRepository {
   constructor({ tx }) {
     this.tx = tx;
   }
@@ -30,6 +30,7 @@ export class SpendingCategoryRepository {
       yearlySpendGoal: spendingCategoryObject[0].yearlySpendGoal,
       createdAt: spendingCategoryObject[0].createdAt,
       updatedAt: spendingCategoryObject[0].updatedAt,
+      isImmutable: spendingCategoryObject[0].isImmutable,
     });
   }
 

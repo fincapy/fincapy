@@ -7,7 +7,14 @@ class CreateSpendingSubcategoryService {
     this.db = db;
   }
 
-  async execute({ tenantId, spendingSubcategoryId, spendingCategoryId, name }) {
+  async execute({
+    tenantId,
+    spendingSubcategoryId,
+    spendingCategoryId,
+    name,
+    monthlySpendGoal,
+    yearlySpendGoal,
+  }) {
     await this.db.transaction(async (tx) => {
       const spendingSubcategoryRepository =
         new this.spendingSubcategoryRepositoryFactory({
@@ -28,6 +35,8 @@ class CreateSpendingSubcategoryService {
         name,
         createdAt: new Date(),
         updatedAt: new Date(),
+        monthlySpendGoal,
+        yearlySpendGoal,
       });
       await spendingSubcategoryRepository.add(spendingSubcategory);
     });

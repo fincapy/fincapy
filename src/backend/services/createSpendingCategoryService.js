@@ -1,6 +1,6 @@
-import { SpendingCategory } from '@/backend/domain/spendingSpendingCategory';
+import { SpendingCategory } from '@/backend/domain/spendingCategory';
 
-export class CreateSpendingCategoryService {
+class CreateSpendingCategoryService {
   constructor({ spendingCategoryRepositoryFactory, db }) {
     this.spendingCategoryRepositoryFactory = spendingCategoryRepositoryFactory;
     this.db = db;

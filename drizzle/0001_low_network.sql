@@ -1,0 +1,1 @@
+ALTER TABLE "spending_subcategory" RENAME COLUMN "category_id" TO "spending_category_id";

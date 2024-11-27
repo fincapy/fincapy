@@ -49,7 +49,7 @@ export const spendingSubcategoryTable = pgTable(
   'spending_subcategory',
   {
     tenantId: uuid('tenant_id'),
-    categoryId: uuid('category_id'),
+    spendingCategoryId: uuid('spending_category_id'),
     spendingSubcategoryId: uuid('spending_subcategory_id'),
     name: varchar('name'),
     monthlySpendGoal: integer('monthly_spend_goal'),

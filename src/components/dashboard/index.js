@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown, Eye, Trash2 } from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
 import { DataTableDemo } from '@/components/category-table';
@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,6 +48,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createSpendingCategory } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
+import { useRef, useEffect } from 'react';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -125,7 +127,9 @@ const CreateCategoryForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Create</Button>
+        <DialogClose asChild>
+          <Button type="submit">Create</Button>
+        </DialogClose>
       </form>
     </Form>
   );
@@ -135,7 +139,7 @@ const CreateCategoryDialogue = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="outline" size="icon">
           <PlusIcon />
         </Button>
       </DialogTrigger>
@@ -149,31 +153,98 @@ const CreateCategoryDialogue = () => {
         <div className="grid gap-4 py-4">
           <CreateCategoryForm />
         </div>
-        {/* <DialogFooter>
-          <DialogTrigger>
-            <Button type="submit">Create</Button>
-          </DialogTrigger>
-        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
 };
 
 const CategoryCard = ({ spendingCategory, areSubcategoriesOpen }) => {
+  const [isStickyTop, setIsStickyTop] = useState(false);
+  const [isPushedBottom, setIsPushedBottom] = useState(false);
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    const topSentinel = document.createElement('div');
+    const bottomSentinel = document.createElement('div');
+    topSentinel.className = 'absolute top-0 w-full h-1';
+    bottomSentinel.className = 'absolute bottom-0 w-full h-1';
+
+    // Add sentinels to the container
+    const container = cardRef.current?.parentElement;
+    container.style.position = 'relative';
+    container.appendChild(topSentinel);
+    container.appendChild(bottomSentinel);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === topSentinel) {
+            console.log('top');
+            // Check if the top sentinel is out of view (stuck at the top)
+            setIsStickyTop(!entry.isIntersecting);
+          } else if (entry.target === bottomSentinel) {
+            console.log('bottom');
+            // Check if the bottom sentinel is in view (pushed to the bottom)
+            setIsPushedBottom(entry.isIntersecting);
+          }
+        });
+      },
+      { root: null, threshold: 0.1 } // Adjust threshold as needed
+    );
+
+    observer.observe(topSentinel);
+    observer.observe(bottomSentinel);
+
+    return () => {
+      observer.disconnect();
+      container.removeChild(topSentinel);
+      container.removeChild(bottomSentinel);
+    };
+  }, []);
+
+  const getRoundedStyle = () => {
+    if (!areSubcategoriesOpen) {
+      return 'rounded-xl';
+    }
+
+    if (isStickyTop && !isPushedBottom) {
+      return 'rounded-b-none rounded-t-xl';
+    } else if (!isStickyTop && isPushedBottom) {
+      return 'rounded-b-none rounded-t-xl';
+    } else {
+      return '';
+    }
+  };
+
   return (
     <Card
-      className={`shadow-none ${areSubcategoriesOpen ? 'rounded-none rounded-t-xl' : ''}`}
+      ref={cardRef}
+      className={`z-10 shadow-none sticky top-12 ${getRoundedStyle()}`}
     >
       <CardHeader>
         <CardTitle>
           <div className="flex flex-row justify-between items-center -mb-3">
             <div className="flex flex-row items-center gap-2">
               <span>{spendingCategory.name}</span>
-              <Button variant="ghost" size="icon">
-                <Pencil />
-              </Button>
+              <div className="flex flex-row gap-0 items-center">
+                <Button variant="ghost" size="icon">
+                  <Pencil />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Trash2 />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Eye />
+                </Button>
+              </div>
             </div>
-            <CreateCategoryDialogue />
+            <Button
+              variant="ghost"
+              size="icon"
+              style={{ marginRight: '-23px', marginTop: '-47px' }}
+            >
+              <PlusIcon />
+            </Button>
           </div>
         </CardTitle>
       </CardHeader>
@@ -220,30 +291,13 @@ const SubcategoryCard = ({ areSubcategoriesOpen, spendingSubcategory }) => {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0 mr-6 ml-6">
+      <CardContent className="p-0 mr-6 ml-6 mb-6">
         <div className="flex flex-row gap-2 items-center">
           <span className="font-sans">$0</span>
           <ProgressSubcategory value={50} />
           <span className="font-sans">{`$${spendingSubcategory.monthlySpendGoal}`}</span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col justify-center p-0">
-        <div className="flex flex-row-reverse w-full">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`transition-transform duration-200 ${
-                areSubcategoriesOpen ? 'rotate-180' : ''
-              } hover:bg-inherit`}
-            >
-              <ChevronDown
-                className={`transition-transform duration-300 rotate-180`}
-              />
-            </Button>
-          </CollapsibleTrigger>
-        </div>
-      </CardFooter>
     </Card>
   );
 };
@@ -297,8 +351,11 @@ const SubcategoryCardCollapsible = ({
 export default function Dashboard({ spendingCategories }) {
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4">
-      <div className="flex flex-col justify-center items-center gap-4">
-        {spendingCategories.map((spendingCategory) => (
+      <div className="flex flex-col justify-center items-center gap-4 mb-8">
+        <div className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4">
+          <CreateCategoryDialogue />
+        </div>
+        {spendingCategories.map((spendingCategory, index) => (
           <div className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl">
             <CategoryCardCollapsible
               key={spendingCategory.spendingCategoryId}

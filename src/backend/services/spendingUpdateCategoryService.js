@@ -1,5 +1,5 @@
 class UpdateSpendingCategoryService {
-  constructor(spendingCategoryRepositoryFactory, db) {
+  constructor({ spendingCategoryRepositoryFactory, db }) {
     this.spendingCategoryRepositoryFactory = spendingCategoryRepositoryFactory;
     this.db = db;
   }
@@ -11,6 +11,7 @@ class UpdateSpendingCategoryService {
     monthlySpendGoal,
     yearlySpendGoal,
   }) {
+    console.log('spending category id', spendingCategoryId);
     await this.db.transaction(async (tx) => {
       const spendingCategoryRepository =
         new this.spendingCategoryRepositoryFactory({ tx });

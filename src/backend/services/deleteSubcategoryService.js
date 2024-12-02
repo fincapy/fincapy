@@ -1,5 +1,5 @@
 class DeleteSpendingSubcategoryService {
-  constructor(spendingSubcategoryRepositoryFactory, db) {
+  constructor({ spendingSubcategoryRepositoryFactory, db }) {
     this.spendingSubcategoryRepositoryFactory =
       spendingSubcategoryRepositoryFactory;
     this.db = db;

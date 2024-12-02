@@ -1,7 +1,7 @@
 import { SpendingSubcategory } from '../domain/spendingSubcategory';
 
 class CreateSpendingSubcategoryService {
-  constructor(spendingSubcategoryRepositoryFactory, db) {
+  constructor({ spendingSubcategoryRepositoryFactory, db }) {
     this.spendingSubcategoryRepositoryFactory =
       spendingSubcategoryRepositoryFactory;
     this.db = db;

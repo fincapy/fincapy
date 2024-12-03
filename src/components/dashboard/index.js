@@ -245,7 +245,11 @@ const EditCategoryForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Category Name" {...field} />
+                <Input
+                  autoComplete="off"
+                  placeholder="Category Name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -259,6 +263,7 @@ const EditCategoryForm = ({
               <FormLabel>Monthly Spending Goal</FormLabel>
               <FormControl>
                 <Input
+                  autoComplete="off"
                   placeholder="$0"
                   {...field}
                   value={formatValue(field.value)}
@@ -288,7 +293,10 @@ const EditCategoryDialogue = ({
           <Pencil />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="sm:max-w-11/12"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Edit Spending Category</DialogTitle>
           <DialogDescription>
@@ -359,7 +367,11 @@ const CreateSubcategoryForm = ({ spendingCategoryId }) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Category Name" {...field} />
+                <Input
+                  autoComplete="off"
+                  placeholder="Category Name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -373,6 +385,7 @@ const CreateSubcategoryForm = ({ spendingCategoryId }) => {
               <FormLabel>Monthly Spending Goal</FormLabel>
               <FormControl>
                 <Input
+                  autoComplete="off"
                   placeholder="$0"
                   {...field}
                   value={formatValue(field.value)}
@@ -402,7 +415,10 @@ const CreateSubcategoryDialogue = ({ spendingCategoryId }) => {
           <PlusIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="sm:max-w-11/12"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Create Subcategory</DialogTitle>
           <DialogDescription>
@@ -467,7 +483,11 @@ const EditSpendingSubcategoryForm = ({ spendingSubcategoryId }) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Subcategory Name" {...field} />
+                <Input
+                  autoComplete="off"
+                  placeholder="Subcategory Name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -481,6 +501,7 @@ const EditSpendingSubcategoryForm = ({ spendingSubcategoryId }) => {
               <FormLabel>Monthly Spending Goal</FormLabel>
               <FormControl>
                 <Input
+                  autoComplete="off"
                   placeholder="$0"
                   {...field}
                   value={formatValue(field.value)}
@@ -506,7 +527,10 @@ const EditSubcategoryDialogue = ({ spendingSubcategoryId }) => {
           <Pencil />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="sm:max-w-11/12"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Edit Subcategory</DialogTitle>
           <DialogDescription>Edit your existing subcategory</DialogDescription>

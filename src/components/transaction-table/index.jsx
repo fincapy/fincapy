@@ -17,7 +17,7 @@ const TransactionTable = () => {
   ];
 
   return (
-    <div className="container mx-auto py-4 overflow-auto">
+    <div className="container mx-auto pt-4 pb-2 overflow-auto">
       <DataTable columns={columns} data={data} />
     </div>
   );

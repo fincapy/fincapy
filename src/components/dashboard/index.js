@@ -56,6 +56,7 @@ import {
 } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -558,6 +559,14 @@ const OpenTransactionTableDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <VisuallyHidden>
+            <DialogTitle>Transactions</DialogTitle>
+            <DialogDescription>
+              A list of transactions associated with this category
+            </DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
         <TransactionTable />
       </DialogContent>
     </Dialog>

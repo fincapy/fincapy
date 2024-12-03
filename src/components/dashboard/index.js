@@ -765,11 +765,17 @@ export default function Dashboard({ spendingCategories }) {
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4">
       <div className="flex flex-col justify-center items-center gap-4 mb-8">
-        <div className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4">
+        <div
+          className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4"
+          key="create-category-dialogue"
+        >
           <CreateCategoryDialogue />
         </div>
         {spendingCategories.map((spendingCategory, index) => (
-          <div className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl">
+          <div
+            className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
+            key={spendingCategory.spendingCategoryId}
+          >
             <CategoryCardCollapsible
               key={spendingCategory.spendingCategoryId}
               spendingCategory={spendingCategory}

@@ -107,7 +107,7 @@ export default function DashboardLayout({ children, user }) {
     >
       <SidebarProvider>
         <AppSidebar />
-        <main className="w-full overflow-auto h-screen">
+        <main className="w-full h-screen">
           <div className="flex flex-col gap-2 sticky top-0 bg-background backdrop-blur z-20">
             <div className="flex flex-row items-center gap-3 mt-2">
               <SidebarTrigger className="ml-2" />

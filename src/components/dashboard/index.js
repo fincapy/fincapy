@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -21,7 +22,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -601,72 +602,29 @@ const CategoryCard = ({
   spendingCategory,
   areSubcategoriesOpen,
   subcategoryLength,
+  categoryCardRef,
+  isOverlapping,
 }) => {
-  const [isStickyTop, setIsStickyTop] = useState(false);
-  const [isPushedBottom, setIsPushedBottom] = useState(false);
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    const topSentinel = document.createElement('div');
-    const bottomSentinel = document.createElement('div');
-    topSentinel.className = 'absolute top-0 w-full h-1';
-    bottomSentinel.className = 'absolute bottom-0 w-full h-1';
-
-    // Add sentinels to the container
-    const container = cardRef.current?.parentElement;
-    container.style.position = 'relative';
-    container.appendChild(topSentinel);
-    container.appendChild(bottomSentinel);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.target === topSentinel) {
-            console.log('top');
-            // Check if the top sentinel is out of view (stuck at the top)
-            setIsStickyTop(!entry.isIntersecting);
-          } else if (entry.target === bottomSentinel) {
-            console.log('bottom');
-            // Check if the bottom sentinel is in view (pushed to the bottom)
-            setIsPushedBottom(entry.isIntersecting);
-          }
-        });
-      },
-      { root: null, threshold: 0.1 } // Adjust threshold as needed
-    );
-
-    observer.observe(topSentinel);
-    observer.observe(bottomSentinel);
-
-    return () => {
-      observer.disconnect();
-      container.removeChild(topSentinel);
-      container.removeChild(bottomSentinel);
-    };
-  }, []);
-
   const getRoundedStyle = () => {
-    if (
-      !areSubcategoriesOpen ||
-      subcategoryLength === 0 ||
-      subcategoryLength === null
-    ) {
+    if (!areSubcategoriesOpen) {
       return 'rounded-xl';
     }
 
-    if (isStickyTop && !isPushedBottom) {
-      return 'rounded-b-none rounded-t-xl';
-    } else if (!isStickyTop && isPushedBottom) {
-      return 'rounded-b-none rounded-t-xl';
-    } else {
-      return '';
+    if (areSubcategoriesOpen && subcategoryLength === 0) {
+      return 'rounded-xl';
     }
+
+    if (areSubcategoriesOpen && subcategoryLength > 0 && !isOverlapping) {
+      return 'rounded-none rounded-t-xl';
+    }
+
+    return 'rounded-none rounded-b-xl';
   };
 
   return (
     <Card
-      ref={cardRef}
-      className={`z-10 shadow-none sticky top-12 ${getRoundedStyle()}`}
+      ref={categoryCardRef}
+      className={`z-10 shadow-none sticky top-[51px] ${getRoundedStyle()}`}
     >
       <CardHeader>
         <CardTitle>
@@ -719,49 +677,101 @@ const CategoryCard = ({
   );
 };
 
-const SubcategoryCard = ({ areSubcategoriesOpen, spendingSubcategory }) => {
-  return (
-    <Card
-      className={`shadow-none bg-card-subcategory ${areSubcategoriesOpen ? 'rounded-none rounded-b-xl' : ''}`}
-    >
-      <CardHeader className={'p-0 ml-6 mr-6 mt-4 mb-4'}>
-        <CardTitle>
-          <div className="flex flex-row items-center gap-2">
-            <span>{spendingSubcategory.name}</span>
-            <div className="flex flex-row gap-0 items-center">
-              <EditSubcategoryDialogue
-                spendingSubcategoryId={
-                  spendingSubcategory.spendingSubcategoryId
-                }
-              />
-              <DeleteSubcategoryDialogue
-                spendingSubcategoryId={
-                  spendingSubcategory.spendingSubcategoryId
-                }
-              />
-              <Button variant="ghost" size="icon">
-                <Eye />
-              </Button>
+const SubcategoryCard = forwardRef(
+  (
+    { areSubcategoriesOpen, spendingSubcategory, subcategoryLength, index },
+    ref
+  ) => {
+    const getRoundedStyle = () => {
+      if (index === subcategoryLength - 1) {
+        return 'rounded-none rounded-b-xl';
+      }
+
+      return 'rounded-none';
+    };
+
+    return (
+      <Card
+        ref={ref}
+        className={`shadow-none bg-card-subcategory ${getRoundedStyle()}`}
+      >
+        <CardHeader className={'p-0 ml-6 mr-6 mt-4 mb-4'}>
+          <CardTitle>
+            <div className="flex flex-row items-center gap-2">
+              <span>{spendingSubcategory.name}</span>
+              <div className="flex flex-row gap-0 items-center">
+                <EditSubcategoryDialogue
+                  spendingSubcategoryId={
+                    spendingSubcategory.spendingSubcategoryId
+                  }
+                />
+                <DeleteSubcategoryDialogue
+                  spendingSubcategoryId={
+                    spendingSubcategory.spendingSubcategoryId
+                  }
+                />
+                <Button variant="ghost" size="icon">
+                  <Eye />
+                </Button>
+              </div>
             </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 mr-6 ml-6 mb-6">
+          <div className="flex flex-row gap-2 items-center">
+            <span className="font-sans">$0</span>
+            <ProgressSubcategory value={50} />
+            <span className="font-sans">{`$${spendingSubcategory.monthlySpendGoal}`}</span>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0 mr-6 ml-6 mb-6">
-        <div className="flex flex-row gap-2 items-center">
-          <span className="font-sans">$0</span>
-          <ProgressSubcategory value={50} />
-          <span className="font-sans">{`$${spendingSubcategory.monthlySpendGoal}`}</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+        </CardContent>
+      </Card>
+    );
+  }
+);
 
 const CategoryCardCollapsible = ({
   spendingCategory,
   spendingSubcategories,
 }) => {
   const [areSubcategoriesOpen, setAreSubcategoriesOpen] = useState(false);
+  const [isOverlapping, setIsOverlapping] = useState(false);
+
+  const categoryCardRef = useRef(null);
+  const subcategoryRefs = useRef([
+    ...spendingSubcategories.map(() => React.createRef()),
+  ]);
+
+  useEffect(() => {
+    // Function to check overlap between category and the first subcategory
+    const checkOverlap = () => {
+      if (!categoryCardRef.current || subcategoryRefs.current.length === 0)
+        return;
+
+      if (areSubcategoriesOpen) {
+        const categoryRect = categoryCardRef.current.getBoundingClientRect();
+        const firstSubcategoryRef = subcategoryRefs.current[0]?.current;
+
+        if (!firstSubcategoryRef) return;
+
+        const subcategoryRect = firstSubcategoryRef.getBoundingClientRect();
+
+        // Check if the two rectangles overlap
+        const isOverlapping = categoryRect.bottom - 20 > subcategoryRect.top;
+
+        setIsOverlapping(isOverlapping);
+      }
+    };
+
+    // Attach scroll and resize event listeners
+    window.addEventListener('scroll', checkOverlap);
+    window.addEventListener('resize', checkOverlap);
+
+    // Cleanup listeners on unmount
+    return () => {
+      window.removeEventListener('scroll', checkOverlap);
+      window.removeEventListener('resize', checkOverlap);
+    };
+  }, [categoryCardRef, subcategoryRefs, areSubcategoriesOpen]);
 
   return (
     <Collapsible
@@ -772,12 +782,19 @@ const CategoryCardCollapsible = ({
         spendingCategory={spendingCategory}
         areSubcategoriesOpen={areSubcategoriesOpen}
         subcategoryLength={spendingSubcategories.length}
+        categoryCardRef={categoryCardRef}
+        isOverlapping={isOverlapping}
       />
-      {spendingSubcategories.map((subcategory) => (
-        <CollapsibleContent key={subcategory.spendingSubcategoryId}>
+      {spendingSubcategories.map((subcategory, index) => (
+        <CollapsibleContent
+          key={subcategory.spendingSubcategoryId}
+          ref={subcategoryRefs.current[index]}
+        >
           <SubcategoryCard
             spendingSubcategory={subcategory}
             areSubcategoriesOpen={areSubcategoriesOpen}
+            subcategoryLength={spendingSubcategories.length}
+            index={index}
           />
         </CollapsibleContent>
       ))}

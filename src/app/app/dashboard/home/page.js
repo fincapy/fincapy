@@ -11,7 +11,6 @@ export default async function DashboardPage() {
 
   if (session) {
     const user = session.user;
-    console.log('user', user);
   }
   return <Dashboard spendingCategories={spendingCategories} />;
 }

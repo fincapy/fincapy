@@ -1,6 +1,8 @@
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
 import { PlaidItemRepository } from '@/backend/adapters/repositories/plaidItemRepository';
 import { IngestNewTransactionsService } from '@/backend/services/ingestNewTransactionsService';
+import { OutboxRepository } from '@/backend/adapters/repositories/outboxRepository';
+import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { db } from '@/backend/adapters/database';
 
 export const POST = async (req) => {
@@ -10,11 +12,14 @@ export const POST = async (req) => {
   const message = JSON.parse(decodedData);
   const { tenantId, institutionId } = message.payload;
 
+  const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const plaidAdapter = new PlaidAdapter(client);
   const service = new IngestNewTransactionsService({
     plaidAdapter,
     plaidItemRepositoryFactory: PlaidItemRepository,
+    outboxRepositoryFactory: OutboxRepository,
     db,
+    pubsubAdapter,
   });
 
   try {

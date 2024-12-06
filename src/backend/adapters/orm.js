@@ -70,9 +70,9 @@ export const transactionTable = pgTable(
   {
     tenantId: uuid('tenant_id'),
     categoryId: uuid('category_id'),
-    subcategoryId: uuid('subcategory_id'),
-    transactionId: uuid('transaction_id'),
+    transactionId: varchar('transaction_id'),
     description: varchar('description'),
+    type: varchar('type'),
     amount: numeric('amount', { precision: 15, scale: 2 }),
     status: varchar('status'),
     date: date('date'),
@@ -84,9 +84,10 @@ export const transactionTable = pgTable(
     return [
       primaryKey({ columns: [table.tenantId, table.transactionId] }),
       index('transaction_date_idx').on(table.date),
-      index('tenant_id_subcategory_id_idx').on(
+      index('tenant_id_category_id_date_idx').on(
         table.tenantId,
-        table.subcategoryId
+        table.categoryId,
+        table.date
       ),
     ];
   }

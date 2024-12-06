@@ -15,6 +15,13 @@
       "when": 1732653375015,
       "tag": "0001_low_network",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1733499527424,
+      "tag": "0002_rainy_wendell_rand",
+      "breakpoints": true
     }
   ]
 }

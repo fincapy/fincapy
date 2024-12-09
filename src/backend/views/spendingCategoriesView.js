@@ -1,8 +1,9 @@
 import {
   spendingCategoryTable,
   spendingSubcategoryTable,
+  transactionTable,
 } from '../adapters/orm';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 class SpendingCategoriesView {
   constructor(tx) {
@@ -20,27 +21,90 @@ class SpendingCategoriesView {
           spendingSubcategoryTable.spendingCategoryId,
           spendingCategoryTable.spendingCategoryId
         )
+      )
+      .leftJoin(
+        transactionTable,
+        or(
+          eq(
+            transactionTable.categoryId,
+            spendingCategoryTable.spendingCategoryId
+          ),
+          eq(
+            transactionTable.categoryId,
+            spendingSubcategoryTable.spendingSubcategoryId
+          )
+        )
       );
 
-    const spendingCategories = rows.reduce((acc, row) => {
-      const { spending_category, spending_subcategory } = row;
-
-      if (!acc[spending_category.spendingCategoryId]) {
-        acc[spending_category.spendingCategoryId] = {
-          ...spending_category,
+    const result = [];
+    rows.forEach((row) => {
+      // Find or create the category
+      let category = result.find(
+        (c) => c.spendingCategoryId === row.spending_category.spendingCategoryId
+      );
+      if (!category) {
+        category = {
+          name: row.spending_category.name,
+          spendingCategoryId: row.spending_category.spendingCategoryId,
+          monthlySpendGoal: row.spending_category.monthlySpendGoal,
+          transactions: [],
           spendingSubcategories: [],
         };
+        result.push(category);
       }
 
-      if (spending_subcategory) {
-        acc[spending_category.spendingCategoryId].spendingSubcategories.push(
-          spending_subcategory
+      // Add category-level transactions
+      if (row.transaction?.categoryId === category.spendingCategoryId) {
+        category.transactions.push({
+          amount: row.transaction.amount,
+          date: row.transaction.date,
+          description: row.transaction.description,
+          status: row.transaction.status,
+          category: row.spending_category.name,
+        });
+      }
+
+      // Find or create the subcategory
+      if (row.spending_subcategory) {
+        let subcategory = category.spendingSubcategories.find(
+          (sub) =>
+            sub.spendingSubcategoryId ===
+            row.spending_subcategory.spendingSubcategoryId
         );
-      }
+        if (!subcategory) {
+          subcategory = {
+            spendingSubcategoryId:
+              row.spending_subcategory.spendingSubcategoryId,
+            monthlySpendGoal: row.spending_subcategory.monthlySpendGoal,
+            name: row.spending_subcategory.name,
+            transactions: [],
+          };
+          category.spendingSubcategories.push(subcategory);
+        }
 
-      return acc;
-    }, {});
-    return Object.values(spendingCategories);
+        if (row.transaction?.categoryId === subcategory.spendingSubcategoryId) {
+          subcategory.transactions.push({
+            amount: row.transaction.amount,
+            date: row.transaction.date,
+            description: row.transaction.description,
+            status: row.transaction.status,
+            category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+          });
+
+          category.transactions.push({
+            amount: row.transaction.amount,
+            date: row.transaction.date,
+            description: row.transaction.description,
+            status: row.transaction.status,
+            category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+          });
+        }
+      }
+    });
+
+    console.log(result);
+
+    return result;
   }
 }
 

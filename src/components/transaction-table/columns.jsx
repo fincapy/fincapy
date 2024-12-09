@@ -13,9 +13,9 @@ import { DataTableColumnHeader } from './data-table-column-header';
 
 export const columns = [
   {
-    accessorKey: 'status',
+    accessorKey: 'date',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <DataTableColumnHeader column={column} title="Date" />
     ),
   },
   {
@@ -25,9 +25,9 @@ export const columns = [
     ),
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
+      <DataTableColumnHeader column={column} title="Status" />
     ),
   },
   {

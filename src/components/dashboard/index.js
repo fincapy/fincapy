@@ -575,15 +575,18 @@ const DeleteSubcategoryDialogue = ({ spendingSubcategoryId }) => {
   );
 };
 
-const OpenTransactionTableDialogue = () => {
+const OpenTransactionTableDialogue = ({ transactions }) => {
   return (
-    <Dialog>
+    <Dialog className="max-w-full max-h-full">
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Eye />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent
+        className="max-w-[95vw] max-h-[95vh]"
+        id="transaction-modal"
+      >
         <DialogHeader>
           <VisuallyHidden>
             <DialogTitle>Transactions</DialogTitle>
@@ -592,7 +595,7 @@ const OpenTransactionTableDialogue = () => {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <TransactionTable />
+        <TransactionTable transactions={transactions} />
       </DialogContent>
     </Dialog>
   );
@@ -640,7 +643,9 @@ const CategoryCard = ({
                 <DeleteCategoryDialogue
                   spendingCategoryId={spendingCategory.spendingCategoryId}
                 />
-                <OpenTransactionTableDialogue />
+                <OpenTransactionTableDialogue
+                  transactions={spendingCategory.transactions}
+                />
               </div>
             </div>
             <CreateSubcategoryDialogue

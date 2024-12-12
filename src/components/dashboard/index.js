@@ -58,6 +58,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { CategoryContext } from './categoryContext';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -808,28 +809,39 @@ const CategoryCardCollapsible = ({
 };
 
 export default function Dashboard({ spendingCategories }) {
+  const categoryNames = Object.values(spendingCategories).map(
+    (spendingCategory) => {
+      return {
+        name: spendingCategory.name,
+        id: spendingCategory.spendingCategoryId,
+      };
+    }
+  );
+
   return (
-    <div className="flex flex-col w-full flex-grow gap-4 mt-4">
-      <div className="flex flex-col justify-center items-center gap-4 mb-8">
-        <div
-          className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4"
-          key="create-category-dialogue"
-        >
-          <CreateCategoryDialogue />
-        </div>
-        {spendingCategories.map((spendingCategory, index) => (
+    <CategoryContext.Provider value={categoryNames}>
+      <div className="flex flex-col w-full flex-grow gap-4 mt-4">
+        <div className="flex flex-col justify-center items-center gap-4 mb-8">
           <div
-            className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
-            key={spendingCategory.spendingCategoryId}
+            className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4"
+            key="create-category-dialogue"
           >
-            <CategoryCardCollapsible
-              key={spendingCategory.spendingCategoryId}
-              spendingCategory={spendingCategory}
-              spendingSubcategories={spendingCategory.spendingSubcategories}
-            />
+            <CreateCategoryDialogue />
           </div>
-        ))}
+          {spendingCategories.map((spendingCategory, index) => (
+            <div
+              className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
+              key={spendingCategory.spendingCategoryId}
+            >
+              <CategoryCardCollapsible
+                key={spendingCategory.spendingCategoryId}
+                spendingCategory={spendingCategory}
+                spendingSubcategories={spendingCategory.spendingSubcategories}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </CategoryContext.Provider>
   );
 }

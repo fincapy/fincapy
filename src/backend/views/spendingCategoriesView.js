@@ -61,6 +61,7 @@ class SpendingCategoriesView {
           description: row.transaction.description,
           status: row.transaction.status,
           category: row.spending_category.name,
+          categoryId: row.transaction.categoryId,
         });
       }
 
@@ -89,6 +90,7 @@ class SpendingCategoriesView {
             description: row.transaction.description,
             status: row.transaction.status,
             category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+            categoryId: row.transaction.categoryId,
           });
 
           category.transactions.push({
@@ -97,13 +99,11 @@ class SpendingCategoriesView {
             description: row.transaction.description,
             status: row.transaction.status,
             category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+            categoryId: row.transaction.categoryId,
           });
         }
       }
     });
-
-    console.log(result);
-
     return result;
   }
 }

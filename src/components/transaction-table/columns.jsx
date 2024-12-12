@@ -10,6 +10,123 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DataTableColumnHeader } from './data-table-column-header';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '../ui/dialog';
+import { useState } from 'react';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useContext } from 'react';
+import { CategoryContext } from '../dashboard/categoryContext';
+
+export function SelectDemo() {
+  const categories = useContext(CategoryContext);
+
+  return (
+    <Select>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select a category" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {categories.map((category) => (
+            <SelectItem value={category.id}>{category.name}</SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+const recategorizeFormSchema = z.object({
+  category: z.string(),
+});
+
+const RecategorizeForm = ({ transaction }) => {
+  console.log(transaction);
+  const form = useForm({
+    resolver: zodResolver(recategorizeFormSchema),
+    defaultValues: {
+      category: transaction.categoryId,
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-3"
+      >
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <SelectDemo />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <DialogClose asChild>
+          <Button type="submit">Create</Button>
+        </DialogClose>
+      </form>
+    </Form>
+  );
+};
+
+const RecategorizeDialog = ({ transaction }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-11/12">
+        <RecategorizeForm transaction={transaction} />
+      </DialogContent>
+      <DropdownMenuItem
+        className="cursor-pointer"
+        onSelect={(e) => {
+          e.preventDefault(); // Prevent dropdown from closing
+          setIsOpen(true);
+        }}
+      >
+        Recategorize
+      </DropdownMenuItem>
+    </Dialog>
+  );
+};
 
 export const columns = [
   {
@@ -54,8 +171,6 @@ export const columns = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -66,14 +181,8 @@ export const columns = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <RecategorizeDialog transaction={row.original} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

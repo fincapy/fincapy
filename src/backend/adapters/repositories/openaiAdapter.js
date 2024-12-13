@@ -69,10 +69,12 @@ class OpenaiAdapter {
 
     const prompt = `Categorize the transaction based on the following data:
     The recategorized manually by user transactions:
-      ${JSON.stringify(recategorizedTransactions)}
+    ${JSON.stringify(recategorizedTransactions)}
     
     The transaction to be categorized:
     ${JSON.stringify(this.formatTransactionCreatedMessage(transactionCreatedMessage))}`;
+
+    console.log('prompt', prompt);
 
     const completion = await this.client.beta.chat.completions.parse({
       model: 'gpt-4o-mini',

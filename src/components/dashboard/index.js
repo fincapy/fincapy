@@ -576,7 +576,7 @@ const DeleteSubcategoryDialogue = ({ spendingSubcategoryId }) => {
   );
 };
 
-const OpenTransactionTableDialogue = ({ transactions }) => {
+const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
   return (
     <Dialog className="max-w-full max-h-full">
       <DialogTrigger asChild>
@@ -596,7 +596,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <TransactionTable transactions={transactions} />
+        <TransactionTable transactions={transactions} categoryId={categoryId} />
       </DialogContent>
     </Dialog>
   );
@@ -646,6 +646,7 @@ const CategoryCard = ({
                 />
                 <OpenTransactionTableDialogue
                   transactions={spendingCategory.transactions}
+                  categoryId={spendingCategory.spendingCategoryId}
                 />
               </div>
             </div>
@@ -809,14 +810,38 @@ const CategoryCardCollapsible = ({
 };
 
 export default function Dashboard({ spendingCategories }) {
-  const categoryNames = Object.values(spendingCategories).map(
-    (spendingCategory) => {
-      return {
-        name: spendingCategory.name,
-        id: spendingCategory.spendingCategoryId,
-      };
+  let categoryNames = Object.values(spendingCategories)
+    .map((spendingCategory) =>
+      spendingCategory.spendingSubcategories.map((spendingSubcategory) => {
+        return {
+          name: `${spendingCategory.name} - ${spendingSubcategory.name}`,
+          id: spendingSubcategory.spendingSubcategoryId,
+          transactions: spendingSubcategory.transactions,
+        };
+      })
+    )
+    .flat();
+
+  Object.values(spendingCategories).forEach((spendingCategory) => {
+    categoryNames.push({
+      name: spendingCategory.name,
+      id: spendingCategory.spendingCategoryId,
+      transactions: spendingCategory.transactions,
+    });
+  });
+
+  // sort the category names alphabetically starting with a
+  categoryNames.sort((a, b) => {
+    const nameA = a.name.toLowerCase();
+    const nameB = b.name.toLowerCase();
+    if (nameA < nameB) {
+      return -1;
     }
-  );
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
 
   return (
     <CategoryContext.Provider value={categoryNames}>

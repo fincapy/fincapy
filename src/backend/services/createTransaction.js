@@ -2,8 +2,11 @@ import { eq } from 'drizzle-orm';
 import {
   spendingCategoryTable,
   spendingSubcategoryTable,
+  recategorizationLogTable,
+  transactionTable,
 } from '../adapters/orm';
 import { Transaction } from '../domain/transaction';
+import { type } from 'os';
 
 class CreateTransactionService {
   constructor({ transactionRepositoryFactory, db, openaiAdapter }) {
@@ -54,6 +57,34 @@ class CreateTransactionService {
     return categoryIdToNameMap;
   }
 
+  async getRecategorizations(tenantId, categoryIdToNameMap) {
+    const result = await this.db
+      .select({
+        oldCategoryId: recategorizationLogTable.oldCategoryId,
+        newCategoryId: recategorizationLogTable.newCategoryId,
+      })
+      .from(recategorizationLogTable)
+      .where(eq(recategorizationLogTable.tenantId, tenantId))
+      .leftJoin(
+        transactionTable,
+        eq(
+          recategorizationLogTable.transactionId,
+          transactionTable.transactionId
+        )
+      );
+
+    const scrubbedResult = result.map((row) => {
+      return {
+        description: row.transaction?.description,
+        type: row.transaction?.type,
+        amount: row.transaction?.amount,
+        oldCategoryName: categoryIdToNameMap[row.oldCategoryId],
+        newCategoryName: categoryIdToNameMap[row.newCategoryId],
+      };
+    });
+    return scrubbedResult;
+  }
+
   async execute({ tenantId, transactionCreatedMessage }) {
     await this.db.transaction(async (tx) => {
       const transactionRepository = new this.transactionRepositoryFactory({
@@ -61,8 +92,10 @@ class CreateTransactionService {
       });
 
       const categoryIdToNameMap = await this.getCategories(tenantId);
-      // TODO: Add this when recategorization is implemented
-      const recategorizedTransactions = [];
+      const recategorizedTransactions = await this.getRecategorizations(
+        tenantId,
+        categoryIdToNameMap
+      );
       const transactionCategories =
         await this.openaiAdapter.categorizeTransaction({
           categoryIdToNameMap,

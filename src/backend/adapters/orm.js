@@ -93,6 +93,24 @@ export const transactionTable = pgTable(
   }
 );
 
+export const recategorizationLogTable = pgTable(
+  'recategorization_log',
+  {
+    tenantId: uuid('tenant_id'),
+    recategorizationId: uuid('recategorization_id'),
+    transactionId: varchar('transaction_id'),
+    oldCategoryId: uuid('old_category_id'),
+    newCategoryId: uuid('new_category_id'),
+    createdAt: timestamp('created_at'),
+  },
+  (table) => {
+    return [
+      primaryKey({ columns: [table.tenantId, table.recategorizationId] }),
+      index('recategorization_log_transaction_id_idx').on(table.transactionId),
+    ];
+  }
+);
+
 export const outboxTable = pgTable(
   'outbox',
   {

@@ -43,21 +43,25 @@ import {
 } from '@/components/ui/select';
 import { useContext } from 'react';
 import { CategoryContext } from '../dashboard/categoryContext';
+import { TransactionContext } from './transaction';
+import { recategorizeTransaction } from './serverActions';
 
-export function SelectDemo() {
+export function SelectDemo({ field }) {
   const categories = useContext(CategoryContext);
 
   return (
-    <Select>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a category" />
-      </SelectTrigger>
+    <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <FormControl>
+        <SelectTrigger>
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+      </FormControl>
       <SelectContent>
-        <SelectGroup>
-          {categories.map((category) => (
-            <SelectItem value={category.id}>{category.name}</SelectItem>
-          ))}
-        </SelectGroup>
+        {categories.map((category) => (
+          <SelectItem key={category.id} value={category.id}>
+            {category.name}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
@@ -67,8 +71,12 @@ const recategorizeFormSchema = z.object({
   category: z.string(),
 });
 
-const RecategorizeForm = ({ transaction }) => {
-  console.log(transaction);
+const RecategorizeForm = ({
+  transaction,
+  transactionId,
+  setOuterDialogIsOpen,
+  setInnerDialogIsOpen,
+}) => {
   const form = useForm({
     resolver: zodResolver(recategorizeFormSchema),
     defaultValues: {
@@ -76,8 +84,13 @@ const RecategorizeForm = ({ transaction }) => {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    setInnerDialogIsOpen(false);
+    setOuterDialogIsOpen(false);
+    await recategorizeTransaction({
+      transactionId,
+      categoryId: data.category,
+    });
   };
 
   return (
@@ -92,9 +105,7 @@ const RecategorizeForm = ({ transaction }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <FormControl>
-                <SelectDemo />
-              </FormControl>
+              <SelectDemo field={field} />
               <FormMessage />
             </FormItem>
           )}
@@ -107,13 +118,20 @@ const RecategorizeForm = ({ transaction }) => {
   );
 };
 
-const RecategorizeDialog = ({ transaction }) => {
+const RecategorizeDialog = ({ row, setOuterDialogIsOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const transactions = useContext(TransactionContext);
+  const transactionId = transactions[row.id].transactionId;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-11/12">
-        <RecategorizeForm transaction={transaction} />
+        <RecategorizeForm
+          transaction={row.original}
+          transactionId={transactionId}
+          setOuterDialogIsOpen={setOuterDialogIsOpen}
+          setInnerDialogIsOpen={setIsOpen}
+        />
       </DialogContent>
       <DropdownMenuItem
         className="cursor-pointer"
@@ -171,8 +189,10 @@ export const columns = [
   {
     id: 'actions',
     cell: ({ row }) => {
+      const [isOpen, setIsOpen] = useState(false);
+
       return (
-        <DropdownMenu>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
@@ -182,7 +202,7 @@ export const columns = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <RecategorizeDialog transaction={row.original} />
+            <RecategorizeDialog row={row} setOuterDialogIsOpen={setIsOpen} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

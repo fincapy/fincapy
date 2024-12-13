@@ -1,0 +1,1 @@
+ALTER TABLE "recategorization_log" ALTER COLUMN "transaction_id" SET DATA TYPE varchar;

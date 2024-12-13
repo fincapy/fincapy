@@ -65,6 +65,41 @@ export const spendingSubcategoryTable = pgTable(
   }
 );
 
+export const incomeCategoryTable = pgTable(
+  'income_category',
+  {
+    tenantId: uuid('tenant_id'),
+    incomeCategoryId: uuid('income_category_id'),
+    name: varchar('name'),
+    monthlyIncomeGoal: integer('monthly_income_goal'),
+    createdAt: timestamp('created_at'),
+    updatedAt: timestamp('updated_at'),
+    isImmutable: boolean('is_immutable'),
+  },
+  (table) => {
+    return [primaryKey({ columns: [table.tenantId, table.incomeCategoryId] })];
+  }
+);
+
+export const incomeSubcategoryTable = pgTable(
+  'income_subcategory',
+  {
+    tenantId: uuid('tenant_id'),
+    incomeCategoryId: uuid('income_category_id'),
+    incomeSubcategoryId: uuid('income_subcategory_id'),
+    name: varchar('name'),
+    monthlyIncomeGoal: integer('monthly_spend_goal'),
+    createdAt: timestamp('created_at'),
+    updatedAt: timestamp('updated_at'),
+    isImmutable: boolean('is_immutable'),
+  },
+  (table) => {
+    return [
+      primaryKey({ columns: [table.tenantId, table.incomeSubcategoryId] }),
+    ];
+  }
+);
+
 export const transactionTable = pgTable(
   'transaction',
   {

@@ -829,21 +829,35 @@ const DatePickers = ({ startDate, endDate }) => {
   const router = useRouter();
 
   const setStartDate = (date) => {
-    setStartDateDate(date);
-    setTimeout(() => {
-      router.push(
-        `/app/dashboard/home?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${endDate}`
-      );
-    }, 0);
+    if (date <= endDateDate) {
+      setStartDateDate(date);
+      setTimeout(() => {
+        router.push(
+          `/app/spending?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${format(
+            endDateDate,
+            'yyyy-MM-dd'
+          )}`
+        );
+      }, 0);
+    } else {
+      alert('Start date cannot be after the end date.');
+    }
   };
 
   const setEndDate = (date) => {
-    setEndDateDate(date);
-    setTimeout(() => {
-      router.push(
-        `/app/dashboard/home?startDate=${startDate}&endDate=${format(date, 'yyyy-MM-dd')}`
-      );
-    }, 0);
+    if (date >= startDateDate) {
+      setEndDateDate(date);
+      setTimeout(() => {
+        router.push(
+          `/app/spending?startDate=${format(startDateDate, 'yyyy-MM-dd')}&endDate=${format(
+            date,
+            'yyyy-MM-dd'
+          )}`
+        );
+      }, 0);
+    } else {
+      alert('End date cannot be before the start date.');
+    }
   };
 
   return (

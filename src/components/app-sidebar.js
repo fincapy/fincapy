@@ -30,62 +30,26 @@ const data = {
       name: 'Budget 3',
     },
   ],
-  navMain: [
+  navTrack: [
     {
       title: 'Spending',
-      url: '#',
+      url: '/app/spending',
       icon: HandCoins,
       isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
     },
     {
       title: 'Income',
-      url: '#',
+      url: '/app/income',
       icon: BadgePlus,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
+      isActive: false,
     },
   ],
-  projects: [
+  navLink: [
     {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
+      title: 'Financial Institutions',
+      url: '/app/financial-institutions',
       icon: Map,
+      isActive: false,
     },
   ],
 };
@@ -97,7 +61,8 @@ export function AppSidebar({ ...props }) {
         <BudgetSwitcher budgets={data.budgets} />
       </SidebarHeader>
       <SidebarContent>
-        <NavTrack items={data.navMain} />
+        <NavTrack items={data.navTrack} label="Track" />
+        <NavTrack items={data.navLink} label="Link" />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

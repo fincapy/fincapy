@@ -819,89 +819,35 @@ const CategoryCardCollapsible = ({
   );
 };
 
-const StartDatePicker = ({ startDate }) => {
-  const [date, setDate] = useState(parse(startDate, 'yyyy-MM-dd', new Date()));
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={'outline'}
-          className={cn(
-            'min-w-28 justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
-          )}
-        >
-          <CalendarIcon />
-          {date ? format(date, 'PPP') : <span>Start Date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  );
-};
-
-const EndDatePicker = ({ endDate }) => {
-  const [date, setDate] = useState(parse(endDate, 'yyyy-MM-dd', new Date()));
-  const router = useRouter();
-
-  const onSelect = (date) => {
-    setDate(date);
-    router.push(`/app/dashboard/home?endDate=${format(date, 'yyyy-MM-dd')}`);
-  };
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={'outline'}
-          className={cn(
-            'min-w-28 justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
-          )}
-        >
-          <CalendarIcon />
-          {date ? format(date, 'PPP') : <span>End Date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  );
-};
-
 const DatePickers = ({ startDate, endDate }) => {
-  const startDateDate = parse(startDate, 'yyyy-MM-dd', new Date());
-  const endDateDate = parse(endDate, 'yyyy-MM-dd', new Date());
+  const [startDateDate, setStartDateDate] = useState(
+    parse(startDate, 'yyyy-MM-dd', new Date())
+  );
+  const [endDateDate, setEndDateDate] = useState(
+    parse(endDate, 'yyyy-MM-dd', new Date())
+  );
   const router = useRouter();
 
   const setStartDate = (date) => {
-    router.push(
-      `/app/dashboard/home?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${endDate}`
-    );
+    setStartDateDate(date);
+    setTimeout(() => {
+      router.push(
+        `/app/dashboard/home?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${endDate}`
+      );
+    }, 0);
   };
 
   const setEndDate = (date) => {
-    router.push(
-      `/app/dashboard/home?startDate=${startDate}&endDate=${format(date, 'yyyy-MM-dd')}`
-    );
+    setEndDateDate(date);
+    setTimeout(() => {
+      router.push(
+        `/app/dashboard/home?startDate=${startDate}&endDate=${format(date, 'yyyy-MM-dd')}`
+      );
+    }, 0);
   };
 
   return (
-    <div className="flex flex-row flex-wrap gap-4 items-center">
+    <div className="flex flex-row flex-wrap gap-2 items-center">
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -913,7 +859,7 @@ const DatePickers = ({ startDate, endDate }) => {
           >
             <CalendarIcon />
             {startDateDate ? (
-              format(startDateDate, 'PPP')
+              format(startDateDate, 'LLL dd, y')
             ) : (
               <span>Start Date</span>
             )}
@@ -938,7 +884,11 @@ const DatePickers = ({ startDate, endDate }) => {
             )}
           >
             <CalendarIcon />
-            {endDateDate ? format(endDateDate, 'PPP') : <span>End Date</span>}
+            {endDateDate ? (
+              format(endDateDate, 'LLL dd, y')
+            ) : (
+              <span>End Date</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

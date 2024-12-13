@@ -95,8 +95,11 @@ const AvatarDropdown = ({ user }) => {
 export default function DashboardLayout({ children, user }) {
   const path = usePathname();
   const pageName = path.split('/').pop();
-  const capitalizedPageName = capitalize(pageName);
-  const initials = getInitials(user.name);
+  const pageNameSeparated = pageName.split('-').join(' ');
+  const capitalizedPageName = pageNameSeparated
+    .split(' ')
+    .map(capitalize)
+    .join(' ');
 
   return (
     <ThemeProvider

@@ -3,14 +3,14 @@ import {
   spendingSubcategoryTable,
   transactionTable,
 } from '../adapters/orm';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, gte, lte, and } from 'drizzle-orm';
 
 class SpendingCategoriesView {
   constructor(tx) {
     this.tx = tx;
   }
 
-  async get({ tenantId }) {
+  async get({ tenantId, startDate, endDate }) {
     const rows = await this.tx
       .select()
       .from(spendingCategoryTable)
@@ -24,15 +24,19 @@ class SpendingCategoriesView {
       )
       .leftJoin(
         transactionTable,
-        or(
-          eq(
-            transactionTable.categoryId,
-            spendingCategoryTable.spendingCategoryId
+        and(
+          or(
+            eq(
+              transactionTable.categoryId,
+              spendingCategoryTable.spendingCategoryId
+            ),
+            eq(
+              transactionTable.categoryId,
+              spendingSubcategoryTable.spendingSubcategoryId
+            )
           ),
-          eq(
-            transactionTable.categoryId,
-            spendingSubcategoryTable.spendingSubcategoryId
-          )
+          gte(transactionTable.date, startDate),
+          lte(transactionTable.date, endDate)
         )
       );
 

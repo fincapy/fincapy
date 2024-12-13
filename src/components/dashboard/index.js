@@ -59,6 +59,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { CategoryContext } from './categoryContext';
+import { format, parse } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { useRouter } from 'next/navigation';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -809,7 +819,142 @@ const CategoryCardCollapsible = ({
   );
 };
 
-export default function Dashboard({ spendingCategories }) {
+const StartDatePicker = ({ startDate }) => {
+  const [date, setDate] = useState(parse(startDate, 'yyyy-MM-dd', new Date()));
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={'outline'}
+          className={cn(
+            'min-w-28 justify-start text-left font-normal',
+            !date && 'text-muted-foreground'
+          )}
+        >
+          <CalendarIcon />
+          {date ? format(date, 'PPP') : <span>Start Date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+const EndDatePicker = ({ endDate }) => {
+  const [date, setDate] = useState(parse(endDate, 'yyyy-MM-dd', new Date()));
+  const router = useRouter();
+
+  const onSelect = (date) => {
+    setDate(date);
+    router.push(`/app/dashboard/home?endDate=${format(date, 'yyyy-MM-dd')}`);
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={'outline'}
+          className={cn(
+            'min-w-28 justify-start text-left font-normal',
+            !date && 'text-muted-foreground'
+          )}
+        >
+          <CalendarIcon />
+          {date ? format(date, 'PPP') : <span>End Date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={onSelect}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+const DatePickers = ({ startDate, endDate }) => {
+  const startDateDate = parse(startDate, 'yyyy-MM-dd', new Date());
+  const endDateDate = parse(endDate, 'yyyy-MM-dd', new Date());
+  const router = useRouter();
+
+  const setStartDate = (date) => {
+    router.push(
+      `/app/dashboard/home?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${endDate}`
+    );
+  };
+
+  const setEndDate = (date) => {
+    router.push(
+      `/app/dashboard/home?startDate=${startDate}&endDate=${format(date, 'yyyy-MM-dd')}`
+    );
+  };
+
+  return (
+    <div className="flex flex-row flex-wrap gap-4 items-center">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={'outline'}
+            className={cn(
+              'min-w-28 justify-start text-left font-normal',
+              !startDateDate && 'text-muted-foreground'
+            )}
+          >
+            <CalendarIcon />
+            {startDateDate ? (
+              format(startDateDate, 'PPP')
+            ) : (
+              <span>Start Date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={startDateDate}
+            onSelect={setStartDate}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={'outline'}
+            className={cn(
+              'min-w-28 justify-start text-left font-normal',
+              !endDateDate && 'text-muted-foreground'
+            )}
+          >
+            <CalendarIcon />
+            {endDateDate ? format(endDateDate, 'PPP') : <span>End Date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={endDateDate}
+            onSelect={setEndDate}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
+export default function Dashboard({ spendingCategories, startDate, endDate }) {
   let categoryNames = Object.values(spendingCategories)
     .map((spendingCategory) =>
       spendingCategory.spendingSubcategories.map((spendingSubcategory) => {
@@ -848,9 +993,10 @@ export default function Dashboard({ spendingCategories }) {
       <div className="flex flex-col w-full flex-grow gap-4 mt-4">
         <div className="flex flex-col justify-center items-center gap-4 mb-8">
           <div
-            className="flex flex-row justify-end items-end gap-4 w-11/12 lg:w-3/4"
+            className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
             key="create-category-dialogue"
           >
+            <DatePickers startDate={startDate} endDate={endDate} />
             <CreateCategoryDialogue />
           </div>
           {spendingCategories.map((spendingCategory, index) => (

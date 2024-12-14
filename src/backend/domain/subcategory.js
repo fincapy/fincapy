@@ -4,7 +4,7 @@ class Subcategory {
     subcategoryId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
     createdAt,
     updatedAt,
@@ -14,7 +14,7 @@ class Subcategory {
     this.subcategoryId = subcategoryId;
     this.categoryId = categoryId;
     this.name = name;
-    this.monthlySpendGoal = monthlySpendGoal;
+    this.monthlySpendingGoal = monthlySpendingGoal;
     this.yearlySpendGoal = yearlySpendGoal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

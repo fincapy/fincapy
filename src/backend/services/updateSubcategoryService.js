@@ -8,7 +8,7 @@ class UpdateSubcategoryService {
     tenantId,
     subcategoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   }) {
     await this.db.transaction(async (tx) => {
@@ -23,7 +23,7 @@ class UpdateSubcategoryService {
         throw new Error('Subcategory not found');
       }
       existingSubcategory.name = name;
-      existingSubcategory.monthlySpendGoal = monthlySpendGoal;
+      existingSubcategory.monthlySpendingGoal = monthlySpendingGoal;
       existingSubcategory.yearlySpendGoal = yearlySpendGoal;
       existingSubcategory.updatedAt = new Date();
       await subcategoryRepository.update(existingSubcategory);

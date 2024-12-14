@@ -26,8 +26,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "monthly_spend_goal": {
-          "name": "monthly_spend_goal",
+        "monthly_spending_goal": {
+          "name": "monthly_spending_goal",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -62,10 +62,7 @@
       "compositePrimaryKeys": {
         "category_tenant_id_category_id_pk": {
           "name": "category_tenant_id_category_id_pk",
-          "columns": [
-            "tenant_id",
-            "category_id"
-          ]
+          "columns": ["tenant_id", "category_id"]
         }
       },
       "uniqueConstraints": {},
@@ -166,10 +163,7 @@
       "compositePrimaryKeys": {
         "plaid_item_tenant_id_institution_id_pk": {
           "name": "plaid_item_tenant_id_institution_id_pk",
-          "columns": [
-            "tenant_id",
-            "institution_id"
-          ]
+          "columns": ["tenant_id", "institution_id"]
         }
       },
       "uniqueConstraints": {},
@@ -239,10 +233,7 @@
       "compositePrimaryKeys": {
         "recategorization_log_tenant_id_recategorization_id_pk": {
           "name": "recategorization_log_tenant_id_recategorization_id_pk",
-          "columns": [
-            "tenant_id",
-            "recategorization_id"
-          ]
+          "columns": ["tenant_id", "recategorization_id"]
         }
       },
       "uniqueConstraints": {},
@@ -278,8 +269,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "monthly_spend_goal": {
-          "name": "monthly_spend_goal",
+        "monthly_spending_goal": {
+          "name": "monthly_spending_goal",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -314,10 +305,7 @@
       "compositePrimaryKeys": {
         "subcategory_tenant_id_subcategory_id_pk": {
           "name": "subcategory_tenant_id_subcategory_id_pk",
-          "columns": [
-            "tenant_id",
-            "subcategory_id"
-          ]
+          "columns": ["tenant_id", "subcategory_id"]
         }
       },
       "uniqueConstraints": {},
@@ -444,10 +432,7 @@
       "compositePrimaryKeys": {
         "transaction_tenant_id_transaction_id_pk": {
           "name": "transaction_tenant_id_transaction_id_pk",
-          "columns": [
-            "tenant_id",
-            "transaction_id"
-          ]
+          "columns": ["tenant_id", "transaction_id"]
         }
       },
       "uniqueConstraints": {},

@@ -349,17 +349,17 @@ const CreateSubcategoryForm = ({ categoryId }) => {
   };
 
   async function onSubmit(values) {
-    const monthlySpendGoal = parseInt(
+    const monthlySpendingGoal = parseInt(
       values.monthlySpendingGoal.replace(',', '').replace('$', ''),
       10
     );
-    const yearlySpendGoal = monthlySpendGoal * 12;
+    const yearlySpendGoal = monthlySpendingGoal * 12;
     const name = values.name;
     const subcategoryId = uuidv4();
 
     await createSubcategory({
       name,
-      monthlySpendGoal,
+      monthlySpendingGoal,
       yearlySpendGoal,
       categoryId,
       subcategoryId,
@@ -467,16 +467,16 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
   };
 
   async function onSubmit(values) {
-    const monthlySpendGoal = parseInt(
+    const monthlySpendingGoal = parseInt(
       values.monthlySpendingGoal.replace(',', '').replace('$', ''),
       10
     );
-    const yearlySpendGoal = monthlySpendGoal * 12;
+    const yearlySpendGoal = monthlySpendingGoal * 12;
     const name = values.name;
 
     await updateSubcategory({
       name,
-      monthlySpendGoal,
+      monthlySpendingGoal,
       yearlySpendGoal,
       subcategoryId,
     });
@@ -646,7 +646,7 @@ const CategoryCard = ({
               <div className="flex flex-row gap-0 items-center">
                 <EditCategoryDialogue
                   categoryName={category.name}
-                  monthlySpendingGoal={category.monthlySpendGoal}
+                  monthlySpendingGoal={category.monthlySpendingGoal}
                   categoryId={category.categoryId}
                 />
                 <DeleteCategoryDialogue categoryId={category.categoryId} />
@@ -664,7 +664,7 @@ const CategoryCard = ({
         <div className="flex flex-row gap-2 items-center">
           <span className="font-sans">$0</span>
           <ProgressCategory value={50} />
-          <span className="font-sans">{`$${category.monthlySpendGoal}`}</span>
+          <span className="font-sans">{`$${category.monthlySpendingGoal}`}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
@@ -725,7 +725,7 @@ const SubcategoryCard = forwardRef(
           <div className="flex flex-row gap-2 items-center">
             <span className="font-sans">$0</span>
             <ProgressSubcategory value={50} />
-            <span className="font-sans">{`$${subcategory.monthlySpendGoal}`}</span>
+            <span className="font-sans">{`$${subcategory.monthlySpendingGoal}`}</span>
           </div>
         </CardContent>
       </Card>

@@ -8,7 +8,7 @@ class UpdateCategoryService {
     tenantId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   }) {
     await this.db.transaction(async (tx) => {
@@ -21,7 +21,7 @@ class UpdateCategoryService {
         throw new Error('Category not found');
       }
       existingCategory.name = name;
-      existingCategory.monthlySpendGoal = monthlySpendGoal;
+      existingCategory.monthlySpendingGoal = monthlySpendingGoal;
       existingCategory.yearlySpendGoal = yearlySpendGoal;
       existingCategory.updatedAt = new Date();
       await categoryRepository.update(existingCategory);

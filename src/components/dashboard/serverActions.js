@@ -28,12 +28,12 @@ const createCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
     tenantId,
     categoryId,
     name,
-    monthlySpendGoal: monthlySpendingGoal,
+    monthlySpendingGoal: monthlySpendingGoal,
     yearlySpendGoal: monthlySpendingGoal * 12,
   });
 };
 
-const updateCategory = async ({ categoryId, name, monthlySpendGoal }) => {
+const updateCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -49,7 +49,7 @@ const updateCategory = async ({ categoryId, name, monthlySpendGoal }) => {
     tenantId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
   });
 };
 
@@ -75,7 +75,7 @@ const createSubcategory = async ({
   subcategoryId,
   categoryId,
   name,
-  monthlySpendGoal,
+  monthlySpendingGoal,
   yearlySpendGoal,
 }) => {
   const session = await getSession();
@@ -94,7 +94,7 @@ const createSubcategory = async ({
     subcategoryId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   });
 };
@@ -103,7 +103,7 @@ const updateSubcategory = async ({
   subcategoryId,
   categoryId,
   name,
-  monthlySpendGoal,
+  monthlySpendingGoal,
   yearlySpendGoal,
 }) => {
   const session = await getSession();
@@ -122,7 +122,7 @@ const updateSubcategory = async ({
     subcategoryId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   });
 };

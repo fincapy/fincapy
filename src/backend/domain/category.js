@@ -3,7 +3,7 @@ class Category {
     tenantId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
     createdAt,
     updatedAt,
@@ -12,7 +12,7 @@ class Category {
     this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;
-    this.monthlySpendGoal = monthlySpendGoal;
+    this.monthlySpendingGoal = monthlySpendingGoal;
     this.yearlySpendGoal = yearlySpendGoal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

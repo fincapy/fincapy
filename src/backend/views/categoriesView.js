@@ -41,7 +41,7 @@ class CategoriesView {
         category = {
           name: row.category.name,
           categoryId: row.category.categoryId,
-          monthlySpendGoal: row.category.monthlySpendGoal,
+          monthlySpendingGoal: row.category.monthlySpendingGoal,
           transactions: [],
           subcategories: [],
         };
@@ -69,7 +69,7 @@ class CategoriesView {
         if (!subcategory) {
           subcategory = {
             subcategoryId: row.subcategory.subcategoryId,
-            monthlySpendGoal: row.subcategory.monthlySpendGoal,
+            monthlySpendingGoal: row.subcategory.monthlySpendingGoal,
             name: row.subcategory.name,
             transactions: [],
           };

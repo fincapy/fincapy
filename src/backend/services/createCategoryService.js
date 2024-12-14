@@ -10,7 +10,7 @@ class CreateCategoryService {
     tenantId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   }) {
     await this.db.transaction(async (tx) => {
@@ -26,7 +26,7 @@ class CreateCategoryService {
         tenantId,
         categoryId,
         name,
-        monthlySpendGoal,
+        monthlySpendingGoal,
         yearlySpendGoal,
         createdAt: new Date(),
         updatedAt: new Date(),

@@ -11,7 +11,7 @@ class CreateSubcategoryService {
     subcategoryId,
     categoryId,
     name,
-    monthlySpendGoal,
+    monthlySpendingGoal,
     yearlySpendGoal,
   }) {
     await this.db.transaction(async (tx) => {
@@ -32,7 +32,7 @@ class CreateSubcategoryService {
         name,
         createdAt: new Date(),
         updatedAt: new Date(),
-        monthlySpendGoal,
+        monthlySpendingGoal,
         yearlySpendGoal,
       });
       await subcategoryRepository.add(subcategory);

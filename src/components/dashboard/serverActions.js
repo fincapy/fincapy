@@ -29,7 +29,6 @@ const createCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
     categoryId,
     name,
     monthlySpendingGoal: monthlySpendingGoal,
-    yearlySpendGoal: monthlySpendingGoal * 12,
   });
 };
 
@@ -76,7 +75,6 @@ const createSubcategory = async ({
   categoryId,
   name,
   monthlySpendingGoal,
-  yearlySpendGoal,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -95,7 +93,6 @@ const createSubcategory = async ({
     categoryId,
     name,
     monthlySpendingGoal,
-    yearlySpendGoal,
   });
 };
 
@@ -104,7 +101,6 @@ const updateSubcategory = async ({
   categoryId,
   name,
   monthlySpendingGoal,
-  yearlySpendGoal,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -123,7 +119,6 @@ const updateSubcategory = async ({
     categoryId,
     name,
     monthlySpendingGoal,
-    yearlySpendGoal,
   });
 };
 

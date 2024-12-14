@@ -4,13 +4,7 @@ class UpdateSubcategoryService {
     this.db = db;
   }
 
-  async execute({
-    tenantId,
-    subcategoryId,
-    name,
-    monthlySpendingGoal,
-    yearlySpendGoal,
-  }) {
+  async execute({ tenantId, subcategoryId, name, monthlySpendingGoal }) {
     await this.db.transaction(async (tx) => {
       const subcategoryRepository = new this.subcategoryRepositoryFactory({
         tx,
@@ -24,7 +18,6 @@ class UpdateSubcategoryService {
       }
       existingSubcategory.name = name;
       existingSubcategory.monthlySpendingGoal = monthlySpendingGoal;
-      existingSubcategory.yearlySpendGoal = yearlySpendGoal;
       existingSubcategory.updatedAt = new Date();
       await subcategoryRepository.update(existingSubcategory);
     });

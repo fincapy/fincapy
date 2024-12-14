@@ -353,14 +353,12 @@ const CreateSubcategoryForm = ({ categoryId }) => {
       values.monthlySpendingGoal.replace(',', '').replace('$', ''),
       10
     );
-    const yearlySpendGoal = monthlySpendingGoal * 12;
     const name = values.name;
     const subcategoryId = uuidv4();
 
     await createSubcategory({
       name,
       monthlySpendingGoal,
-      yearlySpendGoal,
       categoryId,
       subcategoryId,
     });
@@ -471,13 +469,11 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
       values.monthlySpendingGoal.replace(',', '').replace('$', ''),
       10
     );
-    const yearlySpendGoal = monthlySpendingGoal * 12;
     const name = values.name;
 
     await updateSubcategory({
       name,
       monthlySpendingGoal,
-      yearlySpendGoal,
       subcategoryId,
     });
   }

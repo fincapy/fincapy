@@ -4,18 +4,18 @@ class Category {
     categoryId,
     name,
     monthlySpendingGoal,
-    yearlySpendGoal,
     createdAt,
     updatedAt,
+    type,
     isImmutable,
   }) {
     this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;
     this.monthlySpendingGoal = monthlySpendingGoal;
-    this.yearlySpendGoal = yearlySpendGoal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.type = type;
     this.isImmutable = isImmutable;
   }
 }

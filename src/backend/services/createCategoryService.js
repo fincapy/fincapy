@@ -6,13 +6,7 @@ class CreateCategoryService {
     this.db = db;
   }
 
-  async execute({
-    tenantId,
-    categoryId,
-    name,
-    monthlySpendingGoal,
-    yearlySpendGoal,
-  }) {
+  async execute({ tenantId, categoryId, name, monthlySpendingGoal }) {
     await this.db.transaction(async (tx) => {
       const categoryRepository = new this.categoryRepositoryFactory({ tx });
       const existingCategory = await categoryRepository.get({
@@ -27,7 +21,6 @@ class CreateCategoryService {
         categoryId,
         name,
         monthlySpendingGoal,
-        yearlySpendGoal,
         createdAt: new Date(),
         updatedAt: new Date(),
       });

@@ -28,7 +28,6 @@ class SubcategoryRepository {
       spendingCategoryId: subcategoryObject[0].spendingCategoryId,
       name: subcategoryObject[0].name,
       monthlySpendingGoal: subcategoryObject[0].monthlySpendingGoal,
-      yearlySpendGoal: subcategoryObject[0].yearlySpendGoal,
       createdAt: subcategoryObject[0].createdAt,
       updatedAt: subcategoryObject[0].updatedAt,
     });

@@ -27,7 +27,6 @@ class CategoryRepository {
       categoryId: categoryObject[0].categoryId,
       name: categoryObject[0].name,
       monthlySpendingGoal: categoryObject[0].monthlySpendingGoal,
-      yearlySpendGoal: categoryObject[0].yearlySpendGoal,
       createdAt: categoryObject[0].createdAt,
       updatedAt: categoryObject[0].updatedAt,
       isImmutable: categoryObject[0].isImmutable,

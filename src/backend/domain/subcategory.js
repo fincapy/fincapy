@@ -5,7 +5,6 @@ class Subcategory {
     categoryId,
     name,
     monthlySpendingGoal,
-    yearlySpendGoal,
     createdAt,
     updatedAt,
     isImmutable,
@@ -15,7 +14,6 @@ class Subcategory {
     this.categoryId = categoryId;
     this.name = name;
     this.monthlySpendingGoal = monthlySpendingGoal;
-    this.yearlySpendGoal = yearlySpendGoal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.isImmutable = isImmutable;

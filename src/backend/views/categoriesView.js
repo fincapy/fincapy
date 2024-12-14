@@ -1,11 +1,11 @@
 import {
-  spendingCategoryTable,
-  spendingSubcategoryTable,
+  categoryTable,
+  subcategoryTable,
   transactionTable,
 } from '../adapters/orm';
 import { eq, or, gte, lte, and } from 'drizzle-orm';
 
-class SpendingCategoriesView {
+class CategoriesView {
   constructor(tx) {
     this.tx = tx;
   }
@@ -13,27 +13,18 @@ class SpendingCategoriesView {
   async get({ tenantId, startDate, endDate }) {
     const rows = await this.tx
       .select()
-      .from(spendingCategoryTable)
-      .where(eq(spendingCategoryTable.tenantId, tenantId))
+      .from(categoryTable)
+      .where(eq(categoryTable.tenantId, tenantId))
       .leftJoin(
-        spendingSubcategoryTable,
-        eq(
-          spendingSubcategoryTable.spendingCategoryId,
-          spendingCategoryTable.spendingCategoryId
-        )
+        subcategoryTable,
+        eq(subcategoryTable.categoryId, categoryTable.categoryId)
       )
       .leftJoin(
         transactionTable,
         and(
           or(
-            eq(
-              transactionTable.categoryId,
-              spendingCategoryTable.spendingCategoryId
-            ),
-            eq(
-              transactionTable.categoryId,
-              spendingSubcategoryTable.spendingSubcategoryId
-            )
+            eq(transactionTable.categoryId, categoryTable.categoryId),
+            eq(transactionTable.categoryId, subcategoryTable.subcategoryId)
           ),
           gte(transactionTable.date, startDate),
           lte(transactionTable.date, endDate)
@@ -44,57 +35,54 @@ class SpendingCategoriesView {
     rows.forEach((row) => {
       // Find or create the category
       let category = result.find(
-        (c) => c.spendingCategoryId === row.spending_category.spendingCategoryId
+        (c) => c.categoryId === row.category.categoryId
       );
       if (!category) {
         category = {
-          name: row.spending_category.name,
-          spendingCategoryId: row.spending_category.spendingCategoryId,
-          monthlySpendGoal: row.spending_category.monthlySpendGoal,
+          name: row.category.name,
+          categoryId: row.category.categoryId,
+          monthlySpendGoal: row.category.monthlySpendGoal,
           transactions: [],
-          spendingSubcategories: [],
+          subcategories: [],
         };
         result.push(category);
       }
 
       // Add category-level transactions
-      if (row.transaction?.categoryId === category.spendingCategoryId) {
+      if (row.transaction?.categoryId === category.categoryId) {
         category.transactions.push({
           amount: row.transaction.amount,
           date: row.transaction.date,
           description: row.transaction.description,
           status: row.transaction.status,
-          category: row.spending_category.name,
+          category: row.category.name,
           categoryId: row.transaction.categoryId,
           transactionId: row.transaction.transactionId,
         });
       }
 
       // Find or create the subcategory
-      if (row.spending_subcategory) {
-        let subcategory = category.spendingSubcategories.find(
-          (sub) =>
-            sub.spendingSubcategoryId ===
-            row.spending_subcategory.spendingSubcategoryId
+      if (row.subcategory) {
+        let subcategory = category.subcategories.find(
+          (sub) => sub.subcategoryId === row.subcategory.subcategoryId
         );
         if (!subcategory) {
           subcategory = {
-            spendingSubcategoryId:
-              row.spending_subcategory.spendingSubcategoryId,
-            monthlySpendGoal: row.spending_subcategory.monthlySpendGoal,
-            name: row.spending_subcategory.name,
+            subcategoryId: row.subcategory.subcategoryId,
+            monthlySpendGoal: row.subcategory.monthlySpendGoal,
+            name: row.subcategory.name,
             transactions: [],
           };
-          category.spendingSubcategories.push(subcategory);
+          category.subcategories.push(subcategory);
         }
 
-        if (row.transaction?.categoryId === subcategory.spendingSubcategoryId) {
+        if (row.transaction?.categoryId === subcategory.subcategoryId) {
           subcategory.transactions.push({
             amount: row.transaction.amount,
             date: row.transaction.date,
             description: row.transaction.description,
             status: row.transaction.status,
-            category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+            category: `${row.category.name} - ${row.subcategory.name}`,
             categoryId: row.transaction.categoryId,
             transactionId: row.transaction.transactionId,
           });
@@ -104,7 +92,7 @@ class SpendingCategoriesView {
             date: row.transaction.date,
             description: row.transaction.description,
             status: row.transaction.status,
-            category: `${row.spending_category.name} - ${row.spending_subcategory.name}`,
+            category: `${row.category.name} - ${row.subcategory.name}`,
             categoryId: row.transaction.categoryId,
             transactionId: row.transaction.transactionId,
           });
@@ -115,4 +103,4 @@ class SpendingCategoriesView {
   }
 }
 
-export { SpendingCategoriesView };
+export { CategoriesView };

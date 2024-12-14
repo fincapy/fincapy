@@ -1,8 +1,8 @@
-class SpendingSubcategory {
+class Subcategory {
   constructor({
     tenantId,
-    spendingSubcategoryId,
-    spendingCategoryId,
+    subcategoryId,
+    categoryId,
     name,
     monthlySpendGoal,
     yearlySpendGoal,
@@ -11,8 +11,8 @@ class SpendingSubcategory {
     isImmutable,
   }) {
     this.tenantId = tenantId;
-    this.spendingSubcategoryId = spendingSubcategoryId;
-    this.spendingCategoryId = spendingCategoryId;
+    this.subcategoryId = subcategoryId;
+    this.categoryId = categoryId;
     this.name = name;
     this.monthlySpendGoal = monthlySpendGoal;
     this.yearlySpendGoal = yearlySpendGoal;
@@ -22,4 +22,4 @@ class SpendingSubcategory {
   }
 }
 
-export { SpendingSubcategory };
+export { Subcategory };

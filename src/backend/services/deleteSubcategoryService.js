@@ -1,26 +1,23 @@
-class DeleteSpendingSubcategoryService {
-  constructor({ spendingSubcategoryRepositoryFactory, db }) {
-    this.spendingSubcategoryRepositoryFactory =
-      spendingSubcategoryRepositoryFactory;
+class DeleteSubcategoryService {
+  constructor({ subcategoryRepositoryFactory, db }) {
+    this.subcategoryRepositoryFactory = subcategoryRepositoryFactory;
     this.db = db;
   }
-  async execute({ tenantId, spendingSubcategoryId }) {
+  async execute({ tenantId, subcategoryId }) {
     await this.db.transaction(async (tx) => {
-      const spendingSubcategoryRepository =
-        new this.spendingSubcategoryRepositoryFactory({
-          tx,
-        });
-      const existingSpendingSubcategory =
-        await spendingSubcategoryRepository.get({
-          tenantId,
-          spendingSubcategoryId,
-        });
-      if (!existingSpendingSubcategory) {
-        throw new Error('SpendingSubcategory not found');
+      const subcategoryRepository = new this.subcategoryRepositoryFactory({
+        tx,
+      });
+      const existingSubcategory = await subcategoryRepository.get({
+        tenantId,
+        subcategoryId,
+      });
+      if (!existingSubcategory) {
+        throw new Error('Subcategory not found');
       }
-      await spendingSubcategoryRepository.remove(existingSpendingSubcategory);
+      await subcategoryRepository.remove(existingSubcategory);
     });
   }
 }
 
-export { DeleteSpendingSubcategoryService };
+export { DeleteSubcategoryService };

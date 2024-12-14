@@ -1,13 +1,13 @@
 import Dashboard from '@/components/dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
-import { SpendingCategoriesView } from '@/backend/views/spendingCategoriesView';
+import { CategoriesView } from '@/backend/views/categoriesView';
 import { db } from '@/backend/adapters/database';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
   const { user } = session;
-  const view = new SpendingCategoriesView(db);
+  const view = new CategoriesView(db);
   const currentDate = new Date();
 
   let startDate = null;
@@ -28,14 +28,14 @@ export default async function DashboardPage({ searchParams }) {
     );
   }
 
-  const spendingCategories = await view.get({
+  const categories = await view.get({
     tenantId: user.tenant_id,
     startDate,
     endDate,
   });
   return (
     <Dashboard
-      spendingCategories={spendingCategories}
+      categories={categories}
       startDate={startDate.toISOString().split('T')[0]}
       endDate={endDate.toISOString().split('T')[0]}
     />

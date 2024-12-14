@@ -1,5 +1,5 @@
-import { SpendingCategory } from '../domain/spendingCategory';
-import { SpendingSubcategory } from '../domain/spendingSubcategory';
+import { SpendingCategory } from '../domain/category';
+import { SpendingSubcategory } from '../domain/subcategory';
 
 class SetupNewTenantService {
   constructor({

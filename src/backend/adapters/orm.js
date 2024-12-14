@@ -26,11 +26,11 @@ export const plaidItemTable = pgTable(
   }
 );
 
-export const spendingCategoryTable = pgTable(
-  'spending_category',
+export const categoryTable = pgTable(
+  'category',
   {
     tenantId: uuid('tenant_id'),
-    spendingCategoryId: uuid('spending_category_id'),
+    categoryId: uuid('category_id'),
     name: varchar('name'),
     monthlySpendGoal: integer('monthly_spend_goal'),
     yearlySpendGoal: integer('yearly_spend_goal'),
@@ -39,18 +39,16 @@ export const spendingCategoryTable = pgTable(
     isImmutable: boolean('is_immutable'),
   },
   (table) => {
-    return [
-      primaryKey({ columns: [table.tenantId, table.spendingCategoryId] }),
-    ];
+    return [primaryKey({ columns: [table.tenantId, table.categoryId] })];
   }
 );
 
-export const spendingSubcategoryTable = pgTable(
-  'spending_subcategory',
+export const subcategoryTable = pgTable(
+  'subcategory',
   {
     tenantId: uuid('tenant_id'),
-    spendingCategoryId: uuid('spending_category_id'),
-    spendingSubcategoryId: uuid('spending_subcategory_id'),
+    categoryId: uuid('category_id'),
+    subcategoryId: uuid('subcategory_id'),
     name: varchar('name'),
     monthlySpendGoal: integer('monthly_spend_goal'),
     yearlySpendGoal: integer('yearly_spend_goal'),
@@ -59,44 +57,7 @@ export const spendingSubcategoryTable = pgTable(
     isImmutable: boolean('is_immutable'),
   },
   (table) => {
-    return [
-      primaryKey({ columns: [table.tenantId, table.spendingSubcategoryId] }),
-    ];
-  }
-);
-
-export const incomeCategoryTable = pgTable(
-  'income_category',
-  {
-    tenantId: uuid('tenant_id'),
-    incomeCategoryId: uuid('income_category_id'),
-    name: varchar('name'),
-    monthlyIncomeGoal: integer('monthly_income_goal'),
-    createdAt: timestamp('created_at'),
-    updatedAt: timestamp('updated_at'),
-    isImmutable: boolean('is_immutable'),
-  },
-  (table) => {
-    return [primaryKey({ columns: [table.tenantId, table.incomeCategoryId] })];
-  }
-);
-
-export const incomeSubcategoryTable = pgTable(
-  'income_subcategory',
-  {
-    tenantId: uuid('tenant_id'),
-    incomeCategoryId: uuid('income_category_id'),
-    incomeSubcategoryId: uuid('income_subcategory_id'),
-    name: varchar('name'),
-    monthlyIncomeGoal: integer('monthly_spend_goal'),
-    createdAt: timestamp('created_at'),
-    updatedAt: timestamp('updated_at'),
-    isImmutable: boolean('is_immutable'),
-  },
-  (table) => {
-    return [
-      primaryKey({ columns: [table.tenantId, table.incomeSubcategoryId] }),
-    ];
+    return [primaryKey({ columns: [table.tenantId, table.subcategoryId] })];
   }
 );
 

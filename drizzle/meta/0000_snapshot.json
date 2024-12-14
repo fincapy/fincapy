@@ -1,9 +1,78 @@
 {
-  "id": "322ef741-8bda-42d6-b84f-970d54a71bf1",
+  "id": "226b68e6-22db-4d0e-a4dd-b5227ee9f237",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.category": {
+      "name": "category",
+      "schema": "",
+      "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "monthly_spend_goal": {
+          "name": "monthly_spend_goal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "yearly_spend_goal": {
+          "name": "yearly_spend_goal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_immutable": {
+          "name": "is_immutable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "category_tenant_id_category_id_pk": {
+          "name": "category_tenant_id_category_id_pk",
+          "columns": [
+            "tenant_id",
+            "category_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.outbox": {
       "name": "outbox",
       "schema": "",
@@ -108,8 +177,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.spending_category": {
-      "name": "spending_category",
+    "public.recategorization_log": {
+      "name": "recategorization_log",
       "schema": "",
       "columns": {
         "tenant_id": {
@@ -118,27 +187,27 @@
           "primaryKey": false,
           "notNull": false
         },
-        "spending_category_id": {
-          "name": "spending_category_id",
+        "recategorization_id": {
+          "name": "recategorization_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "name": {
-          "name": "name",
+        "transaction_id": {
+          "name": "transaction_id",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "monthly_spend_goal": {
-          "name": "monthly_spend_goal",
-          "type": "integer",
+        "old_category_id": {
+          "name": "old_category_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "yearly_spend_goal": {
-          "name": "yearly_spend_goal",
-          "type": "integer",
+        "new_category_id": {
+          "name": "new_category_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -147,28 +216,32 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_immutable": {
-          "name": "is_immutable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "recategorization_log_transaction_id_idx": {
+          "name": "recategorization_log_transaction_id_idx",
+          "columns": [
+            {
+              "expression": "transaction_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "spending_category_tenant_id_spending_category_id_pk": {
-          "name": "spending_category_tenant_id_spending_category_id_pk",
+        "recategorization_log_tenant_id_recategorization_id_pk": {
+          "name": "recategorization_log_tenant_id_recategorization_id_pk",
           "columns": [
             "tenant_id",
-            "spending_category_id"
+            "recategorization_id"
           ]
         }
       },
@@ -177,8 +250,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.spending_subcategory": {
-      "name": "spending_subcategory",
+    "public.subcategory": {
+      "name": "subcategory",
       "schema": "",
       "columns": {
         "tenant_id": {
@@ -193,8 +266,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "spending_subcategory_id": {
-          "name": "spending_subcategory_id",
+        "subcategory_id": {
+          "name": "subcategory_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -239,11 +312,11 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "spending_subcategory_tenant_id_spending_subcategory_id_pk": {
-          "name": "spending_subcategory_tenant_id_spending_subcategory_id_pk",
+        "subcategory_tenant_id_subcategory_id_pk": {
+          "name": "subcategory_tenant_id_subcategory_id_pk",
           "columns": [
             "tenant_id",
-            "spending_subcategory_id"
+            "subcategory_id"
           ]
         }
       },
@@ -268,20 +341,20 @@
           "primaryKey": false,
           "notNull": false
         },
-        "subcategory_id": {
-          "name": "subcategory_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "transaction_id": {
           "name": "transaction_id",
-          "type": "uuid",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
         "description": {
           "name": "description",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
@@ -339,8 +412,8 @@
           "method": "btree",
           "with": {}
         },
-        "tenant_id_subcategory_id_idx": {
-          "name": "tenant_id_subcategory_id_idx",
+        "tenant_id_category_id_date_idx": {
+          "name": "tenant_id_category_id_date_idx",
           "columns": [
             {
               "expression": "tenant_id",
@@ -349,7 +422,13 @@
               "nulls": "last"
             },
             {
-              "expression": "subcategory_id",
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

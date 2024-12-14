@@ -1,21 +1,23 @@
-class IncomeCategory {
+class Category {
   constructor({
     tenantId,
-    incomeCategoryId,
+    categoryId,
     name,
-    monthlyIncomeGoal,
+    monthlySpendGoal,
+    yearlySpendGoal,
     createdAt,
     updatedAt,
     isImmutable,
   }) {
     this.tenantId = tenantId;
-    this.incomeCategoryId = incomeCategoryId;
+    this.categoryId = categoryId;
     this.name = name;
-    this.monthlyIncomeGoal = monthlyIncomeGoal;
+    this.monthlySpendGoal = monthlySpendGoal;
+    this.yearlySpendGoal = yearlySpendGoal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.isImmutable = isImmutable;
   }
 }
 
-export { IncomeCategory };
+export { Category };

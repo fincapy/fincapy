@@ -1,4 +1,6 @@
-class UpdateSubcategoryService {
+import { Subcategory } from '../domain/subcategory';
+
+class CreateSubcategoryService {
   constructor({ subcategoryRepositoryFactory, db }) {
     this.subcategoryRepositoryFactory = subcategoryRepositoryFactory;
     this.db = db;
@@ -7,6 +9,7 @@ class UpdateSubcategoryService {
   async execute({
     tenantId,
     subcategoryId,
+    categoryId,
     name,
     monthlySpendGoal,
     yearlySpendGoal,
@@ -19,16 +22,22 @@ class UpdateSubcategoryService {
         tenantId,
         subcategoryId,
       });
-      if (!existingSubcategory) {
-        throw new Error('Subcategory not found');
+      if (existingSubcategory) {
+        throw new Error('Subcategory already exists');
       }
-      existingSubcategory.name = name;
-      existingSubcategory.monthlySpendGoal = monthlySpendGoal;
-      existingSubcategory.yearlySpendGoal = yearlySpendGoal;
-      existingSubcategory.updatedAt = new Date();
-      await subcategoryRepository.update(existingSubcategory);
+      const subcategory = new Subcategory({
+        tenantId,
+        subcategoryId,
+        categoryId,
+        name,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        monthlySpendGoal,
+        yearlySpendGoal,
+      });
+      await subcategoryRepository.add(subcategory);
     });
   }
 }
 
-export { UpdateSubcategoryService };
+export { CreateSubcategoryService };

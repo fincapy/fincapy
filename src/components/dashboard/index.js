@@ -48,12 +48,12 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createSpendingCategory,
-  updateSpendingCategory,
-  deleteSpendingCategory,
-  createSpendingSubcategory,
-  updateSpendingSubcategory,
-  deleteSpendingSubcategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  createSubcategory,
+  updateSubcategory,
+  deleteSubcategory,
 } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
@@ -94,11 +94,11 @@ const CreateCategoryForm = () => {
       10
     );
     const name = values.name;
-    const spendingCategoryId = uuidv4();
+    const categoryId = uuidv4();
 
-    await createSpendingCategory({
+    await createCategory({
       name,
-      spendingCategoryId,
+      categoryId,
       monthlySpendingGoal,
     });
   }
@@ -177,9 +177,9 @@ const CreateCategoryDialogue = () => {
   );
 };
 
-const DeleteCategoryDialogue = ({ spendingCategoryId }) => {
+const DeleteCategoryDialogue = ({ categoryId }) => {
   const onClick = async () => {
-    await deleteSpendingCategory({ spendingCategoryId });
+    await deleteCategory({ categoryId });
   };
 
   return (
@@ -206,14 +206,14 @@ const DeleteCategoryDialogue = ({ spendingCategoryId }) => {
 };
 
 const EditCategoryForm = ({
-  spendingCategoryName,
+  categoryName,
   monthlySpendingGoal,
-  spendingCategoryId,
+  categoryId,
 }) => {
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
-      name: spendingCategoryName,
+      name: categoryName,
       monthlySpendingGoal: monthlySpendingGoal.toString(),
     },
   });
@@ -225,9 +225,9 @@ const EditCategoryForm = ({
     );
     const name = values.name;
 
-    await updateSpendingCategory({
+    await updateCategory({
       name,
-      spendingCategoryId,
+      categoryId,
       monthlySpendingGoal,
     });
   }
@@ -294,9 +294,9 @@ const EditCategoryForm = ({
 };
 
 const EditCategoryDialogue = ({
-  spendingCategoryName,
+  categoryName,
   monthlySpendingGoal,
-  spendingCategoryId,
+  categoryId,
 }) => {
   return (
     <Dialog>
@@ -317,9 +317,9 @@ const EditCategoryDialogue = ({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <EditCategoryForm
-            spendingCategoryName={spendingCategoryName}
+            categoryName={categoryName}
             monthlySpendingGoal={monthlySpendingGoal}
-            spendingCategoryId={spendingCategoryId}
+            categoryId={categoryId}
           />
         </div>
       </DialogContent>
@@ -327,7 +327,7 @@ const EditCategoryDialogue = ({
   );
 };
 
-const CreateSubcategoryForm = ({ spendingCategoryId }) => {
+const CreateSubcategoryForm = ({ categoryId }) => {
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -355,14 +355,14 @@ const CreateSubcategoryForm = ({ spendingCategoryId }) => {
     );
     const yearlySpendGoal = monthlySpendGoal * 12;
     const name = values.name;
-    const spendingSubcategoryId = uuidv4();
+    const subcategoryId = uuidv4();
 
-    await createSpendingSubcategory({
+    await createSubcategory({
       name,
       monthlySpendGoal,
       yearlySpendGoal,
-      spendingCategoryId,
-      spendingSubcategoryId,
+      categoryId,
+      subcategoryId,
     });
   }
 
@@ -415,7 +415,7 @@ const CreateSubcategoryForm = ({ spendingCategoryId }) => {
   );
 };
 
-const CreateSubcategoryDialogue = ({ spendingCategoryId }) => {
+const CreateSubcategoryDialogue = ({ categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -438,14 +438,14 @@ const CreateSubcategoryDialogue = ({ spendingCategoryId }) => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <CreateSubcategoryForm spendingCategoryId={spendingCategoryId} />
+          <CreateSubcategoryForm categoryId={categoryId} />
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-const EditSpendingSubcategoryForm = ({ spendingSubcategoryId }) => {
+const EditSubcategoryForm = ({ subcategoryId }) => {
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -474,11 +474,11 @@ const EditSpendingSubcategoryForm = ({ spendingSubcategoryId }) => {
     const yearlySpendGoal = monthlySpendGoal * 12;
     const name = values.name;
 
-    await updateSpendingSubcategory({
+    await updateSubcategory({
       name,
       monthlySpendGoal,
       yearlySpendGoal,
-      spendingSubcategoryId,
+      subcategoryId,
     });
   }
 
@@ -531,7 +531,7 @@ const EditSpendingSubcategoryForm = ({ spendingSubcategoryId }) => {
   );
 };
 
-const EditSubcategoryDialogue = ({ spendingSubcategoryId }) => {
+const EditSubcategoryDialogue = ({ subcategoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -548,18 +548,16 @@ const EditSubcategoryDialogue = ({ spendingSubcategoryId }) => {
           <DialogDescription>Edit your existing subcategory</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <EditSpendingSubcategoryForm
-            spendingSubcategoryId={spendingSubcategoryId}
-          />
+          <EditSubcategoryForm subcategoryId={subcategoryId} />
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-const DeleteSubcategoryDialogue = ({ spendingSubcategoryId }) => {
+const DeleteSubcategoryDialogue = ({ subcategoryId }) => {
   const onClick = async () => {
-    await deleteSpendingSubcategory({ spendingSubcategoryId });
+    await deleteSubcategory({ subcategoryId });
   };
 
   return (
@@ -613,7 +611,7 @@ const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
 };
 
 const CategoryCard = ({
-  spendingCategory,
+  category,
   areSubcategoriesOpen,
   subcategoryLength,
   categoryCardRef,
@@ -644,25 +642,21 @@ const CategoryCard = ({
         <CardTitle>
           <div className="flex flex-row justify-between items-center -mb-3">
             <div className="flex flex-row items-center gap-2">
-              <span>{spendingCategory.name}</span>
+              <span>{category.name}</span>
               <div className="flex flex-row gap-0 items-center">
                 <EditCategoryDialogue
-                  spendingCategoryName={spendingCategory.name}
-                  monthlySpendingGoal={spendingCategory.monthlySpendGoal}
-                  spendingCategoryId={spendingCategory.spendingCategoryId}
+                  categoryName={category.name}
+                  monthlySpendingGoal={category.monthlySpendGoal}
+                  categoryId={category.categoryId}
                 />
-                <DeleteCategoryDialogue
-                  spendingCategoryId={spendingCategory.spendingCategoryId}
-                />
+                <DeleteCategoryDialogue categoryId={category.categoryId} />
                 <OpenTransactionTableDialogue
-                  transactions={spendingCategory.transactions}
-                  categoryId={spendingCategory.spendingCategoryId}
+                  transactions={category.transactions}
+                  categoryId={category.categoryId}
                 />
               </div>
             </div>
-            <CreateSubcategoryDialogue
-              spendingCategoryId={spendingCategory.spendingCategoryId}
-            />
+            <CreateSubcategoryDialogue categoryId={category.categoryId} />
           </div>
         </CardTitle>
       </CardHeader>
@@ -670,7 +664,7 @@ const CategoryCard = ({
         <div className="flex flex-row gap-2 items-center">
           <span className="font-sans">$0</span>
           <ProgressCategory value={50} />
-          <span className="font-sans">{`$${spendingCategory.monthlySpendGoal}`}</span>
+          <span className="font-sans">{`$${category.monthlySpendGoal}`}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
@@ -695,10 +689,7 @@ const CategoryCard = ({
 };
 
 const SubcategoryCard = forwardRef(
-  (
-    { areSubcategoriesOpen, spendingSubcategory, subcategoryLength, index },
-    ref
-  ) => {
+  ({ areSubcategoriesOpen, subcategory, subcategoryLength, index }, ref) => {
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -715,17 +706,13 @@ const SubcategoryCard = forwardRef(
         <CardHeader className={'p-0 ml-6 mr-6 mt-4 mb-4'}>
           <CardTitle>
             <div className="flex flex-row items-center gap-2">
-              <span>{spendingSubcategory.name}</span>
+              <span>{subcategory.name}</span>
               <div className="flex flex-row gap-0 items-center">
                 <EditSubcategoryDialogue
-                  spendingSubcategoryId={
-                    spendingSubcategory.spendingSubcategoryId
-                  }
+                  subcategoryId={subcategory.subcategoryId}
                 />
                 <DeleteSubcategoryDialogue
-                  spendingSubcategoryId={
-                    spendingSubcategory.spendingSubcategoryId
-                  }
+                  subcategoryId={subcategory.subcategoryId}
                 />
                 <Button variant="ghost" size="icon">
                   <Eye />
@@ -738,7 +725,7 @@ const SubcategoryCard = forwardRef(
           <div className="flex flex-row gap-2 items-center">
             <span className="font-sans">$0</span>
             <ProgressSubcategory value={50} />
-            <span className="font-sans">{`$${spendingSubcategory.monthlySpendGoal}`}</span>
+            <span className="font-sans">{`$${subcategory.monthlySpendGoal}`}</span>
           </div>
         </CardContent>
       </Card>
@@ -746,16 +733,13 @@ const SubcategoryCard = forwardRef(
   }
 );
 
-const CategoryCardCollapsible = ({
-  spendingCategory,
-  spendingSubcategories,
-}) => {
+const CategoryCardCollapsible = ({ category, subcategories }) => {
   const [areSubcategoriesOpen, setAreSubcategoriesOpen] = useState(false);
   const [isOverlapping, setIsOverlapping] = useState(false);
 
   const categoryCardRef = useRef(null);
   const subcategoryRefs = useRef([
-    ...spendingSubcategories.map(() => React.createRef()),
+    ...subcategories.map(() => React.createRef()),
   ]);
 
   useEffect(() => {
@@ -796,21 +780,21 @@ const CategoryCardCollapsible = ({
       onOpenChange={setAreSubcategoriesOpen}
     >
       <CategoryCard
-        spendingCategory={spendingCategory}
+        category={category}
         areSubcategoriesOpen={areSubcategoriesOpen}
-        subcategoryLength={spendingSubcategories.length}
+        subcategoryLength={subcategories.length}
         categoryCardRef={categoryCardRef}
         isOverlapping={isOverlapping}
       />
-      {spendingSubcategories.map((subcategory, index) => (
+      {subcategories.map((subcategory, index) => (
         <CollapsibleContent
-          key={subcategory.spendingSubcategoryId}
+          key={subcategory.subcategoryId}
           ref={subcategoryRefs.current[index]}
         >
           <SubcategoryCard
-            spendingSubcategory={subcategory}
+            subcategory={subcategory}
             areSubcategoriesOpen={areSubcategoriesOpen}
-            subcategoryLength={spendingSubcategories.length}
+            subcategoryLength={subcategories.length}
             index={index}
           />
         </CollapsibleContent>
@@ -918,24 +902,24 @@ const DatePickers = ({ startDate, endDate }) => {
   );
 };
 
-export default function Dashboard({ spendingCategories, startDate, endDate }) {
-  let categoryNames = Object.values(spendingCategories)
-    .map((spendingCategory) =>
-      spendingCategory.spendingSubcategories.map((spendingSubcategory) => {
+export default function Dashboard({ categories, startDate, endDate }) {
+  let categoryNames = Object.values(categories)
+    .map((category) =>
+      category.subcategories.map((subcategory) => {
         return {
-          name: `${spendingCategory.name} - ${spendingSubcategory.name}`,
-          id: spendingSubcategory.spendingSubcategoryId,
-          transactions: spendingSubcategory.transactions,
+          name: `${category.name} - ${subcategory.name}`,
+          id: subcategory.subcategoryId,
+          transactions: subcategory.transactions,
         };
       })
     )
     .flat();
 
-  Object.values(spendingCategories).forEach((spendingCategory) => {
+  Object.values(categories).forEach((category) => {
     categoryNames.push({
-      name: spendingCategory.name,
-      id: spendingCategory.spendingCategoryId,
-      transactions: spendingCategory.transactions,
+      name: category.name,
+      id: category.categoryId,
+      transactions: category.transactions,
     });
   });
 
@@ -963,15 +947,15 @@ export default function Dashboard({ spendingCategories, startDate, endDate }) {
             <DatePickers startDate={startDate} endDate={endDate} />
             <CreateCategoryDialogue />
           </div>
-          {spendingCategories.map((spendingCategory, index) => (
+          {categories.map((category, index) => (
             <div
               className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
-              key={spendingCategory.spendingCategoryId}
+              key={category.categoryId}
             >
               <CategoryCardCollapsible
-                key={spendingCategory.spendingCategoryId}
-                spendingCategory={spendingCategory}
-                spendingSubcategories={spendingCategory.spendingSubcategories}
+                key={category.categoryId}
+                category={category}
+                subcategories={category.subcategories}
               />
             </div>
           ))}

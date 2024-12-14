@@ -1,2 +1,0 @@
-ALTER TABLE "recategorization_log" RENAME COLUMN "old_category_name" TO "old_category_id";--> statement-breakpoint
-ALTER TABLE "recategorization_log" RENAME COLUMN "new_category_name" TO "new_category_id";

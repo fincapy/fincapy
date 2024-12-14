@@ -1,21 +1,17 @@
 'use server';
 
 import { db } from '@/backend/adapters/database';
-import { SpendingCategoryRepository } from '@/backend/adapters/repositories/spendingCategoryRepository';
-import { SpendingSubcategoryRepository } from '@/backend/adapters/repositories/spendingSubcategoryRepository';
-import { CreateSpendingCategoryService } from '@/backend/services/createSpendingCategoryService';
-import { CreateSpendingSubcategoryService } from '@/backend/services/createSpendingSubcategoryService';
-import { UpdateSpendingCategoryService } from '@/backend/services/spendingUpdateCategoryService';
-import { DeleteSpendingCategoryService } from '@/backend/services/deleteSpendingCategoryService';
-import { UpdateSpendingSubcategoryService } from '@/backend/services/updateSubcategoryService';
-import { DeleteSpendingSubcategoryService } from '@/backend/services/deleteSubcategoryService';
+import { CategoryRepository } from '@/backend/adapters/repositories/categoryRepository';
+import { SubcategoryRepository } from '@/backend/adapters/repositories/subcategoryRepository';
+import { CreateCategoryService } from '@/backend/services/createCategoryService';
+import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
+import { UpdateCategoryService } from '@/backend/services/updateCategoryService';
+import { DeleteCategoryService } from '@/backend/services/deleteCategoryService';
+import { UpdateSubcategoryService } from '@/backend/services/updateSubcategoryService';
+import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
 import { getSession } from '@auth0/nextjs-auth0';
 
-const createSpendingCategory = async ({
-  spendingCategoryId,
-  name,
-  monthlySpendingGoal,
-}) => {
+const createCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -23,65 +19,61 @@ const createSpendingCategory = async ({
 
   const tenantId = session.user.tenant_id;
 
-  const service = new CreateSpendingCategoryService({
-    spendingCategoryRepositoryFactory: SpendingCategoryRepository,
+  const service = new CreateCategoryService({
+    categoryRepositoryFactory: CategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingCategoryId,
+    categoryId,
     name,
     monthlySpendGoal: monthlySpendingGoal,
     yearlySpendGoal: monthlySpendingGoal * 12,
   });
 };
 
-const updateSpendingCategory = async ({
-  spendingCategoryId,
-  name,
-  monthlySpendGoal,
-}) => {
+const updateCategory = async ({ categoryId, name, monthlySpendGoal }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
-  const service = new UpdateSpendingCategoryService({
-    spendingCategoryRepositoryFactory: SpendingCategoryRepository,
+  const service = new UpdateCategoryService({
+    categoryRepositoryFactory: CategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingCategoryId,
+    categoryId,
     name,
     monthlySpendGoal,
   });
 };
 
-const deleteSpendingCategory = async ({ spendingCategoryId }) => {
+const deleteCategory = async ({ categoryId }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
-  const service = new DeleteSpendingCategoryService({
-    spendingCategoryRepositoryFactory: SpendingCategoryRepository,
+  const service = new DeleteCategoryService({
+    categoryRepositoryFactory: CategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingCategoryId,
+    categoryId,
   });
 };
 
-const createSpendingSubcategory = async ({
-  spendingSubcategoryId,
-  spendingCategoryId,
+const createSubcategory = async ({
+  subcategoryId,
+  categoryId,
   name,
   monthlySpendGoal,
   yearlySpendGoal,
@@ -92,24 +84,24 @@ const createSpendingSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const service = new CreateSpendingSubcategoryService({
-    spendingSubcategoryRepositoryFactory: SpendingSubcategoryRepository,
+  const service = new CreateSubcategoryService({
+    subcategoryRepositoryFactory: SubcategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingSubcategoryId,
-    spendingCategoryId,
+    subcategoryId,
+    categoryId,
     name,
     monthlySpendGoal,
     yearlySpendGoal,
   });
 };
 
-const updateSpendingSubcategory = async ({
-  spendingSubcategoryId,
-  spendingCategoryId,
+const updateSubcategory = async ({
+  subcategoryId,
+  categoryId,
   name,
   monthlySpendGoal,
   yearlySpendGoal,
@@ -120,44 +112,44 @@ const updateSpendingSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const service = new UpdateSpendingSubcategoryService({
-    spendingSubcategoryRepositoryFactory: SpendingSubcategoryRepository,
+  const service = new UpdateSubcategoryService({
+    subcategoryRepositoryFactory: SubcategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingSubcategoryId,
-    spendingCategoryId,
+    subcategoryId,
+    categoryId,
     name,
     monthlySpendGoal,
     yearlySpendGoal,
   });
 };
 
-const deleteSpendingSubcategory = async ({ spendingSubcategoryId }) => {
+const deleteSubcategory = async ({ subcategoryId }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
-  const service = new DeleteSpendingSubcategoryService({
-    spendingSubcategoryRepositoryFactory: SpendingSubcategoryRepository,
+  const service = new DeleteSubcategoryService({
+    subcategoryRepositoryFactory: SubcategoryRepository,
     db,
   });
 
   await service.execute({
     tenantId,
-    spendingSubcategoryId,
+    subcategoryId,
   });
 };
 
 export {
-  createSpendingCategory,
-  updateSpendingCategory,
-  deleteSpendingCategory,
-  createSpendingSubcategory,
-  updateSpendingSubcategory,
-  deleteSpendingSubcategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  createSubcategory,
+  updateSubcategory,
+  deleteSubcategory,
 };

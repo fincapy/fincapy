@@ -1,7 +1,7 @@
 import { db } from '@/backend/adapters/database';
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
-import { SpendingCategoryRepository } from '@/backend/adapters/repositories/spendingCategoryRepository';
-import { SpendingSubcategoryRepository } from '@/backend/adapters/repositories/spendingSubcategoryRepository';
+import { SpendingCategoryRepository } from '@/backend/adapters/repositories/categoryRepository';
+import { SpendingSubcategoryRepository } from '@/backend/adapters/repositories/subcategoryRepository';
 
 export const POST = async (req) => {
   const tenantApiKey = process.env.TENANT_API_KEY;

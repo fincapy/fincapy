@@ -1,7 +1,9 @@
-class Category {
+import { Subcategory } from './subcategory';
+
+class IncomeSubcategory extends Subcategory {
   constructor({
     tenantId,
-    categoryId,
+    subcategoryId,
     name,
     monthlyGoal,
     createdAt,
@@ -9,10 +11,9 @@ class Category {
     type,
     isImmutable,
     transactions,
-    subcategories,
   }) {
     this.tenantId = tenantId;
-    this.categoryId = categoryId;
+    this.subcategoryId = subcategoryId;
     this.name = name;
     this.monthlyGoal = monthlyGoal;
     this.createdAt = createdAt;
@@ -20,9 +21,16 @@ class Category {
     this.type = type;
     this.isImmutable = isImmutable;
     this.transactions = transactions;
-    this.subcategories = subcategories;
     this.proratedGoal = 0;
+  }
+
+  getCurrentIncome() {
+    let currentIncome = 0;
+    this.transactions.forEach((transaction) => {
+      currentIncome += transaction.amount;
+    });
+    return currentIncome;
   }
 }
 
-export { Category };
+export { IncomeSubcategory };

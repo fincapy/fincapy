@@ -26,7 +26,7 @@ class CategoryRepository {
       tenantId: categoryObject[0].tenantId,
       categoryId: categoryObject[0].categoryId,
       name: categoryObject[0].name,
-      monthlySpendingGoal: categoryObject[0].monthlySpendingGoal,
+      monthlyGoal: categoryObject[0].monthlyGoal,
       createdAt: categoryObject[0].createdAt,
       updatedAt: categoryObject[0].updatedAt,
       isImmutable: categoryObject[0].isImmutable,

@@ -1,6 +1,6 @@
 {
-  "id": "226b68e6-22db-4d0e-a4dd-b5227ee9f237",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "ae0741df-fc91-4a57-983d-0b280bc09145",
+  "prevId": "226b68e6-22db-4d0e-a4dd-b5227ee9f237",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -28,12 +28,6 @@
         },
         "monthly_goal": {
           "name": "monthly_goal",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "yearly_spend_goal": {
-          "name": "yearly_spend_goal",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -271,12 +265,6 @@
         },
         "monthly_goal": {
           "name": "monthly_goal",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "yearly_spend_goal": {
-          "name": "yearly_spend_goal",
           "type": "integer",
           "primaryKey": false,
           "notNull": false

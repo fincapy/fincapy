@@ -1,4 +1,6 @@
-class Category {
+import { Category } from './category';
+
+class SavingsCategory extends Category {
   constructor({
     tenantId,
     categoryId,
@@ -21,8 +23,20 @@ class Category {
     this.isImmutable = isImmutable;
     this.transactions = transactions;
     this.subcategories = subcategories;
+    this.currentSavings = 1000;
     this.proratedGoal = 0;
+  }
+
+  allocateSavings() {
+    let allocatedSavings = this.currentSavings;
+    this.subcategories.forEach((subcategory) => {
+      subcategory.currentSavings = Math.min(
+        this.currentSavings,
+        subcategory.monthlyGoal
+      );
+      allocatedSavings -= subcategory.currentSavings;
+    });
   }
 }
 
-export { Category };
+export { SavingsCategory };

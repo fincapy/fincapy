@@ -6,13 +6,7 @@ class CreateSubcategoryService {
     this.db = db;
   }
 
-  async execute({
-    tenantId,
-    subcategoryId,
-    categoryId,
-    name,
-    monthlySpendingGoal,
-  }) {
+  async execute({ tenantId, subcategoryId, categoryId, name, monthlyGoal }) {
     await this.db.transaction(async (tx) => {
       const subcategoryRepository = new this.subcategoryRepositoryFactory({
         tx,
@@ -31,7 +25,7 @@ class CreateSubcategoryService {
         name,
         createdAt: new Date(),
         updatedAt: new Date(),
-        monthlySpendingGoal,
+        monthlyGoal,
       });
       await subcategoryRepository.add(subcategory);
     });

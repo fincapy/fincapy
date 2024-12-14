@@ -4,7 +4,7 @@ class UpdateSubcategoryService {
     this.db = db;
   }
 
-  async execute({ tenantId, subcategoryId, name, monthlySpendingGoal }) {
+  async execute({ tenantId, subcategoryId, name, monthlyGoal }) {
     await this.db.transaction(async (tx) => {
       const subcategoryRepository = new this.subcategoryRepositoryFactory({
         tx,
@@ -17,7 +17,7 @@ class UpdateSubcategoryService {
         throw new Error('Subcategory not found');
       }
       existingSubcategory.name = name;
-      existingSubcategory.monthlySpendingGoal = monthlySpendingGoal;
+      existingSubcategory.monthlyGoal = monthlyGoal;
       existingSubcategory.updatedAt = new Date();
       await subcategoryRepository.update(existingSubcategory);
     });

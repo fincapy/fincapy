@@ -1,4 +1,6 @@
-class Category {
+import { Category } from './category';
+
+class SpendingCategory extends Category {
   constructor({
     tenantId,
     categoryId,
@@ -23,6 +25,14 @@ class Category {
     this.subcategories = subcategories;
     this.proratedGoal = 0;
   }
+
+  getCurrentSpending() {
+    let currentSpending = 0;
+    this.transactions.forEach((transaction) => {
+      currentSpending += transaction.amount;
+    });
+    return currentSpending;
+  }
 }
 
-export { Category };
+export { SpendingCategory };

@@ -74,7 +74,7 @@ const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
     message: 'Name must be at least 1 character.',
   }),
-  monthlySpendingGoal: z.string().regex(/^[\d$,]+$/, {
+  monthlyGoal: z.string().regex(/^[\d$,]+$/, {
     message: 'Enter a number between 0 and 1000000000',
   }),
 });
@@ -84,13 +84,13 @@ const CreateCategoryForm = () => {
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: '',
-      monthlySpendingGoal: null,
+      monthlyGoal: null,
     },
   });
 
   async function onSubmit(values) {
-    const monthlySpendingGoal = parseInt(
-      values.monthlySpendingGoal.replace(',', '').replace('$', ''),
+    const monthlyGoal = parseInt(
+      values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
@@ -99,7 +99,7 @@ const CreateCategoryForm = () => {
     await createCategory({
       name,
       categoryId,
-      monthlySpendingGoal,
+      monthlyGoal,
     });
   }
 
@@ -131,7 +131,7 @@ const CreateCategoryForm = () => {
         />
         <FormField
           control={form.control}
-          name="monthlySpendingGoal"
+          name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Monthly Spending Goal</FormLabel>
@@ -205,22 +205,18 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   );
 };
 
-const EditCategoryForm = ({
-  categoryName,
-  monthlySpendingGoal,
-  categoryId,
-}) => {
+const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: categoryName,
-      monthlySpendingGoal: monthlySpendingGoal.toString(),
+      monthlyGoal: monthlyGoal.toString(),
     },
   });
 
   async function onSubmit(values) {
-    const monthlySpendingGoal = parseInt(
-      values.monthlySpendingGoal.replace(',', '').replace('$', ''),
+    const monthlyGoal = parseInt(
+      values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
@@ -228,7 +224,7 @@ const EditCategoryForm = ({
     await updateCategory({
       name,
       categoryId,
-      monthlySpendingGoal,
+      monthlyGoal,
     });
   }
 
@@ -269,7 +265,7 @@ const EditCategoryForm = ({
         />
         <FormField
           control={form.control}
-          name="monthlySpendingGoal"
+          name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Monthly Spending Goal</FormLabel>
@@ -293,11 +289,7 @@ const EditCategoryForm = ({
   );
 };
 
-const EditCategoryDialogue = ({
-  categoryName,
-  monthlySpendingGoal,
-  categoryId,
-}) => {
+const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -318,7 +310,7 @@ const EditCategoryDialogue = ({
         <div className="grid gap-4 py-4">
           <EditCategoryForm
             categoryName={categoryName}
-            monthlySpendingGoal={monthlySpendingGoal}
+            monthlyGoal={monthlyGoal}
             categoryId={categoryId}
           />
         </div>
@@ -332,7 +324,7 @@ const CreateSubcategoryForm = ({ categoryId }) => {
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: '',
-      monthlySpendingGoal: '',
+      monthlyGoal: '',
     },
   });
 
@@ -349,8 +341,8 @@ const CreateSubcategoryForm = ({ categoryId }) => {
   };
 
   async function onSubmit(values) {
-    const monthlySpendingGoal = parseInt(
-      values.monthlySpendingGoal.replace(',', '').replace('$', ''),
+    const monthlyGoal = parseInt(
+      values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
@@ -358,7 +350,7 @@ const CreateSubcategoryForm = ({ categoryId }) => {
 
     await createSubcategory({
       name,
-      monthlySpendingGoal,
+      monthlyGoal,
       categoryId,
       subcategoryId,
     });
@@ -389,7 +381,7 @@ const CreateSubcategoryForm = ({ categoryId }) => {
         />
         <FormField
           control={form.control}
-          name="monthlySpendingGoal"
+          name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Monthly Spending Goal</FormLabel>
@@ -448,7 +440,7 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: '',
-      monthlySpendingGoal: '',
+      monthlyGoal: '',
     },
   });
 
@@ -465,15 +457,15 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
   };
 
   async function onSubmit(values) {
-    const monthlySpendingGoal = parseInt(
-      values.monthlySpendingGoal.replace(',', '').replace('$', ''),
+    const monthlyGoal = parseInt(
+      values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
 
     await updateSubcategory({
       name,
-      monthlySpendingGoal,
+      monthlyGoal,
       subcategoryId,
     });
   }
@@ -503,7 +495,7 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
         />
         <FormField
           control={form.control}
-          name="monthlySpendingGoal"
+          name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Monthly Spending Goal</FormLabel>
@@ -642,7 +634,7 @@ const CategoryCard = ({
               <div className="flex flex-row gap-0 items-center">
                 <EditCategoryDialogue
                   categoryName={category.name}
-                  monthlySpendingGoal={category.monthlySpendingGoal}
+                  monthlyGoal={category.monthlyGoal}
                   categoryId={category.categoryId}
                 />
                 <DeleteCategoryDialogue categoryId={category.categoryId} />
@@ -660,7 +652,7 @@ const CategoryCard = ({
         <div className="flex flex-row gap-2 items-center">
           <span className="font-sans">$0</span>
           <ProgressCategory value={50} />
-          <span className="font-sans">{`$${category.monthlySpendingGoal}`}</span>
+          <span className="font-sans">{`$${category.monthlyGoal}`}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
@@ -721,7 +713,7 @@ const SubcategoryCard = forwardRef(
           <div className="flex flex-row gap-2 items-center">
             <span className="font-sans">$0</span>
             <ProgressSubcategory value={50} />
-            <span className="font-sans">{`$${subcategory.monthlySpendingGoal}`}</span>
+            <span className="font-sans">{`$${subcategory.monthlyGoal}`}</span>
           </div>
         </CardContent>
       </Card>

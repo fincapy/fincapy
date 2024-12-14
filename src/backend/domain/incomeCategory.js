@@ -1,4 +1,6 @@
-class Category {
+import { Category } from './category';
+
+class IncomeCategory extends Category {
   constructor({
     tenantId,
     categoryId,
@@ -23,6 +25,14 @@ class Category {
     this.subcategories = subcategories;
     this.proratedGoal = 0;
   }
+
+  getCurrentIncome() {
+    let currentIncome = 0;
+    this.transactions.forEach((transaction) => {
+      currentIncome += transaction.amount;
+    });
+    return currentIncome;
+  }
 }
 
-export { Category };
+export { IncomeCategory };

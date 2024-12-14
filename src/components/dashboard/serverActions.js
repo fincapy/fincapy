@@ -11,7 +11,7 @@ import { UpdateSubcategoryService } from '@/backend/services/updateSubcategorySe
 import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
 import { getSession } from '@auth0/nextjs-auth0';
 
-const createCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
+const createCategory = async ({ categoryId, name, monthlyGoal }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -28,11 +28,11 @@ const createCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
     tenantId,
     categoryId,
     name,
-    monthlySpendingGoal: monthlySpendingGoal,
+    monthlyGoal: monthlyGoal,
   });
 };
 
-const updateCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
+const updateCategory = async ({ categoryId, name, monthlyGoal }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -48,7 +48,7 @@ const updateCategory = async ({ categoryId, name, monthlySpendingGoal }) => {
     tenantId,
     categoryId,
     name,
-    monthlySpendingGoal,
+    monthlyGoal,
   });
 };
 
@@ -74,7 +74,7 @@ const createSubcategory = async ({
   subcategoryId,
   categoryId,
   name,
-  monthlySpendingGoal,
+  monthlyGoal,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -92,7 +92,7 @@ const createSubcategory = async ({
     subcategoryId,
     categoryId,
     name,
-    monthlySpendingGoal,
+    monthlyGoal,
   });
 };
 
@@ -100,7 +100,7 @@ const updateSubcategory = async ({
   subcategoryId,
   categoryId,
   name,
-  monthlySpendingGoal,
+  monthlyGoal,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -118,7 +118,7 @@ const updateSubcategory = async ({
     subcategoryId,
     categoryId,
     name,
-    monthlySpendingGoal,
+    monthlyGoal,
   });
 };
 

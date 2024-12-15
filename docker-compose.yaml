@@ -17,7 +17,7 @@ services:
   nextjs:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Localdockerfile
     ports:
       - '3000:3000'
     depends_on:

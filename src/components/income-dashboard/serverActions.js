@@ -29,6 +29,8 @@ const createCategory = async ({ categoryId, name, monthlyGoal }) => {
     categoryId,
     name,
     monthlyGoal: monthlyGoal,
+    type: 'income',
+    isImmutable: false,
   });
 };
 
@@ -93,6 +95,8 @@ const createSubcategory = async ({
     categoryId,
     name,
     monthlyGoal,
+    isImmutable: false,
+    type: 'income',
   });
 };
 

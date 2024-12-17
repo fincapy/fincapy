@@ -13,6 +13,7 @@ class SpendingCategory extends Category {
     transactions,
     subcategories,
   }) {
+    super({});
     this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;
@@ -24,6 +25,7 @@ class SpendingCategory extends Category {
     this.transactions = transactions;
     this.subcategories = subcategories;
     this.proratedGoal = 0;
+    this.currentSpending = 0;
   }
 
   getCurrentSpending() {
@@ -32,6 +34,10 @@ class SpendingCategory extends Category {
       currentSpending += transaction.amount;
     });
     return currentSpending;
+  }
+
+  setCurrentSpending() {
+    this.currentSpending = this.getCurrentSpending();
   }
 }
 

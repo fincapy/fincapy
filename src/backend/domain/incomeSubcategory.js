@@ -12,6 +12,7 @@ class IncomeSubcategory extends Subcategory {
     isImmutable,
     transactions,
   }) {
+    super({});
     this.tenantId = tenantId;
     this.subcategoryId = subcategoryId;
     this.name = name;
@@ -22,6 +23,7 @@ class IncomeSubcategory extends Subcategory {
     this.isImmutable = isImmutable;
     this.transactions = transactions;
     this.proratedGoal = 0;
+    this.currentIncome = 0;
   }
 
   getCurrentIncome() {
@@ -30,6 +32,10 @@ class IncomeSubcategory extends Subcategory {
       currentIncome += transaction.amount;
     });
     return currentIncome;
+  }
+
+  setCurrentIncome() {
+    this.currentIncome = this.getCurrentIncome();
   }
 }
 

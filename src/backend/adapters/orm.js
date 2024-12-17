@@ -36,6 +36,7 @@ export const categoryTable = pgTable(
     createdAt: timestamp('created_at'),
     updatedAt: timestamp('updated_at'),
     isImmutable: boolean('is_immutable'),
+    type: varchar('type'),
   },
   (table) => {
     return [primaryKey({ columns: [table.tenantId, table.categoryId] })];
@@ -53,6 +54,7 @@ export const subcategoryTable = pgTable(
     createdAt: timestamp('created_at'),
     updatedAt: timestamp('updated_at'),
     isImmutable: boolean('is_immutable'),
+    type: varchar('type'),
   },
   (table) => {
     return [primaryKey({ columns: [table.tenantId, table.subcategoryId] })];

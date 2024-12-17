@@ -12,6 +12,7 @@ class SpendingSubcategory extends Subcategory {
     isImmutable,
     transactions,
   }) {
+    super({});
     this.tenantId = tenantId;
     this.subcategoryId = subcategoryId;
     this.name = name;
@@ -22,6 +23,7 @@ class SpendingSubcategory extends Subcategory {
     this.isImmutable = isImmutable;
     this.transactions = transactions;
     this.proratedGoal = 0;
+    this.currentSpending = 0;
   }
 
   getCurrentSpending() {
@@ -30,6 +32,10 @@ class SpendingSubcategory extends Subcategory {
       currentSpending += transaction.amount;
     });
     return currentSpending;
+  }
+
+  setCurrentSpending() {
+    this.currentSpending = this.getCurrentSpending();
   }
 }
 

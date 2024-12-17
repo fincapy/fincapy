@@ -13,6 +13,7 @@ class IncomeCategory extends Category {
     transactions,
     subcategories,
   }) {
+    super({});
     this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;
@@ -24,6 +25,7 @@ class IncomeCategory extends Category {
     this.transactions = transactions;
     this.subcategories = subcategories;
     this.proratedGoal = 0;
+    this.currentIncome = 0;
   }
 
   getCurrentIncome() {
@@ -32,6 +34,10 @@ class IncomeCategory extends Category {
       currentIncome += transaction.amount;
     });
     return currentIncome;
+  }
+
+  setCurrentIncome() {
+    this.currentIncome = this.getCurrentIncome();
   }
 }
 

@@ -1,6 +1,6 @@
-import Dashboard from '@/components/dashboard';
+import Dashboard from '@/components/income-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
-import { CategoriesView } from '@/backend/views/categoriesView';
+import { CategoriesView } from '@/backend/views/incomeCategoriesView';
 import { db } from '@/backend/adapters/database';
 import { parse } from 'date-fns';
 

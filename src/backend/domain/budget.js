@@ -68,6 +68,10 @@ class Budget {
       const fractionOfMonths = this.getFractionOfMonths();
       const unroundedGoal = fractionOfMonths * category.monthlyGoal;
       category.proratedGoal = Math.round(unroundedGoal * 100) / 100;
+      category.subcategories.forEach((subcategory) => {
+        const unroundedGoal = fractionOfMonths * subcategory.monthlyGoal;
+        subcategory.proratedGoal = Math.round(unroundedGoal * 100) / 100;
+      });
     });
   }
 }

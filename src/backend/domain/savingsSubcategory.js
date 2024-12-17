@@ -13,6 +13,7 @@ class SavingsCategory extends Category {
     transactions,
     subcategories,
   }) {
+    super({});
     this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;

@@ -650,9 +650,11 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent>
         <div className="flex flex-row gap-2 items-center">
-          <span className="font-sans">$0</span>
-          <ProgressCategory value={50} />
-          <span className="font-sans">{`$${category.monthlyGoal}`}</span>
+          <span>$0</span>
+          <ProgressCategory
+            value={category.currentSpending / category.proratedGoal}
+          />
+          <span>{`$${category.proratedGoal}`}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
@@ -711,9 +713,11 @@ const SubcategoryCard = forwardRef(
         </CardHeader>
         <CardContent className="p-0 mr-6 ml-6 mb-6">
           <div className="flex flex-row gap-2 items-center">
-            <span className="font-sans">$0</span>
-            <ProgressSubcategory value={50} />
-            <span className="font-sans">{`$${subcategory.monthlyGoal}`}</span>
+            <span>$0</span>
+            <ProgressSubcategory
+              value={subcategory.currentSpending / subcategory.proratedGoal}
+            />
+            <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
       </Card>

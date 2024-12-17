@@ -41,7 +41,6 @@ FROM base
 COPY --from=build /app/.next/standalone /app
 COPY --from=build /app/.next/static /app/.next/static
 COPY --from=build /app/public /app/public
-COPY drizzle /app/drizzle
 
 
 # Start the server by default, this can be overwritten at runtime

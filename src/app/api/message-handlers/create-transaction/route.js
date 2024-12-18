@@ -1,7 +1,7 @@
 import { db } from '@/backend/adapters/database';
 import { CreateTransactionService } from '@/backend/services/createTransaction';
 import { TransactionRepository } from '@/backend/adapters/repositories/transactionRepository';
-import { OpenaiAdapter } from '@/backend/adapters/repositories/openaiAdapter';
+import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
 
 export const POST = async (req) => {
   const body = await req.json();

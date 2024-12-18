@@ -1,66 +1,35 @@
-import { SpendingCategory } from '../domain/category';
-import { SpendingSubcategory } from '../domain/subcategory';
+import { Category } from '../domain/category';
+import { Plan } from '../domain/plan';
 
 class SetupNewTenantService {
-  constructor({
-    spendingCategoryRepositoryFactory,
-    spendingSubcategoryRepositoryFactory,
-    db,
-  }) {
-    this.spendingCategoryRepositoryFactory = spendingCategoryRepositoryFactory;
-    this.spendingSubcategoryRepositoryFactory =
-      spendingSubcategoryRepositoryFactory;
-    this.db = db;
+  constructor({ planRepository }) {
+    this.planRepository = planRepository;
   }
 
-  async execute({ tenantId, spendingCategoryId, spendingSubcategoryId }) {
-    await this.db.transaction(async (tx) => {
-      const spendingCategoryRepository =
-        new this.spendingCategoryRepositoryFactory({ tx });
-      const spendingSubcategoryRepository =
-        new this.spendingSubcategoryRepositoryFactory({
-          tx,
-        });
-
-      const existingSpendingCategory = await spendingCategoryRepository.get({
-        tenantId,
-        spendingCategoryId,
-      });
-      if (existingSpendingCategory) {
-        throw new Error('SpendingCategory already exists');
+  async execute({ tenantId }) {
+    try {
+      let plan = await this.planRepository.get({ tenantId });
+      if (plan) {
+        return;
       }
-      const uncategorizedSpendingCategory = new SpendingCategory({
+      plan = new Plan({
+        planId: 'initial',
+        categories: [],
+      });
+      const spendingCategory = new Category({
         tenantId,
-        spendingCategoryId: spendingCategoryId,
-        name: 'Uncategorized',
+        categoryId: '1',
+        name: 'Spending',
+        type: 'spending',
         monthlyGoal: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
-        isImmutable: true,
       });
-      console.log(uncategorizedSpendingCategory);
-      await spendingCategoryRepository.add(uncategorizedSpendingCategory);
-
-      const existingSpendingSubcategory =
-        await spendingSubcategoryRepository.get({
-          tenantId,
-          spendingSubcategoryId,
-        });
-      if (existingSpendingSubcategory) {
-        throw new Error('SpendingSubcategory already exists');
-      }
-      const spendingSubcategory = new SpendingSubcategory({
-        tenantId,
-        spendingSubcategoryId: spendingSubcategoryId,
-        spendingCategoryId: uncategorizedSpendingCategory.spendingCategoryId,
-        name: 'General',
-        monthlyGoal: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isImmutable: true,
-      });
-      await spendingSubcategoryRepository.add(spendingSubcategory);
-    });
+      plan.categories.push(spendingCategory);
+      await this.planRepository.put({ tenantId, planId: 'initial', plan });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

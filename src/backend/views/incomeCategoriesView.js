@@ -9,7 +9,7 @@ import { IncomeCategory } from '../domain/incomeCategory';
 import { SavingsCategory } from '../domain/savingsCategory';
 import { Subcategory } from '../domain/subcategory';
 import { Transaction } from '../domain/transaction';
-import { Budget } from '../domain/budget';
+import { Budget } from '../domain/plan';
 
 class CategoriesView {
   constructor(tx) {

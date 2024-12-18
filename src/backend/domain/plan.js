@@ -1,9 +1,6 @@
-class Budget {
-  constructor({ tenantId, budgetId, startDate, endDate, categories }) {
-    this.tenantId = tenantId;
-    this.budgetId = budgetId;
-    this.startDate = startDate;
-    this.endDate = endDate;
+class Plan {
+  constructor({ planId, categories }) {
+    this.planId = planId;
     this.categories = categories;
   }
 
@@ -76,4 +73,4 @@ class Budget {
   }
 }
 
-export { Budget };
+export { Plan };

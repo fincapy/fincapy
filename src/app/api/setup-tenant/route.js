@@ -1,31 +1,26 @@
-import { db } from '@/backend/adapters/database';
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
-import { SpendingCategoryRepository } from '@/backend/adapters/repositories/categoryRepository';
-import { SpendingSubcategoryRepository } from '@/backend/adapters/repositories/subcategoryRepository';
+import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 
 export const POST = async (req) => {
   const tenantApiKey = process.env.TENANT_API_KEY;
 
-  if (req.headers.get('x-tenant-api-key') !== tenantApiKey) {
-    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
-      status: 401,
-    });
-  }
+  // if (req.headers.get('x-tenant-api-key') !== tenantApiKey) {
+  //   return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+  //     status: 401,
+  //   });
+  // }
 
   const body = await req.json();
-  const { tenantId, spendingCategoryId, spendingSubcategoryId } = body;
+  const { tenantId } = body;
 
-  const service = new SetupNewTenantService({
-    spendingCategoryRepositoryFactory: SpendingCategoryRepository,
-    spendingSubcategoryRepositoryFactory: SpendingSubcategoryRepository,
-    db,
-  });
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const planRepository = new PlanRepository({ tigrisAdapter });
+  const service = new SetupNewTenantService({ planRepository });
 
   try {
     await service.execute({
       tenantId,
-      spendingCategoryId,
-      spendingSubcategoryId,
     });
   } catch (error) {
     return new Response(JSON.stringify({ message: error.message }), {

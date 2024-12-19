@@ -24,6 +24,9 @@ class SetupNewTenantService {
         monthlyGoal: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isImmutable: false,
+        transactions: [],
+        subcategories: [],
       });
       plan.categories.push(spendingCategory);
       await this.planRepository.put({ tenantId, planId: 'initial', plan });

@@ -1,6 +1,6 @@
 import { Category } from './category';
 
-class SavingsCategory extends Category {
+class SavingsSubcategory extends Category {
   constructor({
     tenantId,
     categoryId,
@@ -40,4 +40,4 @@ class SavingsCategory extends Category {
   }
 }
 
-export { SavingsCategory };
+export { SavingsSubcategory };

@@ -12,8 +12,8 @@ class TigrisAdapter {
   async put({ bucket, key, body }) {
     const objectParams = {
       Bucket: bucket,
-      Key: key, // File name in the bucket
-      Body: body, // File content
+      Key: key,
+      Body: body,
     };
     await this.client.send(new PutObjectCommand(objectParams));
   }
@@ -35,11 +35,10 @@ class TigrisAdapter {
       return await streamToBuffer(response.Body);
     } catch (err) {
       if (err.name === 'NoSuchKey') {
-        console.error(`Object "${key}" not found in bucket "${bucketName}".`);
       } else {
-        console.error('An error occurred while retrieving the object:', err);
+        throw err;
       }
-      return null; // Return null to indicate missing object
+      return null;
     }
   }
 }
@@ -47,6 +46,7 @@ class TigrisAdapter {
 const s3client = new S3Client({
   endpoint: 'http://minio:9000',
   region: 'us-east-1',
+  forcePathStyle: true,
   credentials: {
     accessKeyId: 'minioadmin',
     secretAccessKey: 'minioadmin',

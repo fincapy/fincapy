@@ -5,6 +5,8 @@ class CategoriesView {
 
   async get({ tenantId, planId, startDate, endDate }) {
     const plan = await this.repository.get({ tenantId, planId });
+    plan.startDate = startDate;
+    plan.endDate = endDate;
     plan.prorateMonthlyGoals();
     plan.setSavings();
     plan.categories.forEach((category) => {

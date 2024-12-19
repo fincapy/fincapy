@@ -1,13 +1,17 @@
 import Dashboard from '@/components/spending-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
 import { CategoriesView } from '@/backend/views/spendingCategoriesView';
+import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { db } from '@/backend/adapters/database';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
   const { user } = session;
-  const view = new CategoriesView(db);
+  const tigris = new TigrisAdapter({ client: s3client });
+  const planRepository = new PlanRepository({ tigrisAdapter: tigris });
+  const view = new CategoriesView(planRepository);
   const currentDate = new Date();
 
   let startDate = null;

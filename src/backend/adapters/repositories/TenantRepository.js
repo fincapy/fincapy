@@ -3,6 +3,7 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 import { Tenant } from '@/backend/domain/tenant';
 import { Plan } from '@/backend/domain/plan';
+import { PlaidItem } from '@/backend/domain/plaidItem';
 import { SpendingCategory } from '@/backend/domain/spendingCategory';
 import { IncomeCategory } from '@/backend/domain/incomeCategory';
 import { SavingsCategory } from '@/backend/domain/savingsCategory';
@@ -30,7 +31,6 @@ class TenantRepository {
     const decompressedTenant = await brotliDecompress(tenantObject);
     const packr = new Packr();
     const unpackedTenant = packr.unpack(decompressedTenant);
-    console.log('unpackedTenant', unpackedTenant);
     const tenant = new Tenant(unpackedTenant);
 
     tenant.plaidItems = tenant.plaidItems.map((plaidItem) => {

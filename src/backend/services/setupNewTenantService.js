@@ -17,10 +17,13 @@ class SetupNewTenantService {
         tenantId,
         plans: [],
         plaidItems: [],
+        outbox: [],
+        inbox: [],
       });
       const plan = new Plan({
         planId: 'initial',
         categories: [],
+        recategorizations: [],
       });
       const spendingCategory = new Category({
         tenantId,

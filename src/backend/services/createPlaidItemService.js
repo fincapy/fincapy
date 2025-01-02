@@ -2,8 +2,8 @@ import { PlaidItem } from '@/backend/domain/plaidItem';
 import { PlaidItemCreatedMessage } from '@/backend/adapters/messages';
 
 class CreatePlaidItemService {
-  constructor({ plaidItemRepository, plaidAdapter, pubsubAdapter }) {
-    this.plaidItemRepository = plaidItemRepository;
+  constructor({ tenantRepository, plaidAdapter, pubsubAdapter }) {
+    this.tenantRepository = tenantRepository;
     this.plaidAdapter = plaidAdapter;
     this.pubsubAdapter = pubsubAdapter;
   }
@@ -12,10 +12,10 @@ class CreatePlaidItemService {
     const accessToken = await this.plaidAdapter.exchangePublicToken({
       publicToken,
     });
-    const existingPlaidItem = await this.plaidItemRepository.get({
-      tenantId,
-      institutionId,
-    });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const existingPlaidItem = tenant.plaidItems.find(
+      (plaidItem) => plaidItem.institutionId === institutionId
+    );
     if (existingPlaidItem) {
       throw new Error('Plaid item already exists');
     }
@@ -24,18 +24,23 @@ class CreatePlaidItemService {
       institutionName,
       tenantId,
       accessToken,
+      cursor: null,
     });
-    plaidItemCreatedMessage = new PlaidItemCreatedMessage({
+    tenant.plaidItems.push(plaidItem);
+    const plaidItemCreatedMessage = new PlaidItemCreatedMessage({
       tenantId,
       institutionId,
       topicName: 'plaid-item-created',
     });
+    tenant.outbox.push(plaidItemCreatedMessage);
+    await this.tenantRepository.put(tenant);
+
     await this.pubsubAdapter.publish({
       topicName: 'plaid-item-created',
       message: plaidItemCreatedMessage,
     });
-    await plaidItemRepository.put(plaidItem);
+    tenant.outbox.filter((message) => message !== plaidItemCreatedMessage);
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
-
 export { CreatePlaidItemService };

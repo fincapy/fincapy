@@ -1,9 +1,9 @@
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
-import { PlaidItemRepository } from '@/backend/adapters/repositories/plaidItemRepository';
 import { IngestNewTransactionsService } from '@/backend/services/ingestNewTransactionsService';
-import { OutboxRepository } from '@/backend/adapters/repositories/outboxRepository';
 import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
-import { db } from '@/backend/adapters/database';
+import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
+import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
 export const POST = async (req) => {
   const body = await req.json();
@@ -14,17 +14,20 @@ export const POST = async (req) => {
 
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const plaidAdapter = new PlaidAdapter(client);
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const openaiAdapter = new OpenaiAdapter();
   const service = new IngestNewTransactionsService({
     plaidAdapter,
-    plaidItemRepositoryFactory: PlaidItemRepository,
-    outboxRepositoryFactory: OutboxRepository,
-    db,
+    tenantRepository,
+    openaiAdapter,
     pubsubAdapter,
   });
 
   try {
     await service.execute({ tenantId, institutionId });
   } catch (error) {
+    console.log(error);
     return new Response(JSON.stringify({ message: error.message }), {
       status: 409,
     });

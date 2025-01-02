@@ -625,6 +625,11 @@ const CategoryCard = ({
     return 'rounded-none rounded-b-xl';
   };
 
+  const progress = Math.min(
+    (category.currentSpending / category.proratedGoal) * 100,
+    100
+  );
+
   return (
     <Card
       ref={categoryCardRef}
@@ -655,9 +660,7 @@ const CategoryCard = ({
       <CardContent>
         <div className="flex flex-row gap-2 items-center">
           <span>$0</span>
-          <ProgressCategory
-            value={category.currentSpending / category.proratedGoal}
-          />
+          <ProgressCategory value={progress} />
           <span>{`$${category.proratedGoal}`}</span>
         </div>
       </CardContent>

@@ -7,34 +7,16 @@ class OpenaiAdapter {
     });
   }
 
-  formatArrayForPrompt(data, fields) {
-    const header = fields.join(','); // Create header row
-    const rows = data.map((obj) =>
-      fields.map((field) => JSON.stringify(obj[field] || '')).join(',')
-    ); // Create rows
-    return [header, ...rows].join('\n'); // Combine header and rows
-  }
-
-  formatTransactionCreatedMessage(transactionCreatedMessage) {
-    const releventDataForInference = {
-      amount: transactionCreatedMessage.payload.amount,
-      category: transactionCreatedMessage.payload.category,
-      categoryConfidenceLevel:
-        transactionCreatedMessage.payload.categoryConfidenceLevel,
-      merchantName: transactionCreatedMessage.payload.merchantName,
-      originalDescription:
-        transactionCreatedMessage.payload.originalDescription,
-      accountType: transactionCreatedMessage.payload.accountType,
-      subAccountType: transactionCreatedMessage.payload.subAccountType,
-    };
-
-    return releventDataForInference;
-  }
-
   async categorizeTransaction({
     categoryIdToNameMap,
-    recategorizedTransactions,
-    transactionCreatedMessage,
+    recategorizations,
+    transactionAmount,
+    transactionCategory,
+    transactionCategoryConfidenceLevel,
+    transactionMerchantName,
+    transactionOriginalDescription,
+    transactionAccountType,
+    transactionSubAccountType,
   }) {
     const jsonschema = {
       name: 'transaction_categorization',
@@ -69,10 +51,18 @@ class OpenaiAdapter {
 
     const prompt = `Categorize the transaction based on the following data:
     The recategorized manually by user transactions:
-    ${JSON.stringify(recategorizedTransactions)}
+    ${JSON.stringify(recategorizations)}
     
     The transaction to be categorized:
-    ${JSON.stringify(this.formatTransactionCreatedMessage(transactionCreatedMessage))}`;
+    ${JSON.stringify({
+      amount: transactionAmount,
+      category: transactionCategory,
+      categoryConfidenceLevel: transactionCategoryConfidenceLevel,
+      merchantName: transactionMerchantName,
+      originalDescription: transactionOriginalDescription,
+      accountType: transactionAccountType,
+      subAccountType: transactionSubAccountType,
+    })}`;
 
     console.log('prompt', prompt);
 

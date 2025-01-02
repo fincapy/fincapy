@@ -39,6 +39,18 @@ class SpendingCategory extends Category {
   setCurrentSpending() {
     this.currentSpending = this.getCurrentSpending();
   }
+
+  setTransactionCategoryNames() {
+    this.transactions.forEach((transaction) => {
+      transaction.categoryName = this.name;
+    });
+
+    this.subcategories.forEach((subcategory) => {
+      subcategory.transactions.forEach((transaction) => {
+        transaction.categoryName = this.name + ' - ' + subcategory.name;
+      });
+    });
+  }
 }
 
 export { SpendingCategory };

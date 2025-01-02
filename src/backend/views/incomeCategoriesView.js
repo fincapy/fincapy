@@ -75,8 +75,6 @@ class CategoriesView {
         result.push(category);
       }
 
-      // Add category-level transactions
-      console.log('category', category);
       if (row.transaction?.categoryId === category.categoryId) {
         const transaction = {
           amount: row.transaction.amount,

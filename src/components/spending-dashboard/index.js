@@ -100,6 +100,7 @@ const CreateCategoryForm = () => {
       name,
       categoryId,
       monthlyGoal,
+      planId: 'initial',
     });
   }
 
@@ -179,7 +180,7 @@ const CreateCategoryDialogue = () => {
 
 const DeleteCategoryDialogue = ({ categoryId }) => {
   const onClick = async () => {
-    await deleteCategory({ categoryId });
+    await deleteCategory({ categoryId, planId: 'initial' });
   };
 
   return (
@@ -225,6 +226,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
       name,
       categoryId,
       monthlyGoal,
+      planId: 'initial',
     });
   }
 
@@ -353,6 +355,7 @@ const CreateSubcategoryForm = ({ categoryId }) => {
       monthlyGoal,
       categoryId,
       subcategoryId,
+      planId: 'initial',
     });
   }
 
@@ -467,6 +470,7 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
       name,
       monthlyGoal,
       subcategoryId,
+      planId: 'initial',
     });
   }
 
@@ -545,7 +549,7 @@ const EditSubcategoryDialogue = ({ subcategoryId }) => {
 
 const DeleteSubcategoryDialogue = ({ subcategoryId }) => {
   const onClick = async () => {
-    await deleteSubcategory({ subcategoryId });
+    await deleteSubcategory({ subcategoryId, planId: 'initial' });
   };
 
   return (

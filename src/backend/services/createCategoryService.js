@@ -7,6 +7,7 @@ class CreateCategoryService {
 
   async execute({
     tenantId,
+    planId,
     categoryId,
     name,
     monthlyGoal,
@@ -28,9 +29,11 @@ class CreateCategoryService {
       createdAt: new Date(),
       updatedAt: new Date(),
       isImmutable,
+      transactions: [],
+      subcategories: [],
     });
     plan.categories.push(category);
-    await this.planRepository.put(plan);
+    await this.planRepository.put({ tenantId, planId, plan });
   }
 }
 

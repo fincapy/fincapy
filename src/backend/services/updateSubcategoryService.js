@@ -1,26 +1,19 @@
 class UpdateSubcategoryService {
-  constructor({ subcategoryRepositoryFactory, db }) {
-    this.subcategoryRepositoryFactory = subcategoryRepositoryFactory;
-    this.db = db;
+  constructor({ planRepository }) {
+    this.planRepository = planRepository;
   }
 
-  async execute({ tenantId, subcategoryId, name, monthlyGoal }) {
-    await this.db.transaction(async (tx) => {
-      const subcategoryRepository = new this.subcategoryRepositoryFactory({
-        tx,
+  async execute({ tenantId, subcategoryId, name, monthlyGoal, planId }) {
+    const plan = await this.planRepository.get({ tenantId });
+    plan.categories.forEach((category) => {
+      category.subcategories.forEach((subcategory) => {
+        if (subcategory.subcategoryId === subcategoryId) {
+          subcategory.name = name;
+          subcategory.monthlyGoal = monthlyGoal;
+        }
       });
-      const existingSubcategory = await subcategoryRepository.get({
-        tenantId,
-        subcategoryId,
-      });
-      if (!existingSubcategory) {
-        throw new Error('Subcategory not found');
-      }
-      existingSubcategory.name = name;
-      existingSubcategory.monthlyGoal = monthlyGoal;
-      existingSubcategory.updatedAt = new Date();
-      await subcategoryRepository.update(existingSubcategory);
     });
+    await this.planRepository.put({ tenantId, planId, plan });
   }
 }
 

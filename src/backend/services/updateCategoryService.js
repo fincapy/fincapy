@@ -1,24 +1,14 @@
 class UpdateCategoryService {
-  constructor({ categoryRepositoryFactory, db }) {
-    this.categoryRepositoryFactory = categoryRepositoryFactory;
-    this.db = db;
+  constructor({ planRepository }) {
+    this.planRepository = planRepository;
   }
 
-  async execute({ tenantId, categoryId, name, monthlyGoal }) {
-    await this.db.transaction(async (tx) => {
-      const categoryRepository = new this.categoryRepositoryFactory({ tx });
-      const existingCategory = await categoryRepository.get({
-        tenantId,
-        categoryId,
-      });
-      if (!existingCategory) {
-        throw new Error('Category not found');
-      }
-      existingCategory.name = name;
-      existingCategory.monthlyGoal = monthlyGoal;
-      existingCategory.updatedAt = new Date();
-      await categoryRepository.update(existingCategory);
-    });
+  async execute({ tenantId, categoryId, planId, name, monthlyGoal }) {
+    const plan = await this.planRepository.get({ tenantId });
+    const category = plan.categories.find((c) => c.categoryId === categoryId);
+    category.name = name;
+    category.monthlyGoal = monthlyGoal;
+    await this.planRepository.put({ tenantId, planId, plan });
   }
 }
 

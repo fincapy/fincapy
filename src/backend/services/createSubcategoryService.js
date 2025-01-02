@@ -1,44 +1,38 @@
 import { Subcategory } from '../domain/subcategory';
 
 class CreateSubcategoryService {
-  constructor({ subcategoryRepositoryFactory, db }) {
-    this.subcategoryRepositoryFactory = subcategoryRepositoryFactory;
-    this.db = db;
+  constructor({ planRepository }) {
+    this.planRepository = planRepository;
   }
 
   async execute({
     tenantId,
     subcategoryId,
     categoryId,
+    planId,
     name,
     monthlyGoal,
     type,
     isImmutable,
   }) {
-    await this.db.transaction(async (tx) => {
-      const subcategoryRepository = new this.subcategoryRepositoryFactory({
-        tx,
-      });
-      const existingSubcategory = await subcategoryRepository.get({
-        tenantId,
-        subcategoryId,
-      });
-      if (existingSubcategory) {
-        throw new Error('Subcategory already exists');
-      }
-      const subcategory = new Subcategory({
-        tenantId,
-        subcategoryId,
-        categoryId,
-        name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        monthlyGoal,
-        type,
-        isImmutable,
-      });
-      await subcategoryRepository.add(subcategory);
+    const plan = await this.planRepository.get({ tenantId, planId });
+    const subCategory = new Subcategory({
+      tenantId,
+      subcategoryId,
+      type,
+      name,
+      monthlyGoal,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isImmutable,
+      transactions: [],
     });
+    plan.categories.forEach((category) => {
+      if (category.categoryId === categoryId) {
+        category.subcategories.push(subCategory);
+      }
+    });
+    await this.planRepository.put({ tenantId, planId, plan });
   }
 }
 

@@ -2,6 +2,8 @@ class Plan {
   constructor({ planId, categories }) {
     this.planId = planId;
     this.categories = categories;
+    this.startDate = null;
+    this.endDate = null;
   }
 
   calculateSavings() {

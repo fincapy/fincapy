@@ -8,6 +8,7 @@ class Subcategory {
     createdAt,
     updatedAt,
     isImmutable,
+    transactions,
   }) {
     this.tenantId = tenantId;
     this.subcategoryId = subcategoryId;
@@ -17,6 +18,7 @@ class Subcategory {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.isImmutable = isImmutable;
+    this.transactions = transactions;
   }
 }
 

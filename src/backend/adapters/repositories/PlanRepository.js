@@ -22,7 +22,6 @@ class PlanRepository {
       bucket: 'spendmore',
       key: planId ? `${tenantId}/${planId}` : `${tenantId}/initial`,
     });
-
     if (planObject === null) {
       return null;
     }
@@ -36,7 +35,7 @@ class PlanRepository {
       if (category.type === 'spending') {
         category = new SpendingCategory(category);
         category.subcategories = category?.subcategories.map((subcategory) => {
-          return new Subcategory(subcategory);
+          return new SpendingSubcategory(subcategory);
         });
       } else if (category.type === 'income') {
         category = new IncomeCategory(category);

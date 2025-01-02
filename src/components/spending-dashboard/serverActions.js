@@ -1,17 +1,16 @@
 'use server';
 
-// import { db } from '@/backend/adapters/database';
-// import { CategoryRepository } from '@/backend/adapters/repositories/categoryRepository';
-// import { SubcategoryRepository } from '@/backend/adapters/repositories/subcategoryRepository';
-// import { CreateCategoryService } from '@/backend/services/createCategoryService';
-// import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
-// import { UpdateCategoryService } from '@/backend/services/updateCategoryService';
-// import { DeleteCategoryService } from '@/backend/services/deleteCategoryService';
-// import { UpdateSubcategoryService } from '@/backend/services/updateSubcategoryService';
-// import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
+import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { CreateCategoryService } from '@/backend/services/createCategoryService';
+import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
+import { UpdateCategoryService } from '@/backend/services/updateCategoryService';
+import { DeleteCategoryService } from '@/backend/services/deleteCategoryService';
+import { UpdateSubcategoryService } from '@/backend/services/updateSubcategoryService';
+import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
 import { getSession } from '@auth0/nextjs-auth0';
 
-const createCategory = async ({ categoryId, name, monthlyGoal }) => {
+const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -19,9 +18,9 @@ const createCategory = async ({ categoryId, name, monthlyGoal }) => {
 
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new CreateCategoryService({
-    categoryRepositoryFactory: CategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -31,19 +30,20 @@ const createCategory = async ({ categoryId, name, monthlyGoal }) => {
     monthlyGoal: monthlyGoal,
     type: 'spending',
     isImmutable: false,
+    planId,
   });
 };
 
-const updateCategory = async ({ categoryId, name, monthlyGoal }) => {
+const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new UpdateCategoryService({
-    categoryRepositoryFactory: CategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -51,24 +51,26 @@ const updateCategory = async ({ categoryId, name, monthlyGoal }) => {
     categoryId,
     name,
     monthlyGoal,
+    planId,
   });
 };
 
-const deleteCategory = async ({ categoryId }) => {
+const deleteCategory = async ({ categoryId, planId }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new DeleteCategoryService({
-    categoryRepositoryFactory: CategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
     tenantId,
     categoryId,
+    planId,
   });
 };
 
@@ -77,6 +79,7 @@ const createSubcategory = async ({
   categoryId,
   name,
   monthlyGoal,
+  planId,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -84,9 +87,9 @@ const createSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new CreateSubcategoryService({
-    subcategoryRepositoryFactory: SubcategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -97,6 +100,8 @@ const createSubcategory = async ({
     monthlyGoal,
     isImmutable: false,
     type: 'spending',
+    transactions: [],
+    planId,
   });
 };
 
@@ -105,6 +110,7 @@ const updateSubcategory = async ({
   categoryId,
   name,
   monthlyGoal,
+  planId,
 }) => {
   const session = await getSession();
   if (!session) {
@@ -112,9 +118,9 @@ const updateSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new UpdateSubcategoryService({
-    subcategoryRepositoryFactory: SubcategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -123,24 +129,26 @@ const updateSubcategory = async ({
     categoryId,
     name,
     monthlyGoal,
+    planId,
   });
 };
 
-const deleteSubcategory = async ({ subcategoryId }) => {
+const deleteSubcategory = async ({ subcategoryId, planId }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
   const tenantId = session.user.tenant_id;
 
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new DeleteSubcategoryService({
-    subcategoryRepositoryFactory: SubcategoryRepository,
-    db,
+    planRepository: new PlanRepository({ tigrisAdapter }),
   });
 
   await service.execute({
     tenantId,
     subcategoryId,
+    planId,
   });
 };
 

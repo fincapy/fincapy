@@ -1,10 +1,11 @@
 class UpdateSubcategoryService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
   async execute({ tenantId, subcategoryId, name, monthlyGoal, planId }) {
-    const plan = await this.planRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       category.subcategories.forEach((subcategory) => {
         if (subcategory.subcategoryId === subcategoryId) {
@@ -13,7 +14,7 @@ class UpdateSubcategoryService {
         }
       });
     });
-    await this.planRepository.put({ tenantId, planId, plan });
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

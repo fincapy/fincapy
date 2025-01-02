@@ -4,7 +4,8 @@ class CategoriesView {
   }
 
   async get({ tenantId, planId, startDate, endDate }) {
-    const plan = await this.repository.get({ tenantId, planId });
+    const tenant = await this.repository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.startDate = startDate;
     plan.endDate = endDate;
     plan.prorateMonthlyGoals();

@@ -1,18 +1,24 @@
 import { Category } from '../domain/category';
 import { Plan } from '../domain/plan';
+import { Tenant } from '../domain/tenant';
 
 class SetupNewTenantService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
   async execute({ tenantId }) {
     try {
-      let plan = await this.planRepository.get({ tenantId });
-      if (plan) {
+      let tenant = await this.tenantRepository.get({ tenantId });
+      if (tenant) {
         return;
       }
-      plan = new Plan({
+      tenant = new Tenant({
+        tenantId,
+        plans: [],
+        plaidItems: [],
+      });
+      const plan = new Plan({
         planId: 'initial',
         categories: [],
       });
@@ -29,7 +35,8 @@ class SetupNewTenantService {
         subcategories: [],
       });
       plan.categories.push(spendingCategory);
-      await this.planRepository.put({ tenantId, planId: 'initial', plan });
+      tenant.plans.push(plan);
+      await this.tenantRepository.put({ tenantId, tenant });
     } catch (error) {
       console.log(error);
     }

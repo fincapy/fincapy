@@ -1,5 +1,5 @@
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
-import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 
 export const POST = async (req) => {
@@ -15,8 +15,8 @@ export const POST = async (req) => {
   const { tenantId } = body;
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const planRepository = new PlanRepository({ tigrisAdapter });
-  const service = new SetupNewTenantService({ planRepository });
+  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const service = new SetupNewTenantService({ tenantRepository });
 
   try {
     await service.execute({

@@ -1,15 +1,16 @@
 class DeleteSubcategoryService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
   async execute({ tenantId, subcategoryId, planId }) {
-    const plan = await this.planRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       category.subcategories = category.subcategories.filter(
         (subcategory) => subcategory.subcategoryId !== subcategoryId
       );
     });
-    await this.planRepository.put({ tenantId, planId, plan });
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

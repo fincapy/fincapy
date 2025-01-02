@@ -1,8 +1,8 @@
 import { Subcategory } from '../domain/subcategory';
 
 class CreateSubcategoryService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
   async execute({
@@ -15,7 +15,8 @@ class CreateSubcategoryService {
     type,
     isImmutable,
   }) {
-    const plan = await this.planRepository.get({ tenantId, planId });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     const subCategory = new Subcategory({
       tenantId,
       subcategoryId,
@@ -32,7 +33,7 @@ class CreateSubcategoryService {
         category.subcategories.push(subCategory);
       }
     });
-    await this.planRepository.put({ tenantId, planId, plan });
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

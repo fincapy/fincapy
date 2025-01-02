@@ -1,7 +1,7 @@
 'use server';
 
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
-import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { CreateCategoryService } from '@/backend/services/createCategoryService';
 import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
 import { UpdateCategoryService } from '@/backend/services/updateCategoryService';
@@ -20,7 +20,7 @@ const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new CreateCategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -43,7 +43,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new UpdateCategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -64,7 +64,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new DeleteCategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -89,7 +89,7 @@ const createSubcategory = async ({
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new CreateSubcategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -120,7 +120,7 @@ const updateSubcategory = async ({
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new UpdateSubcategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
@@ -142,7 +142,7 @@ const deleteSubcategory = async ({ subcategoryId, planId }) => {
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new DeleteSubcategoryService({
-    planRepository: new PlanRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({

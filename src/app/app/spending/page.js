@@ -1,17 +1,16 @@
 import Dashboard from '@/components/spending-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
 import { CategoriesView } from '@/backend/views/spendingCategoriesView';
-import { PlanRepository } from '@/backend/adapters/repositories/PlanRepository';
+import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
-import { db } from '@/backend/adapters/database';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
   const { user } = session;
   const tigris = new TigrisAdapter({ client: s3client });
-  const planRepository = new PlanRepository({ tigrisAdapter: tigris });
-  const view = new CategoriesView(planRepository);
+  const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
+  const view = new CategoriesView(tenantRepository);
   const currentDate = new Date();
 
   let startDate = null;
@@ -36,6 +35,7 @@ export default async function DashboardPage({ searchParams }) {
     tenantId: user.tenant_id,
     startDate,
     endDate,
+    planId: 'initial',
   });
   return (
     <Dashboard

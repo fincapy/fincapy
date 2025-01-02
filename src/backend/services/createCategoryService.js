@@ -1,8 +1,8 @@
 import { Category } from '@/backend/domain/category';
 
 class CreateCategoryService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
   async execute({
@@ -14,7 +14,8 @@ class CreateCategoryService {
     type,
     isImmutable,
   }) {
-    const plan = await this.planRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       if (category.categoryId === categoryId) {
         throw new Error('Category already exists');
@@ -33,7 +34,7 @@ class CreateCategoryService {
       subcategories: [],
     });
     plan.categories.push(category);
-    await this.planRepository.put({ tenantId, planId, plan });
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

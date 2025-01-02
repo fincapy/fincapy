@@ -1,14 +1,15 @@
 class DeleteCategoryService {
-  constructor({ planRepository }) {
-    this.planRepository = planRepository;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
   async execute({ tenantId, categoryId, planId }) {
-    const plan = await this.planRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories = plan.categories.filter(
       (category) => category.categoryId !== categoryId
     );
-    await this.planRepository.put({ tenantId, planId, plan });
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

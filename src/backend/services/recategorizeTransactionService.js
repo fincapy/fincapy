@@ -1,45 +1,62 @@
 import { Recategorization } from '../domain/recategorization';
 
 class RecategorizeTransactionService {
-  constructor({
-    transactionRepositoryFactory,
-    recategorizeLogRepositoryFactory,
-    db,
-  }) {
-    this.transactionRepositoryFactory = transactionRepositoryFactory;
-    this.recategorizeLogRepositoryFactory = recategorizeLogRepositoryFactory;
-    this.db = db;
+  constructor({ tenantRepository }) {
+    this.tenantRepository = tenantRepository;
   }
 
-  async execute({ tenantId, transactionId, categoryId }) {
-    await this.db.transaction(async (tx) => {
-      const transactionRepository = new this.transactionRepositoryFactory({
-        tx,
+  async execute({ tenantId, transactionId, planId, newCategoryId }) {
+    const tenant = await this.tenantRepository.get({ tenantId });
+    const plan = tenant.plans.find((plan) => plan.planId === planId);
+    let transaction;
+    let oldCategoryName;
+    let newCategoryName;
+    plan.categories.forEach((category) => {
+      category.transactions.forEach((t) => {
+        if (t.transactionId === transactionId) {
+          transaction = t;
+          oldCategoryName = category.name;
+        }
       });
-      const recategorizationLogRepository =
-        new this.recategorizeLogRepositoryFactory({ tx });
-
-      const transaction = await transactionRepository.get({
-        tenantId,
-        transactionId,
+      category.subcategories.forEach((subcategory) => {
+        subcategory.transactions.forEach((t) => {
+          if (t.transactionId === transactionId) {
+            transaction = t;
+            oldCategoryName = category.name + ' - ' + subcategory.name;
+          }
+        });
       });
-      const recategorization = new Recategorization({
-        tenantId,
-        recategorizationId: crypto.randomUUID(),
-        transactionId,
-        oldCategoryId: transaction.categoryId,
-        newCategoryId: categoryId,
-        createdAt: new Date(),
-      });
-      transaction.categoryId = categoryId;
-
-      if (!transaction) {
-        throw new Error('Transaction not found');
-      }
-
-      await recategorizationLogRepository.add(recategorization);
-      await transactionRepository.update(transaction);
     });
+    plan.categories.forEach((category) => {
+      category.transactions = category.transactions.filter(
+        (t) => t.transactionId !== transactionId
+      );
+      category.subcategories.forEach((subcategory) => {
+        subcategory.transactions = subcategory.transactions.filter(
+          (t) => t.transactionId !== transactionId
+        );
+      });
+    });
+    plan.categories.forEach((category) => {
+      if (category.categoryId === newCategoryId) {
+        category.transactions.push(transaction);
+        newCategoryName = category.name;
+      }
+      category.subcategories.forEach((subcategory) => {
+        if (subcategory.subcategoryId === newCategoryId) {
+          subcategory.transactions.push(transaction);
+          newCategoryName = category.name + ' - ' + subcategory.name;
+        }
+      });
+    });
+    const recategorization = new Recategorization({
+      transactionDescription: transaction.description,
+      oldCategoryName: oldCategoryName,
+      newCategoryName: newCategoryName,
+      createdAt: new Date(),
+    });
+    plan.recategorizations.push(recategorization);
+    await this.tenantRepository.put({ tenantId, tenant });
   }
 }
 

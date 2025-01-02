@@ -1,6 +1,6 @@
 import { Transaction } from '../domain/transaction';
 
-class IngestNewTransactionsService {
+class IngestTransactionUpdatesService {
   constructor({
     plaidAdapter,
     pubsubAdapter,
@@ -67,6 +67,13 @@ class IngestNewTransactionsService {
     if (category) {
       category.transactions.push(transaction);
     }
+    plan.categories.forEach((category) => {
+      category.subcategories.forEach((subcategory) => {
+        if (subcategory.subcategoryId === aiTransactionCategories.categoryId) {
+          subcategory.transactions.push(transaction);
+        }
+      });
+    });
   }
 
   async updateTransaction(
@@ -194,4 +201,4 @@ class IngestNewTransactionsService {
   }
 }
 
-export { IngestNewTransactionsService };
+export { IngestTransactionUpdatesService };

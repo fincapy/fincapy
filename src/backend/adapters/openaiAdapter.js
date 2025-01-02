@@ -49,7 +49,7 @@ class OpenaiAdapter {
       strict: true,
     };
 
-    const prompt = `Categorize the transaction based on the following data:
+    const prompt = `Categorize the transaction based on the following data. Money coming in will be negative. Money going out will be positive. For instance, credit card refunds, interest payments, etc. are negative. Refunds should be categorized the same as if they were purchases:
     The recategorized manually by user transactions:
     ${JSON.stringify(recategorizations)}
     

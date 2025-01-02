@@ -1,18 +1,14 @@
 class Recategorization {
   constructor({
-    tenantId,
-    recategorizationId,
-    transactionId,
-    oldCategoryId,
-    newCategoryId,
     createdAt,
+    transactionDescription,
+    oldCategoryName,
+    newCategoryName,
   }) {
-    this.tenantId = tenantId;
-    this.recategorizationId = recategorizationId;
-    this.transactionId = transactionId;
     this.createdAt = createdAt;
-    this.oldCategoryId = oldCategoryId;
-    this.newCategoryId = newCategoryId;
+    this.transactionDescription = transactionDescription;
+    this.oldCategoryName = oldCategoryName;
+    this.newCategoryName = newCategoryName;
   }
 }
 

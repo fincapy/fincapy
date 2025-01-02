@@ -89,7 +89,8 @@ const RecategorizeForm = ({
     setOuterDialogIsOpen(false);
     await recategorizeTransaction({
       transactionId,
-      categoryId: data.category,
+      planId: 'initial',
+      newCategoryId: data.category,
     });
   };
 

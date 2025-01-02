@@ -1,5 +1,5 @@
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
-import { IngestNewTransactionsService } from '@/backend/services/ingestNewTransactionsService';
+import { IngestTransactionUpdatesService } from '@/backend/services/ingestTransactionUpdatesService';
 import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
@@ -17,7 +17,7 @@ export const POST = async (req) => {
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const openaiAdapter = new OpenaiAdapter();
-  const service = new IngestNewTransactionsService({
+  const service = new IngestTransactionUpdatesService({
     plaidAdapter,
     tenantRepository,
     openaiAdapter,

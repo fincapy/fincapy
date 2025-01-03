@@ -15,9 +15,9 @@ class TigrisAdapter {
       Key: key,
       Body: body,
     };
-    console.log('put etag', etag);
+    console.log('put etag', etag.replace('"', ''));
     if (etag) {
-      objectParams.IfMatch = etag;
+      objectParams.IfMatch = etag.replace('"', '');
     }
     await this.client.send(new PutObjectCommand(objectParams));
   }

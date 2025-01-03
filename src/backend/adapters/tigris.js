@@ -65,7 +65,7 @@ const s3client = new S3Client({
 
 s3client.middlewareStack.add(
   (next, context) => async (args) => {
-    args.request.headers['x-tigris-cas'] = true;
+    args.request.headers['x-tigris-cas'] = 'true';
     const result = await next(args);
     return result;
   },

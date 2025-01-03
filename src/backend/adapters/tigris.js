@@ -15,6 +15,7 @@ class TigrisAdapter {
       Key: key,
       Body: body,
     };
+    console.log('put etag', etag);
     if (etag) {
       objectParams.IfMatch = etag;
     }
@@ -37,6 +38,7 @@ class TigrisAdapter {
 
       const obj = await streamToBuffer(response.Body);
       const etag = response.ETag;
+      console.log('get etag', etag);
       return [obj, etag];
     } catch (err) {
       if (err.name === 'NoSuchKey') {

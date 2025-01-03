@@ -24,6 +24,7 @@ class TigrisAdapter {
 
   async get({ bucket, key }) {
     try {
+      console.time('get object');
       const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -41,7 +42,7 @@ class TigrisAdapter {
 
       const obj = await streamToBuffer(response.Body);
       const etag = response.ETag;
-      console.log('get etag', etag);
+      console.timeEnd('get object');
       return [obj, etag];
     } catch (err) {
       if (err.name === 'NoSuchKey') {

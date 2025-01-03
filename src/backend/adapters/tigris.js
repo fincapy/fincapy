@@ -24,7 +24,11 @@ class TigrisAdapter {
 
   async get({ bucket, key }) {
     try {
-      const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+      const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        'x-tigris-cas': true,
+      });
       const response = await this.client.send(command);
 
       // Convert stream to buffer

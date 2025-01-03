@@ -28,12 +28,12 @@ class SetupNewTenantService {
       const spendingCategory = new Category({
         tenantId,
         categoryId: '1',
-        name: 'Spending',
+        name: 'Uncategorized',
         type: 'spending',
         monthlyGoal: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
-        isImmutable: false,
+        isImmutable: true,
         transactions: [],
         subcategories: [],
       });

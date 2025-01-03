@@ -49,12 +49,12 @@ class TigrisAdapter {
 }
 
 const s3client = new S3Client({
-  endpoint: 'http://minio:9000',
-  region: 'us-east-1',
+  endpoint: process.env.AWS_ENDPOINT_URL_S3,
+  region: process.env.AWS_REGION,
   forcePathStyle: true,
   credentials: {
-    accessKeyId: 'minioadmin',
-    secretAccessKey: 'minioadmin',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 

@@ -5,11 +5,11 @@ import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 export const POST = async (req) => {
   const tenantApiKey = process.env.TENANT_API_KEY;
 
-  // if (req.headers.get('x-tenant-api-key') !== tenantApiKey) {
-  //   return new Response(JSON.stringify({ message: 'Unauthorized' }), {
-  //     status: 401,
-  //   });
-  // }
+  if (req.headers.get('x-api-key') !== tenantApiKey) {
+    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+      status: 401,
+    });
+  }
 
   const body = await req.json();
   const { tenantId } = body;

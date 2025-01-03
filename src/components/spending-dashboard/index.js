@@ -641,12 +641,16 @@ const CategoryCard = ({
             <div className="flex flex-row items-center gap-2">
               <span>{category.name}</span>
               <div className="flex flex-row gap-0 items-center">
-                <EditCategoryDialogue
-                  categoryName={category.name}
-                  monthlyGoal={category.monthlyGoal}
-                  categoryId={category.categoryId}
-                />
-                <DeleteCategoryDialogue categoryId={category.categoryId} />
+                {!category.isImmutable && (
+                  <EditCategoryDialogue
+                    categoryName={category.name}
+                    monthlyGoal={category.monthlyGoal}
+                    categoryId={category.categoryId}
+                  />
+                )}
+                {!category.isImmutable && (
+                  <DeleteCategoryDialogue categoryId={category.categoryId} />
+                )}
                 <OpenTransactionTableDialogue
                   transactions={category.transactions}
                   categoryId={category.categoryId}

@@ -21,7 +21,7 @@ class TenantRepository {
 
   async get({ tenantId }) {
     const response = await this.tigrisAdapter.get({
-      bucket: 'spendmore',
+      bucket: process.env.BUCKET_NAME,
       key: tenantId,
     });
     if (response === null) {
@@ -76,7 +76,7 @@ class TenantRepository {
     const packedTenant = packr.pack(tenant);
     const compressedTenant = await brotliCompress(packedTenant);
     await this.tigrisAdapter.put({
-      bucket: 'spendmore',
+      bucket: process.env.BUCKET_NAME,
       key: tenantId,
       body: compressedTenant,
       etag,

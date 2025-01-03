@@ -18,4 +18,21 @@ class Transaction {
   }
 }
 
-export { Transaction };
+const transactionTypes = [
+  'spending',
+  'transfer',
+  'credit_card_payment',
+  'credit_card_refund',
+  'debit_card_refund',
+  'investment_transfer',
+  'interest_income',
+  'income',
+];
+
+const spendingTransactionTypes = [
+  'spending',
+  'credit_card_refund',
+  'debit_card_refund',
+];
+
+export { Transaction, transactionTypes, spendingTransactionTypes };

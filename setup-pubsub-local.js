@@ -14,6 +14,7 @@ const setupPlaidItemCreatedTopicAndSubscription = async () => {
 
   const pushConfig = {
     pushConfig: {
+      ackDeadlineSeconds: 60,
       pushEndpoint:
         'http://nextjs:3000/api/message-handlers/ingest-transaction-updates', // Your webhook endpoint
     },

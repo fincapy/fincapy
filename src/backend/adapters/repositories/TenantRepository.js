@@ -20,13 +20,14 @@ class TenantRepository {
   }
 
   async get({ tenantId }) {
-    const tenantObject = await this.tigrisAdapter.get({
+    const response = await this.tigrisAdapter.get({
       bucket: 'spendmore',
       key: tenantId,
     });
-    if (tenantObject === null) {
+    if (response === null) {
       return null;
     }
+    const [tenantObject, etag] = response;
 
     const decompressedTenant = await brotliDecompress(tenantObject);
     const packr = new Packr();
@@ -67,10 +68,10 @@ class TenantRepository {
       });
       return plan;
     });
-    return tenant;
+    return [tenant, etag];
   }
 
-  async put({ tenantId, tenant }) {
+  async put({ tenantId, tenant, etag }) {
     const packr = new Packr();
     const packedTenant = packr.pack(tenant);
     const compressedTenant = await brotliCompress(packedTenant);
@@ -78,6 +79,7 @@ class TenantRepository {
       bucket: 'spendmore',
       key: tenantId,
       body: compressedTenant,
+      etag,
     });
   }
 }

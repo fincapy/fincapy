@@ -6,6 +6,17 @@ class Plan {
     this.endDate = null;
     this.recategorizations = recategorizations;
   }
+  toSpendingView() {
+    let categories = [];
+    const fractionOfMonths = this.getFractionOfMonths();
+    this.categories.forEach((category) => {
+      if (category.type === 'spending') {
+        category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
+        categories.push(Object.assign({}, category));
+      }
+    });
+    return categories;
+  }
 
   calculateSavings() {
     let savings = 0;
@@ -61,18 +72,6 @@ class Plan {
     const monthsBetween = yearsDifference * 12 + monthsDifference + 1;
 
     return factor * monthsBetween;
-  }
-
-  prorateMonthlyGoals() {
-    this.categories.forEach((category) => {
-      const fractionOfMonths = this.getFractionOfMonths();
-      const unroundedGoal = fractionOfMonths * category.monthlyGoal;
-      category.proratedGoal = Math.round(unroundedGoal * 100) / 100;
-      category.subcategories.forEach((subcategory) => {
-        const unroundedGoal = fractionOfMonths * subcategory.monthlyGoal;
-        subcategory.proratedGoal = Math.round(unroundedGoal * 100) / 100;
-      });
-    });
   }
 }
 

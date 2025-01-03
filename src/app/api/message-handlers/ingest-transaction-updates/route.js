@@ -5,7 +5,12 @@ import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const POST = async (req) => {
+  await wait(1000);
   const body = await req.json();
   const dataBuffer = Buffer.from(body.message.data, 'base64');
   const decodedData = dataBuffer.toString('utf-8');

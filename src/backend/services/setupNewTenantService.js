@@ -9,11 +9,11 @@ class SetupNewTenantService {
 
   async execute({ tenantId }) {
     try {
-      let tenant = await this.tenantRepository.get({ tenantId });
-      if (tenant) {
+      let response = await this.tenantRepository.get({ tenantId });
+      if (response) {
         return;
       }
-      tenant = new Tenant({
+      const tenant = new Tenant({
         tenantId,
         plans: [],
         plaidItems: [],
@@ -39,7 +39,7 @@ class SetupNewTenantService {
       });
       plan.categories.push(spendingCategory);
       tenant.plans.push(plan);
-      await this.tenantRepository.put({ tenantId, tenant });
+      await this.tenantRepository.put({ tenantId, tenant, etag: null });
     } catch (error) {
       console.log(error);
     }

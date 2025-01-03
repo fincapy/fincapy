@@ -9,12 +9,15 @@ class TigrisAdapter {
     this.client = client;
   }
 
-  async put({ bucket, key, body }) {
+  async put({ bucket, key, body, etag }) {
     const objectParams = {
       Bucket: bucket,
       Key: key,
       Body: body,
     };
+    if (etag) {
+      objectParams.IfMatch = etag;
+    }
     await this.client.send(new PutObjectCommand(objectParams));
   }
 
@@ -32,7 +35,9 @@ class TigrisAdapter {
           stream.on('error', reject);
         });
 
-      return await streamToBuffer(response.Body);
+      const obj = await streamToBuffer(response.Body);
+      const etag = response.ETag;
+      return [obj, etag];
     } catch (err) {
       if (err.name === 'NoSuchKey') {
       } else {

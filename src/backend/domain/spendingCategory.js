@@ -1,4 +1,6 @@
 import { Category } from './category';
+import { parse } from 'date-fns';
+import { spendingTransactionTypes } from './transaction';
 
 class SpendingCategory extends Category {
   constructor({
@@ -28,28 +30,35 @@ class SpendingCategory extends Category {
     this.currentSpending = 0;
   }
 
-  getCurrentSpending() {
+  toSpendingView(startDate, endDate, fractionOfMonths) {
+    const transactions = [];
     let currentSpending = 0;
+    this.prorateMonthlyGoal(fractionOfMonths);
     this.transactions.forEach((transaction) => {
-      currentSpending += transaction.amount;
+      const transactionDate = parse(transaction.date, 'yyyy-MM-dd', new Date());
+      if (
+        transactionDate >= startDate &&
+        transactionDate <= endDate &&
+        spendingTransactionTypes.includes(transaction.type)
+      ) {
+        currentSpending += transaction.amount;
+        transaction.categoryName = this.name;
+        transactions.push(transaction);
+      }
     });
-    return currentSpending;
-  }
-
-  setCurrentSpending() {
-    this.currentSpending = this.getCurrentSpending();
-  }
-
-  setTransactionCategoryNames() {
-    this.transactions.forEach((transaction) => {
-      transaction.categoryName = this.name;
-    });
-
+    this.transactions = transactions;
+    this.currentSpending = currentSpending;
+    const subcategories = [];
     this.subcategories.forEach((subcategory) => {
-      subcategory.transactions.forEach((transaction) => {
-        transaction.categoryName = this.name + ' - ' + subcategory.name;
-      });
+      subcategory.toSpendingView(this, startDate, endDate, fractionOfMonths);
+      subcategories.push(Object.assign({}, subcategory));
     });
+    this.subcategories = subcategories;
+  }
+
+  prorateMonthlyGoal(fractionOfMonths) {
+    const unroundedGoal = fractionOfMonths * this.monthlyGoal;
+    this.proratedGoal = Math.round(unroundedGoal * 100) / 100;
   }
 }
 

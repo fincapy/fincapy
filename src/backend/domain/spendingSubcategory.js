@@ -1,4 +1,6 @@
 import { Subcategory } from './subcategory';
+import { parse } from 'date-fns';
+import { spendingTransactionTypes } from './transaction';
 
 class SpendingSubcategory extends Subcategory {
   constructor({
@@ -26,16 +28,30 @@ class SpendingSubcategory extends Subcategory {
     this.currentSpending = 0;
   }
 
-  getCurrentSpending() {
+  toSpendingView(category, startDate, endDate, fractionOfMonths) {
+    const transactions = [];
     let currentSpending = 0;
+    this.prorateMonthlyGoal(fractionOfMonths);
     this.transactions.forEach((transaction) => {
-      currentSpending += transaction.amount;
+      const transactionDate = parse(transaction.date, 'yyyy-MM-dd', new Date());
+      if (
+        transactionDate >= startDate &&
+        transactionDate <= endDate &&
+        spendingTransactionTypes.includes(transaction.type)
+      ) {
+        currentSpending += transaction.amount;
+        transaction.categoryName = category.name + ' - ' + this.name;
+        transactions.push(transaction);
+        category.transactions.push(transaction);
+      }
     });
-    return currentSpending;
+    this.transactions = transactions;
+    this.currentSpending = currentSpending;
   }
 
-  setCurrentSpending() {
-    this.currentSpending = this.getCurrentSpending();
+  prorateMonthlyGoal(fractionOfMonths) {
+    const unroundedGoal = fractionOfMonths * this.monthlyGoal;
+    this.proratedGoal = Math.round(unroundedGoal * 100) / 100;
   }
 }
 

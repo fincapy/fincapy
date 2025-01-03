@@ -1,3 +1,4 @@
+import { redirect } from 'next/dist/server/api-utils';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 const configuration = new Configuration({
@@ -29,12 +30,13 @@ class PlaidAdapter {
   async createLinkToken({ tenantId }) {
     const payload = {
       user: {
-        client_user_id: tenantId, // Replace with a unique identifier for your user
+        client_user_id: tenantId,
       },
       client_name: 'SpendMore',
-      products: ['transactions'], // Specify the products you need
+      products: ['transactions'],
       country_codes: ['US'],
       language: 'en',
+      redirect_uri: process.env.PLAID_REDIRECT_URI,
     };
     const response = await this.client.linkTokenCreate(payload);
     return response.data.link_token;

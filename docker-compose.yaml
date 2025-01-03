@@ -40,6 +40,7 @@ services:
       - PUBSUB_PROJECT_ID=${PUBSUB_PROJECT_ID}
       - NODE_ENV=${NODE_ENV}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PLAID_REDIRECT_URI=${PLAID_REDIRECT_URI}
   minio:
     image: minio/minio:latest
     container_name: minio

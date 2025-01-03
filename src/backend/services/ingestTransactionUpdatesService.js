@@ -150,10 +150,11 @@ class IngestTransactionUpdatesService {
   }
 
   async execute({ tenantId, institutionId }) {
-    const tenant = await this.tenantRepository.get({ tenantId });
-    if (!tenant) {
+    const response = await this.tenantRepository.get({ tenantId });
+    if (!response) {
       return null;
     }
+    const [tenant, etag] = response;
     const plaidItem = tenant.plaidItems.find(
       (plaidItem) => plaidItem.institutionId === institutionId
     );
@@ -196,7 +197,7 @@ class IngestTransactionUpdatesService {
       }
     }
     plaidItem.cursor = plaidTransactions.next_cursor;
-    await this.tenantRepository.put({ tenantId, tenant });
+    await this.tenantRepository.put({ tenantId, tenant, etag });
     return true;
   }
 }

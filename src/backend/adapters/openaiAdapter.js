@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { transactionTypes } from '../domain/transaction';
 
 class OpenaiAdapter {
   constructor() {
@@ -30,15 +31,7 @@ class OpenaiAdapter {
           },
           type: {
             type: 'string',
-            enum: [
-              'spending',
-              'transfer',
-              'credit_card_payment',
-              'credit_card_refund',
-              'debit_card_refund',
-              'investment_transfer',
-              'income',
-            ],
+            enum: transactionTypes,
             description:
               'The type of the transaction to categorize the transaction to.',
           },

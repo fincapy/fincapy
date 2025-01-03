@@ -14,7 +14,11 @@ class CreateCategoryService {
     type,
     isImmutable,
   }) {
-    const tenant = await this.tenantRepository.get({ tenantId });
+    const response = await this.tenantRepository.get({ tenantId });
+    if (response === null) {
+      return;
+    }
+    const [tenant, etag] = response;
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       if (category.categoryId === categoryId) {
@@ -34,7 +38,7 @@ class CreateCategoryService {
       subcategories: [],
     });
     plan.categories.push(category);
-    await this.tenantRepository.put({ tenantId, tenant });
+    await this.tenantRepository.put({ tenantId, tenant, etag });
   }
 }
 

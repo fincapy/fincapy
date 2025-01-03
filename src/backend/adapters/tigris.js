@@ -27,7 +27,6 @@ class TigrisAdapter {
       const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key,
-        'x-tigris-cas': true,
       });
       const response = await this.client.send(command);
 
@@ -63,5 +62,18 @@ const s3client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+s3client.middlewareStack.add(
+  (next, context) => async (args) => {
+    args.request.headers['x-tigris-cas'] = true;
+    const result = await next(args);
+    return result;
+  },
+  {
+    step: 'build',
+    name: 'addTigrisHeader',
+    tags: ['HEADER', 'TIGRIS'],
+  }
+);
 
 export { TigrisAdapter, s3client };

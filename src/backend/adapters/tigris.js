@@ -64,4 +64,17 @@ const s3client = new S3Client({
   },
 });
 
+s3client.middlewareStack.add(
+  (next, context) => async (args) => {
+    args.request.headers['Cache-Control'] = 'no-cache';
+    const result = await next(args);
+    return result;
+  },
+  {
+    step: 'build',
+    name: 'addTigrisHeader',
+    tags: ['HEADER', 'TIGRIS'],
+  }
+);
+
 export { TigrisAdapter, s3client };

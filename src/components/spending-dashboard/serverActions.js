@@ -1,6 +1,7 @@
 'use server';
 
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { S3Client } from '@aws-sdk/client-s3';
+import { TigrisAdapter } from '@/backend/adapters/tigris';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { CreateCategoryService } from '@/backend/services/createCategoryService';
 import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
@@ -17,7 +18,27 @@ const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   }
 
   const tenantId = session.user.tenant_id;
-
+  const s3client = new S3Client({
+    endpoint: process.env.AWS_ENDPOINT_URL_S3,
+    region: process.env.AWS_REGION,
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+  s3client.middlewareStack.add(
+    (next, context) => async (args) => {
+      args.request.headers['x-tigris-cas'] = 'true';
+      const result = await next(args);
+      return result;
+    },
+    {
+      step: 'build',
+      name: 'addTigrisHeader',
+      tags: ['HEADER', 'TIGRIS'],
+    }
+  );
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const service = new CreateCategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),

@@ -37,7 +37,7 @@ class CreateSubcategoryService {
         category.subcategories.push(subCategory);
       }
     });
-    await this.tenantRepository.put({ tenantId, tenant });
+    await this.tenantRepository.put({ tenantId, tenant, etag });
   }
 }
 

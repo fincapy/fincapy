@@ -321,7 +321,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   );
 };
 
-const CreateSubcategoryForm = ({ categoryId }) => {
+const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -357,6 +357,8 @@ const CreateSubcategoryForm = ({ categoryId }) => {
       subcategoryId,
       planId: 'initial',
     });
+
+    setDropdownIsOpen(true);
   }
 
   return (
@@ -408,7 +410,7 @@ const CreateSubcategoryForm = ({ categoryId }) => {
   );
 };
 
-const CreateSubcategoryDialogue = ({ categoryId }) => {
+const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -431,7 +433,10 @@ const CreateSubcategoryDialogue = ({ categoryId }) => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <CreateSubcategoryForm categoryId={categoryId} />
+          <CreateSubcategoryForm
+            categoryId={categoryId}
+            setDropdownIsOpen={setDropdownIsOpen}
+          />
         </div>
       </DialogContent>
     </Dialog>
@@ -608,6 +613,7 @@ const CategoryCard = ({
   subcategoryLength,
   categoryCardRef,
   isOverlapping,
+  setAreSubcategoriesOpen,
 }) => {
   const getRoundedStyle = () => {
     if (!areSubcategoriesOpen) {
@@ -657,7 +663,10 @@ const CategoryCard = ({
                 />
               </div>
             </div>
-            <CreateSubcategoryDialogue categoryId={category.categoryId} />
+            <CreateSubcategoryDialogue
+              categoryId={category.categoryId}
+              setDropdownIsOpen={setAreSubcategoriesOpen}
+            />
           </div>
         </CardTitle>
       </CardHeader>
@@ -699,6 +708,11 @@ const SubcategoryCard = forwardRef(
       return 'rounded-none';
     };
 
+    const progress = Math.min(
+      (subcategory.currentSpending / subcategory.proratedGoal) * 100,
+      100
+    );
+
     return (
       <Card
         ref={ref}
@@ -725,9 +739,7 @@ const SubcategoryCard = forwardRef(
         <CardContent className="p-0 mr-6 ml-6 mb-6">
           <div className="flex flex-row gap-2 items-center">
             <span>$0</span>
-            <ProgressSubcategory
-              value={subcategory.currentSpending / subcategory.proratedGoal}
-            />
+            <ProgressCategory value={progress} />
             <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
@@ -788,6 +800,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
         subcategoryLength={subcategories.length}
         categoryCardRef={categoryCardRef}
         isOverlapping={isOverlapping}
+        setAreSubcategoriesOpen={setAreSubcategoriesOpen}
       />
       {subcategories.map((subcategory, index) => (
         <CollapsibleContent

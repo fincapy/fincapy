@@ -2,6 +2,7 @@ const {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  ListObjectsV2Command,
 } = require('@aws-sdk/client-s3');
 
 class TigrisAdapter {
@@ -20,6 +21,28 @@ class TigrisAdapter {
       objectParams.IfMatch = etag.replace('"', '');
     }
     await this.client.send(new PutObjectCommand(objectParams));
+  }
+
+  async list({ bucket }) {
+    let objectMetadata = [];
+    let continuationToken = undefined;
+    try {
+      do {
+        const command = new ListObjectsV2Command({
+          Bucket: bucket,
+          ContinuationToken: continuationToken,
+        });
+        const response = await this.client.send(command);
+        if (response.Contents) {
+          objectMetadata = objectMetadata.concat(response.Contents);
+        }
+        continuationToken = response.NextContinuationToken;
+      } while (continuationToken);
+      return objectMetadata;
+    } catch (error) {
+      console.error('Error listing objects:', error);
+      throw error;
+    }
   }
 
   async get({ bucket, key }) {

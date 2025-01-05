@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "npx drizzle-kit migrate && node ./setup-pubsub-local.js",
+    "predev": "node ./setup-pubsub-local.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

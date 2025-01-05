@@ -14,4 +14,11 @@ class PlaidItemCreatedMessage extends Message {
   }
 }
 
-export { PlaidItemCreatedMessage };
+class TransactionIngestRequestedMessage extends Message {
+  constructor({ topicName, tenantId }) {
+    super({ topicName });
+    this.payload = { tenantId, eventType: 'TRANSACTION_INGEST_REQUESTED' };
+  }
+}
+
+export { PlaidItemCreatedMessage, TransactionIngestRequestedMessage };

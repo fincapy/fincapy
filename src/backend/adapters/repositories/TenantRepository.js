@@ -71,6 +71,16 @@ class TenantRepository {
     return [tenant, etag];
   }
 
+  async getAllTenantIds() {
+    const objects = await this.tigrisAdapter.list({
+      bucket: process.env.BUCKET_NAME,
+    });
+    const tenantIds = objects.map((object) => {
+      return object.Key;
+    });
+    return tenantIds;
+  }
+
   async put({ tenantId, tenant, etag }) {
     const packr = new Packr();
     const packedTenant = packr.pack(tenant);

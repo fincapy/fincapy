@@ -155,48 +155,52 @@ class IngestTransactionUpdatesService {
       return null;
     }
     const [tenant, etag] = response;
-    const plaidItem = tenant.plaidItems.find(
-      (plaidItem) => plaidItem.institutionId === institutionId
-    );
-    if (!plaidItem) {
+    let plaidItems = tenant.plaidItems;
+    if (institutionId) {
+      plaidItems = plaidItems.filter(
+        (plaidItem) => plaidItem.institutionId === institutionId
+      );
+    }
+    if (plaidItems.length === 0) {
       return null;
     }
+    for (const plaidItem of plaidItems) {
+      try {
+        await this.plaidAdapter.refreshTransactions({
+          accessToken: plaidItem.accessToken,
+        });
+      } catch (error) {}
 
-    try {
-      await this.plaidAdapter.refreshTransactions({
+      const plaidTransactions = await this.plaidAdapter.getTransactions({
         accessToken: plaidItem.accessToken,
+        cursor: plaidItem.cursor,
       });
-    } catch (error) {}
+      for (const plan of tenant.plans) {
+        const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
+        for (const plaidTransaction of plaidTransactions.added) {
+          await this.addTransaction(
+            plaidTransactions,
+            plaidTransaction,
+            plan,
+            categoryIdToNameMap
+          );
+        }
 
-    const plaidTransactions = await this.plaidAdapter.getTransactions({
-      accessToken: plaidItem.accessToken,
-      cursor: plaidItem.cursor,
-    });
-    for (const plan of tenant.plans) {
-      const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-      for (const plaidTransaction of plaidTransactions.added) {
-        await this.addTransaction(
-          plaidTransactions,
-          plaidTransaction,
-          plan,
-          categoryIdToNameMap
-        );
-      }
+        for (const plaidTransaction of plaidTransactions.modified) {
+          await this.updateTransactions(
+            plaidTransactions,
+            plaidTransaction,
+            plan,
+            categoryIdToNameMap
+          );
+        }
 
-      for (const plaidTransaction of plaidTransactions.modified) {
-        await this.updateTransactions(
-          plaidTransactions,
-          plaidTransaction,
-          plan,
-          categoryIdToNameMap
-        );
+        for (const plaidTransaction of plaidTransactions.removed) {
+          await this.removeTransaction(plaidTransaction, plan);
+        }
       }
-
-      for (const plaidTransaction of plaidTransactions.removed) {
-        await this.removeTransaction(plaidTransaction, plan);
-      }
+      plaidItem.cursor = plaidTransactions.next_cursor;
     }
-    plaidItem.cursor = plaidTransactions.next_cursor;
     await this.tenantRepository.put({ tenantId, tenant, etag });
     return true;
   }

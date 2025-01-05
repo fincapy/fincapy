@@ -10,7 +10,6 @@ function wait(ms) {
 }
 
 export const POST = async (req) => {
-  await wait(1000);
   const body = await req.json();
   const dataBuffer = Buffer.from(body.message.data, 'base64');
   const decodedData = dataBuffer.toString('utf-8');

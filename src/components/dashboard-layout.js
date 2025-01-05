@@ -50,42 +50,30 @@ const AvatarDropdown = ({ user }) => {
         align="end"
         sideOffset={4}
       >
-        <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="rounded-full">
-              <AvatarImage src={user.picture} alt={user.name} />
-              <AvatarFallback className="rounded-full">CN</AvatarFallback>
-            </Avatar>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Sparkles />
-            <a className="w-full" href="/upgrade">
-              Upgrade
+          <DropdownMenuItem className="cursor-pointer">
+            <BadgeCheck />
+            Account
+          </DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
+            <a
+              className="w-full flex items-center content-center gap-2"
+              href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
+            >
+              <CreditCard size={16} />
+              Billing
             </a>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <BadgeCheck />
-            Account
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard />
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Bell />
-            Notifications
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut />
-          Log out
+        <DropdownMenuItem className="cursor-pointer">
+          <a
+            className="w-full flex items-center content-center gap-2"
+            href="/api/auth/logout"
+          >
+            <LogOut size={16} />
+            Log out
+          </a>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

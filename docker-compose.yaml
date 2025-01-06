@@ -37,6 +37,8 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - BUCKET_NAME=${BUCKET_NAME}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
   minio:
     image: minio/minio:latest
     container_name: minio

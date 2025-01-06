@@ -19,6 +19,7 @@ class SetupNewTenantService {
         plaidItems: [],
         outbox: [],
         inbox: [],
+        billingStatus: 'unpaid',
       });
       const plan = new Plan({
         planId: 'initial',

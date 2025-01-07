@@ -15,9 +15,10 @@ export default async function Layout({ children }) {
   const user = session.user;
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
-  const [tenant, etag] = await tenantRepository.get({
+  const response = await tenantRepository.get({
     tenantId: user.tenant_id,
   });
+  const [tenant, etag] = response;
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(
       `https://buy.stripe.com/test_6oEeVmgk19t71moeUU?prefilled_email=${encodeURIComponent(user.email)}`

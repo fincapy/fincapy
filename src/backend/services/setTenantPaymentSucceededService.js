@@ -5,7 +5,6 @@ class SetTenantPaymentSucceededService {
   }
 
   async execute(email) {
-    console.log('this.auth0Adapter', this.auth0Adapter);
     const user = await this.auth0Adapter.getUserByEmail(email);
     const tenantId = user.app_metadata.tenant_id;
     const [tenant, etag] = await this.tenantRepository.get({

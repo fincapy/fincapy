@@ -14,8 +14,7 @@ class CreateUserService {
       role: role,
       tenant_id: tenantId,
     });
-    await this.auth0Adapter.triggerPasswordChange(auth0User.user_id);
-    tenant.users.push(new User({ email, role, name, status: 'pending' }));
+    tenant.users.push(new User({ email, role, name }));
     await this.tenantRepository.put({ tenantId, tenant, etag });
   }
 }

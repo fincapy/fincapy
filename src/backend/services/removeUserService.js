@@ -15,7 +15,9 @@ class RemoveUserService {
       tenant.users = tenant.users.filter((user) => user.email !== email);
       const auth0User = await this.auth0Adapter.getUserByEmail(email);
       await this.auth0Adapter.deleteUser(auth0User.user_id);
-      await this.tenantRepository.update({ tenantId, tenant, etag });
+      await this.tenantRepository.put({ tenantId, tenant, etag });
     }
   }
 }
+
+export { RemoveUserService };

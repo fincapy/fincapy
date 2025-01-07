@@ -33,7 +33,7 @@ export const POST = async (req) => {
 
     const tigrisAdapter = new TigrisAdapter({ client: s3client });
     const tenantRepository = new TenantRepository({ tigrisAdapter });
-    const auth0Adapter = new Auth0Adapter(auth0Client);
+    const auth0Adapter = new Auth0Adapter({ client: auth0Client });
     let service;
     switch (event.type) {
       case 'invoice.payment_succeeded':

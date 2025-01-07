@@ -26,7 +26,6 @@ class SetupNewTenantService {
             email,
             name,
             role: 'owner',
-            status: 'active',
           }),
         ],
       });

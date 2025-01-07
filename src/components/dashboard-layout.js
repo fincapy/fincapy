@@ -37,7 +37,6 @@ const getInitials = (name) => {
 
 const AvatarDropdown = ({ auth0User, user }) => {
   const initials = getInitials(auth0User.name);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

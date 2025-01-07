@@ -16,18 +16,20 @@ class Auth0Adapter {
   }
 
   async createUser(email, name) {
-    console.log('createUser', email, name);
     await this.client.users.create({
       email: email,
       name: name,
       password: 'ThisIsA!Strong!Password!75663',
       connection: 'Username-Password-Authentication',
+      email_verified: false,
+      verify_email: false,
     });
   }
 
-  async triggerPasswordChange(userId) {
-    await this.client.tickets.changePassword({
+  async triggerInviteEmail(userId) {
+    await this.client.tickets.verifyEmail({
       user_id: userId,
+      result_url: 'http://localhost:3000/app/spending',
     });
   }
 

@@ -36,7 +36,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { recategorizeTransaction } from './serverActions';
+import { removeUser, changeUserRole, changeUserName } from './serverActions';
+import { Input } from '@/components/ui/input';
 
 export function SelectDemo({ field }) {
   return (
@@ -58,7 +59,7 @@ export function SelectDemo({ field }) {
   );
 }
 
-const recategorizeFormSchema = z.object({
+const changeRoleFormSchema = z.object({
   role: z.string(),
 });
 
@@ -69,7 +70,7 @@ const ChangeRoleForm = ({
   email,
 }) => {
   const form = useForm({
-    resolver: zodResolver(recategorizeFormSchema),
+    resolver: zodResolver(changeRoleFormSchema),
     defaultValues: {
       role: role,
     },
@@ -78,10 +79,9 @@ const ChangeRoleForm = ({
   const onSubmit = async (data) => {
     setInnerDialogIsOpen(false);
     setOuterDialogIsOpen(false);
-    await recategorizeTransaction({
-      transactionId,
-      planId: 'initial',
-      newCategoryId: data.category,
+    await changeUserRole({
+      email,
+      role: data.role,
     });
   };
 
@@ -168,6 +168,85 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
   );
 };
 
+const changeNameFormSchema = z.object({
+  name: z.string(),
+});
+
+const ChangeNameForm = ({
+  setOuterDialogIsOpen,
+  setInnerDialogIsOpen,
+  name,
+  email,
+}) => {
+  const form = useForm({
+    resolver: zodResolver(changeNameFormSchema),
+    defaultValues: {
+      name: name,
+    },
+  });
+
+  const onSubmit = async (data) => {
+    setInnerDialogIsOpen(false);
+    setOuterDialogIsOpen(false);
+    console.log(data);
+    console.log(email);
+    await changeUserName({
+      email,
+      name: data.name,
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-3"
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Change name</FormLabel>
+              <Input placeholder="Name" {...field} value={field.value} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <DialogClose asChild>
+          <Button type="submit">Submit</Button>
+        </DialogClose>
+      </form>
+    </Form>
+  );
+};
+
+const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-11/12">
+        <ChangeNameForm
+          name={row.original.name}
+          email={row.original.email}
+          setOuterDialogIsOpen={setOuterDialogIsOpen}
+          setInnerDialogIsOpen={setIsOpen}
+        />
+      </DialogContent>
+      <DropdownMenuItem
+        className="cursor-pointer"
+        onSelect={(e) => {
+          e.preventDefault(); // Prevent dropdown from closing
+          setIsOpen(true);
+        }}
+      >
+        Change name
+      </DropdownMenuItem>
+    </Dialog>
+  );
+};
+
 const Actions = ({ row }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -182,6 +261,7 @@ const Actions = ({ row }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <ChangeNameDialog row={row} setOuterDialogIsOpen={setIsOpen} />
         <ChangeRoleDialog row={row} setOuterDialogIsOpen={setIsOpen} />
         <RemoveUserDialog row={row} setOuterDialogIsOpen={setIsOpen} />
       </DropdownMenuContent>

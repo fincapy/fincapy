@@ -1,13 +1,14 @@
 import { Category } from '../domain/category';
 import { Plan } from '../domain/plan';
 import { Tenant } from '../domain/tenant';
+import { User } from '../domain/user';
 
 class SetupNewTenantService {
   constructor({ tenantRepository }) {
     this.tenantRepository = tenantRepository;
   }
 
-  async execute({ tenantId }) {
+  async execute({ tenantId, userId, email, name }) {
     try {
       let response = await this.tenantRepository.get({ tenantId });
       if (response) {
@@ -20,6 +21,14 @@ class SetupNewTenantService {
         outbox: [],
         inbox: [],
         billingStatus: 'unpaid',
+        users: [
+          new User({
+            userId,
+            email,
+            name,
+            role: 'owner',
+          }),
+        ],
       });
       const plan = new Plan({
         planId: 'initial',

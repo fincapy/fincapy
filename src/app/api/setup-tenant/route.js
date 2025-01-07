@@ -12,7 +12,7 @@ export const POST = async (req) => {
   }
 
   const body = await req.json();
-  const { tenantId } = body;
+  const { tenantId, userId, email, name } = body;
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
@@ -21,6 +21,9 @@ export const POST = async (req) => {
   try {
     await service.execute({
       tenantId,
+      userId,
+      email,
+      name,
     });
   } catch (error) {
     return new Response(JSON.stringify({ message: error.message }), {

@@ -22,6 +22,8 @@ import { BadgeCheck } from 'lucide-react';
 import { CreditCard } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { Bell } from 'lucide-react';
+import { Fragment } from 'react';
+import Link from 'next/link';
 
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input
@@ -33,15 +35,15 @@ const getInitials = (name) => {
   return firstName.charAt(0) + lastName.charAt(0);
 };
 
-const AvatarDropdown = ({ user }) => {
-  const initials = getInitials(user.name);
+const AvatarDropdown = ({ auth0User, user }) => {
+  const initials = getInitials(auth0User.name);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="rounded-full">
           <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
-          <AvatarImage src={user.picture} alt={user.name} />
+          <AvatarImage src={auth0User.picture} alt={auth0User.name} />
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -50,22 +52,31 @@ const AvatarDropdown = ({ user }) => {
         align="end"
         sideOffset={4}
       >
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="cursor-pointer">
-            <BadgeCheck />
-            Account
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer">
-            <a
-              className="w-full flex items-center content-center gap-2"
-              href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
-            >
-              <CreditCard size={16} />
-              Billing
-            </a>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {user.role === 'owner' && (
+          <Fragment>
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link
+                  className="w-full flex items-center content-center gap-2"
+                  href="/app/manage-users"
+                >
+                  <BadgeCheck size={16} />
+                  Manage users
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <a
+                  className="w-full flex items-center content-center gap-2"
+                  href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
+                >
+                  <CreditCard size={16} />
+                  Billing
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </Fragment>
+        )}
         <DropdownMenuItem className="cursor-pointer">
           <a
             className="w-full flex items-center content-center gap-2"
@@ -80,7 +91,7 @@ const AvatarDropdown = ({ user }) => {
   );
 };
 
-export default function DashboardLayout({ children, user }) {
+export default function DashboardLayout({ children, auth0User, user }) {
   const path = usePathname();
   const pageName = path.split('/').pop();
   const pageNameSeparated = pageName.split('-').join(' ');
@@ -109,7 +120,7 @@ export default function DashboardLayout({ children, user }) {
                 <div className="flex flex-row items-center gap-3">
                   <ModeToggle />
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <AvatarDropdown user={user} />
+                    <AvatarDropdown auth0User={auth0User} user={user} />
                   </Button>
                 </div>
               </div>

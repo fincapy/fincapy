@@ -12,13 +12,16 @@ export default async function Layout({ children }) {
     return <div>Unauthorized</div>;
   }
 
-  const user = session.user;
+  const auth0User = session.user;
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const response = await tenantRepository.get({
-    tenantId: user.tenant_id,
+    tenantId: auth0User.tenant_id,
   });
   const [tenant, etag] = response;
+  const user = tenant.users.find(
+    (user) => user.userId === auth0User.static_user_id
+  );
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(
       `https://buy.stripe.com/test_6oEeVmgk19t71moeUU?prefilled_email=${encodeURIComponent(user.email)}`
@@ -33,5 +36,9 @@ export default async function Layout({ children }) {
     redirect('https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg');
   }
 
-  return <DashboardLayout user={user}>{children}</DashboardLayout>;
+  return (
+    <DashboardLayout auth0User={auth0User} user={user}>
+      {children}
+    </DashboardLayout>
+  );
 }

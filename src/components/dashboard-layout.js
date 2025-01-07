@@ -43,7 +43,7 @@ const AvatarDropdown = ({ auth0User, user }) => {
       <DropdownMenuTrigger asChild>
         <Avatar className="rounded-full">
           <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
-          <AvatarImage src={auth0User.picture} alt={auth0User.name} />
+          <AvatarImage src={auth0User.custom_picture} alt={auth0User.name} />
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent

@@ -1,7 +1,7 @@
 import { ManagementClient } from 'auth0';
 
 class Auth0Adapter {
-  constructor(client) {
+  constructor({ client }) {
     this.client = client;
   }
 
@@ -9,6 +9,26 @@ class Auth0Adapter {
     const response = await this.client.usersByEmail.getByEmail({ email });
     console.log('getUserByEmailResponse', response);
     return response.data[0];
+  }
+
+  async deleteUser(userId) {
+    await this.client.users.delete({ id: userId });
+  }
+
+  async createUser(email, name) {
+    console.log('createUser', email, name);
+    await this.client.users.create({
+      email: email,
+      name: name,
+      password: 'ThisIsA!Strong!Password!75663',
+      connection: 'Username-Password-Authentication',
+    });
+  }
+
+  async triggerPasswordChange(userId) {
+    await this.client.tickets.changePassword({
+      user_id: userId,
+    });
   }
 
   async getUsersByTenantId(tenantId) {

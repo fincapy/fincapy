@@ -10,6 +10,5 @@ export default async function ManageUsersPage() {
   const tigris = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
   const [tenant, etag] = await tenantRepository.get({ tenantId });
-  console.log(tenant.users);
   return <Dashboard users={tenant.users} />;
 }

@@ -3,11 +3,13 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { CategoriesView } from '@/backend/views/spendingCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
   const { user } = session;
+  console.log(user);
   const tigris = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
   const view = new CategoriesView(tenantRepository);

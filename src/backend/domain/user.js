@@ -1,9 +1,9 @@
 class User {
-  constructor({ userId, email, name, role }) {
-    this.userId = userId;
+  constructor({ email, name, role, status }) {
     this.email = email;
     this.name = name;
     this.role = role;
+    this.status = status;
   }
 }
 

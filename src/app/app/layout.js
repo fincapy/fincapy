@@ -19,9 +19,7 @@ export default async function Layout({ children }) {
     tenantId: auth0User.tenant_id,
   });
   const [tenant, etag] = response;
-  const user = tenant.users.find(
-    (user) => user.userId === auth0User.static_user_id
-  );
+  const user = tenant.users.find((user) => user.email === auth0User.email);
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(
       `https://buy.stripe.com/test_6oEeVmgk19t71moeUU?prefilled_email=${encodeURIComponent(user.email)}`

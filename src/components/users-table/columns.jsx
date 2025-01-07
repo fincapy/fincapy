@@ -10,7 +10,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DataTableColumnHeader } from './data-table-column-header';
-import { Dialog, DialogContent, DialogClose } from '../ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogTitle,
+  DialogDescription,
+} from '../ui/dialog';
 import { useState } from 'react';
 import {
   Form,
@@ -97,7 +103,7 @@ const ChangeRoleForm = ({
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Create</Button>
+          <Button type="submit">Submit</Button>
         </DialogClose>
       </form>
     </Form>
@@ -130,6 +136,38 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
   );
 };
 
+const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleRemoveUser = async () => {
+    await removeUser(row.original.email);
+    setOuterDialogIsOpen(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-11/12">
+        <DialogTitle>Remove user</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to remove this user?
+        </DialogDescription>
+        <Button variant="destructive" onClick={handleRemoveUser}>
+          Remove user
+        </Button>
+      </DialogContent>
+      <DropdownMenuItem
+        className="cursor-pointer"
+        onSelect={(e) => {
+          e.preventDefault(); // Prevent dropdown from closing
+          setIsOpen(true);
+        }}
+      >
+        Remove user
+      </DropdownMenuItem>
+    </Dialog>
+  );
+};
+
 const Actions = ({ row }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -145,6 +183,7 @@ const Actions = ({ row }) => {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ChangeRoleDialog row={row} setOuterDialogIsOpen={setIsOpen} />
+        <RemoveUserDialog row={row} setOuterDialogIsOpen={setIsOpen} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

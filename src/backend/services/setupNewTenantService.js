@@ -23,10 +23,10 @@ class SetupNewTenantService {
         billingStatus: 'unpaid',
         users: [
           new User({
-            userId,
             email,
             name,
             role: 'owner',
+            status: 'active',
           }),
         ],
       });

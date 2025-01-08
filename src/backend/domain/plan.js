@@ -33,6 +33,26 @@ class Plan {
     return categories;
   }
 
+  toSavingsView() {
+    let categories = [];
+    let net = 0;
+    this.categories.forEach((category) => {
+      if (category.type === 'spending') {
+        category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
+        net += category.currentNet;
+      } else if (category.type === 'income') {
+        category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
+        net += category.currentNet;
+      }
+    });
+    const savingsCategory = this.categories.find(
+      (category) => category.type === 'savings'
+    );
+    savingsCategory.currentNet = net;
+    savingsCategory.allocateToSubcategories();
+    return categories;
+  }
+
   calculateSavings() {
     let savings = 0;
     for (const category of this.categories) {

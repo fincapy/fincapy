@@ -86,7 +86,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-
+import { TypeContext } from './typeContext';
+import { useContext } from 'react';
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
     message: 'Name must be at least 1 character.',
@@ -97,6 +98,7 @@ const createCategoryFormSchema = z.object({
 });
 
 const CreateCategoryForm = () => {
+  const type = useContext(TypeContext);
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -118,6 +120,7 @@ const CreateCategoryForm = () => {
       categoryId,
       monthlyGoal,
       planId: 'initial',
+      type,
     });
   }
 
@@ -154,7 +157,7 @@ const CreateCategoryForm = () => {
           name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Spending Goal</FormLabel>
+              <FormLabel>Monthly Goal</FormLabel>
               <FormControl>
                 <Input
                   placeholder="$0"
@@ -177,6 +180,7 @@ const CreateCategoryForm = () => {
 };
 
 const CreateCategoryDialogue = () => {
+  const type = useContext(TypeContext);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -193,9 +197,9 @@ const CreateCategoryDialogue = () => {
         onPointerDown={(e) => e.stopPropagation()}
       >
         <DialogHeader>
-          <DialogTitle>Create Spending Category</DialogTitle>
+          <DialogTitle>{`Create ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
           <DialogDescription>
-            Add a new custom spending category
+            {`Add a new custom ${type} category`}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -210,6 +214,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   const onClick = async () => {
     await deleteCategory({ categoryId, planId: 'initial' });
   };
+  const type = useContext(TypeContext);
 
   return (
     <Dialog>
@@ -224,7 +229,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
       </DialogTrigger>
       <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogHeader>
-          <DialogTitle>Delete Spending Category</DialogTitle>
+          <DialogTitle>{`Delete ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete this category? All transactions
             associated with this category will be moved to uncategorized.
@@ -308,7 +313,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
           name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Spending Goal</FormLabel>
+              <FormLabel>Monthly Goal</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="off"
@@ -332,6 +337,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
 };
 
 const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
+  const type = useContext(TypeContext);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -348,9 +354,9 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Edit Spending Category</DialogTitle>
+          <DialogTitle>{`Edit ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
           <DialogDescription>
-            Edit your existing spending category
+            {`Edit your existing ${type} category`}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -366,6 +372,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
 };
 
 const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
+  const type = useContext(TypeContext);
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -400,6 +407,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       categoryId,
       subcategoryId,
       planId: 'initial',
+      type,
     });
 
     setDropdownIsOpen(true);
@@ -435,7 +443,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
           name="monthlyGoal"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Spending Goal</FormLabel>
+              <FormLabel>Monthly Goal</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="off"
@@ -457,6 +465,8 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
 };
 
 const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
+  const type = useContext(TypeContext);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -476,7 +486,7 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
         <DialogHeader>
           <DialogTitle>Create Subcategory</DialogTitle>
           <DialogDescription>
-            Create a new subcategory for your spending category
+            {`Create a new subcategory for your ${type} category`}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -859,9 +869,6 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
 
         const subcategoryRect = firstSubcategoryRef.getBoundingClientRect();
 
-        console.log(categoryRect.bottom, subcategoryRect.top);
-
-        // Check if the two rectangles overlap
         const isOverlapping = categoryRect.bottom - 20 > subcategoryRect.top;
 
         setIsOverlapping(isOverlapping);
@@ -1063,7 +1070,7 @@ const DatePickers = ({ startDate, endDate }) => {
   );
 };
 
-export default function Dashboard({ categories, startDate, endDate }) {
+export default function Dashboard({ categories, startDate, endDate, type }) {
   let categoryNames = Object.values(categories)
     .map((category) =>
       category.subcategories.map((subcategory) => {
@@ -1128,41 +1135,45 @@ export default function Dashboard({ categories, startDate, endDate }) {
 
   return (
     <CategoryContext.Provider value={categoryNames}>
-      <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
-        <div className="flex flex-col justify-center items-center gap-4 mb-8">
-          <div
-            className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
-            key="create-category-dialogue"
-          >
-            <DatePickers startDate={startDate} endDate={endDate} />
-            <CreateCategoryDialogue />
-          </div>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={categoriesState.map((category) => category.categoryId)}
-              strategy={verticalListSortingStrategy}
+      <TypeContext.Provider value={type}>
+        <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
+          <div className="flex flex-col justify-center items-center gap-4 mb-8">
+            <div
+              className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
+              key="create-category-dialogue"
             >
-              {categoriesState.map((category) => (
-                <div
-                  className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
-                  key={category.categoryId}
-                >
-                  <CategoryCardCollapsible
+              <DatePickers startDate={startDate} endDate={endDate} />
+              {(type === 'spending' || type === 'income') && (
+                <CreateCategoryDialogue />
+              )}
+            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={categoriesState.map((category) => category.categoryId)}
+                strategy={verticalListSortingStrategy}
+              >
+                {categoriesState.map((category) => (
+                  <div
+                    className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
                     key={category.categoryId}
-                    id={category.categoryId}
-                    category={category}
-                    subcategories={category.subcategories}
-                  />
-                </div>
-              ))}
-            </SortableContext>
-          </DndContext>
+                  >
+                    <CategoryCardCollapsible
+                      key={category.categoryId}
+                      id={category.categoryId}
+                      category={category}
+                      subcategories={category.subcategories}
+                    />
+                  </div>
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
         </div>
-      </div>
+      </TypeContext.Provider>
     </CategoryContext.Provider>
   );
 }

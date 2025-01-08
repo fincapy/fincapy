@@ -12,7 +12,13 @@ import { ReorderCategoriesService } from '@/backend/services/reorderCategoriesSe
 import { ReorderSubcategoriesService } from '@/backend/services/reorderSubcategoriesService';
 import { getSession } from '@auth0/nextjs-auth0';
 
-const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
+const createCategory = async ({
+  categoryId,
+  name,
+  monthlyGoal,
+  planId,
+  type,
+}) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -25,15 +31,20 @@ const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
-  await service.execute({
-    tenantId,
-    categoryId,
-    name,
-    monthlyGoal: monthlyGoal,
-    type: 'spending',
-    isImmutable: false,
-    planId,
-  });
+  try {
+    await service.execute({
+      tenantId,
+      categoryId,
+      name,
+      monthlyGoal: monthlyGoal,
+      type,
+      isImmutable: false,
+      planId,
+    });
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 };
 
 const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {

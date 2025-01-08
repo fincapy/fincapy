@@ -71,6 +71,15 @@ class Subcategory {
     const unroundedGoal = fractionOfMonths * this.monthlyGoal;
     this.proratedGoal = Math.round(unroundedGoal * 100) / 100;
   }
+
+  clone() {
+    return new Subcategory({
+      ...this,
+      transactions: this.transactions.map((transaction) =>
+        Object.assign({}, transaction)
+      ),
+    });
+  }
 }
 
 export { Subcategory };

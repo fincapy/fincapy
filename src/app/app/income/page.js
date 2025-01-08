@@ -1,6 +1,6 @@
-import Dashboard from '@/components/spending-dashboard';
+import Dashboard from '@/components/category-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
-import { CategoriesView } from '@/backend/views/spendingCategoriesView';
+import { IncomeCategoriesView } from '@/backend/views/incomeCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { parse } from 'date-fns';
@@ -10,7 +10,7 @@ export default async function DashboardPage({ searchParams }) {
   const { user } = session;
   const tigris = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
-  const view = new CategoriesView(tenantRepository);
+  const view = new IncomeCategoriesView(tenantRepository);
   const currentDate = new Date();
 
   let startDate = null;
@@ -42,6 +42,7 @@ export default async function DashboardPage({ searchParams }) {
       categories={categories}
       startDate={startDate.toISOString().split('T')[0]}
       endDate={endDate.toISOString().split('T')[0]}
+      type="income"
     />
   );
 }

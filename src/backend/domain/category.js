@@ -88,6 +88,30 @@ class Category {
     const unroundedGoal = fractionOfMonths * this.monthlyGoal;
     this.proratedGoal = Math.round(unroundedGoal * 100) / 100;
   }
+
+  allocateToSubcategories() {
+    let amountLeft = this.currentNet;
+    this.subcategories.forEach((subcategory) => {
+      amountLeft -= subcategory.proratedGoal;
+      const amountToAllocate = Math.max(0, amountLeft);
+      subcategory.currentNet = amountToAllocate;
+    });
+  }
+
+  clone() {
+    const subcategories = [];
+    this.subcategories.forEach((subcategory) => {
+      const newSubcategory = subcategory.clone();
+      subcategories.push(newSubcategory);
+    });
+    return new Category({
+      ...this,
+      transactions: this.transactions.map((transaction) =>
+        Object.assign({}, transaction)
+      ),
+      subcategories,
+    });
+  }
 }
 
 export { Category };

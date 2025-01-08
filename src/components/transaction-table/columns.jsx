@@ -42,7 +42,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useContext } from 'react';
-import { CategoryContext } from '../spending-dashboard/categoryContext';
+import { CategoryContext } from '../category-dashboard/categoryContext';
 import { TransactionContext } from './transaction';
 import { recategorizeTransaction } from './serverActions';
 

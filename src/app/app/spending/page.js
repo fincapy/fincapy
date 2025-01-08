@@ -1,4 +1,4 @@
-import Dashboard from '@/components/spending-dashboard';
+import Dashboard from '@/components/category-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
 import { SpendingCategoriesView } from '@/backend/views/spendingCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
@@ -43,6 +43,7 @@ export default async function DashboardPage({ searchParams }) {
       categories={categories}
       startDate={startDate.toISOString().split('T')[0]}
       endDate={endDate.toISOString().split('T')[0]}
+      type="spending"
     />
   );
 }

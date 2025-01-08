@@ -31,6 +31,8 @@ class CreateSubcategoryService {
       updatedAt: new Date(),
       isImmutable,
       transactions: [],
+      spendingPagePosition: 100000,
+      incomePagePosition: 100000,
     });
     plan.categories.forEach((category) => {
       if (category.categoryId === categoryId) {

@@ -8,6 +8,8 @@ import { UpdateCategoryService } from '@/backend/services/updateCategoryService'
 import { DeleteCategoryService } from '@/backend/services/deleteCategoryService';
 import { UpdateSubcategoryService } from '@/backend/services/updateSubcategoryService';
 import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
+import { ReorderSpendingCategoriesService } from '@/backend/services/reorderSpendingCategoriesService';
+import { ReorderSpendingSubcategoriesService } from '@/backend/services/reorderSpendingSubcategoriesService';
 import { getSession } from '@auth0/nextjs-auth0';
 
 const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
@@ -152,6 +154,52 @@ const deleteSubcategory = async ({ subcategoryId, planId }) => {
   });
 };
 
+const reorderSpendingCategories = async ({ planId, oldIndex, newIndex }) => {
+  const session = await getSession();
+  if (!session) {
+    return false;
+  }
+  const tenantId = session.user.tenant_id;
+
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const service = new ReorderSpendingCategoriesService({
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
+  });
+
+  await service.execute({
+    tenantId,
+    planId,
+    oldIndex,
+    newIndex,
+  });
+};
+
+const reorderSpendingSubcategories = async ({
+  planId,
+  categoryId,
+  oldIndex,
+  newIndex,
+}) => {
+  const session = await getSession();
+  if (!session) {
+    return false;
+  }
+  const tenantId = session.user.tenant_id;
+
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const service = new ReorderSpendingSubcategoriesService({
+    tenantRepository: new TenantRepository({ tigrisAdapter }),
+  });
+
+  await service.execute({
+    tenantId,
+    planId,
+    categoryId,
+    oldIndex,
+    newIndex,
+  });
+};
+
 export {
   createCategory,
   updateCategory,
@@ -159,4 +207,6 @@ export {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
+  reorderSpendingCategories,
+  reorderSpendingSubcategories,
 };

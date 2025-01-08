@@ -45,6 +45,8 @@ class SetupNewTenantService {
         isImmutable: true,
         transactions: [],
         subcategories: [],
+        spendingPagePosition: 0,
+        incomePagePosition: 0,
       });
       plan.categories.push(spendingCategory);
       tenant.plans.push(plan);

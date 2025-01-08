@@ -115,7 +115,7 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <ChangeRoleForm
           role={row.original.role}
           email={row.original.email}
@@ -146,7 +146,7 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogTitle>Remove user</DialogTitle>
         <DialogDescription>
           Are you sure you want to remove this user?
@@ -226,7 +226,7 @@ const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <ChangeNameForm
           name={row.original.name}
           email={row.original.email}

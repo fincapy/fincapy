@@ -10,6 +10,8 @@ class Category {
     isImmutable,
     transactions,
     subcategories,
+    spendingPagePosition,
+    incomePagePosition,
   }) {
     this.tenantId = tenantId;
     this.categoryId = categoryId;
@@ -22,6 +24,8 @@ class Category {
     this.transactions = transactions;
     this.subcategories = subcategories;
     this.proratedGoal = 0;
+    this.spendingPagePosition = spendingPagePosition;
+    this.incomePagePosition = incomePagePosition;
   }
 }
 

@@ -54,6 +54,8 @@ import {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
+  reorderSpendingCategories,
+  reorderSpendingSubcategories,
 } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
@@ -69,6 +71,21 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useRouter } from 'next/navigation';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -116,6 +133,8 @@ const CreateCategoryForm = () => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
+        onPointerDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <FormField
           control={form.control}
@@ -148,7 +167,9 @@ const CreateCategoryForm = () => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Create</Button>
+          <Button type="submit" onPointerDown={(e) => e.stopPropagation()}>
+            Create
+          </Button>
         </DialogClose>
       </form>
     </Form>
@@ -159,11 +180,18 @@ const CreateCategoryDialogue = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button
+          variant="outline"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <PlusIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>Create Spending Category</DialogTitle>
           <DialogDescription>
@@ -186,11 +214,15 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Trash2 />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogHeader>
           <DialogTitle>Delete Spending Category</DialogTitle>
           <DialogDescription>
@@ -198,7 +230,11 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
             associated with this category will be moved to uncategorized.
           </DialogDescription>
         </DialogHeader>
-        <Button variant="destructive" onClick={onClick}>
+        <Button
+          variant="destructive"
+          onClick={onClick}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           Delete
         </Button>
       </DialogContent>
@@ -247,6 +283,8 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
+        onPointerDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <FormField
           control={form.control}
@@ -284,7 +322,9 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Submit</Button>
+          <Button type="submit" onPointerDown={(e) => e.stopPropagation()}>
+            Submit
+          </Button>
         </DialogClose>
       </form>
     </Form>
@@ -295,12 +335,16 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Pencil />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -366,6 +410,8 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
+        onPointerDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <FormField
           control={form.control}
@@ -418,12 +464,13 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
           variant="ghost"
           size="icon"
           style={{ marginRight: '-23px', marginTop: '-47px' }}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -484,6 +531,8 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
+        onPointerDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <FormField
           control={form.control}
@@ -532,13 +581,18 @@ const EditSubcategoryDialogue = ({ subcategoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Pencil />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>Edit Subcategory</DialogTitle>
@@ -560,11 +614,15 @@ const DeleteSubcategoryDialogue = ({ subcategoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Trash2 />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogHeader>
           <DialogTitle>Delete Subcategory</DialogTitle>
           <DialogDescription>
@@ -585,7 +643,11 @@ const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
   return (
     <Dialog className="max-w-full max-h-full">
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Eye />
         </Button>
       </DialogTrigger>
@@ -683,6 +745,7 @@ const CategoryCard = ({
             <Button
               variant="ghost"
               size="icon"
+              onPointerDown={(e) => e.stopPropagation()}
               className={`transition-transform duration-200 ${
                 areSubcategoriesOpen ? 'rotate-180' : ''
               } hover:bg-inherit`}
@@ -713,10 +776,22 @@ const SubcategoryCard = forwardRef(
       100
     );
 
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: subcategory.subcategoryId });
+
+    const style = {
+      transform: CSS.Translate.toString(transform),
+      transition,
+      height: 'auto',
+    };
+
     return (
       <Card
-        ref={ref}
-        className={`shadow-none bg-card-subcategory ${getRoundedStyle()}`}
+        ref={setNodeRef}
+        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} cursor-move`}
+        style={style}
+        {...attributes}
+        {...listeners}
       >
         <CardHeader className={'p-0 ml-6 mr-6 mt-4 mb-4'}>
           <CardTitle>
@@ -729,7 +804,11 @@ const SubcategoryCard = forwardRef(
                 <DeleteSubcategoryDialogue
                   subcategoryId={subcategory.subcategoryId}
                 />
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
                   <Eye />
                 </Button>
               </div>
@@ -756,6 +835,15 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
   const subcategoryRefs = useRef([
     ...subcategories.map(() => React.createRef()),
   ]);
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: category.categoryId });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    height: 'auto',
+  };
 
   useEffect(() => {
     // Function to check overlap between category and the first subcategory
@@ -789,10 +877,44 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
     };
   }, [categoryCardRef, subcategoryRefs, areSubcategoriesOpen]);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
+
+  const [subcategoriesState, setSubcategoriesState] = useState(subcategories);
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    // If dropped outside or in the same position, do nothing
+    if (!over || active.id === over.id) return;
+
+    // Reorder cards
+    const oldIndex = subcategoriesState.findIndex(
+      (subcategory) => subcategory.subcategoryId === active.id
+    );
+    const newIndex = subcategoriesState.findIndex(
+      (subcategory) => subcategory.subcategoryId === over.id
+    );
+    setSubcategoriesState((prev) => arrayMove(prev, oldIndex, newIndex));
+    await reorderSpendingSubcategories({
+      planId: 'initial',
+      categoryId: category.categoryId,
+      oldIndex,
+      newIndex,
+    });
+  };
+
   return (
     <Collapsible
       open={areSubcategoriesOpen}
       onOpenChange={setAreSubcategoriesOpen}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-move"
     >
       <CategoryCard
         category={category}
@@ -802,19 +924,32 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
         isOverlapping={isOverlapping}
         setAreSubcategoriesOpen={setAreSubcategoriesOpen}
       />
-      {subcategories.map((subcategory, index) => (
-        <CollapsibleContent
-          key={subcategory.subcategoryId}
-          ref={subcategoryRefs.current[index]}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={subcategoriesState.map(
+            (subcategory) => subcategory.subcategoryId
+          )}
+          strategy={verticalListSortingStrategy}
         >
-          <SubcategoryCard
-            subcategory={subcategory}
-            areSubcategoriesOpen={areSubcategoriesOpen}
-            subcategoryLength={subcategories.length}
-            index={index}
-          />
-        </CollapsibleContent>
-      ))}
+          {subcategoriesState.map((subcategory, index) => (
+            <CollapsibleContent
+              key={subcategory.subcategoryId}
+              ref={subcategoryRefs.current[index]}
+            >
+              <SubcategoryCard
+                subcategory={subcategory}
+                areSubcategoriesOpen={areSubcategoriesOpen}
+                subcategoryLength={subcategories.length}
+                index={index}
+              />
+            </CollapsibleContent>
+          ))}
+        </SortableContext>
+      </DndContext>
     </Collapsible>
   );
 };
@@ -952,6 +1087,34 @@ export default function Dashboard({ categories, startDate, endDate }) {
     return 0;
   });
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
+
+  const [categoriesState, setCategoriesState] = useState(categories);
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    // If dropped outside or in the same position, do nothing
+    if (!over || active.id === over.id) return;
+
+    // Reorder cards
+    const oldIndex = categoriesState.findIndex(
+      (category) => category.categoryId === active.id
+    );
+    const newIndex = categoriesState.findIndex(
+      (category) => category.categoryId === over.id
+    );
+    setCategoriesState((prev) => arrayMove(prev, oldIndex, newIndex));
+    await reorderSpendingCategories({
+      planId: 'initial',
+      oldIndex,
+      newIndex,
+    });
+  };
+
   return (
     <CategoryContext.Provider value={categoryNames}>
       <div className="flex flex-col w-full flex-grow gap-4 mt-4">
@@ -963,18 +1126,30 @@ export default function Dashboard({ categories, startDate, endDate }) {
             <DatePickers startDate={startDate} endDate={endDate} />
             <CreateCategoryDialogue />
           </div>
-          {categories.map((category, index) => (
-            <div
-              className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
-              key={category.categoryId}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={categoriesState.map((category) => category.categoryId)}
+              strategy={verticalListSortingStrategy}
             >
-              <CategoryCardCollapsible
-                key={category.categoryId}
-                category={category}
-                subcategories={category.subcategories}
-              />
-            </div>
-          ))}
+              {categoriesState.map((category) => (
+                <div
+                  className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
+                  key={category.categoryId}
+                >
+                  <CategoryCardCollapsible
+                    key={category.categoryId}
+                    id={category.categoryId}
+                    category={category}
+                    subcategories={category.subcategories}
+                  />
+                </div>
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
     </CategoryContext.Provider>

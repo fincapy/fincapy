@@ -14,6 +14,8 @@ class SpendingCategory extends Category {
     isImmutable,
     transactions,
     subcategories,
+    spendingPagePosition,
+    incomePagePosition,
   }) {
     super({});
     this.tenantId = tenantId;
@@ -28,6 +30,8 @@ class SpendingCategory extends Category {
     this.subcategories = subcategories;
     this.proratedGoal = 0;
     this.currentSpending = 0;
+    this.spendingPagePosition = spendingPagePosition;
+    this.incomePagePosition = incomePagePosition;
   }
 
   toSpendingView(startDate, endDate, fractionOfMonths) {

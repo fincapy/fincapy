@@ -15,6 +15,7 @@ class Plan {
         categories.push(Object.assign({}, category));
       }
     });
+    categories.sort((a, b) => a.spendingPagePosition - b.spendingPagePosition);
     return categories;
   }
 

@@ -437,14 +437,21 @@ const SidebarMenu = React.forwardRef(({ className, ...props }, ref) => (
 ));
 SidebarMenu.displayName = 'SidebarMenu';
 
-const SidebarMenuItem = React.forwardRef(({ className, ...props }, ref) => (
-  <li
-    ref={ref}
-    data-sidebar="menu-item"
-    className={cn('group/menu-item relative', className)}
-    {...props}
-  />
-));
+const SidebarMenuItem = React.forwardRef(
+  ({ className, isActive, ...props }, ref) => (
+    <li
+      ref={ref}
+      data-active={isActive}
+      data-sidebar="menu-item"
+      className={cn(
+        'group/menu-item relative',
+        isActive && 'bg-sidebar-accent/50 mr-24',
+        className
+      )}
+      {...props}
+    />
+  )
+);
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(

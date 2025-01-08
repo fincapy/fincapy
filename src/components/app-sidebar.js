@@ -64,7 +64,6 @@ export function AppSidebar({ ...props }) {
         <NavTrack items={data.navTrack} label="Track" />
         <NavTrack items={data.navLink} label="Link" />
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   );
 }

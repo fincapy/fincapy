@@ -24,7 +24,8 @@ import { LogOut } from 'lucide-react';
 import { Bell } from 'lucide-react';
 import { Fragment } from 'react';
 import Link from 'next/link';
-
+import { ChatWidget } from '@/components/chat-widget';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -108,8 +109,8 @@ export default function DashboardLayout({ children, auth0User, user }) {
     >
       <SidebarProvider>
         <AppSidebar />
-        <main className="w-full h-screen">
-          <div className="flex flex-col gap-2 sticky bg-background top-0 z-20">
+        <main className="w-full h-screen overflow-hidden">
+          <div className="flex flex-col gap-2 bg-background top-0 z-20">
             <div className="flex flex-row items-center gap-3 mt-2">
               <SidebarTrigger className="ml-2" />
               <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -126,7 +127,8 @@ export default function DashboardLayout({ children, auth0User, user }) {
             </div>
             <Separator />
           </div>
-          {children}
+          <ChatWidget />
+          <ScrollArea className="w-full h-full">{children}</ScrollArea>
         </main>
       </SidebarProvider>
     </ThemeProvider>

@@ -701,7 +701,7 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-10 shadow-none sticky top-[51px] ${getRoundedStyle()}`}
+      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()}`}
     >
       <CardHeader>
         <CardTitle>
@@ -859,6 +859,8 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
 
         const subcategoryRect = firstSubcategoryRef.getBoundingClientRect();
 
+        console.log(categoryRect.bottom, subcategoryRect.top);
+
         // Check if the two rectangles overlap
         const isOverlapping = categoryRect.bottom - 20 > subcategoryRect.top;
 
@@ -866,15 +868,23 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       }
     };
 
-    // Attach scroll and resize event listeners
-    window.addEventListener('scroll', checkOverlap);
-    window.addEventListener('resize', checkOverlap);
+    const scrollAreaViewport = document.querySelector(
+      '[data-radix-scroll-area-viewport]'
+    );
 
-    // Cleanup listeners on unmount
-    return () => {
-      window.removeEventListener('scroll', checkOverlap);
-      window.removeEventListener('resize', checkOverlap);
-    };
+    if (scrollAreaViewport) {
+      scrollAreaViewport.addEventListener('scroll', checkOverlap);
+      window.addEventListener('resize', checkOverlap);
+
+      // Initial check
+      checkOverlap();
+
+      // Cleanup listeners on unmount
+      return () => {
+        scrollAreaViewport.removeEventListener('scroll', checkOverlap);
+        window.removeEventListener('resize', checkOverlap);
+      };
+    }
   }, [categoryCardRef, subcategoryRefs, areSubcategoriesOpen]);
 
   const sensors = useSensors(
@@ -1117,7 +1127,7 @@ export default function Dashboard({ categories, startDate, endDate }) {
 
   return (
     <CategoryContext.Provider value={categoryNames}>
-      <div className="flex flex-col w-full flex-grow gap-4 mt-4">
+      <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
         <div className="flex flex-col justify-center items-center gap-4 mb-8">
           <div
             className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"

@@ -1,4 +1,4 @@
-class ReorderSpendingSubcategoriesService {
+class ReorderSubcategoriesService {
   constructor({ tenantRepository }) {
     this.tenantRepository = tenantRepository;
   }
@@ -17,24 +17,21 @@ class ReorderSpendingSubcategoriesService {
       (category) => category.categoryId === categoryId
     );
     const subcategories = category.subcategories;
-    subcategories.sort(
-      (a, b) => a.spendingPagePosition - b.spendingPagePosition
-    );
+    subcategories.sort((a, b) => a.rank - b.rank);
     const newSubcategories = this.resortArray(
       subcategories,
       oldIndex,
       newIndex
     );
-    const newSpendingCategoryIdToPosition = {};
+    const newSubcategoryIdToPosition = {};
     newSubcategories.forEach((newSubcategory, index) => {
-      newSpendingCategoryIdToPosition[newSubcategory.subcategoryId] = index;
+      newSubcategoryIdToPosition[newSubcategory.subcategoryId] = index;
     });
     category.subcategories.forEach((subcategory) => {
-      subcategory.spendingPagePosition =
-        newSpendingCategoryIdToPosition[subcategory.subcategoryId];
+      subcategory.rank = newSubcategoryIdToPosition[subcategory.subcategoryId];
     });
     await this.tenantRepository.put({ tenantId, tenant, etag });
   }
 }
 
-export { ReorderSpendingSubcategoriesService };
+export { ReorderSubcategoriesService };

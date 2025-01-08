@@ -54,8 +54,8 @@ import {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
-  reorderSpendingCategories,
-  reorderSpendingSubcategories,
+  reorderCategories,
+  reorderSubcategories,
 } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
@@ -694,7 +694,7 @@ const CategoryCard = ({
   };
 
   const progress = Math.min(
-    (category.currentSpending / category.proratedGoal) * 100,
+    (category.currentNet / category.proratedGoal) * 100,
     100
   );
 
@@ -772,7 +772,7 @@ const SubcategoryCard = forwardRef(
     };
 
     const progress = Math.min(
-      (subcategory.currentSpending / subcategory.proratedGoal) * 100,
+      (subcategory.currentNet / subcategory.proratedGoal) * 100,
       100
     );
 
@@ -908,7 +908,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       (subcategory) => subcategory.subcategoryId === over.id
     );
     setSubcategoriesState((prev) => arrayMove(prev, oldIndex, newIndex));
-    await reorderSpendingSubcategories({
+    await reorderSubcategories({
       planId: 'initial',
       categoryId: category.categoryId,
       oldIndex,
@@ -1118,8 +1118,9 @@ export default function Dashboard({ categories, startDate, endDate }) {
       (category) => category.categoryId === over.id
     );
     setCategoriesState((prev) => arrayMove(prev, oldIndex, newIndex));
-    await reorderSpendingCategories({
+    await reorderCategories({
       planId: 'initial',
+      type: categoriesState[0].type,
       oldIndex,
       newIndex,
     });

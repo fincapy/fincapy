@@ -6,6 +6,7 @@ class Plan {
     this.endDate = null;
     this.recategorizations = recategorizations;
   }
+
   toSpendingView() {
     let categories = [];
     const fractionOfMonths = this.getFractionOfMonths();
@@ -15,7 +16,20 @@ class Plan {
         categories.push(Object.assign({}, category));
       }
     });
-    categories.sort((a, b) => a.spendingPagePosition - b.spendingPagePosition);
+    categories.sort((a, b) => a.rank - b.rank);
+    return categories;
+  }
+
+  toIncomeView() {
+    let categories = [];
+    const fractionOfMonths = this.getFractionOfMonths();
+    this.categories.forEach((category) => {
+      if (category.type === 'income') {
+        category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
+        categories.push(Object.assign({}, category));
+      }
+    });
+    categories.sort((a, b) => a.rank - b.rank);
     return categories;
   }
 

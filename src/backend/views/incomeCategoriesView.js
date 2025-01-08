@@ -1,4 +1,4 @@
-class SpendingCategoriesView {
+class IncomeCategoriesView {
   constructor(repository) {
     this.repository = repository;
   }
@@ -12,8 +12,8 @@ class SpendingCategoriesView {
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.startDate = startDate;
     plan.endDate = endDate;
-    return plan.toSpendingView();
+    return plan.toIncomeView();
   }
 }
 
-export { SpendingCategoriesView };
+export { IncomeCategoriesView };

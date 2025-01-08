@@ -4,12 +4,8 @@ import { promisify } from 'util';
 import { Tenant } from '@/backend/domain/tenant';
 import { Plan } from '@/backend/domain/plan';
 import { PlaidItem } from '@/backend/domain/plaidItem';
-import { SpendingCategory } from '@/backend/domain/spendingCategory';
-import { IncomeCategory } from '@/backend/domain/incomeCategory';
-import { SavingsCategory } from '@/backend/domain/savingsCategory';
-import { SpendingSubcategory } from '@/backend/domain/spendingSubcategory';
-import { IncomeSubcategory } from '@/backend/domain/incomeSubcategory';
-import { SavingsSubcategory } from '@/backend/domain/savingsSubcategory';
+import { Category } from '@/backend/domain/category';
+import { Subcategory } from '@/backend/domain/subcategory';
 
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -42,28 +38,10 @@ class TenantRepository {
     tenant.plans = tenant.plans.map((plan) => {
       plan = new Plan(plan);
       plan.categories = plan.categories.map((category) => {
-        if (category.type === 'spending') {
-          category = new SpendingCategory(category);
-          category.subcategories = category?.subcategories.map(
-            (subcategory) => {
-              return new SpendingSubcategory(subcategory);
-            }
-          );
-        } else if (category.type === 'income') {
-          category = new IncomeCategory(category);
-          category.subcategories = category?.subcategories.map(
-            (subcategory) => {
-              return new IncomeSubcategory(subcategory);
-            }
-          );
-        } else if (category.type === 'savings') {
-          category = new SavingsCategory(category);
-          category.subcategories = category?.subcategories.map(
-            (subcategory) => {
-              return new SavingsSubcategory(subcategory);
-            }
-          );
-        }
+        category = new Category(category);
+        category.subcategories = category?.subcategories.map((subcategory) => {
+          return new Subcategory(subcategory);
+        });
         return category;
       });
       return plan;

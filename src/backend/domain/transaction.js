@@ -35,4 +35,11 @@ const spendingTransactionTypes = [
   'debit_card_refund',
 ];
 
-export { Transaction, transactionTypes, spendingTransactionTypes };
+const incomeTransactionTypes = ['income'];
+
+export {
+  Transaction,
+  transactionTypes,
+  spendingTransactionTypes,
+  incomeTransactionTypes,
+};

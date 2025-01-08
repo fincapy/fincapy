@@ -8,8 +8,8 @@ import { UpdateCategoryService } from '@/backend/services/updateCategoryService'
 import { DeleteCategoryService } from '@/backend/services/deleteCategoryService';
 import { UpdateSubcategoryService } from '@/backend/services/updateSubcategoryService';
 import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
-import { ReorderSpendingCategoriesService } from '@/backend/services/reorderSpendingCategoriesService';
-import { ReorderSpendingSubcategoriesService } from '@/backend/services/reorderSpendingSubcategoriesService';
+import { ReorderCategoriesService } from '@/backend/services/reorderCategoriesService';
+import { ReorderSubcategoriesService } from '@/backend/services/reorderSubcategoriesService';
 import { getSession } from '@auth0/nextjs-auth0';
 
 const createCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
@@ -154,7 +154,7 @@ const deleteSubcategory = async ({ subcategoryId, planId }) => {
   });
 };
 
-const reorderSpendingCategories = async ({ planId, oldIndex, newIndex }) => {
+const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
   const session = await getSession();
   if (!session) {
     return false;
@@ -162,19 +162,20 @@ const reorderSpendingCategories = async ({ planId, oldIndex, newIndex }) => {
   const tenantId = session.user.tenant_id;
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const service = new ReorderSpendingCategoriesService({
+  const service = new ReorderCategoriesService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
   await service.execute({
     tenantId,
     planId,
+    type,
     oldIndex,
     newIndex,
   });
 };
 
-const reorderSpendingSubcategories = async ({
+const reorderSubcategories = async ({
   planId,
   categoryId,
   oldIndex,
@@ -187,7 +188,7 @@ const reorderSpendingSubcategories = async ({
   const tenantId = session.user.tenant_id;
 
   const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const service = new ReorderSpendingSubcategoriesService({
+  const service = new ReorderSubcategoriesService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
 
@@ -207,6 +208,6 @@ export {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
-  reorderSpendingCategories,
-  reorderSpendingSubcategories,
+  reorderCategories,
+  reorderSubcategories,
 };

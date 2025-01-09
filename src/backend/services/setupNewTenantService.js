@@ -45,10 +45,37 @@ class SetupNewTenantService {
         isImmutable: true,
         transactions: [],
         subcategories: [],
-        spendingPagePosition: 0,
-        incomePagePosition: 0,
+        rank: 0,
+      });
+      const incomeCategory = new Category({
+        tenantId,
+        categoryId: '2',
+        name: 'Uncategorized',
+        type: 'income',
+        monthlyGoal: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isImmutable: true,
+        transactions: [],
+        subcategories: [],
+        rank: 0,
+      });
+      const savingsCategory = new Category({
+        tenantId,
+        categoryId: '3',
+        name: 'Savings',
+        type: 'savings',
+        monthlyGoal: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isImmutable: true,
+        transactions: [],
+        subcategories: [],
+        rank: 0,
       });
       plan.categories.push(spendingCategory);
+      plan.categories.push(incomeCategory);
+      plan.categories.push(savingsCategory);
       tenant.plans.push(plan);
       await this.tenantRepository.put({ tenantId, tenant, etag: null });
     } catch (error) {

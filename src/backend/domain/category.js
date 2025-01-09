@@ -32,6 +32,14 @@ class Category {
     this.rank = rank;
   }
 
+  toSavingsView() {
+    const subcategories = [];
+    this.subcategories.forEach((subcategory) => {
+      subcategories.push(Object.assign({}, subcategory));
+    });
+    this.subcategories = subcategories;
+  }
+
   toSpendingView(startDate, endDate, fractionOfMonths) {
     const transactions = [];
     let currentSpending = 0;

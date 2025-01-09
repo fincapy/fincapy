@@ -15,3 +15,5 @@ class SavingsCategoriesView {
     return plan.toSavingsView();
   }
 }
+
+export { SavingsCategoriesView };

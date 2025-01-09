@@ -36,6 +36,7 @@ class Plan {
   toSavingsView() {
     let categories = [];
     let net = 0;
+    const fractionOfMonths = this.getFractionOfMonths();
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
         category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
@@ -50,6 +51,8 @@ class Plan {
     );
     savingsCategory.currentNet = net;
     savingsCategory.allocateToSubcategories();
+    savingsCategory.toSavingsView();
+    categories.push(Object.assign({}, savingsCategory));
     return categories;
   }
 

@@ -11,17 +11,14 @@ export const POST = async (req) => {
     });
   }
 
-  const body = await req.json();
-  const { tenantId, userId, email, name } = body;
-
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
-  const service = new SetupNewTenantService({ tenantRepository });
-
   try {
+    const body = await req.json();
+    const { tenantId, email, name } = body;
+    const tigrisAdapter = new TigrisAdapter({ client: s3client });
+    const tenantRepository = new TenantRepository({ tigrisAdapter });
+    const service = new SetupNewTenantService({ tenantRepository });
     await service.execute({
       tenantId,
-      userId,
       email,
       name,
     });

@@ -24,52 +24,63 @@ export const POST = async (req) => {
 
   const stripe = new Stripe(process.env.STRIPE_API_KEY);
 
+  let event;
   try {
     const rawBody = await req.text();
-    const event = stripe.webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       rawBody,
       signature,
       process.env.STRIPE_ENDPOINT_SECRET
     );
+  } catch (error) {
+    console.log(error);
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 400,
+    });
+  }
 
-    const tigrisAdapter = new TigrisAdapter({ client: s3client });
-    const tenantRepository = new TenantRepository({ tigrisAdapter });
-    const auth0Adapter = new Auth0Adapter({ client: auth0Client });
-    const plaidAdapter = new PlaidAdapter({ client });
-    let service;
-    switch (event.type) {
-      case 'invoice.payment_succeeded':
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const auth0Adapter = new Auth0Adapter({ client: auth0Client });
+  const plaidAdapter = new PlaidAdapter({ client });
+  let service;
+  switch (event.type) {
+    case 'invoice.payment_succeeded':
+      try {
         service = new SetTenantPaymentSucceededService(
           tenantRepository,
           auth0Adapter
         );
         await service.execute(event.data.object.customer_email);
-        break;
-      case 'invoice.payment_failed':
-        service = new SetTenantPaymentFailedService(
-          tenantRepository,
-          auth0Adapter,
-          plaidAdapter
+      } catch (error) {
+        console.log(error);
+        return new Response(
+          JSON.stringify({ error: 'Internal server error' }),
+          {
+            status: 500,
+          }
         );
-        await service.execute(event.data.object.customer_email);
-        break;
-      case 'customer.subscription.deleted':
-        service = new SetTenantCancelledService(
-          tenantRepository,
-          auth0Adapter,
-          plaidAdapter
-        );
-        await service.execute(event.data.object.customer_email);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
-
-    return new Response(JSON.stringify({ received: true }), { status: 200 });
-  } catch (err) {
-    console.error('Webhook error:', err.message);
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 400,
-    });
+      }
+      break;
+    case 'invoice.payment_failed':
+      service = new SetTenantPaymentFailedService(
+        tenantRepository,
+        auth0Adapter,
+        plaidAdapter
+      );
+      await service.execute(event.data.object.customer_email);
+      break;
+    case 'customer.subscription.deleted':
+      service = new SetTenantCancelledService(
+        tenantRepository,
+        auth0Adapter,
+        plaidAdapter
+      );
+      await service.execute(event.data.object.customer_email);
+      break;
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
   }
+
+  return new Response(JSON.stringify({ received: true }), { status: 200 });
 };

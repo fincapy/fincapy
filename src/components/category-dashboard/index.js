@@ -972,6 +972,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
 };
 
 const DatePickers = ({ startDate, endDate }) => {
+  const type = useContext(TypeContext);
   const [startDateDate, setStartDateDate] = useState(
     parse(startDate, 'yyyy-MM-dd', new Date())
   );
@@ -985,7 +986,7 @@ const DatePickers = ({ startDate, endDate }) => {
       setStartDateDate(date);
       setTimeout(() => {
         router.push(
-          `/app/spending?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${format(
+          `/app/${type}?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${format(
             endDateDate,
             'yyyy-MM-dd'
           )}`
@@ -1001,7 +1002,7 @@ const DatePickers = ({ startDate, endDate }) => {
       setEndDateDate(date);
       setTimeout(() => {
         router.push(
-          `/app/spending?startDate=${format(startDateDate, 'yyyy-MM-dd')}&endDate=${format(
+          `/app/${type}?startDate=${format(startDateDate, 'yyyy-MM-dd')}&endDate=${format(
             date,
             'yyyy-MM-dd'
           )}`

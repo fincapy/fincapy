@@ -1,14 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Frame,
-  Map,
-  PieChart,
-  BadgePlus,
-  HandCoins,
-  Wallet,
-} from 'lucide-react';
+import { Map, BadgePlus, HandCoins, Wallet, Landmark } from 'lucide-react';
 
 import { NavTrack } from '@/components/nav-track';
 import { BudgetSwitcher } from '@/components/budget-switcher';
@@ -61,7 +54,7 @@ const data = {
     {
       title: 'Financial Institutions',
       url: '/app/financial-institutions',
-      icon: Map,
+      icon: Landmark,
       isActive: false,
     },
   ],

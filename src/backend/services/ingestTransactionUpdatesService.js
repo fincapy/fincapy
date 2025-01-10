@@ -16,12 +16,11 @@ class IngestTransactionUpdatesService {
   getCategoryNameToIdMap(plan) {
     const categoryIdToNameMap = {};
     plan.categories.forEach((category) => {
-      categoryIdToNameMap[category.categoryId] = category.name
-        .toLowerCase()
-        .replace(' ', '_');
+      categoryIdToNameMap[category.categoryId] =
+        `${category.type}.${category.name.toLowerCase().replace(' ', '_')}`;
       category.subcategories.forEach((subcategory) => {
         categoryIdToNameMap[subcategory.subcategoryId] =
-          `${category.name.toLowerCase().replace(' ', '_')}.${subcategory.name.toLowerCase().replace(' ', '_')}`;
+          `${category.type}.${category.name.toLowerCase().replace(' ', '_')}.${subcategory.name.toLowerCase().replace(' ', '_')}`;
       });
     });
     return categoryIdToNameMap;

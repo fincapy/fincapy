@@ -20,9 +20,11 @@ export function NavTrack({ items, label }) {
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton asChild isActive={pathname === item.url}>
-              <Link href={item.url}>
-                <item.icon />
-                <span>{item.title}</span>
+              <Link href={item.url} className="flex items-center gap-2">
+                <item.icon style={{ margin: '0px' }} />
+                <span className="flex items-center justify-center mt-[0.15rem]">
+                  {item.title}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -26,9 +26,9 @@ class CreatePlaidItemService {
     const plaidItem = new PlaidItem({
       institutionId,
       institutionName,
-      tenantId,
       accessToken,
       cursor: null,
+      status: 'active',
     });
     tenant.plaidItems.push(plaidItem);
     const plaidItemCreatedMessage = new PlaidItemCreatedMessage({

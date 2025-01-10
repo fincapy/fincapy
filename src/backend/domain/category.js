@@ -2,6 +2,7 @@ import {
   spendingTransactionTypes,
   incomeTransactionTypes,
 } from '@/backend/domain/transaction';
+import { parse } from 'date-fns';
 
 class Category {
   constructor({

@@ -1,16 +1,10 @@
 class PlaidItem {
-  constructor({
-    institutionId,
-    institutionName,
-    tenantId,
-    accessToken,
-    cursor,
-  }) {
+  constructor({ institutionId, institutionName, accessToken, cursor, status }) {
     this.institutionId = institutionId;
     this.institutionName = institutionName;
-    this.tenantId = tenantId;
     this.accessToken = accessToken;
     this.cursor = cursor;
+    this.status = status;
   }
 }
 

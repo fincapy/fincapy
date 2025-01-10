@@ -27,7 +27,7 @@ class PlaidAdapter {
     this.client = client;
   }
 
-  async createLinkToken({ tenantId }) {
+  async createLinkToken({ tenantId, existingAccessToken }) {
     const payload = {
       user: {
         client_user_id: tenantId,
@@ -38,6 +38,9 @@ class PlaidAdapter {
       language: 'en',
       redirect_uri: process.env.PLAID_REDIRECT_URI,
     };
+    if (existingAccessToken) {
+      payload.access_token = existingAccessToken;
+    }
     const response = await this.client.linkTokenCreate(payload);
     return response.data.link_token;
   }

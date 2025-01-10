@@ -28,6 +28,7 @@ class SetupNewTenantService {
             role: 'owner',
           }),
         ],
+        failedBillingAttempts: 0,
       });
       const plan = new Plan({
         planId: 'initial',

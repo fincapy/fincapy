@@ -5,6 +5,7 @@ import { SetTenantCancelledService } from '@/backend/services/setTenantCancelled
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
+import { PlaidAdapter, client } from '@/backend/adapters/plaid';
 
 export const POST = async (req) => {
   if (!process.env.STRIPE_API_KEY || !process.env.STRIPE_ENDPOINT_SECRET) {
@@ -34,6 +35,7 @@ export const POST = async (req) => {
     const tigrisAdapter = new TigrisAdapter({ client: s3client });
     const tenantRepository = new TenantRepository({ tigrisAdapter });
     const auth0Adapter = new Auth0Adapter({ client: auth0Client });
+    const plaidAdapter = new PlaidAdapter({ client });
     let service;
     switch (event.type) {
       case 'invoice.payment_succeeded':
@@ -46,12 +48,17 @@ export const POST = async (req) => {
       case 'invoice.payment_failed':
         service = new SetTenantPaymentFailedService(
           tenantRepository,
-          auth0Adapter
+          auth0Adapter,
+          plaidAdapter
         );
         await service.execute(event.data.object.customer_email);
         break;
       case 'customer.subscription.deleted':
-        service = new SetTenantCancelledService(tenantRepository, auth0Adapter);
+        service = new SetTenantCancelledService(
+          tenantRepository,
+          auth0Adapter,
+          plaidAdapter
+        );
         await service.execute(event.data.object.customer_email);
         break;
       default:

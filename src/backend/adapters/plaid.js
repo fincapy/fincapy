@@ -46,11 +46,19 @@ class PlaidAdapter {
   }
 
   async exchangePublicToken({ publicToken }) {
-    // add a check to make sure that the user_id and institution_id don't already exist
-    const response = await this.client.itemPublicTokenExchange({
+    const payload = {
       public_token: publicToken,
-    });
+    };
+    const response = await this.client.itemPublicTokenExchange(payload);
     return response.data.access_token;
+  }
+
+  async deleteItem({ accessToken }) {
+    const payload = {
+      access_token: accessToken,
+    };
+    const response = await this.client.itemRemove(payload);
+    return response;
   }
 
   async getTransactions({ accessToken, cursor }) {

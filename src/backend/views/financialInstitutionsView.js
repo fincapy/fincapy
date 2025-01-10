@@ -9,6 +9,7 @@ class FinancialInstitutionsView {
       return {
         institutionId: plaidItem.institutionId,
         institutionName: plaidItem.institutionName,
+        status: plaidItem.status,
       };
     });
   }

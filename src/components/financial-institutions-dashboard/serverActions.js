@@ -2,6 +2,8 @@
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
 import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { CreatePlaidItemService } from '@/backend/services/createPlaidItemService';
+import { UpdatePlaidItemService } from '@/backend/services/updatePlaidItemService';
+import { DeletePlaidItemService } from '@/backend/services/deletePlaidItemService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { getSession } from '@auth0/nextjs-auth0';
@@ -26,7 +28,7 @@ const fetchLinkToken = async ({ institutionId }) => {
   return linkToken;
 };
 
-const exchangePublicToken = async ({
+const createPlaidItem = async ({
   publicToken,
   institutionId,
   institutionName,
@@ -55,11 +57,44 @@ const exchangePublicToken = async ({
   return true;
 };
 
-const refreshLink = async ({ institutionId }) => {
+const updatePlaidItem = async ({ institutionId, publicToken }) => {
   const session = await getSession();
   if (!session) {
     return false;
   }
+  const tenantId = session.user.tenant_id;
+  const pubsubAdapter = new PubSubAdapter(pubSubClient);
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const plaidAdapter = new PlaidAdapter(client);
+  const service = new UpdatePlaidItemService({
+    tenantRepository,
+    pubsubAdapter,
+    plaidAdapter,
+  });
+  await service.execute({
+    tenantId,
+    institutionId,
+    publicToken,
+  });
+  return true;
 };
 
-export { fetchLinkToken, exchangePublicToken };
+const deletePlaidItem = async ({ institutionId }) => {
+  const session = await getSession();
+  if (!session) {
+    return false;
+  }
+  const tenantId = session.user.tenant_id;
+  const plaidAdapter = new PlaidAdapter(client);
+  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const service = new DeletePlaidItemService({
+    tenantRepository,
+    plaidAdapter,
+  });
+  await service.execute({ tenantId, institutionId });
+  return true;
+};
+
+export { fetchLinkToken, createPlaidItem, updatePlaidItem, deletePlaidItem };

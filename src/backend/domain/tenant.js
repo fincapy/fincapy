@@ -7,6 +7,7 @@ class Tenant {
     inbox,
     billingStatus,
     users,
+    failedBillingAttempts,
   }) {
     this.tenantId = tenantId;
     this.plans = plans;
@@ -15,6 +16,7 @@ class Tenant {
     this.inbox = inbox;
     this.billingStatus = billingStatus;
     this.users = users;
+    this.failedBillingAttempts = failedBillingAttempts;
   }
 }
 

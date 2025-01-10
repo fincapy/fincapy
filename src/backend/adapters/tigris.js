@@ -55,7 +55,6 @@ class TigrisAdapter {
       const response = await this.client.send(command);
       console.timeEnd(timeLabel);
 
-      // Convert stream to buffer
       const streamToBuffer = (stream) =>
         new Promise((resolve, reject) => {
           const chunks = [];

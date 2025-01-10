@@ -31,6 +31,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import React from 'react';
+import Script from 'next/script';
 
 const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
   const onClick = async () => {
@@ -179,19 +180,12 @@ const NewFinancialInstitutionCard = () => {
 };
 
 export default function FinancialInstitutionsDashboard({ links }) {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.plaid.com/link/v2/stable/link-initialize.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-28 justify-center items-center">
+      <Script
+        src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
+        strategy="beforeInteractive"
+      />
       {links.map((link) => (
         <ExistingFinancialInstitutionCard
           key={link.institutionId}

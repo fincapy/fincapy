@@ -50,7 +50,9 @@ class TigrisAdapter {
         Bucket: bucket,
         Key: key,
       });
+      console.time('getObject');
       const response = await this.client.send(command);
+      console.timeEnd('getObject');
 
       // Convert stream to buffer
       const streamToBuffer = (stream) =>
@@ -61,7 +63,9 @@ class TigrisAdapter {
           stream.on('error', reject);
         });
 
+      console.time('streamToBuffer');
       const obj = await streamToBuffer(response.Body);
+      console.timeEnd('streamToBuffer');
       const etag = response.ETag;
       return [obj, etag];
     } catch (err) {

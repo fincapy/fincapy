@@ -8,6 +8,7 @@ import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
+  console.log('session', session);
   const { user } = session;
   const tigris = new TigrisAdapter({ client: s3client });
   const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });

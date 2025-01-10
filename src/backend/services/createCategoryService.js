@@ -39,7 +39,6 @@ class CreateCategoryService {
       spendingPagePosition: 100000,
       incomePagePosition: 100000,
     });
-    console.log('categoryType', category.type);
     plan.categories.push(category);
     await this.tenantRepository.put({ tenantId, tenant, etag });
   }

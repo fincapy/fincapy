@@ -12,7 +12,6 @@ class IncomeCategoriesView {
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.startDate = startDate;
     plan.endDate = endDate;
-    console.log(plan.toIncomeView());
     return plan.toIncomeView();
   }
 }

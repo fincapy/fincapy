@@ -26,7 +26,7 @@ const createCategory = async ({
 
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new CreateCategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -54,7 +54,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new UpdateCategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -75,7 +75,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new DeleteCategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -100,7 +100,7 @@ const createSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new CreateSubcategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -131,7 +131,7 @@ const updateSubcategory = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new UpdateSubcategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -153,7 +153,7 @@ const deleteSubcategory = async ({ subcategoryId, planId }) => {
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new DeleteSubcategoryService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -172,7 +172,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderCategoriesService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });
@@ -198,7 +198,7 @@ const reorderSubcategories = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderSubcategoriesService({
     tenantRepository: new TenantRepository({ tigrisAdapter }),
   });

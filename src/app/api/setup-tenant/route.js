@@ -1,6 +1,6 @@
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 
 export const POST = async (req) => {
   const tenantApiKey = process.env.TENANT_API_KEY;
@@ -14,8 +14,8 @@ export const POST = async (req) => {
   try {
     const body = await req.json();
     const { tenantId, email, name } = body;
-    const tigrisAdapter = new TigrisAdapter({ client: s3client });
-    const tenantRepository = new TenantRepository({ tigrisAdapter });
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
     const service = new SetupNewTenantService({ tenantRepository });
     await service.execute({
       tenantId,

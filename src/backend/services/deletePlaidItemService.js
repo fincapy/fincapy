@@ -5,7 +5,7 @@ class DeletePlaidItemService {
   }
 
   async execute({ tenantId, institutionId }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const plaidItem = tenant.plaidItems.find(
       (item) => item.institutionId === institutionId
     );
@@ -15,7 +15,7 @@ class DeletePlaidItemService {
     tenant.plaidItems = tenant.plaidItems.filter(
       (item) => item.institutionId !== institutionId
     );
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

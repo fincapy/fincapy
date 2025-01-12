@@ -3,6 +3,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
 export default async function Layout({ children }) {
@@ -13,12 +14,12 @@ export default async function Layout({ children }) {
   }
 
   const auth0User = session.user;
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
-  const response = await tenantRepository.get({
-    tenantId: auth0User.tenant_id,
-  });
-  const [tenant, etag] = response;
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
+  const tenant = await tenantRepository.get({ tenantId: auth0User.tenant_id });
+  if (!tenant) {
+    return <div>Tenant not found</div>;
+  }
   const user = tenant.users.find((user) => user.email === auth0User.email);
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(

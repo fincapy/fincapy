@@ -4,8 +4,7 @@ class UpdateSubcategoryService {
   }
 
   async execute({ tenantId, subcategoryId, name, monthlyGoal, planId }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    const [tenant, etag] = response;
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       category.subcategories.forEach((subcategory) => {
@@ -15,7 +14,7 @@ class UpdateSubcategoryService {
         }
       });
     });
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

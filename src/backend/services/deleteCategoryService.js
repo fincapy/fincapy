@@ -4,11 +4,10 @@ class DeleteCategoryService {
   }
 
   async execute({ tenantId, categoryId, planId }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     const categoryToDelete = plan.categories.find(
       (category) => category.categoryId === categoryId
@@ -27,7 +26,7 @@ class DeleteCategoryService {
     plan.categories = plan.categories.filter(
       (category) => category.categoryId !== categoryId
     );
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

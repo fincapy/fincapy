@@ -11,7 +11,7 @@ class ReorderSubcategoriesService {
   }
 
   async execute({ tenantId, planId, categoryId, oldIndex, newIndex }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     const category = plan.categories.find(
       (category) => category.categoryId === categoryId
@@ -30,7 +30,7 @@ class ReorderSubcategoriesService {
     category.subcategories.forEach((subcategory) => {
       subcategory.rank = newSubcategoryIdToPosition[subcategory.subcategoryId];
     });
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

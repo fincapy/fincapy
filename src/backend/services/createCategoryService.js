@@ -14,11 +14,10 @@ class CreateCategoryService {
     type,
     isImmutable,
   }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     plan.categories.forEach((category) => {
       if (category.categoryId === categoryId) {
@@ -40,7 +39,7 @@ class CreateCategoryService {
       incomePagePosition: 100000,
     });
     plan.categories.push(category);
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

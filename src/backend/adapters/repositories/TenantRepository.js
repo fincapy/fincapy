@@ -11,20 +11,15 @@ const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
 
 class TenantRepository {
-  constructor({ tigrisAdapter }) {
-    this.tigrisAdapter = tigrisAdapter;
+  constructor({ redisAdapter }) {
+    this.redisAdapter = redisAdapter;
   }
 
   async get({ tenantId }) {
-    const response = await this.tigrisAdapter.get({
-      bucket: process.env.BUCKET_NAME,
-      key: tenantId,
-    });
-    if (response === null) {
+    const tenantObject = await this.redisAdapter.get(tenantId);
+    if (tenantObject === null) {
       return null;
     }
-    const [tenantObject, etag] = response;
-
     const decompressedTenant = await brotliDecompress(tenantObject);
     const packr = new Packr();
     const unpackedTenant = packr.unpack(decompressedTenant);
@@ -46,29 +41,57 @@ class TenantRepository {
       });
       return plan;
     });
-    return [tenant, etag];
+    return tenant;
+  }
+
+  async getWithTransaction({ tenantId }) {
+    const tenantObject = await this.redisAdapter.getWithTransaction(tenantId);
+    if (tenantObject === null) {
+      return null;
+    }
+    const decompressedTenant = await brotliDecompress(tenantObject);
+    const packr = new Packr();
+    const unpackedTenant = packr.unpack(decompressedTenant);
+    const tenant = new Tenant(unpackedTenant);
+
+    tenant.plaidItems = tenant.plaidItems.map((plaidItem) => {
+      plaidItem = new PlaidItem(plaidItem);
+      return plaidItem;
+    });
+
+    tenant.plans = tenant.plans.map((plan) => {
+      plan = new Plan(plan);
+      plan.categories = plan.categories.map((category) => {
+        category = new Category(category);
+        category.subcategories = category?.subcategories.map((subcategory) => {
+          return new Subcategory(subcategory);
+        });
+        return category;
+      });
+      return plan;
+    });
+    return tenant;
   }
 
   async getAllTenantIds() {
-    const objects = await this.tigrisAdapter.list({
-      bucket: process.env.BUCKET_NAME,
-    });
-    const tenantIds = objects.map((object) => {
-      return object.Key;
-    });
+    let cursor = 0;
+    let tenantIds = [];
+    do {
+      const [newCursor, batch] = await this.redisAdapter.scan(cursor, {
+        MATCH: '*',
+        COUNT: 100,
+      });
+      cursor = newCursor;
+      tenantIds.push(...batch);
+    } while (cursor !== 0);
     return tenantIds;
   }
 
-  async put({ tenantId, tenant, etag }) {
+  async set({ tenantId, tenant }) {
     const packr = new Packr();
     const packedTenant = packr.pack(tenant);
     const compressedTenant = await brotliCompress(packedTenant);
-    await this.tigrisAdapter.put({
-      bucket: process.env.BUCKET_NAME,
-      key: tenantId,
-      body: compressedTenant,
-      etag,
-    });
+    await this.redisAdapter.set(tenantId, compressedTenant);
   }
 }
 

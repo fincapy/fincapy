@@ -4,7 +4,7 @@ class FinancialInstitutionsView {
   }
 
   async get({ tenantId }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.get({ tenantId });
     return tenant.plaidItems.map((plaidItem) => {
       return {
         institutionId: plaidItem.institutionId,

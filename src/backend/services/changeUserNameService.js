@@ -4,10 +4,10 @@ class ChangeUserNameService {
   }
 
   async execute({ tenantId, email, name }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const user = tenant.users.find((user) => user.email === email);
     user.name = name;
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

@@ -6,11 +6,10 @@ class RecategorizeTransactionService {
   }
 
   async execute({ tenantId, transactionId, planId, newCategoryId }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     let transaction;
     let oldCategoryName;
@@ -60,7 +59,7 @@ class RecategorizeTransactionService {
       createdAt: new Date(),
     });
     plan.recategorizations.push(recategorization);
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

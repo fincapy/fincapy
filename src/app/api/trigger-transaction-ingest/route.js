@@ -1,7 +1,7 @@
 import { TriggerTransactionIngestForAllTenants } from '@/backend/services/triggerTransactionIngestForAllTenants';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 
 export const POST = async (req) => {
   if (process.env.NODE_ENV !== 'development') {
@@ -10,8 +10,8 @@ export const POST = async (req) => {
     });
   }
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const service = new TriggerTransactionIngestForAllTenants({
     tenantRepository,

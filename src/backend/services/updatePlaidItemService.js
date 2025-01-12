@@ -8,11 +8,10 @@ class UpdatePlaidItemService {
   }
 
   async execute({ tenantId, institutionId, publicToken }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const existingPlaidItem = tenant.plaidItems.find(
       (plaidItem) => plaidItem.institutionId === institutionId
     );
@@ -30,23 +29,17 @@ class UpdatePlaidItemService {
       topicName: 'plaid-item-updated',
     });
     tenant.outbox.push(plaidItemUpdatedMessage);
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
 
-    const newResponse = await this.tenantRepository.get({ tenantId });
-    if (newResponse === null) {
-      return;
-    }
-    const [newTenant, newEtag] = newResponse;
+    const newTenant = await this.tenantRepository.getWithTransaction({
+      tenantId,
+    });
     await this.pubsubAdapter.publish({
       topicName: 'plaid-item-updated',
       message: plaidItemUpdatedMessage,
     });
     newTenant.outbox.filter((message) => message !== plaidItemUpdatedMessage);
-    await this.tenantRepository.put({
-      tenantId,
-      tenant: newTenant,
-      etag: newEtag,
-    });
+    await this.tenantRepository.set({ tenantId, tenant: newTenant });
   }
 }
 export { UpdatePlaidItemService };

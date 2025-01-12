@@ -2,16 +2,14 @@ import Dashboard from '@/components/category-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
 import { SpendingCategoriesView } from '@/backend/views/spendingCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
-import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
-  console.log('session', session);
   const { user } = session;
-  const tigris = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const view = new SpendingCategoriesView(tenantRepository);
   const currentDate = new Date();
 

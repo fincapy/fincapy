@@ -2,14 +2,14 @@ import Dashboard from '@/components/category-dashboard';
 import { getSession } from '@auth0/nextjs-auth0';
 import { SavingsCategoriesView } from '@/backend/views/savingsCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { parse } from 'date-fns';
 
 export default async function DashboardPage({ searchParams }) {
   const session = await getSession();
   const { user } = session;
-  const tigris = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter: tigris });
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const view = new SavingsCategoriesView({ tenantRepository });
   const currentDate = new Date();
 

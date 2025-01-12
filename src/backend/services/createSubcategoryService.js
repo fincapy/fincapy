@@ -15,11 +15,10 @@ class CreateSubcategoryService {
     type,
     isImmutable,
   }) {
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     const subCategory = new Subcategory({
       tenantId,
@@ -39,7 +38,7 @@ class CreateSubcategoryService {
         category.subcategories.push(subCategory);
       }
     });
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

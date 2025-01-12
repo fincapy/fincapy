@@ -7,11 +7,11 @@ class SetTenantPaymentSucceededService {
   async execute(email) {
     const user = await this.auth0Adapter.getUserByEmail(email);
     const tenantId = user.app_metadata.tenant_id;
-    const [tenant, etag] = await this.tenantRepository.get({
+    const tenant = await this.tenantRepository.getWithTransaction({
       tenantId,
     });
     tenant.billingStatus = 'active';
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
     return true;
   }
 }

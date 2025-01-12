@@ -14,7 +14,7 @@ const fetchLinkToken = async ({ institutionId }) => {
     return false;
   }
   const tenantId = session.user.tenant_id;
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const [tenant, etag] = await tenantRepository.get({ tenantId });
   const plaidItem = tenant.plaidItems.find(
@@ -40,7 +40,7 @@ const createPlaidItem = async ({
   const tenantId = session.user.tenant_id;
   const plaidAdapter = new PlaidAdapter(client);
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const service = new CreatePlaidItemService({
     tenantRepository,
@@ -64,7 +64,7 @@ const updatePlaidItem = async ({ institutionId, publicToken }) => {
   }
   const tenantId = session.user.tenant_id;
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const plaidAdapter = new PlaidAdapter(client);
   const service = new UpdatePlaidItemService({
@@ -87,7 +87,7 @@ const deletePlaidItem = async ({ institutionId }) => {
   }
   const tenantId = session.user.tenant_id;
   const plaidAdapter = new PlaidAdapter(client);
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const service = new DeletePlaidItemService({
     tenantRepository,

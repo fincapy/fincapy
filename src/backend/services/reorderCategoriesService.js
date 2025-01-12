@@ -11,7 +11,7 @@ class ReorderCategoriesService {
   }
 
   async execute({ tenantId, planId, type, oldIndex, newIndex }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const plan = tenant.plans.find((plan) => plan.planId === planId);
     const categories = plan.categories.filter(
       (category) => category.type === type
@@ -27,7 +27,7 @@ class ReorderCategoriesService {
         planCategory.rank = newCategoryIdToPosition[planCategory.categoryId];
       }
     });
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

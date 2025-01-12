@@ -12,11 +12,10 @@ class CreatePlaidItemService {
     const accessToken = await this.plaidAdapter.exchangePublicToken({
       publicToken,
     });
-    const response = await this.tenantRepository.get({ tenantId });
-    if (response === null) {
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    if (tenant === null) {
       return;
     }
-    const [tenant, etag] = response;
     const existingPlaidItem = tenant.plaidItems.find(
       (plaidItem) => plaidItem.institutionId === institutionId
     );
@@ -39,21 +38,18 @@ class CreatePlaidItemService {
     tenant.outbox.push(plaidItemCreatedMessage);
     await this.tenantRepository.put({ tenantId, tenant, etag });
 
-    const newResponse = await this.tenantRepository.get({ tenantId });
-    if (newResponse === null) {
+    const newTenant = await this.tenantRepository.getWithTransaction({
+      tenantId,
+    });
+    if (newTenant === null) {
       return;
     }
-    const [newTenant, newEtag] = newResponse;
     await this.pubsubAdapter.publish({
       topicName: 'plaid-item-created',
       message: plaidItemCreatedMessage,
     });
     newTenant.outbox.filter((message) => message !== plaidItemCreatedMessage);
-    await this.tenantRepository.put({
-      tenantId,
-      tenant: newTenant,
-      etag: newEtag,
-    });
+    await this.tenantRepository.set({ tenantId, tenant: newTenant });
   }
 }
 export { CreatePlaidItemService };

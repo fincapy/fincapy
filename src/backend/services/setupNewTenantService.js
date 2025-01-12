@@ -9,8 +9,8 @@ class SetupNewTenantService {
   }
 
   async execute({ tenantId, email, name }) {
-    let response = await this.tenantRepository.get({ tenantId });
-    if (response) {
+    let existingTenant = await this.tenantRepository.get({ tenantId });
+    if (existingTenant) {
       return;
     }
     const tenant = new Tenant({
@@ -77,7 +77,7 @@ class SetupNewTenantService {
     plan.categories.push(incomeCategory);
     plan.categories.push(savingsCategory);
     tenant.plans.push(plan);
-    await this.tenantRepository.put({ tenantId, tenant, etag: null });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

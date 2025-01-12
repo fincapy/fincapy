@@ -16,7 +16,7 @@ const removeUser = async (email) => {
 
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const auth0Adapter = new Auth0Adapter({ client: auth0Client });
   const removeUserService = new RemoveUserService({
@@ -33,7 +33,7 @@ const changeUserRole = async ({ email, role }) => {
   }
 
   const tenantId = session.user.tenant_id;
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const changeUserRoleService = new ChangeUserRoleService({
     tenantRepository,
@@ -48,7 +48,7 @@ const changeUserName = async ({ email, name }) => {
   }
 
   const tenantId = session.user.tenant_id;
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const changeUserNameService = new ChangeUserNameService({
     tenantRepository,

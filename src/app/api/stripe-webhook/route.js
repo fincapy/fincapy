@@ -3,7 +3,7 @@ import { SetTenantPaymentSucceededService } from '@/backend/services/setTenantPa
 import { SetTenantPaymentFailedService } from '@/backend/services/setTenantPaymentFailedService';
 import { SetTenantCancelledService } from '@/backend/services/setTenantCancelledService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
 
@@ -39,8 +39,8 @@ export const POST = async (req) => {
     });
   }
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const auth0Adapter = new Auth0Adapter({ client: auth0Client });
   const plaidAdapter = new PlaidAdapter({ client });
   let service;

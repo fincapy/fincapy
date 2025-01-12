@@ -3,6 +3,7 @@ import { IngestTransactionUpdatesService } from '@/backend/services/ingestTransa
 import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
 import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
 function wait(ms) {
@@ -18,8 +19,8 @@ export const POST = async (req) => {
 
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const plaidAdapter = new PlaidAdapter(client);
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const openaiAdapter = new OpenaiAdapter();
   const service = new IngestTransactionUpdatesService({
     plaidAdapter,

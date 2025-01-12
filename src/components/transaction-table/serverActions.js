@@ -15,7 +15,7 @@ const recategorizeTransaction = async ({
   }
   const tenantId = session.user.tenant_id;
 
-  const tigrisAdapter = new TigrisAdapter({ client: s3client });
+  const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ tigrisAdapter });
   const service = new RecategorizeTransactionService({
     tenantRepository: tenantRepository,

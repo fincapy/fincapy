@@ -7,7 +7,7 @@ class CreateUserService {
   }
 
   async execute({ tenantId, email, name, role }) {
-    const [tenant, etag] = await this.tenantRepository.get({ tenantId });
+    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     await this.auth0Adapter.createUser(email, name);
     const auth0User = await this.auth0Adapter.getUserByEmail(email);
     await this.auth0Adapter.updateUserAppMetadata(auth0User.user_id, {
@@ -15,7 +15,7 @@ class CreateUserService {
       tenant_id: tenantId,
     });
     tenant.users.push(new User({ email, role, name }));
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

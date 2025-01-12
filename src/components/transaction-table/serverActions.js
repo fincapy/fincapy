@@ -1,7 +1,7 @@
 'use server';
 import { RecategorizeTransactionService } from '@/backend/services/recategorizeTransactionService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { getSession } from '@auth0/nextjs-auth0';
 
 const recategorizeTransaction = async ({
@@ -16,7 +16,7 @@ const recategorizeTransaction = async ({
   const tenantId = session.user.tenant_id;
 
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const service = new RecategorizeTransactionService({
     tenantRepository: tenantRepository,
   });

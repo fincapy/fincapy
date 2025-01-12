@@ -5,7 +5,7 @@ import { CreatePlaidItemService } from '@/backend/services/createPlaidItemServic
 import { UpdatePlaidItemService } from '@/backend/services/updatePlaidItemService';
 import { DeletePlaidItemService } from '@/backend/services/deletePlaidItemService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { getSession } from '@auth0/nextjs-auth0';
 
 const fetchLinkToken = async ({ institutionId }) => {
@@ -15,8 +15,8 @@ const fetchLinkToken = async ({ institutionId }) => {
   }
   const tenantId = session.user.tenant_id;
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
-  const [tenant, etag] = await tenantRepository.get({ tenantId });
+  const tenantRepository = new TenantRepository({ redisAdapter });
+  const tenant = await tenantRepository.get({ tenantId });
   const plaidItem = tenant.plaidItems.find(
     (item) => item.institutionId === institutionId
   );
@@ -41,7 +41,7 @@ const createPlaidItem = async ({
   const plaidAdapter = new PlaidAdapter(client);
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const service = new CreatePlaidItemService({
     tenantRepository,
     pubsubAdapter,
@@ -65,7 +65,7 @@ const updatePlaidItem = async ({ institutionId, publicToken }) => {
   const tenantId = session.user.tenant_id;
   const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const plaidAdapter = new PlaidAdapter(client);
   const service = new UpdatePlaidItemService({
     tenantRepository,
@@ -88,7 +88,7 @@ const deletePlaidItem = async ({ institutionId }) => {
   const tenantId = session.user.tenant_id;
   const plaidAdapter = new PlaidAdapter(client);
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const service = new DeletePlaidItemService({
     tenantRepository,
     plaidAdapter,

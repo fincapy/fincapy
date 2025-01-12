@@ -1,6 +1,6 @@
 'use server';
 
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { CreateCategoryService } from '@/backend/services/createCategoryService';
 import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
@@ -28,7 +28,7 @@ const createCategory = async ({
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new CreateCategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   try {
@@ -56,7 +56,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new UpdateCategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -77,7 +77,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new DeleteCategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -102,7 +102,7 @@ const createSubcategory = async ({
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new CreateSubcategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -133,7 +133,7 @@ const updateSubcategory = async ({
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new UpdateSubcategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -155,7 +155,7 @@ const deleteSubcategory = async ({ subcategoryId, planId }) => {
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new DeleteSubcategoryService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -174,7 +174,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderCategoriesService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({
@@ -200,7 +200,7 @@ const reorderSubcategories = async ({
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderSubcategoriesService({
-    tenantRepository: new TenantRepository({ tigrisAdapter }),
+    tenantRepository: new TenantRepository({ redisAdapter }),
   });
 
   await service.execute({

@@ -1,6 +1,6 @@
 'use server';
 
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
+import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { getSession } from '@auth0/nextjs-auth0';
 import { RemoveUserService } from '@/backend/services/removeUserService';
@@ -17,7 +17,7 @@ const removeUser = async (email) => {
   const tenantId = session.user.tenant_id;
 
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const auth0Adapter = new Auth0Adapter({ client: auth0Client });
   const removeUserService = new RemoveUserService({
     tenantRepository,
@@ -34,7 +34,7 @@ const changeUserRole = async ({ email, role }) => {
 
   const tenantId = session.user.tenant_id;
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const changeUserRoleService = new ChangeUserRoleService({
     tenantRepository,
   });
@@ -49,7 +49,7 @@ const changeUserName = async ({ email, name }) => {
 
   const tenantId = session.user.tenant_id;
   const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ tigrisAdapter });
+  const tenantRepository = new TenantRepository({ redisAdapter });
   const changeUserNameService = new ChangeUserNameService({
     tenantRepository,
   });

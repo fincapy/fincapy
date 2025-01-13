@@ -25,19 +25,6 @@ export async function middleware(request) {
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  const devCspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self';
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    upgrade-insecure-requests;
-`;
-
   const prodCspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
@@ -51,19 +38,20 @@ export async function middleware(request) {
     upgrade-insecure-requests;
 `;
 
-  const cspHeader =
-    process.env.NODE_ENV === 'production' ? prodCspHeader : devCspHeader;
+  const cspHeader = prodCspHeader;
   // Replace newline characters and spaces
   const contentSecurityPolicyHeaderValue = cspHeader
     .replace(/\s{2,}/g, ' ')
     .trim();
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-  requestHeaders.set(
-    'Content-Security-Policy',
-    contentSecurityPolicyHeaderValue
-  );
+  if (process.env.NODE_ENV === 'production') {
+    requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set(
+      'Content-Security-Policy',
+      contentSecurityPolicyHeaderValue
+    );
+  }
 
   if (session) {
     requestHeaders.set('x-tenant-id', session.user.tenant_id);
@@ -75,10 +63,13 @@ export async function middleware(request) {
       headers: requestHeaders,
     },
   });
-  response.headers.set(
-    'Content-Security-Policy',
-    contentSecurityPolicyHeaderValue
-  );
+
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Content-Security-Policy',
+      contentSecurityPolicyHeaderValue
+    );
+  }
 
   return response;
 }

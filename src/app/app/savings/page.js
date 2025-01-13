@@ -1,4 +1,4 @@
-import Dashboard from '@/components/category-dashboard';
+import CategoryDashboard from '@/components/category-dashboard';
 export default function DashboardPage() {
-  return <Dashboard type="savings" />;
+  return <CategoryDashboard type="savings" />;
 }

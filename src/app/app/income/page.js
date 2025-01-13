@@ -1,5 +1,5 @@
-import Dashboard from '@/components/category-dashboard';
+import CategoryDashboard from '@/components/category-dashboard';
 
 export default function DashboardPage() {
-  return <Dashboard type="income" />;
+  return <CategoryDashboard type="income" />;
 }

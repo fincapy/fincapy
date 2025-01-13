@@ -1136,7 +1136,7 @@ const DatePickers = ({ startDate, endDate }) => {
   );
 };
 
-export default function Dashboard({ type }) {
+export default function CategoryDashboard({ type }) {
   const { planState, setPlanState } = useContext(PlanContext);
   const { startDateState, setStartDateState } = useContext(StartDateContext);
   const { endDateState, setEndDateState } = useContext(EndDateContext);

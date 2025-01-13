@@ -34,6 +34,7 @@ import { Subcategory } from '@/backend/domain/subcategory';
 import { StartDateContext, EndDateContext } from './datesContext';
 import { UsersContext } from './usersContext';
 import { PlaidItemsContext } from './plaidItemsContext';
+import CategoryDashboard from '@/components/category-dashboard';
 
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input

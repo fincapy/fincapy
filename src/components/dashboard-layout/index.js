@@ -26,6 +26,14 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import { ChatWidget } from '@/components/chat-widget';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { PlanContext } from './planContext';
+import { useState } from 'react';
+import { Plan } from '@/backend/domain/plan';
+import { Category } from '@/backend/domain/category';
+import { Subcategory } from '@/backend/domain/subcategory';
+import { StartDateContext, EndDateContext } from './datesContext';
+import { UsersContext } from './usersContext';
+import { PlaidItemsContext } from './plaidItemsContext';
 
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input
@@ -97,6 +105,11 @@ export default function DashboardLayout({
   userName,
   userRole,
   nonce,
+  plan,
+  startDate,
+  endDate,
+  users,
+  plaidItems,
 }) {
   const path = usePathname();
   const pageName = path.split('/').pop();
@@ -106,6 +119,23 @@ export default function DashboardLayout({
     .map(capitalize)
     .join(' ');
 
+  plan.categories = plan.categories.map((category) => {
+    category.subcategories = category.subcategories.map((subcategory) => {
+      return new Subcategory(subcategory);
+    });
+    return new Category(category);
+  });
+
+  const [planState, setPlanState] = useState(new Plan(plan));
+  const [startDateState, setStartDateState] = useState(
+    startDate.toISOString().split('T')[0]
+  );
+  const [endDateState, setEndDateState] = useState(
+    endDate.toISOString().split('T')[0]
+  );
+  const [usersState, setUsersState] = useState(users);
+  const [plaidItemsState, setPlaidItemsState] = useState(plaidItems);
+
   return (
     <ThemeProvider
       attribute="class"
@@ -114,30 +144,53 @@ export default function DashboardLayout({
       disableTransitionOnChange
       nonce={nonce}
     >
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="w-full h-screen overflow-hidden">
-          <div className="flex flex-col gap-2 bg-background top-0 z-20">
-            <div className="flex flex-row items-center gap-3 mt-2">
-              <SidebarTrigger className="ml-2" />
-              <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                {capitalizedPageName}
-              </h1>
-              <div className="flex flex-row justify-end flex-grow mr-3">
-                <div className="flex flex-row items-center gap-3">
-                  <ModeToggle />
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <AvatarDropdown userName={userName} userRole={userRole} />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <Separator />
-          </div>
-          <ChatWidget />
-          <ScrollArea className="w-full h-full">{children}</ScrollArea>
-        </main>
-      </SidebarProvider>
+      <PlanContext.Provider value={{ planState, setPlanState }}>
+        <StartDateContext.Provider
+          value={{ startDateState, setStartDateState }}
+        >
+          <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
+            <UsersContext.Provider value={{ usersState, setUsersState }}>
+              <PlaidItemsContext.Provider
+                value={{ plaidItemsState, setPlaidItemsState }}
+              >
+                <SidebarProvider>
+                  <AppSidebar />
+                  <main className="w-full h-screen overflow-hidden">
+                    <div className="flex flex-col gap-2 bg-background top-0 z-20">
+                      <div className="flex flex-row items-center gap-3 mt-2">
+                        <SidebarTrigger className="ml-2" />
+                        <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                          {capitalizedPageName}
+                        </h1>
+                        <div className="flex flex-row justify-end flex-grow mr-3">
+                          <div className="flex flex-row items-center gap-3">
+                            <ModeToggle />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="rounded-full"
+                            >
+                              <AvatarDropdown
+                                userName={userName}
+                                userRole={userRole}
+                              />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      <Separator />
+                    </div>
+                    <ChatWidget />
+                    <ScrollArea className="w-full h-full">
+                      {children}
+                    </ScrollArea>
+                  </main>
+                </SidebarProvider>
+              </PlaidItemsContext.Provider>
+            </UsersContext.Provider>
+          </EndDateContext.Provider>
+        </StartDateContext.Provider>
+      </PlanContext.Provider>
     </ThemeProvider>
   );
 }

@@ -33,6 +33,8 @@ class SetupNewTenantService {
       planId: 'initial',
       categories: [],
       recategorizations: [],
+      startDate: null,
+      endDate: null,
     });
     const spendingCategory = new Category({
       tenantId,

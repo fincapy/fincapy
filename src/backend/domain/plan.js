@@ -1,10 +1,21 @@
 class Plan {
-  constructor({ planId, categories, recategorizations }) {
+  constructor({ planId, categories, recategorizations, startDate, endDate }) {
     this.planId = planId;
     this.categories = categories;
-    this.startDate = null;
-    this.endDate = null;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.recategorizations = recategorizations;
+  }
+
+  toView() {
+    const planView = { ...this };
+    planView.categories = planView.categories.map((category) => {
+      category.subcategories = category.subcategories.map((subcategory) => {
+        return { ...subcategory };
+      });
+      return { ...category };
+    });
+    return planView;
   }
 
   toSpendingView() {

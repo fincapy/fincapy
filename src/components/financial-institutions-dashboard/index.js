@@ -32,6 +32,8 @@ import {
 } from '@/components/ui/dialog';
 import React from 'react';
 import Script from 'next/script';
+import { PlaidItemsContext } from '../dashboard-layout/plaidItemsContext';
+import { useContext } from 'react';
 
 const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
   const onClick = async () => {
@@ -179,17 +181,18 @@ const NewFinancialInstitutionCard = () => {
   );
 };
 
-export default function FinancialInstitutionsDashboard({ links }) {
+export default function FinancialInstitutionsDashboard() {
+  const { plaidItemsState } = useContext(PlaidItemsContext);
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-28 justify-center items-center">
       <Script
         src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
         strategy="beforeInteractive"
       />
-      {links.map((link) => (
+      {plaidItemsState.map((plaidItem) => (
         <ExistingFinancialInstitutionCard
-          key={link.institutionId}
-          link={link}
+          key={plaidItem.institutionId}
+          link={plaidItem}
         />
       ))}
       <NewFinancialInstitutionCard key="new-financial-institution-card" />

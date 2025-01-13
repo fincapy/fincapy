@@ -60,7 +60,12 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { CategoryContext } from './categoryContext';
+import { CategoryNamesContext } from './categoryNamesContext';
+import {
+  CategoryContext,
+  deleteSubcategoryState,
+  createCategoryState,
+} from './categoryContext';
 import { format, parse } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -88,6 +93,13 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { TypeContext } from './typeContext';
 import { useContext } from 'react';
+import { PlanContext } from '../dashboard-layout/planContext';
+import {
+  StartDateContext,
+  EndDateContext,
+} from '../dashboard-layout/datesContext';
+import { useMemo } from 'react';
+
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
     message: 'Name must be at least 1 character.',
@@ -98,6 +110,8 @@ const createCategoryFormSchema = z.object({
 });
 
 const CreateCategoryForm = () => {
+  const { categoriesState, setCategoriesState, setPreviousState } =
+    useContext(CategoryContext);
   const type = useContext(TypeContext);
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
@@ -115,6 +129,15 @@ const CreateCategoryForm = () => {
     const name = values.name;
     const categoryId = uuidv4();
 
+    createCategoryState({
+      name,
+      categoryId,
+      monthlyGoal,
+      categoriesState,
+      setCategoriesState,
+      setPreviousState,
+      type,
+    });
     await createCategory({
       name,
       categoryId,
@@ -619,8 +642,22 @@ const EditSubcategoryDialogue = ({ subcategoryId }) => {
   );
 };
 
-const DeleteSubcategoryDialogue = ({ subcategoryId }) => {
+const DeleteSubcategoryDialogue = ({
+  subcategoriesState,
+  subcategoryId,
+  setSubcategoriesState,
+  setPreviousState,
+  setAreSubcategoriesOpen,
+}) => {
   const onClick = async () => {
+    console.log('here?');
+    deleteSubcategoryState({
+      subcategoriesState,
+      setSubcategoriesState,
+      setPreviousState,
+      subcategoryId,
+      setAreSubcategoriesOpen,
+    });
     await deleteSubcategory({ subcategoryId, planId: 'initial' });
   };
 
@@ -643,7 +680,11 @@ const DeleteSubcategoryDialogue = ({ subcategoryId }) => {
           </DialogDescription>
         </DialogHeader>
         <DialogClose asChild>
-          <Button variant="destructive" onClick={onClick}>
+          <Button
+            variant="destructive"
+            onClick={onClick}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             Delete
           </Button>
         </DialogClose>
@@ -775,7 +816,18 @@ const CategoryCard = ({
 };
 
 const SubcategoryCard = forwardRef(
-  ({ areSubcategoriesOpen, subcategory, subcategoryLength, index }, ref) => {
+  (
+    {
+      subcategoriesState,
+      subcategory,
+      subcategoryLength,
+      index,
+      setSubcategoriesState,
+      setPreviousState,
+      setAreSubcategoriesOpen,
+    },
+    ref
+  ) => {
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -815,7 +867,11 @@ const SubcategoryCard = forwardRef(
                   subcategoryId={subcategory.subcategoryId}
                 />
                 <DeleteSubcategoryDialogue
+                  subcategoriesState={subcategoriesState}
                   subcategoryId={subcategory.subcategoryId}
+                  setSubcategoriesState={setSubcategoriesState}
+                  setPreviousState={setPreviousState}
+                  setAreSubcategoriesOpen={setAreSubcategoriesOpen}
                 />
                 <Button
                   variant="ghost"
@@ -902,6 +958,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
     useSensor(KeyboardSensor)
   );
 
+  const [previousState, setPreviousState] = useState(subcategories);
   const [subcategoriesState, setSubcategoriesState] = useState(subcategories);
 
   const handleDragEnd = async (event) => {
@@ -939,7 +996,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       <CategoryCard
         category={category}
         areSubcategoriesOpen={areSubcategoriesOpen}
-        subcategoryLength={subcategories.length}
+        subcategoryLength={subcategoriesState.length}
         categoryCardRef={categoryCardRef}
         isOverlapping={isOverlapping}
         setAreSubcategoriesOpen={setAreSubcategoriesOpen}
@@ -961,7 +1018,12 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
               ref={subcategoryRefs.current[index]}
             >
               <SubcategoryCard
+                category={category}
                 subcategory={subcategory}
+                subcategoriesState={subcategoriesState}
+                setSubcategoriesState={setSubcategoriesState}
+                setPreviousState={setPreviousState}
+                setAreSubcategoriesOpen={setAreSubcategoriesOpen}
                 areSubcategoriesOpen={areSubcategoriesOpen}
                 subcategoryLength={subcategories.length}
                 index={index}
@@ -1074,7 +1136,23 @@ const DatePickers = ({ startDate, endDate }) => {
   );
 };
 
-export default function Dashboard({ categories, startDate, endDate, type }) {
+export default function Dashboard({ type }) {
+  const { planState, setPlanState } = useContext(PlanContext);
+  const { startDateState, setStartDateState } = useContext(StartDateContext);
+  const { endDateState, setEndDateState } = useContext(EndDateContext);
+  let categories = [];
+
+  categories = useMemo(() => {
+    if (type === 'spending') {
+      return planState.toSpendingView();
+    } else if (type === 'income') {
+      return planState.toIncomeView();
+    } else if (type === 'savings') {
+      return planState.toSavingsView();
+    }
+    return [];
+  }, [type, planState]);
+
   let categoryNames = Object.values(categories)
     .map((category) =>
       category.subcategories.map((subcategory) => {
@@ -1113,6 +1191,7 @@ export default function Dashboard({ categories, startDate, endDate, type }) {
     useSensor(KeyboardSensor)
   );
 
+  const [previousState, setPreviousState] = useState(categories);
   const [categoriesState, setCategoriesState] = useState(categories);
 
   const handleDragEnd = async (event) => {
@@ -1138,46 +1217,53 @@ export default function Dashboard({ categories, startDate, endDate, type }) {
   };
 
   return (
-    <CategoryContext.Provider value={categoryNames}>
-      <TypeContext.Provider value={type}>
-        <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
-          <div className="flex flex-col justify-center items-center gap-4 mb-8">
-            <div
-              className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
-              key="create-category-dialogue"
-            >
-              <DatePickers startDate={startDate} endDate={endDate} />
-              {(type === 'spending' || type === 'income') && (
-                <CreateCategoryDialogue />
-              )}
-            </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={categoriesState.map((category) => category.categoryId)}
-                strategy={verticalListSortingStrategy}
+    <CategoryContext.Provider
+      value={{ categoriesState, setCategoriesState, setPreviousState }}
+    >
+      <CategoryNamesContext.Provider value={categoryNames}>
+        <TypeContext.Provider value={type}>
+          <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
+            <div className="flex flex-col justify-center items-center gap-4 mb-8">
+              <div
+                className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
+                key="create-category-dialogue"
               >
-                {categoriesState.map((category) => (
-                  <div
-                    className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
-                    key={category.categoryId}
-                  >
-                    <CategoryCardCollapsible
+                <DatePickers
+                  startDate={startDateState}
+                  endDate={endDateState}
+                />
+                {(type === 'spending' || type === 'income') && (
+                  <CreateCategoryDialogue />
+                )}
+              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={categoriesState.map((category) => category.categoryId)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {categoriesState.map((category) => (
+                    <div
+                      className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
                       key={category.categoryId}
-                      id={category.categoryId}
-                      category={category}
-                      subcategories={category.subcategories}
-                    />
-                  </div>
-                ))}
-              </SortableContext>
-            </DndContext>
+                    >
+                      <CategoryCardCollapsible
+                        key={category.categoryId}
+                        id={category.categoryId}
+                        category={category}
+                        subcategories={category.subcategories}
+                      />
+                    </div>
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
           </div>
-        </div>
-      </TypeContext.Provider>
+        </TypeContext.Provider>
+      </CategoryNamesContext.Provider>
     </CategoryContext.Provider>
   );
 }

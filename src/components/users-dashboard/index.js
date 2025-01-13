@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { inviteUser } from './serverActions';
+import { UsersContext } from '../dashboard-layout/usersContext';
+import { useContext } from 'react';
 
 export function SelectDemo({ field }) {
   return (
@@ -161,14 +163,16 @@ const InviteUserDialogue = () => {
   );
 };
 
-export default function Dashboard({ users }) {
+export default function Dashboard() {
+  const { usersState } = useContext(UsersContext);
+
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
       <div className="w-11/12 lg:w-3/4 flex flex-row justify-end">
         <InviteUserDialogue />
       </div>
       <div className="w-11/12 lg:w-3/4">
-        <UserTable users={users} />
+        <UserTable users={usersState} />
       </div>
     </div>
   );

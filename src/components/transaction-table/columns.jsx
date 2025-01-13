@@ -42,12 +42,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useContext } from 'react';
-import { CategoryContext } from '../category-dashboard/categoryContext';
+import { CategoryNamesContext } from '../category-dashboard/categoryNamesContext';
 import { TransactionContext } from './transaction';
 import { recategorizeTransaction } from './serverActions';
 
 export function SelectDemo({ field }) {
-  const categories = useContext(CategoryContext);
+  const categories = useContext(CategoryNamesContext);
 
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>

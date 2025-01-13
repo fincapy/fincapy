@@ -1,5 +1,4 @@
 import DashboardLayout from '@/components/dashboard-layout';
-import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';

@@ -473,7 +473,10 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
         <Button
           variant="ghost"
           size="icon"
-          style={{ marginRight: '-23px', marginTop: '-47px' }}
+          style={{
+            marginRight: '-23px',
+            marginTop: '-47px',
+          }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />

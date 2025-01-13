@@ -3,13 +3,33 @@ import { withMiddlewareAuthRequired } from '@auth0/nextjs-auth0/edge';
 import { getSession } from '@auth0/nextjs-auth0/edge';
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export async function middleware(request) {
+  let session = null;
+  if (
+    request.nextUrl.pathname.startsWith('/app') ||
+    request.nextUrl.pathname === '/'
+  ) {
+    session = await getSession(request);
+
+    if (request.nextUrl.pathname === '/') {
+      console.log('here?');
+      if (session) {
+        console.log('here?');
+        return NextResponse.redirect(new URL('/app/spending', request.url));
+      }
+    } else {
+      if (!session) {
+        return NextResponse.redirect(new URL('/api/auth/login', request.url));
+      }
+    }
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const devCspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' https: 'unsafe-inline';
-    img-src 'self' https:;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self';
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -21,8 +41,8 @@ export function middleware(request) {
   const prodCspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'nonce-${nonce}';
-    img-src 'self' https:;
+    style-src 'self' https: 'unsafe-inline';
+    img-src 'self';
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -44,6 +64,11 @@ export function middleware(request) {
     'Content-Security-Policy',
     contentSecurityPolicyHeaderValue
   );
+
+  if (session) {
+    requestHeaders.set('x-tenant-id', session.user.tenant_id);
+    requestHeaders.set('x-user-email', session.user.email);
+  }
 
   const response = NextResponse.next({
     request: {

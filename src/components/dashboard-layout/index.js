@@ -37,14 +37,14 @@ const getInitials = (name) => {
   return firstName.charAt(0) + lastName.charAt(0);
 };
 
-const AvatarDropdown = ({ auth0User, user }) => {
-  const initials = getInitials(auth0User.name);
+const AvatarDropdown = ({ userName, userRole }) => {
+  const initials = getInitials(userName);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="rounded-full">
           <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
-          <AvatarImage src={auth0User.custom_picture} alt={auth0User.name} />
+          <AvatarImage alt={userName} />
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -53,7 +53,7 @@ const AvatarDropdown = ({ auth0User, user }) => {
         align="end"
         sideOffset={4}
       >
-        {user.role === 'owner' && (
+        {userRole === 'owner' && (
           <Fragment>
             <DropdownMenuGroup>
               <DropdownMenuItem className="cursor-pointer">
@@ -92,7 +92,12 @@ const AvatarDropdown = ({ auth0User, user }) => {
   );
 };
 
-export default function DashboardLayout({ children, auth0User, user, tenant }) {
+export default function DashboardLayout({
+  children,
+  userName,
+  userRole,
+  nonce,
+}) {
   const path = usePathname();
   const pageName = path.split('/').pop();
   const pageNameSeparated = pageName.split('-').join(' ');
@@ -107,6 +112,7 @@ export default function DashboardLayout({ children, auth0User, user, tenant }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      nonce={nonce}
     >
       <SidebarProvider>
         <AppSidebar />
@@ -121,7 +127,7 @@ export default function DashboardLayout({ children, auth0User, user, tenant }) {
                 <div className="flex flex-row items-center gap-3">
                   <ModeToggle />
                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <AvatarDropdown auth0User={auth0User} user={user} />
+                    <AvatarDropdown userName={userName} userRole={userRole} />
                   </Button>
                 </div>
               </div>

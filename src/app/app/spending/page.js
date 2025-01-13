@@ -1,13 +1,13 @@
 import Dashboard from '@/components/category-dashboard';
-import { getSession } from '@auth0/nextjs-auth0';
 import { SpendingCategoriesView } from '@/backend/views/spendingCategoriesView';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { parse } from 'date-fns';
+import { headers } from 'next/headers';
 
 export default async function DashboardPage({ searchParams }) {
-  const session = await getSession();
-  const { user } = session;
+  const headersList = headers();
+  const tenantId = headersList.get('x-tenant-id');
   const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ redisAdapter });
   const view = new SpendingCategoriesView(tenantRepository);
@@ -32,7 +32,7 @@ export default async function DashboardPage({ searchParams }) {
   }
 
   const categories = await view.get({
-    tenantId: user.tenant_id,
+    tenantId,
     startDate,
     endDate,
     planId: 'initial',

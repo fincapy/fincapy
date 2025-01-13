@@ -91,7 +91,7 @@ const AvatarDropdown = ({ auth0User, user }) => {
   );
 };
 
-export default function DashboardLayout({ children, auth0User, user }) {
+export default function DashboardLayout({ children, auth0User, user, nonce }) {
   const path = usePathname();
   const pageName = path.split('/').pop();
   const pageNameSeparated = pageName.split('-').join(' ');
@@ -106,6 +106,7 @@ export default function DashboardLayout({ children, auth0User, user }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      nonce={nonce}
     >
       <SidebarProvider>
         <AppSidebar />

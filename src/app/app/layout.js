@@ -1,13 +1,13 @@
 import DashboardLayout from '@/components/dashboard-layout';
 import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
-import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
+import { headers } from 'next/headers';
 
 export default async function Layout({ children }) {
   const session = await getSession();
+  const nonce = headers().get('x-nonce');
 
   if (!session) {
     return <div>Unauthorized</div>;
@@ -36,7 +36,7 @@ export default async function Layout({ children }) {
   }
 
   return (
-    <DashboardLayout auth0User={auth0User} user={user}>
+    <DashboardLayout auth0User={auth0User} user={user} nonce={nonce}>
       {children}
     </DashboardLayout>
   );

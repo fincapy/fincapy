@@ -1,6 +1,10 @@
 import Redis from 'ioredis';
 
-const redisClient = new Redis(process.env.REDIS_URL, { family: 6 });
+const options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.family = 6;
+}
+const redisClient = new Redis(process.env.REDIS_URL, options);
 
 class RedisAdapter {
   constructor({ redisClient }) {

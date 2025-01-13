@@ -11,6 +11,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import { useRouter } from 'next/router';
 
 // This is sample data.
 const data = {
@@ -61,6 +62,14 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+  const router = useRouter();
+  data.navTrack.forEach((navItem) => {
+    router.prefetch(navItem.url);
+  });
+  data.navLink.forEach((navItem) => {
+    router.prefetch(navItem.url);
+  });
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>

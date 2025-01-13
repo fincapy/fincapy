@@ -34,6 +34,8 @@ import { Subcategory } from '@/backend/domain/subcategory';
 import { StartDateContext, EndDateContext } from './datesContext';
 import { UsersContext } from './usersContext';
 import { PlaidItemsContext } from './plaidItemsContext';
+import { PageContext } from './pageContext';
+import { useSearchParams } from 'next/navigation';
 import CategoryDashboard from '@/components/category-dashboard';
 
 function capitalize(word) {
@@ -46,7 +48,7 @@ const getInitials = (name) => {
   return firstName.charAt(0) + lastName.charAt(0);
 };
 
-const AvatarDropdown = ({ userName, userRole }) => {
+const AvatarDropdown = ({ userName, userRole, setPage }) => {
   const initials = getInitials(userName);
   return (
     <DropdownMenu>
@@ -65,14 +67,12 @@ const AvatarDropdown = ({ userName, userRole }) => {
         {userRole === 'owner' && (
           <Fragment>
             <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer">
-                <Link
-                  className="w-full flex items-center content-center gap-2"
-                  href="/app/manage-users"
-                >
-                  <BadgeCheck size={16} />
-                  Manage users
-                </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setPage('manage-users')}
+              >
+                <BadgeCheck size={16} />
+                Manage users
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <a
@@ -112,13 +112,8 @@ export default function DashboardLayout({
   users,
   plaidItems,
 }) {
-  const path = usePathname();
-  const pageName = path.split('/').pop();
-  const pageNameSeparated = pageName.split('-').join(' ');
-  const capitalizedPageName = pageNameSeparated
-    .split(' ')
-    .map(capitalize)
-    .join(' ');
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get('page');
 
   plan.categories = plan.categories.map((category) => {
     category.subcategories = category.subcategories.map((subcategory) => {
@@ -136,6 +131,7 @@ export default function DashboardLayout({
   );
   const [usersState, setUsersState] = useState(users);
   const [plaidItemsState, setPlaidItemsState] = useState(plaidItems);
+  const [page, setPage] = useState(pageParam || 'spending');
 
   return (
     <ThemeProvider
@@ -154,39 +150,42 @@ export default function DashboardLayout({
               <PlaidItemsContext.Provider
                 value={{ plaidItemsState, setPlaidItemsState }}
               >
-                <SidebarProvider>
-                  <AppSidebar />
-                  <main className="w-full h-screen overflow-hidden">
-                    <div className="flex flex-col gap-2 bg-background top-0 z-20">
-                      <div className="flex flex-row items-center gap-3 mt-2">
-                        <SidebarTrigger className="ml-2" />
-                        <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                          {capitalizedPageName}
-                        </h1>
-                        <div className="flex flex-row justify-end flex-grow mr-3">
-                          <div className="flex flex-row items-center gap-3">
-                            <ModeToggle />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="rounded-full"
-                            >
-                              <AvatarDropdown
-                                userName={userName}
-                                userRole={userRole}
-                              />
-                            </Button>
+                <PageContext.Provider value={{ page, setPage }}>
+                  <SidebarProvider>
+                    <AppSidebar page={page} setPage={setPage} />
+                    <main className="w-full h-screen overflow-hidden">
+                      <div className="flex flex-col gap-2 bg-background top-0 z-20">
+                        <div className="flex flex-row items-center gap-3 mt-2">
+                          <SidebarTrigger className="ml-2" />
+                          <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                            {capitalize(page.replace('-', ' '))}
+                          </h1>
+                          <div className="flex flex-row justify-end flex-grow mr-3">
+                            <div className="flex flex-row items-center gap-3">
+                              <ModeToggle />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full"
+                              >
+                                <AvatarDropdown
+                                  userName={userName}
+                                  userRole={userRole}
+                                  setPage={setPage}
+                                />
+                              </Button>
+                            </div>
                           </div>
                         </div>
+                        <Separator />
                       </div>
-                      <Separator />
-                    </div>
-                    <ChatWidget />
-                    <ScrollArea className="w-full h-full">
-                      {children}
-                    </ScrollArea>
-                  </main>
-                </SidebarProvider>
+                      <ChatWidget />
+                      <ScrollArea className="w-full h-full">
+                        {children}
+                      </ScrollArea>
+                    </main>
+                  </SidebarProvider>
+                </PageContext.Provider>
               </PlaidItemsContext.Provider>
             </UsersContext.Provider>
           </EndDateContext.Provider>

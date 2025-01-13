@@ -33,19 +33,19 @@ const data = {
   navTrack: [
     {
       title: 'Spending',
-      url: '/app/spending',
+      page: 'spending',
       icon: HandCoins,
       isActive: true,
     },
     {
       title: 'Income',
-      url: '/app/income',
+      page: 'income',
       icon: BadgePlus,
       isActive: false,
     },
     {
       title: 'Savings',
-      url: '/app/savings',
+      page: 'savings',
       icon: Wallet,
       isActive: false,
     },
@@ -53,22 +53,32 @@ const data = {
   navLink: [
     {
       title: 'Financial Institutions',
-      url: '/app/financial-institutions',
+      page: 'financial-institutions',
       icon: Landmark,
       isActive: false,
     },
   ],
 };
 
-export function AppSidebar({ ...props }) {
+export function AppSidebar({ page, setPage, ...props }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         <BudgetSwitcher budgets={data.budgets} />
       </SidebarHeader>
       <SidebarContent>
-        <NavTrack items={data.navTrack} label="Track" />
-        <NavTrack items={data.navLink} label="Link" />
+        <NavTrack
+          items={data.navTrack}
+          label="Track"
+          page={page}
+          setPage={setPage}
+        />
+        <NavTrack
+          items={data.navLink}
+          label="Link"
+          page={page}
+          setPage={setPage}
+        />
       </SidebarContent>
     </Sidebar>
   );

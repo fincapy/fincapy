@@ -15,7 +15,7 @@ export async function middleware(request) {
       console.log('here?');
       if (session) {
         console.log('here?');
-        return NextResponse.redirect(new URL('/app/spending', request.url));
+        return NextResponse.redirect(new URL('/app', request.url));
       }
     } else {
       if (!session) {

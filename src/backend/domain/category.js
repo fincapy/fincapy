@@ -62,7 +62,7 @@ class Category {
     const subcategories = [];
     this.subcategories.forEach((subcategory) => {
       subcategory.toSpendingView(this, startDate, endDate, fractionOfMonths);
-      subcategories.push(Object.assign({}, subcategory));
+      subcategories.push(subcategory);
     });
     this.subcategories = subcategories;
   }
@@ -88,7 +88,7 @@ class Category {
     const subcategories = [];
     this.subcategories.forEach((subcategory) => {
       subcategory.toIncomeView(this, startDate, endDate, fractionOfMonths);
-      subcategories.push(Object.assign({}, subcategory));
+      subcategories.push(subcategory);
     });
     this.subcategories = subcategories;
   }

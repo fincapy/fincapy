@@ -145,14 +145,19 @@ export default function DashboardLayout({
   const searchParams = useSearchParams();
   const pageParam = searchParams.get('page');
 
-  plan.categories = plan.categories.map((category) => {
-    category.subcategories = category.subcategories.map((subcategory) => {
-      return new Subcategory(subcategory);
-    });
-    return new Category(category);
+  const newPlan = new Plan({
+    ...plan,
+    categories: plan.categories.map((category) => {
+      return new Category({
+        ...category,
+        subcategories: category.subcategories.map((subcategory) => {
+          return new Subcategory({ ...subcategory });
+        }),
+      });
+    }),
   });
 
-  const [planState, setPlanState] = useState(new Plan(plan));
+  const [planState, setPlanState] = useState(newPlan);
   const [startDateState, setStartDateState] = useState(
     startDate.toISOString().split('T')[0]
   );
@@ -169,15 +174,20 @@ export default function DashboardLayout({
         `/api/plan?startDate=${startDateState}&endDate=${endDateState}&planId=initial`
       );
       const plan = await res.json();
-      plan.startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
-      plan.endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
-      plan.categories = plan.categories.map((category) => {
-        category.subcategories = category.subcategories.map((subcategory) => {
-          return new Subcategory(subcategory);
-        });
-        return new Category(category);
+      const newPlan = new Plan({
+        ...plan,
+        startDate: parse(startDateState, 'yyyy-MM-dd', new Date()),
+        endDate: parse(endDateState, 'yyyy-MM-dd', new Date()),
+        categories: plan.categories.map((category) => {
+          return new Category({
+            ...category,
+            subcategories: category.subcategories.map((subcategory) => {
+              return new Subcategory({ ...subcategory });
+            }),
+          });
+        }),
       });
-      setPlanState(new Plan(plan));
+      setPlanState(newPlan);
     };
 
     getPlan();

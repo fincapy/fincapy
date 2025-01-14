@@ -1036,43 +1036,25 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
   );
 };
 
-const DatePickers = ({ startDate, endDate }) => {
+const DatePickers = () => {
   const type = useContext(TypeContext);
-  const [startDateDate, setStartDateDate] = useState(
-    parse(startDate, 'yyyy-MM-dd', new Date())
-  );
-  const [endDateDate, setEndDateDate] = useState(
-    parse(endDate, 'yyyy-MM-dd', new Date())
-  );
+  const { startDateState, setStartDateState } = useContext(StartDateContext);
+  const { endDateState, setEndDateState } = useContext(EndDateContext);
+  const startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
+  const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
   const router = useRouter();
 
   const setStartDate = (date) => {
-    if (date <= endDateDate) {
-      setStartDateDate(date);
-      setTimeout(() => {
-        router.push(
-          `/app/${type}?startDate=${format(date, 'yyyy-MM-dd')}&endDate=${format(
-            endDateDate,
-            'yyyy-MM-dd'
-          )}`
-        );
-      }, 0);
+    if (date <= endDate) {
+      setStartDateState(date);
     } else {
       alert('Start date cannot be after the end date.');
     }
   };
 
   const setEndDate = (date) => {
-    if (date >= startDateDate) {
-      setEndDateDate(date);
-      setTimeout(() => {
-        router.push(
-          `/app/${type}?startDate=${format(startDateDate, 'yyyy-MM-dd')}&endDate=${format(
-            date,
-            'yyyy-MM-dd'
-          )}`
-        );
-      }, 0);
+    if (date >= startDate) {
+      setEndDateState(date);
     } else {
       alert('End date cannot be before the start date.');
     }
@@ -1086,12 +1068,12 @@ const DatePickers = ({ startDate, endDate }) => {
             variant={'outline'}
             className={cn(
               'min-w-28 justify-start text-left font-normal',
-              !startDateDate && 'text-muted-foreground'
+              !startDate && 'text-muted-foreground'
             )}
           >
             <CalendarIcon />
-            {startDateDate ? (
-              format(startDateDate, 'LLL dd, y')
+            {startDate ? (
+              format(startDate, 'LLL dd, y')
             ) : (
               <span>Start Date</span>
             )}
@@ -1100,8 +1082,10 @@ const DatePickers = ({ startDate, endDate }) => {
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
-            selected={startDateDate}
-            onSelect={setStartDate}
+            selected={startDate}
+            onSelect={(date) =>
+              setStartDateState(date.toISOString().split('T')[0])
+            }
             initialFocus
           />
         </PopoverContent>
@@ -1112,22 +1096,20 @@ const DatePickers = ({ startDate, endDate }) => {
             variant={'outline'}
             className={cn(
               'min-w-28 justify-start text-left font-normal',
-              !endDateDate && 'text-muted-foreground'
+              !endDate && 'text-muted-foreground'
             )}
           >
             <CalendarIcon />
-            {endDateDate ? (
-              format(endDateDate, 'LLL dd, y')
-            ) : (
-              <span>End Date</span>
-            )}
+            {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
-            selected={endDateDate}
-            onSelect={setEndDate}
+            selected={endDate}
+            onSelect={(date) =>
+              setEndDateState(date.toISOString().split('T')[0])
+            }
             initialFocus
           />
         </PopoverContent>

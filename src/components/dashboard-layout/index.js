@@ -36,8 +36,10 @@ import { UsersContext } from './usersContext';
 import { PlaidItemsContext } from './plaidItemsContext';
 import { PageContext } from './pageContext';
 import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import CategoryDashboard from '@/components/category-dashboard';
-
+import axios from 'axios';
+import { parse } from 'date-fns';
 function capitalize(word) {
   if (!word) return ''; // Handle empty or undefined input
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -132,6 +134,27 @@ export default function DashboardLayout({
   const [usersState, setUsersState] = useState(users);
   const [plaidItemsState, setPlaidItemsState] = useState(plaidItems);
   const [page, setPage] = useState(pageParam || 'spending');
+
+  useEffect(() => {
+    const getPlan = async () => {
+      const res = await axios.get(
+        `/api/plan?startDate=${startDateState}&endDate=${endDateState}&planId=initial`
+      );
+      const plan = res.data;
+      console.log(plan);
+      plan.startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
+      plan.endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
+      plan.categories = plan.categories.map((category) => {
+        category.subcategories = category.subcategories.map((subcategory) => {
+          return new Subcategory(subcategory);
+        });
+        return new Category(category);
+      });
+      setPlanState(new Plan(plan));
+    };
+
+    getPlan();
+  }, [startDateState, endDateState]);
 
   return (
     <ThemeProvider

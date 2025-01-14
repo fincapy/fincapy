@@ -34,6 +34,7 @@
     "@radix-ui/react-visually-hidden": "^1.1.0",
     "@tanstack/react-table": "^8.20.5",
     "auth0": "^4.15.0",
+    "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

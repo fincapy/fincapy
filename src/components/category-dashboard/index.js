@@ -1204,10 +1204,10 @@ export default function CategoryDashboard({ type }) {
     >
       <CategoryNamesContext.Provider value={categoryNames}>
         <TypeContext.Provider value={type}>
-          <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-16">
-            <div className="flex flex-col justify-center items-center gap-4 mb-8">
+          <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
+            <div className="flex flex-col justify-center items-center gap-4">
               <div
-                className="flex flex-row justify-between gap-4 w-11/12 lg:w-3/4"
+                className="flex flex-row justify-between gap-4 w-11/12"
                 key="create-category-dialogue"
               >
                 <DatePickers
@@ -1229,7 +1229,7 @@ export default function CategoryDashboard({ type }) {
                 >
                   {categoriesState.map((category) => (
                     <div
-                      className="flex flex-col w-11/12 lg:w-3/4 shadow-lg rounded-xl"
+                      className="flex flex-col w-11/12 shadow-lg rounded-xl"
                       key={category.categoryId}
                     >
                       <CategoryCardCollapsible

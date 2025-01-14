@@ -165,12 +165,12 @@ const NewFinancialInstitutionCard = () => {
   return (
     <React.Fragment>
       {isLinking ? (
-        <div className="w-11/12 lg:w-3/4 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background">
+        <div className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background">
           <RotateCwIcon size={18} className="animate-spin" />
         </div>
       ) : (
         <Button
-          className="w-11/12 lg:w-3/4 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background"
+          className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background"
           variant="outline"
           onClick={handleLinkClick}
         >
@@ -184,7 +184,7 @@ const NewFinancialInstitutionCard = () => {
 export default function FinancialInstitutionsDashboard() {
   const { plaidItemsState } = useContext(PlaidItemsContext);
   return (
-    <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-28 justify-center items-center">
+    <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8 justify-center items-center">
       <Script
         src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
         strategy="beforeInteractive"

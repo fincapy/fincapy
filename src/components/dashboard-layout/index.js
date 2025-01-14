@@ -17,13 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Sparkles } from 'lucide-react';
-import { BadgeCheck } from 'lucide-react';
-import { CreditCard } from 'lucide-react';
-import { LogOut } from 'lucide-react';
-import { Bell } from 'lucide-react';
 import { Fragment } from 'react';
-import Link from 'next/link';
 import { ChatWidget } from '@/components/chat-widget';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { PlanContext } from './planContext';
@@ -37,28 +31,55 @@ import { PlaidItemsContext } from './plaidItemsContext';
 import { PageContext } from './pageContext';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import CategoryDashboard from '@/components/category-dashboard';
-import axios from 'axios';
+import {
+  HandCoins,
+  PiggyBank,
+  Landmark,
+  Users,
+  UserRound,
+  Table,
+  CircleDollarSign,
+  CreditCard,
+  LogOut,
+} from 'lucide-react';
 import { parse } from 'date-fns';
-function capitalize(word) {
-  if (!word) return ''; // Handle empty or undefined input
-  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-}
 
-const getInitials = (name) => {
-  const [firstName, lastName] = name.split(' ');
-  return firstName.charAt(0) + lastName.charAt(0);
-};
-
-const AvatarDropdown = ({ userName, userRole, setPage }) => {
-  const initials = getInitials(userName);
+const AccountDropdown = ({
+  accountDropdownOpen,
+  setAccountDropdownOpen,
+  userRole,
+  setPage,
+  page,
+}) => {
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      open={accountDropdownOpen}
+      onOpenChange={setAccountDropdownOpen}
+    >
       <DropdownMenuTrigger asChild>
-        <Avatar className="rounded-full">
-          <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
-          <AvatarImage alt={userName} />
-        </Avatar>
+        <button className="flex flex-col items-center gap-[1px] group outline-none">
+          <UserRound
+            size={16}
+            className={
+              accountDropdownOpen ||
+              page === 'manage-users' ||
+              page === 'financial-institutions'
+                ? 'text-foreground'
+                : 'text-muted-foreground group-hover:text-foreground'
+            }
+          />
+          <span
+            className={
+              accountDropdownOpen ||
+              page === 'manage-users' ||
+              page === 'financial-institutions'
+                ? 'text-[10px] font-bold text-foreground'
+                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+            }
+          >
+            Account
+          </span>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
@@ -70,11 +91,18 @@ const AvatarDropdown = ({ userName, userRole, setPage }) => {
           <Fragment>
             <DropdownMenuGroup>
               <DropdownMenuItem
-                className="cursor-pointer"
+                className="cursor-pointer flex items-center gap-2"
                 onClick={() => setPage('manage-users')}
               >
-                <BadgeCheck size={16} />
-                Manage users
+                <Users size={16} />
+                Users
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center gap-2"
+                onClick={() => setPage('financial-institutions')}
+              >
+                <Landmark size={16} />
+                Financial Institutions
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <a
@@ -155,6 +183,8 @@ export default function DashboardLayout({
     getPlan();
   }, [startDateState, endDateState]);
 
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+
   return (
     <ThemeProvider
       attribute="class"
@@ -173,40 +203,114 @@ export default function DashboardLayout({
                 value={{ plaidItemsState, setPlaidItemsState }}
               >
                 <PageContext.Provider value={{ page, setPage }}>
-                  <SidebarProvider>
-                    <AppSidebar page={page} setPage={setPage} />
-                    <main className="w-full h-screen overflow-hidden">
-                      <div className="flex flex-col gap-2 bg-background top-0 z-20">
-                        <div className="flex flex-row items-center gap-3 mt-2">
-                          <SidebarTrigger className="ml-2" />
-                          <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                            {capitalize(page.replace('-', ' '))}
-                          </h1>
-                          <div className="flex flex-row justify-end flex-grow mr-3">
-                            <div className="flex flex-row items-center gap-3">
-                              <ModeToggle />
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full"
-                              >
-                                <AvatarDropdown
-                                  userName={userName}
-                                  userRole={userRole}
-                                  setPage={setPage}
-                                />
-                              </Button>
-                            </div>
-                          </div>
+                  <main className="w-full h-screen flex flex-col overflow-hidden">
+                    <div className="flex flex-col bg-background top-0 z-20 w-11/12 lg:w-[33.33%] md:w-1/2 mx-auto">
+                      <div className="flex flex-row justify-center items-center">
+                        <div className="flex flex-row lg:gap-5 gap-3 h-10 justify-between items-center flex-1">
+                          <button
+                            onClick={() => setPage('spending')}
+                            className="flex flex-col items-center gap-[1px] group"
+                          >
+                            <HandCoins
+                              size={16}
+                              className={
+                                page === 'spending'
+                                  ? ''
+                                  : 'text-muted-foreground group-hover:text-foreground'
+                              }
+                            />
+                            <span
+                              className={
+                                page === 'spending'
+                                  ? 'text-[10px] font-bold'
+                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                              }
+                            >
+                              Spending
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => setPage('income')}
+                            className="flex flex-col items-center gap-[1px] group"
+                          >
+                            <CircleDollarSign
+                              size={16}
+                              className={
+                                page === 'income'
+                                  ? ''
+                                  : 'text-muted-foreground group-hover:text-foreground'
+                              }
+                            />
+                            <span
+                              className={
+                                page === 'income'
+                                  ? 'text-[10px] font-bold'
+                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                              }
+                            >
+                              Income
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => setPage('savings')}
+                            className="flex flex-col items-center gap-[1px] group"
+                          >
+                            <PiggyBank
+                              size={16}
+                              className={
+                                page === 'savings'
+                                  ? ''
+                                  : 'text-muted-foreground group-hover:text-foreground'
+                              }
+                            />
+                            <span
+                              className={
+                                page === 'savings'
+                                  ? 'text-[10px] font-bold'
+                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                              }
+                            >
+                              Savings
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => setPage('transactions')}
+                            className="flex flex-col items-center gap-[1px] group"
+                          >
+                            <Table
+                              size={16}
+                              className={
+                                page === 'transactions'
+                                  ? ''
+                                  : 'text-muted-foreground group-hover:text-foreground'
+                              }
+                            />
+                            <span
+                              className={
+                                page === 'transactions'
+                                  ? 'text-[10px] font-bold'
+                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                              }
+                            >
+                              Transactions
+                            </span>
+                          </button>
+                          <AccountDropdown
+                            userRole={userRole}
+                            setPage={setPage}
+                            accountDropdownOpen={accountDropdownOpen}
+                            setAccountDropdownOpen={setAccountDropdownOpen}
+                            page={page}
+                          />
                         </div>
-                        <Separator />
                       </div>
-                      <ChatWidget />
-                      <ScrollArea className="w-full h-full">
-                        {children}
-                      </ScrollArea>
-                    </main>
-                  </SidebarProvider>
+                      <Separator className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]" />
+                    </div>
+                    <ChatWidget />
+                    <ScrollArea className="flex-1 w-full">
+                      {children}
+                    </ScrollArea>
+                  </main>
                 </PageContext.Provider>
               </PlaidItemsContext.Provider>
             </UsersContext.Provider>

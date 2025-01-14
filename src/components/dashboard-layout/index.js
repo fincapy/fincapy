@@ -137,11 +137,10 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const getPlan = async () => {
-      const res = await axios.get(
+      const res = await fetch(
         `/api/plan?startDate=${startDateState}&endDate=${endDateState}&planId=initial`
       );
-      const plan = res.data;
-      console.log(plan);
+      const plan = await res.json();
       plan.startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
       plan.endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
       plan.categories = plan.categories.map((category) => {

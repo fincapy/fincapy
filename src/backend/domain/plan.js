@@ -10,7 +10,24 @@ class Plan {
   toView() {
     const planView = { ...this };
     planView.categories = planView.categories.map((category) => {
+      category.transactions = category.transactions.filter((transaction) => {
+        return (
+          parse(transaction.date, 'yyyy-MM-dd', new Date()) >=
+            planView.startDate &&
+          parse(transaction.date, 'yyyy-MM-dd', new Date()) <= planView.endDate
+        );
+      });
       category.subcategories = category.subcategories.map((subcategory) => {
+        subcategory.transactions = subcategory.transactions.filter(
+          (transaction) => {
+            return (
+              parse(transaction.date, 'yyyy-MM-dd', new Date()) >=
+                planView.startDate &&
+              parse(transaction.date, 'yyyy-MM-dd', new Date()) <=
+                planView.endDate
+            );
+          }
+        );
         return { ...subcategory };
       });
       return { ...category };

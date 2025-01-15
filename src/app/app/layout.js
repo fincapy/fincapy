@@ -5,6 +5,7 @@ import { TenantRepository } from '@/backend/adapters/repositories/TenantReposito
 import { headers } from 'next/headers';
 import { parse } from 'date-fns';
 import { Providers } from '@/components/state/provider';
+import { Toaster } from '@/components/ui/toaster';
 
 export default async function Layout({ children }) {
   const headersList = headers();
@@ -87,6 +88,7 @@ export default async function Layout({ children }) {
       >
         {children}
       </DashboardLayout>
+      <Toaster />
     </Providers>
   );
 }

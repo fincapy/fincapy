@@ -1,6 +1,5 @@
 'use client';
 
-import { redirect } from 'next/navigation';
 import { PageContext } from '@/components/dashboard-layout/pageContext';
 import { useContext } from 'react';
 import CategoryDashboard from '@/components/category-dashboard';
@@ -15,7 +14,6 @@ import { useAtomValue } from 'jotai';
 
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
-  console.log(spendingView);
   return <CategoryDashboard type="spending" categories={spendingView} />;
 };
 

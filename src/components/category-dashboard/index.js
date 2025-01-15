@@ -102,6 +102,8 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { planAtom } from '../dashboard-layout/planAtom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ToastAction } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -114,6 +116,7 @@ const createCategoryFormSchema = z.object({
 
 const CreateCategoryForm = () => {
   const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
   const type = useContext(TypeContext);
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
@@ -122,6 +125,48 @@ const CreateCategoryForm = () => {
       monthlyGoal: null,
     },
   });
+
+  function handleCategoryCreation({
+    name,
+    categoryId,
+    monthlyGoal,
+    oldPlan,
+    setPlanState,
+    values,
+    onSubmit,
+  }) {
+    setTimeout(async () => {
+      try {
+        const result = await createCategory({
+          name,
+          categoryId,
+          monthlyGoal,
+          planId: 'initial',
+          type,
+        });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+        });
+      }
+    }, 0);
+  }
 
   async function onSubmit(values) {
     const monthlyGoal = parseInt(
@@ -139,19 +184,16 @@ const CreateCategoryForm = () => {
       type,
       isImmutable: false,
     });
-    console.log(newPlan);
     setPlanState(newPlan);
-    // const result = await createCategory({
-    //   name,
-    //   categoryId,
-    //   monthlyGoal,
-    //   planId: 'initial',
-    //   type,
-    // });
-    // if (!result) {
-    //   console.log('here?');
-    //   setPlanState(oldPlan);
-    // }
+    handleCategoryCreation({
+      name,
+      categoryId,
+      monthlyGoal,
+      oldPlan,
+      setPlanState,
+      values,
+      onSubmit,
+    });
   }
 
   const formatValue = (value) => {
@@ -1126,7 +1168,6 @@ const DatePickers = () => {
 };
 
 export default function CategoryDashboard({ type, categories }) {
-  const [planState, setPlanState] = useAtom(planAtom);
   const { startDateState, setStartDateState } = useContext(StartDateContext);
   const { endDateState, setEndDateState } = useContext(EndDateContext);
   const [categoriesState, setCategoriesState] = useState(categories);
@@ -1137,41 +1178,38 @@ export default function CategoryDashboard({ type, categories }) {
     if (categories.length > 0) {
       setCategoriesState(categories);
       setIsLoading(false);
+      const newCategoryNames = Object.values(categoriesState)
+        .map((category) =>
+          category.subcategories.map((subcategory) => {
+            return {
+              name: `${category.name} - ${subcategory.name}`,
+              id: subcategory.subcategoryId,
+              transactions: subcategory.transactions,
+            };
+          })
+        )
+        .flat();
+      Object.values(categoriesState).forEach((category) => {
+        newCategoryNames.push({
+          name: category.name,
+          id: category.categoryId,
+          transactions: category.transactions,
+        });
+      });
+      newCategoryNames.sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      });
+      setCategoryNames(newCategoryNames);
     }
   }, [categories]);
-
-  const newCategoryNames = Object.values(categoriesState)
-    .map((category) =>
-      category.subcategories.map((subcategory) => {
-        return {
-          name: `${category.name} - ${subcategory.name}`,
-          id: subcategory.subcategoryId,
-          transactions: subcategory.transactions,
-        };
-      })
-    )
-    .flat();
-
-  Object.values(categoriesState).forEach((category) => {
-    newCategoryNames.push({
-      name: category.name,
-      id: category.categoryId,
-      transactions: category.transactions,
-    });
-  });
-
-  // sort the category names alphabetically starting with a
-  newCategoryNames.sort((a, b) => {
-    const nameA = a.name.toLowerCase();
-    const nameB = b.name.toLowerCase();
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
-    return 0;
-  });
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -37,6 +37,7 @@ export default async function Layout({ children }) {
   if (tenant.billingStatus === 'payment_failed') {
     redirect('https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg');
   }
+  console.log('here?');
 
   if (!planId) {
     planId = 'initial';

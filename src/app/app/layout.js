@@ -19,6 +19,7 @@ export default async function Layout({ children }) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ redisAdapter });
   const tenant = await tenantRepository.get({ tenantId });
+  console.log(JSON.stringify(tenant));
 
   if (!tenant) {
     return <div>Tenant not found</div>;

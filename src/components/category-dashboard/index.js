@@ -1073,7 +1073,7 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()}`}
+      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()} min-h-[157.73px]`}
     >
       <CardHeader>
         <CardTitle>
@@ -1091,10 +1091,14 @@ const CategoryCard = ({
                 {!category.isImmutable && (
                   <DeleteCategoryDialogue categoryId={category.categoryId} />
                 )}
-                <OpenTransactionTableDialogue
-                  transactions={category.transactions}
-                  categoryId={category.categoryId}
-                />
+                {category.type === 'savings' ? (
+                  <div className="h-9 w-9" />
+                ) : (
+                  <OpenTransactionTableDialogue
+                    transactions={category.transactions}
+                    categoryId={category.categoryId}
+                  />
+                )}
               </div>
             </div>
             <CreateSubcategoryDialogue
@@ -1384,13 +1388,13 @@ const DatePickers = () => {
   };
 
   return (
-    <div className="flex flex-row flex-wrap gap-2 items-center">
+    <div className="flex flex-row flex-wrap gap-2 items-center h-[37.73px]">
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 justify-start text-left font-normal',
+              'min-w-28 flex items-center',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1416,7 +1420,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 justify-start text-left font-normal',
+              'min-w-28 flex items-center',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -1543,10 +1547,10 @@ export default function CategoryDashboard({ type, categories }) {
       ) : (
         <CategoryNamesContext.Provider value={categoryNames}>
           <TypeContext.Provider value={type}>
-            <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
+            <div className="flex flex-col w-full flex-grow gap-4 mb-8">
               <div className="flex flex-col justify-center items-center gap-4">
                 <div
-                  className="flex flex-row justify-between gap-4 w-11/12"
+                  className="flex flex-row justify-between gap-4 w-11/12 mt-4"
                   key="create-category-dialogue"
                 >
                   <DatePickers

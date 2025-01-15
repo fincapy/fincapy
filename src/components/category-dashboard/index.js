@@ -1134,8 +1134,10 @@ export default function CategoryDashboard({ type, categories }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setCategoriesState(categories);
-    setIsLoading(false);
+    if (categories.length > 0) {
+      setCategoriesState(categories);
+      setIsLoading(false);
+    }
   }, [categories]);
 
   const newCategoryNames = Object.values(categoriesState)

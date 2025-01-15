@@ -6,17 +6,27 @@ import { useContext } from 'react';
 import CategoryDashboard from '@/components/category-dashboard';
 import FinancialInstitutionsDashboard from '@/components/financial-institutions-dashboard';
 import Dashboard from '@/components/users-dashboard';
+import {
+  spendingViewAtom,
+  incomeViewAtom,
+  savingsViewAtom,
+} from '@/components/dashboard-layout/planAtom';
+import { useAtomValue } from 'jotai';
 
 const SpendingCategoryDashboard = () => {
-  return <CategoryDashboard type="spending" />;
+  const spendingView = useAtomValue(spendingViewAtom);
+  console.log(spendingView);
+  return <CategoryDashboard type="spending" categories={spendingView} />;
 };
 
 const IncomeCategoryDashboard = () => {
-  return <CategoryDashboard type="income" />;
+  const incomeView = useAtomValue(incomeViewAtom);
+  return <CategoryDashboard type="income" categories={incomeView} />;
 };
 
 const SavingsCategoryDashboard = () => {
-  return <CategoryDashboard type="savings" />;
+  const savingsView = useAtomValue(savingsViewAtom);
+  return <CategoryDashboard type="savings" categories={savingsView} />;
 };
 
 export default function Home({ searchParams }) {

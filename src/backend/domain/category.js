@@ -18,12 +18,9 @@ class Category {
     subcategories,
     rank,
   }) {
-    this.tenantId = tenantId;
     this.categoryId = categoryId;
     this.name = name;
     this.monthlyGoal = monthlyGoal;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
     this.type = type;
     this.isImmutable = isImmutable;
     this.transactions = transactions;
@@ -108,17 +105,11 @@ class Category {
   }
 
   clone() {
-    const subcategories = [];
-    this.subcategories.forEach((subcategory) => {
-      const newSubcategory = subcategory.clone();
-      subcategories.push(newSubcategory);
-    });
     return new Category({
       ...this,
-      transactions: this.transactions.map((transaction) =>
-        Object.assign({}, transaction)
+      subcategories: this.subcategories.map((subcategory) =>
+        subcategory.clone()
       ),
-      subcategories,
     });
   }
 }

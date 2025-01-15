@@ -19,26 +19,7 @@ class CreateCategoryService {
       return;
     }
     const plan = tenant.plans.find((plan) => plan.planId === planId);
-    plan.categories.forEach((category) => {
-      if (category.categoryId === categoryId) {
-        throw new Error('Category already exists');
-      }
-    });
-    const category = new Category({
-      tenantId,
-      categoryId,
-      type,
-      name,
-      monthlyGoal,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isImmutable,
-      transactions: [],
-      subcategories: [],
-      spendingPagePosition: 100000,
-      incomePagePosition: 100000,
-    });
-    plan.categories.push(category);
+    plan.addCategory({ categoryId, name, monthlyGoal, type, isImmutable });
     await this.tenantRepository.set({ tenantId, tenant });
   }
 }

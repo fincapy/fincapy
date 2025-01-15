@@ -45,6 +45,7 @@ const createCategory = async ({
     console.error(error);
     return false;
   }
+  return true;
 };
 
 const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {

@@ -4,6 +4,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { headers } from 'next/headers';
 import { parse } from 'date-fns';
+import { Providers } from '@/components/state/provider';
 
 export default async function Layout({ children }) {
   const headersList = headers();
@@ -73,17 +74,19 @@ export default async function Layout({ children }) {
   });
 
   return (
-    <DashboardLayout
-      userName={user.name}
-      userRole={user.role}
-      nonce={nonce}
-      plan={planView}
-      startDate={startDate}
-      endDate={endDate}
-      plaidItems={plaidItems}
-      users={users}
-    >
-      {children}
-    </DashboardLayout>
+    <Providers>
+      <DashboardLayout
+        userName={user.name}
+        userRole={user.role}
+        nonce={nonce}
+        plan={planView}
+        startDate={startDate}
+        endDate={endDate}
+        plaidItems={plaidItems}
+        users={users}
+      >
+        {children}
+      </DashboardLayout>
+    </Providers>
   );
 }

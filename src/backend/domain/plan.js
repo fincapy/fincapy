@@ -1,3 +1,4 @@
+import { Category } from './category';
 class Plan {
   constructor({ planId, categories, recategorizations, startDate, endDate }) {
     this.planId = planId;
@@ -5,6 +6,32 @@ class Plan {
     this.startDate = startDate;
     this.endDate = endDate;
     this.recategorizations = recategorizations;
+  }
+
+  clone() {
+    return new Plan({
+      ...this,
+      categories: this.categories.map((category) => category.clone()),
+    });
+  }
+
+  addCategory({ categoryId, name, monthlyGoal, type, isImmutable }) {
+    if (
+      this.categories.find((category) => category.categoryId === categoryId)
+    ) {
+      throw new Error('Category already exists');
+    }
+    const category = new Category({
+      categoryId,
+      type,
+      name,
+      monthlyGoal,
+      isImmutable,
+      transactions: [],
+      subcategories: [],
+      rank: 100000,
+    });
+    this.categories.push(category);
   }
 
   toView() {

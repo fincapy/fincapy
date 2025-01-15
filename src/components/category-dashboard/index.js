@@ -99,6 +99,9 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useMemo } from 'react';
+import { useAtom } from 'jotai';
+import { planAtom } from '../dashboard-layout/planAtom';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
@@ -110,8 +113,7 @@ const createCategoryFormSchema = z.object({
 });
 
 const CreateCategoryForm = () => {
-  const { categoriesState, setCategoriesState, setPreviousState } =
-    useContext(CategoryContext);
+  const [planState, setPlanState] = useAtom(planAtom);
   const type = useContext(TypeContext);
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
@@ -128,23 +130,28 @@ const CreateCategoryForm = () => {
     );
     const name = values.name;
     const categoryId = uuidv4();
-
-    createCategoryState({
-      name,
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    newPlan.addCategory({
       categoryId,
-      monthlyGoal,
-      categoriesState,
-      setCategoriesState,
-      setPreviousState,
-      type,
-    });
-    await createCategory({
       name,
-      categoryId,
       monthlyGoal,
-      planId: 'initial',
       type,
+      isImmutable: false,
     });
+    console.log(newPlan);
+    setPlanState(newPlan);
+    // const result = await createCategory({
+    //   name,
+    //   categoryId,
+    //   monthlyGoal,
+    //   planId: 'initial',
+    //   type,
+    // });
+    // if (!result) {
+    //   console.log('here?');
+    //   setPlanState(oldPlan);
+    // }
   }
 
   const formatValue = (value) => {
@@ -1118,24 +1125,20 @@ const DatePickers = () => {
   );
 };
 
-export default function CategoryDashboard({ type }) {
-  const { planState, setPlanState } = useContext(PlanContext);
+export default function CategoryDashboard({ type, categories }) {
+  const [planState, setPlanState] = useAtom(planAtom);
   const { startDateState, setStartDateState } = useContext(StartDateContext);
   const { endDateState, setEndDateState } = useContext(EndDateContext);
-  let categories = [];
+  const [categoriesState, setCategoriesState] = useState(categories);
+  const [categoryNames, setCategoryNames] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  categories = useMemo(() => {
-    if (type === 'spending') {
-      return planState.toSpendingView();
-    } else if (type === 'income') {
-      return planState.toIncomeView();
-    } else if (type === 'savings') {
-      return planState.toSavingsView();
-    }
-    return [];
-  }, [type, planState]);
+  useEffect(() => {
+    setCategoriesState(categories);
+    setIsLoading(false);
+  }, [categories]);
 
-  let categoryNames = Object.values(categories)
+  const newCategoryNames = Object.values(categoriesState)
     .map((category) =>
       category.subcategories.map((subcategory) => {
         return {
@@ -1147,8 +1150,8 @@ export default function CategoryDashboard({ type }) {
     )
     .flat();
 
-  Object.values(categories).forEach((category) => {
-    categoryNames.push({
+  Object.values(categoriesState).forEach((category) => {
+    newCategoryNames.push({
       name: category.name,
       id: category.categoryId,
       transactions: category.transactions,
@@ -1156,7 +1159,7 @@ export default function CategoryDashboard({ type }) {
   });
 
   // sort the category names alphabetically starting with a
-  categoryNames.sort((a, b) => {
+  newCategoryNames.sort((a, b) => {
     const nameA = a.name.toLowerCase();
     const nameB = b.name.toLowerCase();
     if (nameA < nameB) {
@@ -1173,8 +1176,7 @@ export default function CategoryDashboard({ type }) {
     useSensor(KeyboardSensor)
   );
 
-  const [previousState, setPreviousState] = useState(categories);
-  const [categoriesState, setCategoriesState] = useState(categories);
+  const [previousState, setPreviousState] = useState(categoriesState);
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
@@ -1202,50 +1204,80 @@ export default function CategoryDashboard({ type }) {
     <CategoryContext.Provider
       value={{ categoriesState, setCategoriesState, setPreviousState }}
     >
-      <CategoryNamesContext.Provider value={categoryNames}>
-        <TypeContext.Provider value={type}>
-          <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
-            <div className="flex flex-col justify-center items-center gap-4">
-              <div
-                className="flex flex-row justify-between gap-4 w-11/12"
-                key="create-category-dialogue"
-              >
-                <DatePickers
-                  startDate={startDateState}
-                  endDate={endDateState}
-                />
-                {(type === 'spending' || type === 'income') && (
-                  <CreateCategoryDialogue />
-                )}
+      {isLoading ? (
+        <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
+          <div className="flex flex-col justify-center items-center gap-4">
+            <div
+              className="flex flex-row justify-between gap-4 w-11/12"
+              key="create-category-dialogue-skeleton"
+            >
+              <div className="flex flex-row flex-wrap gap-2 items-center">
+                <Skeleton className="h-9 w-[138.62px] bg-card" />
+                <Skeleton className="h-9 w-[138.62px] bg-card" />
               </div>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={categoriesState.map((category) => category.categoryId)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {categoriesState.map((category) => (
-                    <div
-                      className="flex flex-col w-11/12 shadow-lg rounded-xl"
-                      key={category.categoryId}
-                    >
-                      <CategoryCardCollapsible
-                        key={category.categoryId}
-                        id={category.categoryId}
-                        category={category}
-                        subcategories={category.subcategories}
-                      />
-                    </div>
-                  ))}
-                </SortableContext>
-              </DndContext>
+              {(type === 'spending' || type === 'income') && (
+                <Skeleton className="h-9 w-9 bg-card" />
+              )}
             </div>
+
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                className="flex flex-col w-11/12 shadow-lg rounded-xl"
+                key={index}
+              >
+                <Skeleton className="h-[157.73px] w-full rounded-xl bg-card" />
+              </div>
+            ))}
           </div>
-        </TypeContext.Provider>
-      </CategoryNamesContext.Provider>
+        </div>
+      ) : (
+        <CategoryNamesContext.Provider value={categoryNames}>
+          <TypeContext.Provider value={type}>
+            <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
+              <div className="flex flex-col justify-center items-center gap-4">
+                <div
+                  className="flex flex-row justify-between gap-4 w-11/12"
+                  key="create-category-dialogue"
+                >
+                  <DatePickers
+                    startDate={startDateState}
+                    endDate={endDateState}
+                  />
+                  {(type === 'spending' || type === 'income') && (
+                    <CreateCategoryDialogue />
+                  )}
+                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={categoriesState.map(
+                      (category) => category.categoryId
+                    )}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {categoriesState.map((category) => (
+                      <div
+                        className="flex flex-col w-11/12 shadow-lg rounded-xl"
+                        key={category.categoryId}
+                      >
+                        <CategoryCardCollapsible
+                          key={category.categoryId}
+                          id={category.categoryId}
+                          category={category}
+                          subcategories={category.subcategories}
+                        />
+                      </div>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </div>
+          </TypeContext.Provider>
+        </CategoryNamesContext.Provider>
+      )}
     </CategoryContext.Provider>
   );
 }

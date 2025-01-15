@@ -25,6 +25,12 @@ class Subcategory {
     this.rank = rank;
   }
 
+  clone() {
+    return new Subcategory({
+      ...this,
+    });
+  }
+
   toSpendingView(category, startDate, endDate, fractionOfMonths) {
     const transactions = [];
     let currentSpending = 0;

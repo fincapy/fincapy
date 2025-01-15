@@ -43,6 +43,9 @@ import {
   LogOut,
 } from 'lucide-react';
 import { parse } from 'date-fns';
+import { planAtom } from './planAtom';
+import { useSetAtom } from 'jotai';
+import { useRef } from 'react';
 
 const AccountDropdown = ({
   accountDropdownOpen,
@@ -144,6 +147,7 @@ export default function DashboardLayout({
 }) {
   const searchParams = useSearchParams();
   const pageParam = searchParams.get('page');
+  const firstRender = useRef(true);
 
   const newPlan = new Plan({
     ...plan,
@@ -157,7 +161,7 @@ export default function DashboardLayout({
     }),
   });
 
-  const [planState, setPlanState] = useState(newPlan);
+  const setPlanState = useSetAtom(planAtom);
   const [startDateState, setStartDateState] = useState(
     startDate.toISOString().split('T')[0]
   );
@@ -189,8 +193,14 @@ export default function DashboardLayout({
       });
       setPlanState(newPlan);
     };
-
-    getPlan();
+    console.log('here first');
+    if (firstRender.current) {
+      firstRender.current = false;
+      setPlanState(newPlan);
+      console.log('here');
+    } else {
+      getPlan();
+    }
   }, [startDateState, endDateState]);
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
@@ -203,130 +213,124 @@ export default function DashboardLayout({
       disableTransitionOnChange
       nonce={nonce}
     >
-      <PlanContext.Provider value={{ planState, setPlanState }}>
-        <StartDateContext.Provider
-          value={{ startDateState, setStartDateState }}
-        >
-          <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
-            <UsersContext.Provider value={{ usersState, setUsersState }}>
-              <PlaidItemsContext.Provider
-                value={{ plaidItemsState, setPlaidItemsState }}
-              >
-                <PageContext.Provider value={{ page, setPage }}>
-                  <main className="w-full h-screen flex flex-col overflow-hidden">
-                    <div className="flex flex-col bg-background top-0 z-20 w-11/12 lg:w-[33.33%] md:w-1/2 mx-auto">
-                      <div className="flex flex-row justify-center items-center">
-                        <div className="flex flex-row lg:gap-5 gap-3 h-10 justify-between items-center flex-1">
-                          <button
-                            onClick={() => setPage('spending')}
-                            className="flex flex-col items-center gap-[1px] group"
-                          >
-                            <HandCoins
-                              size={16}
-                              className={
-                                page === 'spending'
-                                  ? ''
-                                  : 'text-muted-foreground group-hover:text-foreground'
-                              }
-                            />
-                            <span
-                              className={
-                                page === 'spending'
-                                  ? 'text-[10px] font-bold'
-                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
-                              }
-                            >
-                              Spending
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => setPage('income')}
-                            className="flex flex-col items-center gap-[1px] group"
-                          >
-                            <CircleDollarSign
-                              size={16}
-                              className={
-                                page === 'income'
-                                  ? ''
-                                  : 'text-muted-foreground group-hover:text-foreground'
-                              }
-                            />
-                            <span
-                              className={
-                                page === 'income'
-                                  ? 'text-[10px] font-bold'
-                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
-                              }
-                            >
-                              Income
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => setPage('savings')}
-                            className="flex flex-col items-center gap-[1px] group"
-                          >
-                            <PiggyBank
-                              size={16}
-                              className={
-                                page === 'savings'
-                                  ? ''
-                                  : 'text-muted-foreground group-hover:text-foreground'
-                              }
-                            />
-                            <span
-                              className={
-                                page === 'savings'
-                                  ? 'text-[10px] font-bold'
-                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
-                              }
-                            >
-                              Savings
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => setPage('transactions')}
-                            className="flex flex-col items-center gap-[1px] group"
-                          >
-                            <Table
-                              size={16}
-                              className={
-                                page === 'transactions'
-                                  ? ''
-                                  : 'text-muted-foreground group-hover:text-foreground'
-                              }
-                            />
-                            <span
-                              className={
-                                page === 'transactions'
-                                  ? 'text-[10px] font-bold'
-                                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
-                              }
-                            >
-                              Transactions
-                            </span>
-                          </button>
-                          <AccountDropdown
-                            userRole={userRole}
-                            setPage={setPage}
-                            accountDropdownOpen={accountDropdownOpen}
-                            setAccountDropdownOpen={setAccountDropdownOpen}
-                            page={page}
+      <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
+        <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
+          <UsersContext.Provider value={{ usersState, setUsersState }}>
+            <PlaidItemsContext.Provider
+              value={{ plaidItemsState, setPlaidItemsState }}
+            >
+              <PageContext.Provider value={{ page, setPage }}>
+                <main className="w-full h-screen flex flex-col overflow-hidden">
+                  <div className="flex flex-col bg-background top-0 z-20 w-11/12 lg:w-[33.33%] md:w-1/2 mx-auto">
+                    <div className="flex flex-row justify-center items-center">
+                      <div className="flex flex-row lg:gap-5 gap-3 h-10 justify-between items-center flex-1">
+                        <button
+                          onClick={() => setPage('spending')}
+                          className="flex flex-col items-center gap-[1px] group"
+                        >
+                          <HandCoins
+                            size={16}
+                            className={
+                              page === 'spending'
+                                ? ''
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }
                           />
-                        </div>
+                          <span
+                            className={
+                              page === 'spending'
+                                ? 'text-[10px] font-bold'
+                                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                            }
+                          >
+                            Spending
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => setPage('income')}
+                          className="flex flex-col items-center gap-[1px] group"
+                        >
+                          <CircleDollarSign
+                            size={16}
+                            className={
+                              page === 'income'
+                                ? ''
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }
+                          />
+                          <span
+                            className={
+                              page === 'income'
+                                ? 'text-[10px] font-bold'
+                                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                            }
+                          >
+                            Income
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => setPage('savings')}
+                          className="flex flex-col items-center gap-[1px] group"
+                        >
+                          <PiggyBank
+                            size={16}
+                            className={
+                              page === 'savings'
+                                ? ''
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }
+                          />
+                          <span
+                            className={
+                              page === 'savings'
+                                ? 'text-[10px] font-bold'
+                                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                            }
+                          >
+                            Savings
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => setPage('transactions')}
+                          className="flex flex-col items-center gap-[1px] group"
+                        >
+                          <Table
+                            size={16}
+                            className={
+                              page === 'transactions'
+                                ? ''
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }
+                          />
+                          <span
+                            className={
+                              page === 'transactions'
+                                ? 'text-[10px] font-bold'
+                                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                            }
+                          >
+                            Transactions
+                          </span>
+                        </button>
+                        <AccountDropdown
+                          userRole={userRole}
+                          setPage={setPage}
+                          accountDropdownOpen={accountDropdownOpen}
+                          setAccountDropdownOpen={setAccountDropdownOpen}
+                          page={page}
+                        />
                       </div>
-                      <Separator className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]" />
                     </div>
-                    <ChatWidget />
-                    <ScrollArea className="flex-1 w-full">
-                      {children}
-                    </ScrollArea>
-                  </main>
-                </PageContext.Provider>
-              </PlaidItemsContext.Provider>
-            </UsersContext.Provider>
-          </EndDateContext.Provider>
-        </StartDateContext.Provider>
-      </PlanContext.Provider>
+                    <Separator className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]" />
+                  </div>
+                  <ChatWidget />
+                  <ScrollArea className="flex-1 w-full">{children}</ScrollArea>
+                </main>
+              </PageContext.Provider>
+            </PlaidItemsContext.Provider>
+          </UsersContext.Provider>
+        </EndDateContext.Provider>
+      </StartDateContext.Provider>
     </ThemeProvider>
   );
 }

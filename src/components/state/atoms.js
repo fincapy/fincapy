@@ -15,3 +15,5 @@ export const savingsViewAtom = atom((get) => {
   const plan = get(planAtom);
   return plan ? [...plan.toSavingsView()] : [];
 });
+
+export const plaidItemsAtom = atom([]);

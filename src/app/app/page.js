@@ -9,7 +9,7 @@ import {
   spendingViewAtom,
   incomeViewAtom,
   savingsViewAtom,
-} from '@/components/dashboard-layout/planAtom';
+} from '@/components/state/atoms';
 import { useAtomValue } from 'jotai';
 
 const SpendingCategoryDashboard = () => {

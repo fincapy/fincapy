@@ -36,7 +36,7 @@ class CreatePlaidItemService {
       topicName: 'plaid-item-created',
     });
     tenant.outbox.push(plaidItemCreatedMessage);
-    await this.tenantRepository.put({ tenantId, tenant, etag });
+    await this.tenantRepository.set({ tenantId, tenant });
 
     const newTenant = await this.tenantRepository.getWithTransaction({
       tenantId,

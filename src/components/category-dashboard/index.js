@@ -98,7 +98,7 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom } from 'jotai';
-import { planAtom } from '../dashboard-layout/planAtom';
+import { planAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -1366,7 +1366,8 @@ const DatePickers = () => {
   const router = useRouter();
 
   const setStartDate = (date) => {
-    if (date <= endDate) {
+    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+    if (parsedDate <= endDate) {
       setStartDateState(date);
     } else {
       alert('Start date cannot be after the end date.');
@@ -1374,7 +1375,8 @@ const DatePickers = () => {
   };
 
   const setEndDate = (date) => {
-    if (date >= startDate) {
+    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+    if (parsedDate >= startDate) {
       setEndDateState(date);
     } else {
       alert('End date cannot be before the start date.');
@@ -1404,9 +1406,7 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={startDate}
-            onSelect={(date) =>
-              setStartDateState(date.toISOString().split('T')[0])
-            }
+            onSelect={(date) => setStartDate(date.toISOString().split('T')[0])}
             initialFocus
           />
         </PopoverContent>
@@ -1428,9 +1428,7 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={endDate}
-            onSelect={(date) =>
-              setEndDateState(date.toISOString().split('T')[0])
-            }
+            onSelect={(date) => setEndDate(date.toISOString().split('T')[0])}
             initialFocus
           />
         </PopoverContent>

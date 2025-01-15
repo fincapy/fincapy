@@ -33,27 +33,32 @@ const createPlaidItem = async ({
   institutionId,
   institutionName,
 }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+    const plaidAdapter = new PlaidAdapter(client);
+    const pubsubAdapter = new PubSubAdapter(pubSubClient);
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const service = new CreatePlaidItemService({
+      tenantRepository,
+      pubsubAdapter,
+      plaidAdapter,
+    });
+
+    await service.execute({
+      tenantId,
+      institutionId,
+      institutionName,
+      publicToken,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-  const plaidAdapter = new PlaidAdapter(client);
-  const pubsubAdapter = new PubSubAdapter(pubSubClient);
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const service = new CreatePlaidItemService({
-    tenantRepository,
-    pubsubAdapter,
-    plaidAdapter,
-  });
-
-  await service.execute({
-    tenantId,
-    institutionId,
-    institutionName,
-    publicToken,
-  });
   return true;
 };
 
@@ -81,19 +86,24 @@ const updatePlaidItem = async ({ institutionId, publicToken }) => {
 };
 
 const deletePlaidItem = async ({ institutionId }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+    const plaidAdapter = new PlaidAdapter(client);
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const service = new DeletePlaidItemService({
+      tenantRepository,
+      plaidAdapter,
+    });
+    await service.execute({ tenantId, institutionId });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-  const plaidAdapter = new PlaidAdapter(client);
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const service = new DeletePlaidItemService({
-    tenantRepository,
-    plaidAdapter,
-  });
-  await service.execute({ tenantId, institutionId });
   return true;
 };
 

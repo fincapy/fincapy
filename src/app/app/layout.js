@@ -71,6 +71,7 @@ export default async function Layout({ children }) {
     return {
       institutionId: plaidItem.institutionId,
       institutionName: plaidItem.institutionName,
+      status: plaidItem.status,
     };
   });
 

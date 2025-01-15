@@ -1,4 +1,6 @@
 import { Category } from './category';
+import { parse } from 'date-fns';
+
 class Plan {
   constructor({ planId, categories, recategorizations, startDate, endDate }) {
     this.planId = planId;

@@ -33,11 +33,62 @@ import {
 import React from 'react';
 import Script from 'next/script';
 import { PlaidItemsContext } from '../dashboard-layout/plaidItemsContext';
-import { useContext } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { plaidItemsAtom } from '../state/atoms';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
+  const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
+  const { toast } = useToast();
+  const handleServerDeletePlaidItem = ({
+    institutionId,
+    oldPlaidItemsState,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await deletePlaidItem({
+          institutionId,
+        });
+        if (!result) {
+          setPlaidItemsState(oldPlaidItemsState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onClick()}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlaidItemsState(oldPlaidItemsState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onClick()}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
+
   const onClick = async () => {
-    await deletePlaidItem({ institutionId });
+    const oldPlaidItemsState = [...plaidItemsState];
+    const newPlaidItemsState = plaidItemsState.filter(
+      (plaidItem) => plaidItem.institutionId !== institutionId
+    );
+    setPlaidItemsState(newPlaidItemsState);
+    handleServerDeletePlaidItem({
+      institutionId,
+      oldPlaidItemsState,
+    });
   };
 
   return (
@@ -65,12 +116,68 @@ const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
 
 const ExistingFinancialInstitutionCard = ({ link }) => {
   const [isLinking, setIsLinking] = useState(false);
+  const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
+  const { toast } = useToast();
+  const handleServerUpdatePlaidItem = (
+    publicToken,
+    metadata,
+    oldPlaidItemsState
+  ) => {
+    setTimeout(async () => {
+      try {
+        const result = await updatePlaidItem({
+          publicToken,
+          institutionId: metadata.institution.institution_id,
+        });
+        if (!result) {
+          setPlaidItemsState(oldPlaidItemsState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => onSuccess(publicToken, metadata)}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlaidItemsState(oldPlaidItemsState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction
+              altText="Try again"
+              onClick={() => onSuccess(publicToken, metadata)}
+            >
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
 
   const onSuccess = async (public_token, metadata) => {
-    await updatePlaidItem({
-      publicToken: public_token,
-      institutionId: metadata.institution.institution_id,
-    });
+    const oldPlaidItemsState = plaidItemsState.map((plaidItem) => ({
+      ...plaidItem,
+    }));
+    const newPlaidItemsState = plaidItemsState.map((plaidItem) => ({
+      ...plaidItem,
+    }));
+    const plaidItem = newPlaidItemsState.find(
+      (plaidItem) =>
+        plaidItem.institutionId === metadata.institution.institution_id
+    );
+    plaidItem.status = 'active';
+    setPlaidItemsState(newPlaidItemsState);
+    handleServerUpdatePlaidItem(public_token, metadata, oldPlaidItemsState);
   };
 
   const handleLink = async ({ institutionId }) => {
@@ -92,7 +199,7 @@ const ExistingFinancialInstitutionCard = ({ link }) => {
   };
 
   return (
-    <Card className="w-11/12 lg:w-3/4 min-h-40 flex items-center justify-center relative">
+    <Card className="w-11/12 min-h-40 flex items-center justify-center relative">
       <CardHeader className="flex flex-row items-center justify-center gap-2">
         <CardTitle>{link.institutionName}</CardTitle>
         {link.status === 'active' ? (
@@ -134,14 +241,68 @@ const ExistingFinancialInstitutionCard = ({ link }) => {
 };
 
 const NewFinancialInstitutionCard = () => {
+  const { toast } = useToast();
   const [isLinking, setIsLinking] = useState(false);
+  const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
+  const handleServerCreatePlaidItem = (
+    publicToken,
+    metadata,
+    oldPlaidItemsState
+  ) => {
+    setTimeout(async () => {
+      try {
+        const result = await createPlaidItem({
+          publicToken,
+          institutionId: metadata.institution.institution_id,
+          institutionName: metadata.institution.name,
+        });
+        if (!result) {
+          setPlaidItemsState(oldPlaidItemsState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => onSuccess(publicToken, metadata)}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlaidItemsState(oldPlaidItemsState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction
+              altText="Try again"
+              onClick={() => onSuccess(publicToken, metadata)}
+            >
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
 
   const onSuccess = async (public_token, metadata) => {
-    await createPlaidItem({
-      publicToken: public_token,
-      institutionId: metadata.institution.institution_id,
-      institutionName: metadata.institution.name,
-    });
+    const oldPlaidItemsState = [...plaidItemsState];
+    const newPlaidItemsState = [
+      ...oldPlaidItemsState,
+      {
+        institutionId: metadata.institution.institution_id,
+        institutionName: metadata.institution.name,
+        status: 'active',
+      },
+    ];
+    setPlaidItemsState(newPlaidItemsState);
+    handleServerCreatePlaidItem(public_token, metadata, oldPlaidItemsState);
   };
 
   const handleLink = async ({ institutionId }) => {
@@ -182,12 +343,18 @@ const NewFinancialInstitutionCard = () => {
 };
 
 export default function FinancialInstitutionsDashboard() {
-  const { plaidItemsState } = useContext(PlaidItemsContext);
+  const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8 justify-center items-center">
       <Script
         src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log('Plaid script loaded successfully.');
+        }}
+        onError={(error) => {
+          console.error('Error loading Plaid script:', error);
+        }}
       />
       {plaidItemsState.map((plaidItem) => (
         <ExistingFinancialInstitutionCard

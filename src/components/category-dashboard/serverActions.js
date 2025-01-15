@@ -19,19 +19,19 @@ const createCategory = async ({
   planId,
   type,
 }) => {
-  const session = await getSession();
-  if (!session) {
-    return false;
-  }
-
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new CreateCategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
   try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new CreateCategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
     await service.execute({
       tenantId,
       categoryId,
@@ -49,74 +49,83 @@ const createCategory = async ({
 };
 
 const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new UpdateCategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
+    await service.execute({
+      tenantId,
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new UpdateCategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
-  await service.execute({
-    tenantId,
-    categoryId,
-    name,
-    monthlyGoal,
-    planId,
-  });
+  return true;
 };
 
 const deleteCategory = async ({ categoryId, planId }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new DeleteCategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
+    await service.execute({
+      tenantId,
+      categoryId,
+      planId,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new DeleteCategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
-  await service.execute({
-    tenantId,
-    categoryId,
-    planId,
-  });
+  return true;
 };
 
-const createSubcategory = async ({
-  subcategoryId,
-  categoryId,
-  name,
-  monthlyGoal,
-  planId,
-}) => {
-  const session = await getSession();
-  if (!session) {
+const createSubcategory = async ({ categoryId, name, monthlyGoal, planId }) => {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new CreateSubcategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
+    await service.execute({
+      tenantId,
+      categoryId,
+      name,
+      monthlyGoal,
+      isImmutable: false,
+      planId,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new CreateSubcategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
-  await service.execute({
-    tenantId,
-    subcategoryId,
-    categoryId,
-    name,
-    monthlyGoal,
-    isImmutable: false,
-    type: 'spending',
-    transactions: [],
-    planId,
-  });
+  return true;
 };
 
 const updateSubcategory = async ({
@@ -126,44 +135,63 @@ const updateSubcategory = async ({
   monthlyGoal,
   planId,
 }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new UpdateSubcategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
+    await service.execute({
+      tenantId,
+      subcategoryId,
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new UpdateSubcategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
-  await service.execute({
-    tenantId,
-    subcategoryId,
-    categoryId,
-    name,
-    monthlyGoal,
-    planId,
-  });
+  return true;
 };
 
-const deleteSubcategory = async ({ subcategoryId, planId }) => {
-  const session = await getSession();
-  if (!session) {
+const deleteSubcategory = async ({
+  subcategoryId,
+  categoryId,
+  planId,
+  type,
+}) => {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const service = new DeleteSubcategoryService({
+      tenantRepository: new TenantRepository({ redisAdapter }),
+    });
+
+    await service.execute({
+      tenantId,
+      subcategoryId,
+      categoryId,
+      planId,
+      type,
+    });
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const service = new DeleteSubcategoryService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
-  });
-
-  await service.execute({
-    tenantId,
-    subcategoryId,
-    planId,
-  });
+  return true;
 };
 
 const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {

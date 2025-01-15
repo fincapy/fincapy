@@ -9,23 +9,7 @@ class DeleteCategoryService {
       return;
     }
     const plan = tenant.plans.find((plan) => plan.planId === planId);
-    const categoryToDelete = plan.categories.find(
-      (category) => category.categoryId === categoryId
-    );
-    const uncategorizedCategory = plan.categories.find(
-      (category) => category.name === 'Uncategorized'
-    );
-    categoryToDelete.transactions.forEach((transaction) => {
-      uncategorizedCategory.transactions.push(transaction);
-    });
-    categoryToDelete.subcategories.forEach((subcategory) => {
-      subcategory.transactions.forEach((transaction) => {
-        uncategorizedCategory.transactions.push(transaction);
-      });
-    });
-    plan.categories = plan.categories.filter(
-      (category) => category.categoryId !== categoryId
-    );
+    plan.deleteCategory({ categoryId });
     await this.tenantRepository.set({ tenantId, tenant });
   }
 }

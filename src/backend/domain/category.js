@@ -3,15 +3,14 @@ import {
   incomeTransactionTypes,
 } from '@/backend/domain/transaction';
 import { parse } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
+import { Subcategory } from '@/backend/domain/subcategory';
 
 class Category {
   constructor({
-    tenantId,
     categoryId,
     name,
     monthlyGoal,
-    createdAt,
-    updatedAt,
     type,
     isImmutable,
     transactions,
@@ -28,6 +27,34 @@ class Category {
     this.proratedGoal = 0;
     this.currentNet = 0;
     this.rank = rank;
+  }
+
+  deleteSubcategory({ subcategoryId }) {
+    this.subcategories = this.subcategories.filter(
+      (subcategory) => subcategory.subcategoryId !== subcategoryId
+    );
+  }
+
+  createSubcategory({ name, monthlyGoal, isImmutable }) {
+    const subcategoryId = uuidv4();
+    this.subcategories.push(
+      new Subcategory({
+        name,
+        monthlyGoal,
+        subcategoryId,
+        isImmutable,
+        transactions: [],
+        rank: 100000,
+      })
+    );
+  }
+
+  updateSubcategory({ subcategoryId, name, monthlyGoal }) {
+    const subcategory = this.subcategories.find(
+      (subcategory) => subcategory.subcategoryId === subcategoryId
+    );
+    subcategory.name = name;
+    subcategory.monthlyGoal = monthlyGoal;
   }
 
   toSavingsView() {

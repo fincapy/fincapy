@@ -15,6 +15,30 @@ class Plan {
     });
   }
 
+  deleteSubcategory({ subcategoryId, categoryId, type }) {
+    const uncategorizedCategory = this.categories.find(
+      (category) => category.type === type && category.name === 'Uncategorized'
+    );
+    const category = this.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    const subcategoryToDelete = category.subcategories.find(
+      (subcategory) => subcategory.subcategoryId === subcategoryId
+    );
+    uncategorizedCategory.transactions.push(
+      ...subcategoryToDelete.transactions
+    );
+    category.deleteSubcategory({ subcategoryId });
+  }
+
+  updateCategory({ categoryId, name, monthlyGoal }) {
+    const category = this.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    category.name = name;
+    category.monthlyGoal = monthlyGoal;
+  }
+
   addCategory({ categoryId, name, monthlyGoal, type, isImmutable }) {
     if (
       this.categories.find((category) => category.categoryId === categoryId)
@@ -32,6 +56,27 @@ class Plan {
       rank: 100000,
     });
     this.categories.push(category);
+  }
+
+  deleteCategory({ categoryId }) {
+    const categoryToDelete = this.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    if (!categoryToDelete) {
+      throw new Error('Category not found');
+    }
+    const uncategorizedCategory = this.categories.find(
+      (category) =>
+        category.type === categoryToDelete.type &&
+        category.name === 'Uncategorized'
+    );
+    uncategorizedCategory.transactions.push(...categoryToDelete.transactions);
+    categoryToDelete.subcategories.forEach((subcategory) => {
+      uncategorizedCategory.transactions.push(...subcategory.transactions);
+    });
+    this.categories = this.categories.filter(
+      (category) => category.categoryId !== categoryId
+    );
   }
 
   toView() {

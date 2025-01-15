@@ -3,17 +3,20 @@ class UpdateSubcategoryService {
     this.tenantRepository = tenantRepository;
   }
 
-  async execute({ tenantId, subcategoryId, name, monthlyGoal, planId }) {
+  async execute({
+    tenantId,
+    subcategoryId,
+    name,
+    monthlyGoal,
+    planId,
+    categoryId,
+  }) {
     const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
     const plan = tenant.plans.find((plan) => plan.planId === planId);
-    plan.categories.forEach((category) => {
-      category.subcategories.forEach((subcategory) => {
-        if (subcategory.subcategoryId === subcategoryId) {
-          subcategory.name = name;
-          subcategory.monthlyGoal = monthlyGoal;
-        }
-      });
-    });
+    const category = plan.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    category.updateSubcategory({ subcategoryId, name, monthlyGoal });
     await this.tenantRepository.set({ tenantId, tenant });
   }
 }

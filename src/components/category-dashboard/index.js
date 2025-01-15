@@ -93,12 +93,10 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { TypeContext } from './typeContext';
 import { useContext } from 'react';
-import { PlanContext } from '../dashboard-layout/planContext';
 import {
   StartDateContext,
   EndDateContext,
 } from '../dashboard-layout/datesContext';
-import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { planAtom } from '../dashboard-layout/planAtom';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -283,8 +281,58 @@ const CreateCategoryDialogue = () => {
 };
 
 const DeleteCategoryDialogue = ({ categoryId }) => {
+  const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
+  const handleServerDeleteCategory = ({
+    categoryId,
+    planId,
+    setPlanState,
+    oldPlan,
+    onClick,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await deleteCategory({ categoryId, planId });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onClick()}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onClick()}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
   const onClick = async () => {
-    await deleteCategory({ categoryId, planId: 'initial' });
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    newPlan.deleteCategory({ categoryId });
+    setPlanState(newPlan);
+    handleServerDeleteCategory({
+      categoryId,
+      planId: 'initial',
+      setPlanState,
+      oldPlan,
+      onClick,
+    });
   };
   const type = useContext(TypeContext);
 
@@ -320,6 +368,8 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
 };
 
 const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
+  const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -328,18 +378,72 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
     },
   });
 
+  const handleServerUpdateCategory = ({
+    name,
+    categoryId,
+    monthlyGoal,
+    planId,
+    setPlanState,
+    oldPlan,
+    onSubmit,
+    values,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await updateCategory({
+          name,
+          categoryId,
+          monthlyGoal,
+          planId,
+        });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
+
   async function onSubmit(values) {
     const monthlyGoal = parseInt(
       values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
-
-    await updateCategory({
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    newPlan.updateCategory({ categoryId, name, monthlyGoal });
+    setPlanState(newPlan);
+    handleServerUpdateCategory({
       name,
       categoryId,
       monthlyGoal,
       planId: 'initial',
+      setPlanState,
+      oldPlan,
+      onSubmit,
+      values,
     });
   }
 
@@ -445,6 +549,8 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
 
 const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
   const type = useContext(TypeContext);
+  const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -465,23 +571,69 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
     return `$${new Intl.NumberFormat('en-US').format(Number(numericValue))}`;
   };
 
+  function handleServerSubcategoryCreation({
+    name,
+    categoryId,
+    monthlyGoal,
+    oldPlan,
+    setPlanState,
+    values,
+    onSubmit,
+  }) {
+    setTimeout(async () => {
+      try {
+        const result = await createSubcategory({
+          name,
+          categoryId,
+          monthlyGoal,
+          planId: 'initial',
+        });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+        });
+      }
+    }, 0);
+  }
+
   async function onSubmit(values) {
     const monthlyGoal = parseInt(
       values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
-    const subcategoryId = uuidv4();
-
-    await createSubcategory({
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    const category = newPlan.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    category.createSubcategory({ name, monthlyGoal, isImmutable: false });
+    setPlanState(newPlan);
+    handleServerSubcategoryCreation({
       name,
-      monthlyGoal,
       categoryId,
-      subcategoryId,
-      planId: 'initial',
-      type,
+      monthlyGoal,
+      oldPlan,
+      setPlanState,
+      values,
+      onSubmit,
     });
-
     setDropdownIsOpen(true);
   }
 
@@ -575,7 +727,9 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   );
 };
 
-const EditSubcategoryForm = ({ subcategoryId }) => {
+const EditSubcategoryForm = ({ subcategoryId, categoryId }) => {
+  const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
@@ -596,18 +750,82 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
     return `$${new Intl.NumberFormat('en-US').format(Number(numericValue))}`;
   };
 
+  const handleServerUpdateSubcategory = ({
+    name,
+    monthlyGoal,
+    subcategoryId,
+    categoryId,
+    planId,
+    setPlanState,
+    oldPlan,
+    onSubmit,
+    values,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await updateSubcategory({
+          name,
+          monthlyGoal,
+          subcategoryId,
+          categoryId,
+          planId,
+        });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
+
   async function onSubmit(values) {
     const monthlyGoal = parseInt(
       values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
     const name = values.name;
-
-    await updateSubcategory({
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    const category = newPlan.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    category.updateSubcategory({
+      subcategoryId,
+      name,
+      monthlyGoal,
+    });
+    setPlanState(newPlan);
+    handleServerUpdateSubcategory({
       name,
       monthlyGoal,
       subcategoryId,
+      categoryId,
       planId: 'initial',
+      setPlanState,
+      oldPlan,
+      onSubmit,
+      values,
     });
   }
 
@@ -662,7 +880,7 @@ const EditSubcategoryForm = ({ subcategoryId }) => {
   );
 };
 
-const EditSubcategoryDialogue = ({ subcategoryId }) => {
+const EditSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -684,30 +902,81 @@ const EditSubcategoryDialogue = ({ subcategoryId }) => {
           <DialogDescription>Edit your existing subcategory</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <EditSubcategoryForm subcategoryId={subcategoryId} />
+          <EditSubcategoryForm
+            subcategoryId={subcategoryId}
+            categoryId={categoryId}
+          />
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-const DeleteSubcategoryDialogue = ({
-  subcategoriesState,
-  subcategoryId,
-  setSubcategoriesState,
-  setPreviousState,
-  setAreSubcategoriesOpen,
-}) => {
+const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
+  const type = useContext(TypeContext);
+  const [planState, setPlanState] = useAtom(planAtom);
+  const { toast } = useToast();
+
+  const handleServerDeleteSubcategory = ({
+    subcategoryId,
+    categoryId,
+    planId,
+    setPlanState,
+    oldPlan,
+    onClick,
+    type,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await deleteSubcategory({
+          subcategoryId,
+          categoryId,
+          planId,
+          type,
+        });
+        if (!result) {
+          setPlanState(oldPlan);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onClick()}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlan);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onClick()}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
+
   const onClick = async () => {
-    console.log('here?');
-    deleteSubcategoryState({
-      subcategoriesState,
-      setSubcategoriesState,
-      setPreviousState,
+    const oldPlan = planState.clone();
+    const newPlan = planState.clone();
+    newPlan.deleteSubcategory({ subcategoryId, categoryId, type });
+    setPlanState(newPlan);
+    handleServerDeleteSubcategory({
       subcategoryId,
-      setAreSubcategoriesOpen,
+      categoryId,
+      planId: 'initial',
+      setPlanState,
+      oldPlan,
+      onClick,
+      type,
     });
-    await deleteSubcategory({ subcategoryId, planId: 'initial' });
   };
 
   return (
@@ -874,6 +1143,7 @@ const SubcategoryCard = forwardRef(
       setSubcategoriesState,
       setPreviousState,
       setAreSubcategoriesOpen,
+      category,
     },
     ref
   ) => {
@@ -914,13 +1184,11 @@ const SubcategoryCard = forwardRef(
               <div className="flex flex-row gap-0 items-center">
                 <EditSubcategoryDialogue
                   subcategoryId={subcategory.subcategoryId}
+                  categoryId={category.categoryId}
                 />
                 <DeleteSubcategoryDialogue
-                  subcategoriesState={subcategoriesState}
                   subcategoryId={subcategory.subcategoryId}
-                  setSubcategoriesState={setSubcategoriesState}
-                  setPreviousState={setPreviousState}
-                  setAreSubcategoriesOpen={setAreSubcategoriesOpen}
+                  categoryId={category.categoryId}
                 />
                 <Button
                   variant="ghost"
@@ -1009,6 +1277,10 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
 
   const [previousState, setPreviousState] = useState(subcategories);
   const [subcategoriesState, setSubcategoriesState] = useState(subcategories);
+
+  useEffect(() => {
+    setSubcategoriesState(subcategories);
+  }, [subcategories]);
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;

@@ -142,7 +142,7 @@ const NavBar = ({
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[5vh]">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[5vh] fixed bottom-0">
       <Separator className="w-screen" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12">
         <div className="flex flex-row h-10 justify-between items-center flex-1">

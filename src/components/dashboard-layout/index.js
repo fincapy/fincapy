@@ -339,7 +339,7 @@ export default function DashboardLayout({
             <PageContext.Provider value={{ page, setPage }}>
               <main className="w-full h-full overflow-hidden fixed inset-0">
                 <ScrollArea
-                  className="h-[94%] w-screen fixed top-0"
+                  className="h-[94%] w-screen fixed top-0 touch-none"
                   ref={scrollAreaRef}
                   onTouchStart={handleScrollAreaFocus}
                 >

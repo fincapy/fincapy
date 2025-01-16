@@ -28,40 +28,7 @@ const SavingsCategoryDashboard = () => {
   return <CategoryDashboard type="savings" categories={savingsView} />;
 };
 
-const usePullRefreshDetection = () => {
-  useEffect(() => {
-    // For Chrome/Android
-    let touchStart = 0;
-    const handleTouchStart = (e) => {
-      if (window.scrollY === 0) {
-        touchStart = e.touches[0].clientY;
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (
-        touchStart &&
-        e.touches[0].clientY > touchStart &&
-        window.scrollY === 0
-      ) {
-        // User is pulling down while at top of page
-        e.preventDefault();
-        touchStart = 0;
-      }
-    };
-
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, []);
-};
-
 export default function Home({ searchParams }) {
-  usePullRefreshDetection();
   const { page } = useContext(PageContext);
   if (page === 'spending') {
     return <SpendingCategoryDashboard />;

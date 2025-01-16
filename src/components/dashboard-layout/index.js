@@ -331,8 +331,8 @@ export default function DashboardLayout({
         <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
-              <main className="w-full h-screen flex flex-col relative">
-                <ScrollArea className="flex-1">{children}</ScrollArea>
+              <main className="w-full h-screen flex flex-col overflow-hidden fixed inset-0">
+                <ScrollArea className="h-full w-full">{children}</ScrollArea>
                 <ChatWidget />
                 {
                   <NavBar

@@ -1070,6 +1070,15 @@ const CategoryCard = ({
     100
   );
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: category.categoryId });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    height: 'auto',
+  };
+
   return (
     <Card
       ref={categoryCardRef}
@@ -1117,7 +1126,12 @@ const CategoryCard = ({
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
         <div className="flex justify-between w-full">
-          <div className="flex flex-row gap-2 items-center ml-1">
+          <div
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            className="flex flex-row gap-2 items-center ml-1"
+          >
             <Grip />
           </div>
           <CollapsibleTrigger asChild>
@@ -1315,9 +1329,9 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
     <Collapsible
       open={areSubcategoriesOpen}
       onOpenChange={setAreSubcategoriesOpen}
-      ref={setNodeRef}
+      // ref={setNodeRef}
       style={style}
-      {...attributes}
+      // {...attributes}
       {...listeners}
       className="cursor-move select-none"
     >

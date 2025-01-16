@@ -1078,7 +1078,7 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()}`}
+      className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()}`}
     >
       <CardHeader className="pb-3 pt-4">
         <CardTitle>

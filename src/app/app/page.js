@@ -30,18 +30,37 @@ const SavingsCategoryDashboard = () => {
 
 export default function Home({ searchParams }) {
   useEffect(() => {
-    const preventPullToRefresh = (e) => {
-      if (window.scrollY === 0) {
-        e.preventDefault();
+    let startY = 0;
+    let isPullingDown = false;
+
+    const handleTouchStart = (e) => {
+      startY = e.touches[0].clientY;
+      isPullingDown = window.scrollY === 0; // Only start tracking if at the top
+    };
+
+    const handleTouchMove = (e) => {
+      if (isPullingDown) {
+        const currentY = e.touches[0].clientY;
+        if (currentY > startY) {
+          e.preventDefault(); // Prevent pull-to-refresh
+        }
       }
     };
 
-    document.addEventListener('touchmove', preventPullToRefresh, {
-      passive: false,
+    const handleTouchEnd = () => {
+      isPullingDown = false; // Reset state after touch ends
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
     });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
-      document.removeEventListener('touchmove', preventPullToRefresh);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 

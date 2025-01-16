@@ -142,7 +142,7 @@ const NavBar = ({
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-screen h-[5vh]">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-screen h-[5vh] fixed bottom-0">
       <Separator className="w-screen" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12">
         <div className="flex flex-row h-10 justify-between items-center flex-1">
@@ -332,19 +332,17 @@ export default function DashboardLayout({
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
               <main className="w-screen h-screen overflow-hidden fixed inset-0">
-                <div className="flex flex-col h-screen w-screen">
-                  <ScrollArea className="h-[95vh] w-screen">
-                    {children}
-                  </ScrollArea>
-                  <NavBar
-                    page={page}
-                    setPage={setPage}
-                    isMobile={isMobile}
-                    userRole={userRole}
-                    accountDropdownOpen={accountDropdownOpen}
-                    setAccountDropdownOpen={setAccountDropdownOpen}
-                  />
-                </div>
+                <ScrollArea className="h-[95vh] w-screen fixed top-0">
+                  {children}
+                </ScrollArea>
+                <NavBar
+                  page={page}
+                  setPage={setPage}
+                  isMobile={isMobile}
+                  userRole={userRole}
+                  accountDropdownOpen={accountDropdownOpen}
+                  setAccountDropdownOpen={setAccountDropdownOpen}
+                />
                 {/* <ChatWidget /> */}
               </main>
             </PageContext.Provider>

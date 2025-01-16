@@ -94,52 +94,52 @@ export default function Home({ searchParams }) {
   const [pStart, setPStart] = useState({ x: 0, y: 0 });
   const [pStop, setPStop] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    function isPullDown(dY, dX) {
-      // methods of checking slope, length, direction of line created by swipe action
-      return (
-        dY < 0 &&
-        ((Math.abs(dX) <= 100 && Math.abs(dY) >= 300) ||
-          (Math.abs(dX) / Math.abs(dY) <= 0.3 && dY >= 60))
-      );
-    }
+  // useEffect(() => {
+  //   function isPullDown(dY, dX) {
+  //     // methods of checking slope, length, direction of line created by swipe action
+  //     return (
+  //       dY < 0 &&
+  //       ((Math.abs(dX) <= 100 && Math.abs(dY) >= 300) ||
+  //         (Math.abs(dX) / Math.abs(dY) <= 0.3 && dY >= 60))
+  //     );
+  //   }
 
-    function swipeStart(e) {
-      if (typeof e['targetTouches'] !== 'undefined') {
-        const touch = e.targetTouches[0];
-        setPStart({ x: touch.screenX, y: touch.screenY });
-      } else {
-        setPStart({ x: e.screenX, y: e.screenY });
-      }
-    }
+  //   function swipeStart(e) {
+  //     if (typeof e['targetTouches'] !== 'undefined') {
+  //       const touch = e.targetTouches[0];
+  //       setPStart({ x: touch.screenX, y: touch.screenY });
+  //     } else {
+  //       setPStart({ x: e.screenX, y: e.screenY });
+  //     }
+  //   }
 
-    function swipeEnd(e) {
-      if (typeof e['changedTouches'] !== 'undefined') {
-        const touch = e.changedTouches[0];
-        setPStop({ x: touch.screenX, y: touch.screenY });
-      } else {
-        setPStop({ x: e.screenX, y: e.screenY });
-      }
+  //   function swipeEnd(e) {
+  //     if (typeof e['changedTouches'] !== 'undefined') {
+  //       const touch = e.changedTouches[0];
+  //       setPStop({ x: touch.screenX, y: touch.screenY });
+  //     } else {
+  //       setPStop({ x: e.screenX, y: e.screenY });
+  //     }
 
-      swipeCheck();
-    }
+  //     swipeCheck();
+  //   }
 
-    function swipeCheck() {
-      const changeY = pStart.y - pStop.y;
-      const changeX = pStart.x - pStop.x;
-      if (isPullDown(changeY, changeX)) {
-        alert('Swipe Down!');
-      }
-    }
+  //   function swipeCheck() {
+  //     const changeY = pStart.y - pStop.y;
+  //     const changeX = pStart.x - pStop.x;
+  //     if (isPullDown(changeY, changeX)) {
+  //       alert('Swipe Down!');
+  //     }
+  //   }
 
-    document.addEventListener('touchstart', swipeStart, false);
-    document.addEventListener('touchend', swipeEnd, false);
+  //   document.addEventListener('touchstart', swipeStart, false);
+  //   document.addEventListener('touchend', swipeEnd, false);
 
-    return () => {
-      document.removeEventListener('touchstart', swipeStart, false);
-      document.removeEventListener('touchend', swipeEnd, false);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener('touchstart', swipeStart, false);
+  //     document.removeEventListener('touchend', swipeEnd, false);
+  //   };
+  // }, []);
 
   const { page } = useContext(PageContext);
 

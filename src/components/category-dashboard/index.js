@@ -1184,7 +1184,7 @@ const SubcategoryCard = forwardRef(
       >
         <CardHeader className="pb-3 pt-4">
           <CardTitle>
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2 -mb-3">
               <span>{subcategory.name}</span>
               <div className="flex flex-row gap-0 items-center">
                 <EditSubcategoryDialogue
@@ -1213,18 +1213,15 @@ const SubcategoryCard = forwardRef(
             <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col justify-center p-0">
-          <div className="flex justify-between w-full">
-            <div
-              className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
-              onMouseDown={() => setIsGrabbing(true)}
-              onMouseUp={() => setIsGrabbing(false)}
-              {...listeners}
-              {...attributes}
-            >
-              <Grip />
-            </div>
-            <div />
+        <CardFooter className="flex flex-col justify-center p-0 relative">
+          <div
+            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'} fixed`}
+            onMouseDown={() => setIsGrabbing(true)}
+            onMouseUp={() => setIsGrabbing(false)}
+            {...listeners}
+            {...attributes}
+          >
+            <Grip />
           </div>
         </CardFooter>
       </Card>

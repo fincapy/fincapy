@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Eye, Pen, Trash2 } from 'lucide-react';
+import { ChevronDown, Eye, Grip, Pen, Trash2 } from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
 import { ProgressCategory } from '@/components/ui/progress-category';
@@ -1116,7 +1116,10 @@ const CategoryCard = ({
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
-        <div className="flex flex-row-reverse w-full">
+        <div className="flex justify-between w-full">
+          <div className="flex flex-row gap-2 items-center ml-1">
+            <Grip />
+          </div>
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"

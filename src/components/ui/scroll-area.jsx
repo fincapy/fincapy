@@ -2,22 +2,52 @@
 
 import * as React from 'react';
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { ArrowDownCircle } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 const ScrollArea = React.forwardRef(
   ({ className, children, ...props }, ref) => {
     const scrollRef = useRef(null);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [pullDistance, setPullDistance] = useState(0);
+    const [pullState, setPullState] = useState({
+      distance: 0,
+      isRefreshing: false,
+    });
 
-    const THRESHOLD = 60; // The distance required to trigger a refresh
-    const MAX_PULL_DISTANCE = 100; // Max pull distance for visual feedback
+    // Constants
+    const THRESHOLD = 80; // Distance required to trigger refresh
+    const MAX_PULL_DISTANCE = 120; // Maximum pull distance
+    const RESISTANCE_FACTOR = 0.5; // Reduces pull distance for more resistance
+
+    const onRefresh = useCallback(() => {
+      console.log('Refreshing...');
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          console.log('Refreshed!');
+          resolve();
+        }, 1000);
+      });
+    }, []);
+
+    // Calculate the actual distance with resistance
+    const calculateResistance = (distance) => {
+      return Math.min(distance * RESISTANCE_FACTOR, MAX_PULL_DISTANCE);
+    };
+
+    // Calculate opacity based on pull distance
+    const getOpacity = () => {
+      return Math.min(pullState.distance / THRESHOLD, 1);
+    };
+
+    // Calculate rotation based on pull distance
+    const getRotation = () => {
+      return Math.min((pullState.distance / THRESHOLD) * 180, 180);
+    };
 
     const handleTouchStart = (e) => {
       const scrollElement = scrollRef.current;
-      if (scrollElement.scrollTop === 0 && !isRefreshing) {
+      if (scrollElement.scrollTop === 0 && !pullState.isRefreshing) {
         scrollElement.startY = e.touches[0].clientY;
         scrollElement.isPulling = true;
       }
@@ -30,55 +60,98 @@ const ScrollArea = React.forwardRef(
         const distance = currentY - scrollElement.startY;
 
         if (distance > 0) {
-          e.preventDefault(); // Prevent scrolling
-          setPullDistance(Math.min(distance, MAX_PULL_DISTANCE));
+          e.preventDefault();
+          const resistedDistance = calculateResistance(distance);
+          setPullState((prev) => ({
+            ...prev,
+            distance: resistedDistance,
+          }));
         } else {
           scrollElement.isPulling = false;
+          setPullState((prev) => ({ ...prev, distance: 0 }));
         }
       }
     };
 
-    const handleTouchEnd = () => {
+    const handleTouchEnd = async () => {
       const scrollElement = scrollRef.current;
       if (scrollElement.isPulling) {
         scrollElement.isPulling = false;
 
-        if (pullDistance >= THRESHOLD) {
-          setIsRefreshing(true);
-          onRefresh().finally(() => {
-            setIsRefreshing(false);
-            setPullDistance(0);
-          });
+        if (pullState.distance >= THRESHOLD) {
+          setPullState((prev) => ({ ...prev, isRefreshing: true }));
+          await onRefresh();
+          setPullState({ distance: 0, isRefreshing: false });
         } else {
-          setPullDistance(0);
+          // Animate back to 0
+          setPullState((prev) => ({ ...prev, distance: 0 }));
         }
       }
     };
 
+    useEffect(() => {
+      document.addEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      });
+      return () => {
+        document.removeEventListener('touchmove', handleTouchMove);
+      };
+    }, []);
+
     return (
       <ScrollAreaPrimitive.Root
         ref={scrollRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         className={cn('overflow-hidden relative', className)}
         {...props}
       >
-        <div
-          style={{
-            height: pullDistance,
-            background: 'lightblue',
-            textAlign: 'center',
-            lineHeight: `${pullDistance}px`,
-            fontSize: '14px',
-            transition: isRefreshing ? 'none' : 'height 0.2s ease',
-          }}
+        <ScrollAreaPrimitive.Viewport
+          className="h-full w-full rounded-[inherit]"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          {pullDistance > 0 && !isRefreshing && 'Pull to refresh...'}
-          {isRefreshing && 'Refreshing...'}
-        </div>
-        <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
-          {children}
+          {/* Pull to refresh indicator - Now with z-index */}
+          <div
+            className="absolute left-0 right-0 flex justify-center items-center transition-transform z-50 top-3"
+            style={{
+              // transform: `translateY(${pullState.distance}px)`,
+              // transition: pullState.isPulling
+              //   ? 'none'
+              //   : 'transform 0.2s ease-out',
+              display: pullState.distance > 3 ? 'block' : 'none',
+            }}
+          >
+            <div className="flex flex-col items-center gap-2">
+              <ArrowDownCircle
+                className="transition-all"
+                style={{
+                  opacity: getOpacity(),
+                  transform: `rotate(${getRotation()}deg)`,
+                  color:
+                    pullState.distance >= THRESHOLD ? 'green' : 'currentColor',
+                }}
+              />
+              <span className="text-sm">
+                {pullState.isRefreshing
+                  ? 'Refreshing...'
+                  : pullState.distance >= THRESHOLD
+                    ? 'Release to refresh'
+                    : 'Pull to refresh'}
+              </span>
+            </div>
+          </div>
+
+          {/* Content wrapper - Now with relative positioning and background */}
+          <div
+            className="relative bg-background"
+            style={{
+              transform: `translateY(${pullState.distance}px)`,
+              transition: pullState.isPulling
+                ? 'none'
+                : 'transform 0.2s ease-out',
+            }}
+          >
+            {children}
+          </div>
         </ScrollAreaPrimitive.Viewport>
         <ScrollBar />
         <ScrollAreaPrimitive.Corner />

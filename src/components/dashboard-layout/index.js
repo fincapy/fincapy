@@ -345,7 +345,7 @@ export default function DashboardLayout({
                     setAccountDropdownOpen={setAccountDropdownOpen}
                   />
                 </div>
-                <ChatWidget />
+                {/* <ChatWidget /> */}
               </main>
             </PageContext.Provider>
           </UsersContext.Provider>

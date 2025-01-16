@@ -11,6 +11,7 @@ import {
   savingsViewAtom,
 } from '@/components/state/atoms';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
@@ -28,6 +29,22 @@ const SavingsCategoryDashboard = () => {
 };
 
 export default function Home({ searchParams }) {
+  useEffect(() => {
+    const preventPullToRefresh = (e) => {
+      if (window.scrollY === 0) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchmove', preventPullToRefresh, {
+      passive: false,
+    });
+
+    return () => {
+      document.removeEventListener('touchmove', preventPullToRefresh);
+    };
+  }, []);
+
   const { page } = useContext(PageContext);
   if (page === 'spending') {
     return <SpendingCategoryDashboard />;

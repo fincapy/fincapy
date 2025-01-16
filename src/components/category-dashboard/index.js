@@ -1154,7 +1154,6 @@ const CategoryCard = ({
 const SubcategoryCard = forwardRef(
   ({ subcategory, subcategoryLength, index, category }, ref) => {
     const [isGrabbing, setIsGrabbing] = useState(false);
-    const [zIndex, setZIndex] = useState('z-10');
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -1175,17 +1174,12 @@ const SubcategoryCard = forwardRef(
       transform: CSS.Translate.toString(transform),
       transition,
       height: 'auto',
-      zIndex,
     };
-
-    useEffect(() => {
-      setZIndex(isGrabbing ? 'z-30' : 'z-10');
-    }, [isGrabbing]);
 
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} select-none`}
+        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
         style={style}
       >
         <CardHeader className="pb-3 pt-4">
@@ -1335,7 +1329,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       onOpenChange={setAreSubcategoriesOpen}
       ref={setNodeRef}
       style={style}
-      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none`}
+      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none relative`}
     >
       <CategoryCard
         category={category}

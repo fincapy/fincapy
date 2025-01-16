@@ -31,36 +31,27 @@ const SavingsCategoryDashboard = () => {
 export default function Home({ searchParams }) {
   useEffect(() => {
     let startY = 0;
-    let isPullingDown = false;
 
     const handleTouchStart = (e) => {
       startY = e.touches[0].clientY;
-      isPullingDown = window.scrollY === 0; // Only start tracking if at the top
     };
 
     const handleTouchMove = (e) => {
-      if (isPullingDown) {
-        const currentY = e.touches[0].clientY;
-        if (currentY > startY) {
-          e.preventDefault(); // Prevent pull-to-refresh
-        }
+      const y = e.touches[0].clientY;
+      const deltaY = y - startY;
+
+      // Only prevent default if we're at the top and trying to pull down
+      if (window.scrollY === 0 && deltaY > 0) {
+        e.preventDefault();
       }
     };
 
-    const handleTouchEnd = () => {
-      isPullingDown = false; // Reset state after touch ends
-    };
-
-    document.addEventListener('touchstart', handleTouchStart, {
-      passive: true,
-    });
+    document.addEventListener('touchstart', handleTouchStart);
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 

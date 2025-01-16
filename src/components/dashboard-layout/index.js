@@ -142,7 +142,7 @@ const NavBar = ({
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[6%] fixed bottom-0 m-0 p-0">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[6%] fixed bottom-0 m-0 p-0 touch-none">
       <Separator className="w-full h-[1px]" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
         <div className="flex flex-row justify-between items-center flex-1">
@@ -317,7 +317,13 @@ export default function DashboardLayout({
   }, [startDateState, endDateState]);
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const scrollAreaRef = useRef(null);
+
+  const handleScrollAreaFocus = () => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.focus();
+    }
+  };
 
   return (
     <ThemeProvider
@@ -332,7 +338,11 @@ export default function DashboardLayout({
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
               <main className="w-full h-full overflow-hidden fixed inset-0">
-                <ScrollArea className="h-[94%] w-screen fixed top-0">
+                <ScrollArea
+                  className="h-[94%] w-screen fixed top-0"
+                  ref={scrollAreaRef}
+                  onTouchStart={handleScrollAreaFocus}
+                >
                   {children}
                 </ScrollArea>
                 <NavBar

@@ -1152,19 +1152,7 @@ const CategoryCard = ({
 };
 
 const SubcategoryCard = forwardRef(
-  (
-    {
-      subcategoriesState,
-      subcategory,
-      subcategoryLength,
-      index,
-      setSubcategoriesState,
-      setPreviousState,
-      setAreSubcategoriesOpen,
-      category,
-    },
-    ref
-  ) => {
+  ({ subcategory, subcategoryLength, index, category }, ref) => {
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -1195,7 +1183,7 @@ const SubcategoryCard = forwardRef(
         {...attributes}
         {...listeners}
       >
-        <CardHeader className={'p-0 ml-6 mr-6 mt-4 mb-4'}>
+        <CardHeader className="pb-3 pt-4">
           <CardTitle>
             <div className="flex flex-row items-center gap-2">
               <span>{subcategory.name}</span>
@@ -1536,8 +1524,8 @@ export default function CategoryDashboard({ type, categories }) {
       value={{ categoriesState, setCategoriesState, setPreviousState }}
     >
       {isLoading ? (
-        <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8">
-          <div className="flex flex-col justify-center items-center gap-4">
+        <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+          <div className="flex flex-col justify-center items-center gap-2">
             <div
               className="flex flex-row justify-between gap-4 w-11/12"
               key="create-category-dialogue-skeleton"
@@ -1551,12 +1539,12 @@ export default function CategoryDashboard({ type, categories }) {
               )}
             </div>
 
-            {Array.from({ length: 5 }).map((_, index) => (
+            {Array.from({ length: 7 }).map((_, index) => (
               <div
                 className="flex flex-col w-11/12 shadow-lg rounded-xl"
                 key={index}
               >
-                <Skeleton className="h-[157.73px] w-full rounded-xl bg-card" />
+                <Skeleton className="h-[129.73px] w-full rounded-xl bg-card" />
               </div>
             ))}
           </div>
@@ -1564,10 +1552,10 @@ export default function CategoryDashboard({ type, categories }) {
       ) : (
         <CategoryNamesContext.Provider value={categoryNames}>
           <TypeContext.Provider value={type}>
-            <div className="flex flex-col w-full h-full gap-4 mb-8">
-              <div className="flex flex-col justify-center items-center gap-4">
+            <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+              <div className="flex flex-col justify-center items-center gap-2">
                 <div
-                  className="flex flex-row justify-between gap-4 w-11/12 mt-4"
+                  className="flex flex-row justify-between gap-4 w-11/12"
                   key="create-category-dialogue"
                 >
                   <DatePickers

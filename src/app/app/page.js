@@ -11,7 +11,7 @@ import {
   savingsViewAtom,
 } from '@/components/state/atoms';
 import { useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
@@ -29,31 +29,35 @@ const SavingsCategoryDashboard = () => {
 };
 
 export default function Home({ searchParams }) {
+  const [touchStart, setTouchStart] = useState(null);
   useEffect(() => {
-    let startY = 0;
-
+    // For Chrome/Android
     const handleTouchStart = (e) => {
-      startY = e.touches[0].clientY;
+      if (window.scrollY === 0) {
+        setTouchStart(e.touches[0].clientY);
+      }
     };
 
     const handleTouchMove = (e) => {
-      const y = e.touches[0].clientY;
-      const deltaY = y - startY;
-
-      // Only prevent default if we're at the top and trying to pull down
-      if (window.scrollY === 0 && deltaY > 0) {
-        e.preventDefault();
+      if (
+        touchStart &&
+        e.touches[0].clientY > touchStart &&
+        window.scrollY === 0
+      ) {
+        // User is pulling down while at top of page
+        onPullRefresh();
+        setTouchStart(0);
       }
     };
 
     document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove);
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [touchStart]);
 
   const { page } = useContext(PageContext);
   if (page === 'spending') {

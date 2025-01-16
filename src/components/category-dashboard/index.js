@@ -1550,7 +1550,7 @@ export default function CategoryDashboard({ type, categories }) {
       ) : (
         <CategoryNamesContext.Provider value={categoryNames}>
           <TypeContext.Provider value={type}>
-            <div className="flex flex-col w-full flex-grow gap-4 mb-8">
+            <div className="flex flex-col w-full h-full gap-4 mb-8">
               <div className="flex flex-col justify-center items-center gap-4">
                 <div
                   className="flex flex-row justify-between gap-4 w-11/12 mt-4"

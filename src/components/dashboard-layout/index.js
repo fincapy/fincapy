@@ -137,15 +137,14 @@ const AccountDropdown = ({
 const NavBar = ({
   page,
   setPage,
-  isMobile,
   userRole,
   accountDropdownOpen,
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col bg-background top-0 z-20 w-11/12 lg:w-[33.33%] md:w-1/2 mx-auto">
-      <Separator className="relative w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]" />
-      <div className="flex flex-row justify-center items-center">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-full mx-auto h-11">
+      <Separator className="w-screen" />
+      <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12">
         <div className="flex flex-row lg:gap-5 gap-3 h-10 justify-between items-center flex-1">
           <button
             onClick={() => setPage('spending')}
@@ -332,19 +331,9 @@ export default function DashboardLayout({
         <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
-              <main className="w-full h-screen flex flex-col overflow-hidden">
-                {/* {!isMobile && (
-                  <NavBar
-                    page={page}
-                    setPage={setPage}
-                    isMobile={isMobile}
-                    userRole={userRole}
-                    accountDropdownOpen={accountDropdownOpen}
-                    setAccountDropdownOpen={setAccountDropdownOpen}
-                  />
-                )} */}
+              <main className="w-full h-screen flex flex-col">
+                <ScrollArea className="flex-1">{children}</ScrollArea>
                 <ChatWidget />
-                <ScrollArea className="flex-1 w-full">{children}</ScrollArea>
                 {
                   <NavBar
                     page={page}

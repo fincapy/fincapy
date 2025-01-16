@@ -348,7 +348,6 @@ export default function DashboardLayout({
                 <NavBar
                   page={page}
                   setPage={setPage}
-                  isMobile={isMobile}
                   userRole={userRole}
                   accountDropdownOpen={accountDropdownOpen}
                   setAccountDropdownOpen={setAccountDropdownOpen}

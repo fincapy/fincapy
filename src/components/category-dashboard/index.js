@@ -1316,7 +1316,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-move"
+      className="cursor-move select-none"
     >
       <CategoryCard
         category={category}

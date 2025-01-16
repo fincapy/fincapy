@@ -142,7 +142,7 @@ const NavBar = ({
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[5vh] fixed bottom-0">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-screen h-[5vh]">
       <Separator className="w-screen" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12">
         <div className="flex flex-row h-10 justify-between items-center flex-1">
@@ -331,9 +331,9 @@ export default function DashboardLayout({
         <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
-              <main className="w-full h-screen overflow-hidden fixed inset-0">
-                <div className="flex flex-col h-full w-full">
-                  <ScrollArea className="h-[95vh] w-full">
+              <main className="w-screen h-screen overflow-hidden fixed inset-0">
+                <div className="flex flex-col h-screen w-screen">
+                  <ScrollArea className="h-[95vh] w-screen">
                     {children}
                   </ScrollArea>
                   <NavBar

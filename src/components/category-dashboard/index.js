@@ -1154,6 +1154,7 @@ const CategoryCard = ({
 const SubcategoryCard = forwardRef(
   ({ subcategory, subcategoryLength, index, category }, ref) => {
     const [isGrabbing, setIsGrabbing] = useState(false);
+    const [zIndex, setZIndex] = useState('z-10');
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -1174,7 +1175,12 @@ const SubcategoryCard = forwardRef(
       transform: CSS.Translate.toString(transform),
       transition,
       height: 'auto',
+      zIndex,
     };
+
+    useEffect(() => {
+      setZIndex(isGrabbing ? 'z-30' : 'z-10');
+    }, [isGrabbing]);
 
     return (
       <Card
@@ -1213,15 +1219,17 @@ const SubcategoryCard = forwardRef(
             <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col justify-center p-0 relative">
-          <div
-            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'} fixed`}
-            onMouseDown={() => setIsGrabbing(true)}
-            onMouseUp={() => setIsGrabbing(false)}
-            {...listeners}
-            {...attributes}
-          >
-            <Grip />
+        <CardFooter className="flex flex-col justify-center p-0">
+          <div className="flex flex-row justify-between items-center w-full h-[36px]">
+            <div
+              className={`flex flex-row w-full ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
+              onMouseDown={() => setIsGrabbing(true)}
+              onMouseUp={() => setIsGrabbing(false)}
+              {...listeners}
+              {...attributes}
+            >
+              <Grip />
+            </div>
           </div>
         </CardFooter>
       </Card>
@@ -1327,7 +1335,7 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
       onOpenChange={setAreSubcategoriesOpen}
       ref={setNodeRef}
       style={style}
-      className={`${isGrabbing ? 'z-50' : ''} select-none`}
+      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none`}
     >
       <CategoryCard
         category={category}

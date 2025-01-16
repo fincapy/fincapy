@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <UserProvider>
-        <body className="touch-none">{children}</body>
+        <body className="touch-none overscroll-none">{children}</body>
       </UserProvider>
     </html>
   );

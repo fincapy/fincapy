@@ -1048,6 +1048,10 @@ const CategoryCard = ({
   categoryCardRef,
   isOverlapping,
   setAreSubcategoriesOpen,
+  listeners,
+  attributes,
+  isGrabbing,
+  setIsGrabbing,
 }) => {
   const getRoundedStyle = () => {
     if (!areSubcategoriesOpen) {
@@ -1069,15 +1073,6 @@ const CategoryCard = ({
     (category.currentNet / category.proratedGoal) * 100,
     100
   );
-
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: category.categoryId });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    height: 'auto',
-  };
 
   return (
     <Card
@@ -1127,10 +1122,11 @@ const CategoryCard = ({
       <CardFooter className="flex flex-col justify-center p-0">
         <div className="flex justify-between w-full">
           <div
-            ref={setNodeRef}
-            {...attributes}
+            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
+            onMouseDown={() => setIsGrabbing(true)}
+            onMouseUp={() => setIsGrabbing(false)}
             {...listeners}
-            className="flex flex-row gap-2 items-center ml-1"
+            {...attributes}
           >
             <Grip />
           </div>
@@ -1237,6 +1233,7 @@ const SubcategoryCard = forwardRef(
 const CategoryCardCollapsible = ({ category, subcategories }) => {
   const [areSubcategoriesOpen, setAreSubcategoriesOpen] = useState(false);
   const [isOverlapping, setIsOverlapping] = useState(false);
+  const [isGrabbing, setIsGrabbing] = useState(false);
 
   const categoryCardRef = useRef(null);
   const subcategoryRefs = useRef([
@@ -1329,11 +1326,9 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
     <Collapsible
       open={areSubcategoriesOpen}
       onOpenChange={setAreSubcategoriesOpen}
-      // ref={setNodeRef}
+      ref={setNodeRef}
       style={style}
-      // {...attributes}
-      {...listeners}
-      className="cursor-move select-none"
+      className={`${isGrabbing ? 'z-50' : ''} select-none`}
     >
       <CategoryCard
         category={category}
@@ -1342,6 +1337,10 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
         categoryCardRef={categoryCardRef}
         isOverlapping={isOverlapping}
         setAreSubcategoriesOpen={setAreSubcategoriesOpen}
+        listeners={listeners}
+        attributes={attributes}
+        isGrabbing={isGrabbing}
+        setIsGrabbing={setIsGrabbing}
       />
       <DndContext
         sensors={sensors}

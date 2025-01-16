@@ -17,3 +17,5 @@ export const savingsViewAtom = atom((get) => {
 });
 
 export const plaidItemsAtom = atom([]);
+
+export const usersAtom = atom([]);

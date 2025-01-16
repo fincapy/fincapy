@@ -11,7 +11,7 @@ import {
   savingsViewAtom,
 } from '@/components/state/atoms';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
@@ -28,13 +28,13 @@ const SavingsCategoryDashboard = () => {
   return <CategoryDashboard type="savings" categories={savingsView} />;
 };
 
-export default function Home({ searchParams }) {
-  const [touchStart, setTouchStart] = useState(null);
+const usePullRefreshDetection = () => {
   useEffect(() => {
     // For Chrome/Android
+    let touchStart = 0;
     const handleTouchStart = (e) => {
       if (window.scrollY === 0) {
-        setTouchStart(e.touches[0].clientY);
+        touchStart = e.touches[0].clientY;
       }
     };
 
@@ -45,8 +45,8 @@ export default function Home({ searchParams }) {
         window.scrollY === 0
       ) {
         // User is pulling down while at top of page
-        onPullRefresh();
-        setTouchStart(0);
+        e.preventDefault();
+        touchStart = 0;
       }
     };
 
@@ -57,8 +57,11 @@ export default function Home({ searchParams }) {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [touchStart]);
+  }, []);
+};
 
+export default function Home({ searchParams }) {
+  usePullRefreshDetection();
   const { page } = useContext(PageContext);
   if (page === 'spending') {
     return <SpendingCategoryDashboard />;

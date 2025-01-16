@@ -1153,6 +1153,7 @@ const CategoryCard = ({
 
 const SubcategoryCard = forwardRef(
   ({ subcategory, subcategoryLength, index, category }, ref) => {
+    const [isGrabbing, setIsGrabbing] = useState(false);
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
@@ -1178,10 +1179,8 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} cursor-move`}
+        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} select-none`}
         style={style}
-        {...attributes}
-        {...listeners}
       >
         <CardHeader className="pb-3 pt-4">
           <CardTitle>
@@ -1207,13 +1206,27 @@ const SubcategoryCard = forwardRef(
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0 mr-6 ml-6 mb-6">
+        <CardContent className="pb-4">
           <div className="flex flex-row gap-2 items-center">
             <span>$0</span>
             <ProgressCategory value={progress} />
             <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
+        <CardFooter className="flex flex-col justify-center p-0">
+          <div className="flex justify-between w-full">
+            <div
+              className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
+              onMouseDown={() => setIsGrabbing(true)}
+              onMouseUp={() => setIsGrabbing(false)}
+              {...listeners}
+              {...attributes}
+            >
+              <Grip />
+            </div>
+            <div />
+          </div>
+        </CardFooter>
       </Card>
     );
   }

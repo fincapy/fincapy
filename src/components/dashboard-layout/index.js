@@ -142,10 +142,10 @@ const NavBar = ({
   setAccountDropdownOpen,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-full mx-auto h-11">
+    <div className="flex flex-col items-center justify-center bg-background z-20 w-full mx-auto h-11 sticky bottom-0">
       <Separator className="w-screen" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12">
-        <div className="flex flex-row lg:gap-5 gap-3 h-10 justify-between items-center flex-1">
+        <div className="flex flex-row h-10 justify-between items-center flex-1">
           <button
             onClick={() => setPage('spending')}
             className="flex flex-col items-center gap-[1px] group"
@@ -331,7 +331,7 @@ export default function DashboardLayout({
         <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
           <UsersContext.Provider value={{ usersState, setUsersState }}>
             <PageContext.Provider value={{ page, setPage }}>
-              <main className="w-full h-screen flex flex-col">
+              <main className="w-full h-screen flex flex-col relative">
                 <ScrollArea className="flex-1">{children}</ScrollArea>
                 <ChatWidget />
                 {

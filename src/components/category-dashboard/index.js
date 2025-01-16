@@ -698,9 +698,10 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
           variant="ghost"
           size="icon"
           style={{
-            marginRight: '-23px',
-            marginTop: '-47px',
+            marginRight: '-24px',
+            marginTop: '-32px',
           }}
+          className="rounded-lg"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
@@ -1077,9 +1078,9 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()} min-h-[157.73px]`}
+      className={`z-10 shadow-none sticky -top-1 ${getRoundedStyle()}`}
     >
-      <CardHeader>
+      <CardHeader className="pb-3 pt-4">
         <CardTitle>
           <div className="flex flex-row justify-between items-center -mb-3">
             <div className="flex flex-row items-center gap-2">
@@ -1112,7 +1113,7 @@ const CategoryCard = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-4">
         <div className="flex flex-row gap-2 items-center">
           <span>$0</span>
           <ProgressCategory value={progress} />

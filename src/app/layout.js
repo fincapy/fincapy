@@ -10,12 +10,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>
-      {/* <Head>
+      <Head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
-      </Head> */}
+      </Head>
       <UserProvider>
         <body className="touch-none overscroll-none">{children}</body>
       </UserProvider>

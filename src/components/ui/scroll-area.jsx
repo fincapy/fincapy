@@ -17,8 +17,8 @@ const ScrollArea = React.forwardRef(
 
     // Constants
     const THRESHOLD = 80; // Distance required to trigger refresh
-    const MAX_PULL_DISTANCE = 120; // Maximum pull distance
-    const RESISTANCE_FACTOR = 0.5; // Reduces pull distance for more resistance
+    const MAX_PULL_DISTANCE = 100; // Maximum pull distance
+    const RESISTANCE_FACTOR = 0.1; // Reduces pull distance for more resistance
 
     const onRefresh = useCallback(() => {
       console.log('Refreshing...');
@@ -55,7 +55,7 @@ const ScrollArea = React.forwardRef(
 
     const handleTouchMove = (e) => {
       const scrollElement = scrollRef.current;
-      if (scrollElement.isPulling) {
+      if (scrollElement.isPulling && scrollElement.scrollTop === 0) {
         const currentY = e.touches[0].clientY;
         const distance = currentY - scrollElement.startY;
 
@@ -100,11 +100,11 @@ const ScrollArea = React.forwardRef(
 
     return (
       <ScrollAreaPrimitive.Root
-        ref={scrollRef}
         className={cn('overflow-hidden relative', className)}
         {...props}
       >
         <ScrollAreaPrimitive.Viewport
+          ref={scrollRef}
           className="h-full w-full rounded-[inherit]"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -117,7 +117,7 @@ const ScrollArea = React.forwardRef(
               // transition: pullState.isPulling
               //   ? 'none'
               //   : 'transform 0.2s ease-out',
-              display: pullState.distance > 3 ? 'block' : 'none',
+              display: pullState.distance > 25 ? 'block' : 'none',
             }}
           >
             <div className="flex flex-col items-center gap-2">
@@ -130,13 +130,13 @@ const ScrollArea = React.forwardRef(
                     pullState.distance >= THRESHOLD ? 'green' : 'currentColor',
                 }}
               />
-              <span className="text-sm">
+              {/* <span className="text-sm">
                 {pullState.isRefreshing
                   ? 'Refreshing...'
                   : pullState.distance >= THRESHOLD
                     ? 'Release to refresh'
                     : 'Pull to refresh'}
-              </span>
+              </span> */}
             </div>
           </div>
 

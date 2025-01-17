@@ -336,6 +336,21 @@ export default function DashboardLayout({
     execute();
   }, [startDateState, endDateState, triggerRefresh]);
 
+  useEffect(() => {
+    // Create temporary scrollable space
+    document.body.style.minHeight = '101vh';
+
+    // Trigger scroll after a small delay
+    setTimeout(() => {
+      window.scrollTo(0, 1);
+
+      // Reset the body height after another small delay
+      setTimeout(() => {
+        document.body.style.minHeight = '100vh';
+      }, 40);
+    }, 40);
+  }, []);
+
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const scrollAreaRef = useRef(null);
 

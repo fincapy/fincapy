@@ -338,11 +338,11 @@ export default function DashboardLayout({
 
   useEffect(() => {
     // Create temporary scrollable space
-    document.body.style.minHeight = '101vh';
+    document.body.style.minHeight = '120vh';
 
     // Trigger scroll after a small delay
     setTimeout(() => {
-      window.scrollTo(0, 1);
+      window.scrollTo(0, 100);
 
       // Reset the body height after another small delay
       setTimeout(() => {

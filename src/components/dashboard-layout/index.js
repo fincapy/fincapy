@@ -284,7 +284,8 @@ export default function DashboardLayout({
   );
   const [usersState, setUsersState] = useState(users);
   const [page, setPage] = useState(pageParam || 'spending');
-
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [triggerRefresh, setTriggerRefresh] = useState(false);
   useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(
@@ -305,16 +306,35 @@ export default function DashboardLayout({
         }),
       });
       setPlanState(newPlan);
+      console.log('set new plan state');
     };
-    console.log('here first');
-    if (firstRender.current) {
-      firstRender.current = false;
-      setPlanState(newPlan);
-      setPlaidItemsState(plaidItems);
-    } else {
-      getPlan();
-    }
-  }, [startDateState, endDateState]);
+
+    const execute = async () => {
+      if (firstRender.current) {
+        console.log('first render');
+        firstRender.current = false;
+        setPlanState(newPlan);
+        setPlaidItemsState(plaidItems);
+      } else {
+        console.log('not first render');
+        setIsRefreshing(true);
+        const getPlanTime = performance.now();
+        await getPlan();
+        const getPlanTimeEnd = performance.now();
+        console.log(`getPlanTime: ${getPlanTimeEnd - getPlanTime}ms`);
+        const plannedWaitTime = Math.max(
+          0,
+          300 - (getPlanTimeEnd - getPlanTime)
+        );
+        console.log(`plannedWaitTime: ${plannedWaitTime}ms`);
+        await new Promise((resolve) => setTimeout(resolve, plannedWaitTime));
+        setIsRefreshing(false);
+        2;
+      }
+    };
+
+    execute();
+  }, [startDateState, endDateState, triggerRefresh]);
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const scrollAreaRef = useRef(null);
@@ -346,6 +366,8 @@ export default function DashboardLayout({
                   className="h-[94%] w-screen fixed top-0"
                   ref={scrollAreaRef}
                   onTouchStart={handleScrollAreaFocus}
+                  triggerRefresh={() => setTriggerRefresh(!triggerRefresh)}
+                  isRefreshing={isRefreshing}
                 >
                   {children}
                 </ScrollArea>

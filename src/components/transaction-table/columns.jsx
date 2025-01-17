@@ -45,6 +45,10 @@ import { useContext } from 'react';
 import { CategoryNamesContext } from '../category-dashboard/categoryNamesContext';
 import { TransactionContext } from './transaction';
 import { recategorizeTransaction } from './serverActions';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '../ui/toast';
+import { useAtom } from 'jotai';
+import { planAtom } from '../state/atoms';
 
 export function SelectDemo({ field }) {
   const categories = useContext(CategoryNamesContext);
@@ -77,6 +81,8 @@ const RecategorizeForm = ({
   setOuterDialogIsOpen,
   setInnerDialogIsOpen,
 }) => {
+  const { toast } = useToast();
+  const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
     resolver: zodResolver(recategorizeFormSchema),
     defaultValues: {
@@ -84,14 +90,71 @@ const RecategorizeForm = ({
     },
   });
 
-  const onSubmit = async (data) => {
-    setInnerDialogIsOpen(false);
-    setOuterDialogIsOpen(false);
-    await recategorizeTransaction({
+  const handleServerRecategorizeTransaction = ({
+    oldPlanState,
+    onSubmit,
+    values,
+    transactionId,
+  }) => {
+    setTimeout(async () => {
+      try {
+        const result = await recategorizeTransaction({
+          transactionId,
+          planId: 'initial',
+          newCategoryId: values.category,
+        });
+        if (!result) {
+          setPlanState(oldPlanState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => {
+                  onSubmit(values);
+                }}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlanState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  };
+
+  const onSubmit = async (values) => {
+    const oldPlanState = planState.clone();
+    const newPlanState = planState.clone();
+    newPlanState.recategorizeTransaction({
+      transactionId,
+      newCategoryId: values.category,
+    });
+    setPlanState(newPlanState);
+    await handleServerRecategorizeTransaction({
+      oldPlanState: oldPlanState,
+      onSubmit,
+      values,
       transactionId,
       planId: 'initial',
-      newCategoryId: data.category,
+      newCategoryId: values.category,
     });
+    setInnerDialogIsOpen(false);
+    setOuterDialogIsOpen(false);
   };
 
   return (

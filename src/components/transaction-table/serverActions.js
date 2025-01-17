@@ -9,23 +9,29 @@ const recategorizeTransaction = async ({
   transactionId,
   newCategoryId,
 }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const service = new RecategorizeTransactionService({
+      tenantRepository: tenantRepository,
+    });
+    await service.execute({
+      tenantId,
+      planId,
+      transactionId,
+      newCategoryId,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const service = new RecategorizeTransactionService({
-    tenantRepository: tenantRepository,
-  });
-  await service.execute({
-    tenantId,
-    planId,
-    transactionId,
-    newCategoryId,
-  });
 };
 
 export { recategorizeTransaction };

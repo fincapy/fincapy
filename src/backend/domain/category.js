@@ -140,6 +140,9 @@ class Category {
   clone() {
     return new Category({
       ...this,
+      transactions: this.transactions.map((transaction) => {
+        return { ...transaction };
+      }),
       subcategories: this.subcategories.map((subcategory) =>
         subcategory.clone()
       ),

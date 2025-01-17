@@ -125,7 +125,7 @@ const ScrollArea = React.forwardRef(
             className="relative bg-background"
             style={{
               transform: isRefreshing
-                ? `translateY(${THRESHOLD / 2}px)` // Compress pulled-down space more
+                ? `translateY(${THRESHOLD / 1.5}px)` // Compress pulled-down space more
                 : `translateY(${pullState.distance}px)`,
               transition: pullState.isPulling
                 ? 'none'

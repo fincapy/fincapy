@@ -9,51 +9,69 @@ import { ChangeUserNameService } from '@/backend/services/changeUserNameService'
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 
 const removeUser = async (email) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+
+    const tenantId = session.user.tenant_id;
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const auth0Adapter = new Auth0Adapter({ client: auth0Client });
+    const removeUserService = new RemoveUserService({
+      tenantRepository,
+      auth0Adapter,
+    });
+    await removeUserService.execute({ tenantId, email });
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-
-  const tenantId = session.user.tenant_id;
-
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const auth0Adapter = new Auth0Adapter({ client: auth0Client });
-  const removeUserService = new RemoveUserService({
-    tenantRepository,
-    auth0Adapter,
-  });
-  await removeUserService.execute({ tenantId, email });
 };
 
 const changeUserRole = async ({ email, role }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+
+    const tenantId = session.user.tenant_id;
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const changeUserRoleService = new ChangeUserRoleService({
+      tenantRepository,
+    });
+    await changeUserRoleService.execute({ tenantId, email, role });
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-
-  const tenantId = session.user.tenant_id;
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const changeUserRoleService = new ChangeUserRoleService({
-    tenantRepository,
-  });
-  await changeUserRoleService.execute({ tenantId, email, role });
 };
 
 const changeUserName = async ({ email, name }) => {
-  const session = await getSession();
-  if (!session) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return false;
+    }
+
+    const tenantId = session.user.tenant_id;
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({ redisAdapter });
+    const changeUserNameService = new ChangeUserNameService({
+      tenantRepository,
+    });
+    await changeUserNameService.execute({ tenantId, email, name });
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-
-  const tenantId = session.user.tenant_id;
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const changeUserNameService = new ChangeUserNameService({
-    tenantRepository,
-  });
-  await changeUserNameService.execute({ tenantId, email, name });
 };
 
 export { removeUser, changeUserRole, changeUserName };

@@ -35,7 +35,10 @@ import {
 import { inviteUser } from './serverActions';
 import { UsersContext } from '../dashboard-layout/usersContext';
 import { useContext } from 'react';
-
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import { useAtom } from 'jotai';
+import { usersAtom } from '../state/atoms';
 export function SelectDemo({ field }) {
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -65,6 +68,8 @@ const inviteUserFormSchema = z.object({
 });
 
 const InviteUserForm = () => {
+  const [usersState, setUsersState] = useAtom(usersAtom);
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(inviteUserFormSchema),
     defaultValues: {
@@ -74,14 +79,66 @@ const InviteUserForm = () => {
     },
   });
 
+  function handleServerInviteUser({
+    name,
+    email,
+    role,
+    oldUsersState,
+    setUsersState,
+    values,
+    onSubmit,
+  }) {
+    setTimeout(async () => {
+      try {
+        const result = await inviteUser({
+          name,
+          email,
+          role,
+        });
+        if (!result) {
+          setUsersState(oldUsersState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setUsersState(oldUsersState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  }
+
   async function onSubmit(values) {
     const email = values.email;
     const role = values.role;
     const name = values.name;
-    await inviteUser({
+    const oldUsersState = usersState.map((user) => ({ ...user }));
+    const newUsersState = [...usersState, { email, role, name }];
+    setUsersState(newUsersState);
+    handleServerInviteUser({
+      name,
       email,
       role,
-      name,
+      oldUsersState,
+      setUsersState,
+      values,
+      onSubmit,
     });
   }
 
@@ -164,7 +221,7 @@ const InviteUserDialogue = () => {
 };
 
 export default function Dashboard() {
-  const { usersState } = useContext(UsersContext);
+  const [usersState, setUsersState] = useAtom(usersAtom);
 
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">

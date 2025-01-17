@@ -6,10 +6,6 @@ import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export const POST = async (req) => {
   const body = await req.json();
   const dataBuffer = Buffer.from(body.message.data, 'base64');

@@ -8,8 +8,12 @@ class CreateUserService {
 
   async execute({ tenantId, email, name, role }) {
     const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
+    let auth0User = await this.auth0Adapter.getUserByEmail(email);
+    if (auth0User) {
+      throw new Error('User already exists');
+    }
     await this.auth0Adapter.createUser(email, name);
-    const auth0User = await this.auth0Adapter.getUserByEmail(email);
+    auth0User = await this.auth0Adapter.getUserByEmail(email);
     await this.auth0Adapter.updateUserAppMetadata(auth0User.user_id, {
       role: role,
       tenant_id: tenantId,

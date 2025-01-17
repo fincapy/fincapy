@@ -43,7 +43,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { parse } from 'date-fns';
-import { planAtom, plaidItemsAtom } from '../state/atoms';
+import { planAtom, plaidItemsAtom, usersAtom } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -279,13 +279,13 @@ export default function DashboardLayout({
 
   const setPlanState = useSetAtom(planAtom);
   const setPlaidItemsState = useSetAtom(plaidItemsAtom);
+  const setUsersState = useSetAtom(usersAtom);
   const [startDateState, setStartDateState] = useState(
     startDate.toISOString().split('T')[0]
   );
   const [endDateState, setEndDateState] = useState(
     endDate.toISOString().split('T')[0]
   );
-  const [usersState, setUsersState] = useState(users);
   const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
@@ -319,6 +319,7 @@ export default function DashboardLayout({
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
+        setUsersState(users);
       } else {
         setIsRefreshing(true);
         const getPlanTime = performance.now();
@@ -336,30 +337,6 @@ export default function DashboardLayout({
 
     execute();
   }, [startDateState, endDateState, triggerRefresh]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      toast({
-        variant: 'outline',
-        title: 'Go fullscreen?',
-        description: 'This will make the app look better on your device.',
-        action: (
-          <ToastAction
-            altText="Go fullscreen"
-            onClick={() => {
-              if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-              } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-              }
-            }}
-          >
-            Go fullscreen
-          </ToastAction>
-        ),
-      });
-    }, 1000);
-  }, []);
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const scrollAreaRef = useRef(null);
@@ -380,33 +357,31 @@ export default function DashboardLayout({
     >
       <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
         <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
-          <UsersContext.Provider value={{ usersState, setUsersState }}>
-            <PageContext.Provider value={{ page, setPage }}>
-              <main
-                className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+          <PageContext.Provider value={{ page, setPage }}>
+            <main
+              className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+              onTouchStart={handleScrollAreaFocus}
+              onMouseDown={handleScrollAreaFocus}
+            >
+              <ScrollArea
+                className="h-[94%] w-screen fixed top-0"
+                ref={scrollAreaRef}
                 onTouchStart={handleScrollAreaFocus}
-                onMouseDown={handleScrollAreaFocus}
+                triggerRefresh={() => setTriggerRefresh(!triggerRefresh)}
+                isRefreshing={isRefreshing}
               >
-                <ScrollArea
-                  className="h-[94%] w-screen fixed top-0"
-                  ref={scrollAreaRef}
-                  onTouchStart={handleScrollAreaFocus}
-                  triggerRefresh={() => setTriggerRefresh(!triggerRefresh)}
-                  isRefreshing={isRefreshing}
-                >
-                  {children}
-                </ScrollArea>
-                <NavBar
-                  page={page}
-                  setPage={setPage}
-                  userRole={userRole}
-                  accountDropdownOpen={accountDropdownOpen}
-                  setAccountDropdownOpen={setAccountDropdownOpen}
-                />
-                {/* <ChatWidget /> */}
-              </main>
-            </PageContext.Provider>
-          </UsersContext.Provider>
+                {children}
+              </ScrollArea>
+              <NavBar
+                page={page}
+                setPage={setPage}
+                userRole={userRole}
+                accountDropdownOpen={accountDropdownOpen}
+                setAccountDropdownOpen={setAccountDropdownOpen}
+              />
+              {/* <ChatWidget /> */}
+            </main>
+          </PageContext.Provider>
         </EndDateContext.Provider>
       </StartDateContext.Provider>
     </ThemeProvider>

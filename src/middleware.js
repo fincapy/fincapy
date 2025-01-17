@@ -12,9 +12,7 @@ export async function middleware(request) {
     session = await getSession(request);
 
     if (request.nextUrl.pathname === '/') {
-      console.log('here?');
       if (session) {
-        console.log('here?');
         return NextResponse.redirect(new URL('/app', request.url));
       }
     } else {

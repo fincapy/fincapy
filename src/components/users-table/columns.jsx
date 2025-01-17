@@ -38,6 +38,10 @@ import {
 } from '@/components/ui/select';
 import { removeUser, changeUserRole, changeUserName } from './serverActions';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import { useAtom } from 'jotai';
+import { usersAtom } from '../state/atoms';
 
 export function SelectDemo({ field }) {
   return (
@@ -69,6 +73,8 @@ const ChangeRoleForm = ({
   role,
   email,
 }) => {
+  const { toast } = useToast();
+  const [usersState, setUsersState] = useAtom(usersAtom);
   const form = useForm({
     resolver: zodResolver(changeRoleFormSchema),
     defaultValues: {
@@ -76,13 +82,49 @@ const ChangeRoleForm = ({
     },
   });
 
-  const onSubmit = async (data) => {
-    setInnerDialogIsOpen(false);
-    setOuterDialogIsOpen(false);
-    await changeUserRole({
-      email,
-      role: data.role,
+  function handleServerChangeRole({ email, oldUsersState, onSubmit, values }) {
+    setTimeout(async () => {
+      try {
+        const result = await changeUserRole({ email, role: values.role });
+        if (!result) {
+          setUsersState(oldUsersState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setUsersState(oldUsersState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  }
+
+  const onSubmit = async (values) => {
+    const oldUsersState = usersState.map((user) => ({ ...user }));
+    const newUsersState = usersState.map((user) => {
+      if (user.email === email) {
+        return { ...user, role: values.role };
+      }
+      return { ...user };
     });
+    setUsersState(newUsersState);
+    handleServerChangeRole({ email, oldUsersState, onSubmit, values });
   };
 
   return (
@@ -137,11 +179,57 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
 };
 
 const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [usersState, setUsersState] = useAtom(usersAtom);
+
+  function handleServerRemoveUser({ email, oldUsersState, handleRemoveUser }) {
+    setTimeout(async () => {
+      try {
+        const result = await removeUser(email);
+        if (!result) {
+          setUsersState(oldUsersState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => handleRemoveUser()}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setUsersState(oldUsersState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => handleRemoveUser()}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  }
 
   const handleRemoveUser = async () => {
-    await removeUser(row.original.email);
-    setOuterDialogIsOpen(false);
+    const oldUsersState = usersState.map((user) => ({ ...user }));
+    const newUsersState = usersState.filter(
+      (user) => user.email !== row.original.email
+    );
+    setUsersState(newUsersState);
+    handleServerRemoveUser({
+      email: row.original.email,
+      oldUsersState,
+      handleRemoveUser,
+    });
   };
 
   return (
@@ -178,6 +266,8 @@ const ChangeNameForm = ({
   name,
   email,
 }) => {
+  const { toast } = useToast();
+  const [usersState, setUsersState] = useAtom(usersAtom);
   const form = useForm({
     resolver: zodResolver(changeNameFormSchema),
     defaultValues: {
@@ -185,15 +275,49 @@ const ChangeNameForm = ({
     },
   });
 
-  const onSubmit = async (data) => {
-    setInnerDialogIsOpen(false);
-    setOuterDialogIsOpen(false);
-    console.log(data);
-    console.log(email);
-    await changeUserName({
-      email,
-      name: data.name,
+  function handleServerChangeName({ email, oldUsersState, onSubmit, values }) {
+    setTimeout(async () => {
+      try {
+        const result = await changeUserName({ email, name: values.name });
+        if (!result) {
+          setUsersState(oldUsersState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setUsersState(oldUsersState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  }
+
+  const onSubmit = async (values) => {
+    const oldUsersState = usersState.map((user) => ({ ...user }));
+    const newUsersState = usersState.map((user) => {
+      if (user.email === email) {
+        return { ...user, name: values.name };
+      }
+      return { ...user };
     });
+    setUsersState(newUsersState);
+    handleServerChangeName({ email, oldUsersState, onSubmit, values });
   };
 
   return (

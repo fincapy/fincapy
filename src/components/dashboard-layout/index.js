@@ -350,7 +350,6 @@ export default function DashboardLayout({
               if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen();
               } else if (document.documentElement.webkitRequestFullscreen) {
-                /* Safari */
                 document.documentElement.webkitRequestFullscreen();
               }
             }}

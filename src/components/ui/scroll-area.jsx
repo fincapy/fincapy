@@ -34,7 +34,7 @@ const ScrollArea = React.forwardRef(
 
     const handleTouchMove = (e) => {
       const scrollElement = scrollRef.current;
-      if (scrollElement.isPulling && scrollElement.scrollTop === 0) {
+      if (scrollElement.isPulling && scrollElement.scrollTop <= 0) {
         const currentY = e.touches[0].clientY;
         const distance = currentY - scrollElement.startY;
 

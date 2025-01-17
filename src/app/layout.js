@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import './globals.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 
@@ -9,6 +10,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>
+      {/* <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+      </Head> */}
       <UserProvider>
         <body className="touch-none overscroll-none">{children}</body>
       </UserProvider>

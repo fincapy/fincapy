@@ -13,7 +13,6 @@ import {
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useState, useMemo } from 'react';
-
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
   return <CategoryDashboard type="spending" categories={spendingView} />;

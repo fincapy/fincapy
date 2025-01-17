@@ -1468,7 +1468,7 @@ export default function CategoryDashboard({ type, categories }) {
   const [categoriesState, setCategoriesState] = useState(categories);
   const [categoryNames, setCategoryNames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const { toast } = useToast();
   useEffect(() => {
     if (categories.length > 0) {
       setCategoriesState(categories);

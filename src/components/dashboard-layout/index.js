@@ -47,6 +47,9 @@ import { planAtom, plaidItemsAtom } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+
 const AccountDropdown = ({
   accountDropdownOpen,
   setAccountDropdownOpen,
@@ -286,6 +289,7 @@ export default function DashboardLayout({
   const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
+  const { toast } = useToast();
   useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(
@@ -316,17 +320,14 @@ export default function DashboardLayout({
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
       } else {
-        console.log('not first render');
         setIsRefreshing(true);
         const getPlanTime = performance.now();
         await getPlan();
         const getPlanTimeEnd = performance.now();
-        console.log(`getPlanTime: ${getPlanTimeEnd - getPlanTime}ms`);
         const plannedWaitTime = Math.max(
           0,
           300 - (getPlanTimeEnd - getPlanTime)
         );
-        console.log(`plannedWaitTime: ${plannedWaitTime}ms`);
         await new Promise((resolve) => setTimeout(resolve, plannedWaitTime));
         setIsRefreshing(false);
         2;
@@ -337,18 +338,28 @@ export default function DashboardLayout({
   }, [startDateState, endDateState, triggerRefresh]);
 
   useEffect(() => {
-    // Create temporary scrollable space
-    document.body.style.minHeight = '120vh';
-
-    // Trigger scroll after a small delay
     setTimeout(() => {
-      window.scrollTo(0, 100);
-
-      // Reset the body height after another small delay
-      setTimeout(() => {
-        document.body.style.minHeight = '100vh';
-      }, 40);
-    }, 40);
+      toast({
+        variant: 'outline',
+        title: 'Go fullscreen?',
+        description: 'This will make the app look better on your device.',
+        action: (
+          <ToastAction
+            altText="Go fullscreen"
+            onClick={() => {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                /* Safari */
+                document.documentElement.webkitRequestFullscreen();
+              }
+            }}
+          >
+            Go fullscreen
+          </ToastAction>
+        ),
+      });
+    }, 1000);
   }, []);
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);

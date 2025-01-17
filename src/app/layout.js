@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
       <Head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
+          content="width=device-width, initial-scale=1, viewport-fit=cover, minimal-ui"
         />
       </Head>
       <UserProvider>

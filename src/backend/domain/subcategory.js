@@ -1,3 +1,9 @@
+import { parse } from 'date-fns';
+import {
+  spendingTransactionTypes,
+  incomeTransactionTypes,
+} from './transaction';
+
 class Subcategory {
   constructor({
     subcategoryId,
@@ -21,6 +27,12 @@ class Subcategory {
     return new Subcategory({
       ...this,
     });
+  }
+
+  deleteTransaction({ transactionId }) {
+    this.transactions = this.transactions.filter(
+      (transaction) => transaction.transactionId !== transactionId
+    );
   }
 
   toSpendingView(category, startDate, endDate, fractionOfMonths) {

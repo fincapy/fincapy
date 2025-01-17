@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { parse } from 'date-fns';
 import { Providers } from '@/components/state/provider';
 import { Toaster } from '@/components/ui/toaster';
+import { cookies } from 'next/headers';
 
 export default async function Layout({ children }) {
   const headersList = headers();
@@ -15,6 +16,8 @@ export default async function Layout({ children }) {
   let startDate = headersList.get('x-start-date');
   let endDate = headersList.get('x-end-date');
   let planId = headersList.get('x-plan-id');
+  const page = headersList.get('x-page');
+  console.log(page);
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ redisAdapter });
@@ -86,6 +89,7 @@ export default async function Layout({ children }) {
         endDate={endDate}
         plaidItems={plaidItems}
         users={users}
+        pageParam={page}
       >
         {children}
       </DashboardLayout>

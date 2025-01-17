@@ -1,6 +1,6 @@
 import { Category } from './category';
 import { parse } from 'date-fns';
-
+import { Recategorization } from './recategorization';
 class Plan {
   constructor({ planId, categories, recategorizations, startDate, endDate }) {
     this.planId = planId;
@@ -78,6 +78,64 @@ class Plan {
     });
     this.categories = this.categories.filter(
       (category) => category.categoryId !== categoryId
+    );
+  }
+
+  recategorizeTransaction({ transactionId, newCategoryId }) {
+    let oldCategory;
+    let oldSubcategory;
+    let transaction;
+    let newCategory;
+    let newSubcategory;
+    this.categories.forEach((category) => {
+      if (category.categoryId === newCategoryId) {
+        newCategory = category;
+      }
+      category.transactions.forEach((tran) => {
+        if (tran.transactionId === transactionId) {
+          oldCategory = category;
+          transaction = tran;
+        }
+      });
+      category.subcategories.forEach((subcat) => {
+        if (subcat.subcategoryId === newCategoryId) {
+          newCategory = category;
+          newSubcategory = subcat;
+        }
+        subcat.transactions.forEach((tran) => {
+          if (tran.transactionId === transactionId) {
+            oldCategory = category;
+            oldSubcategory = subcat;
+            transaction = tran;
+          }
+        });
+      });
+    });
+    if (oldCategory) {
+      oldCategory.deleteTransaction({ transactionId });
+    }
+    if (oldSubcategory) {
+      oldSubcategory.deleteTransaction({ transactionId });
+    }
+    if (newCategory) {
+      newCategory.transactions.push(transaction);
+    }
+    if (newSubcategory) {
+      newSubcategory.transactions.push(transaction);
+    }
+    const oldCategoryName = oldSubcategory
+      ? oldCategory.name + ' - ' + oldSubcategory.name
+      : oldCategory.name;
+    const newCategoryName = newSubcategory
+      ? newCategory.name + ' - ' + newSubcategory.name
+      : newCategory.name;
+    this.recategorizations.push(
+      new Recategorization({
+        createdAt: new Date(),
+        transactionDescription: transaction.description,
+        oldCategoryName,
+        newCategoryName,
+      })
     );
   }
 

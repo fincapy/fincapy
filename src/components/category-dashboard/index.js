@@ -1555,14 +1555,16 @@ export default function CategoryDashboard({ type, categories }) {
               )}
             </div>
 
-            {Array.from({ length: 7 }).map((_, index) => (
-              <div
-                className="flex flex-col w-11/12 shadow-lg rounded-xl"
-                key={index}
-              >
-                <Skeleton className="h-[129.73px] w-full rounded-xl bg-card" />
-              </div>
-            ))}
+            {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
+              (_, index) => (
+                <div
+                  className="flex flex-col w-11/12 shadow-lg rounded-xl"
+                  key={index}
+                >
+                  <Skeleton className="h-[129.73px] w-full rounded-xl bg-card" />
+                </div>
+              )
+            )}
           </div>
         </div>
       ) : (

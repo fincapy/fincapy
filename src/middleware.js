@@ -2,6 +2,7 @@
 import { withMiddlewareAuthRequired } from '@auth0/nextjs-auth0/edge';
 import { getSession } from '@auth0/nextjs-auth0/edge';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function middleware(request) {
   let session = null;
@@ -54,6 +55,15 @@ export async function middleware(request) {
   if (session) {
     requestHeaders.set('x-tenant-id', session.user.tenant_id);
     requestHeaders.set('x-user-email', session.user.email);
+    const cookies = request.cookies;
+    const pageCookie = cookies.get('page');
+    let page = 'spending';
+    if (pageCookie) {
+      if (pageCookie.value) {
+        page = pageCookie.value;
+      }
+    }
+    requestHeaders.set('x-page', page);
   }
 
   const response = NextResponse.next({

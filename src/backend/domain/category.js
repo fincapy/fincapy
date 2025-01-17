@@ -35,6 +35,12 @@ class Category {
     );
   }
 
+  deleteTransaction({ transactionId }) {
+    this.transactions = this.transactions.filter(
+      (transaction) => transaction.transactionId !== transactionId
+    );
+  }
+
   createSubcategory({ name, monthlyGoal, isImmutable }) {
     const subcategoryId = uuidv4();
     this.subcategories.push(

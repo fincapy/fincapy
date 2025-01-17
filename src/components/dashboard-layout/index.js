@@ -57,6 +57,17 @@ const AccountDropdown = ({
   setPage,
   page,
 }) => {
+  const setPageCookie = (page) => {
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1);
+    document.cookie = `page=${page}; expires=${expires.toUTCString()}; path=/app`;
+  };
+
+  const changePage = (page) => {
+    setPage(page);
+    setPageCookie(page);
+  };
+
   return (
     <DropdownMenu
       open={accountDropdownOpen}
@@ -98,14 +109,14 @@ const AccountDropdown = ({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center gap-2"
-                onClick={() => setPage('manage-users')}
+                onClick={() => changePage('manage-users')}
               >
                 <Users size={16} />
                 Users
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center gap-2"
-                onClick={() => setPage('financial-institutions')}
+                onClick={() => changePage('financial-institutions')}
               >
                 <Landmark size={16} />
                 Financial Institutions
@@ -144,13 +155,24 @@ const NavBar = ({
   accountDropdownOpen,
   setAccountDropdownOpen,
 }) => {
+  const setPageCookie = (page) => {
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1);
+    document.cookie = `page=${page}; expires=${expires.toUTCString()}; path=/app`;
+  };
+
+  const changePage = (page) => {
+    setPage(page);
+    setPageCookie(page);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[6%] fixed bottom-0 m-0 p-0 touch-none">
       <Separator className="w-full h-[1px]" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
         <div className="flex flex-row justify-between items-center flex-1">
           <button
-            onClick={() => setPage('spending')}
+            onClick={() => changePage('spending')}
             className="flex flex-col items-center gap-[1px] group"
           >
             <HandCoins
@@ -172,7 +194,7 @@ const NavBar = ({
             </span>
           </button>
           <button
-            onClick={() => setPage('income')}
+            onClick={() => changePage('income')}
             className="flex flex-col items-center gap-[1px] group"
           >
             <CircleDollarSign
@@ -194,7 +216,7 @@ const NavBar = ({
             </span>
           </button>
           <button
-            onClick={() => setPage('savings')}
+            onClick={() => changePage('savings')}
             className="flex flex-col items-center gap-[1px] group"
           >
             <PiggyBank
@@ -216,7 +238,7 @@ const NavBar = ({
             </span>
           </button>
           <button
-            onClick={() => setPage('transactions')}
+            onClick={() => changePage('transactions')}
             className="flex flex-col items-center gap-[1px] group"
           >
             <Table
@@ -260,9 +282,8 @@ export default function DashboardLayout({
   endDate,
   users,
   plaidItems,
+  pageParam,
 }) {
-  const searchParams = useSearchParams();
-  const pageParam = searchParams.get('page');
   const firstRender = useRef(true);
 
   const newPlan = new Plan({

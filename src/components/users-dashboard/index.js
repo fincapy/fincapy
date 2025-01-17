@@ -39,6 +39,10 @@ import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { useAtom } from 'jotai';
 import { usersAtom } from '../state/atoms';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+
 export function SelectDemo({ field }) {
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -222,15 +226,35 @@ const InviteUserDialogue = () => {
 
 export default function Dashboard() {
   const [usersState, setUsersState] = useAtom(usersAtom);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (usersState) {
+      setIsLoading(false);
+    }
+  }, [usersState]);
 
   return (
-    <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
-      <div className="w-11/12 flex flex-row justify-end">
-        <InviteUserDialogue />
-      </div>
-      <div className="w-11/12">
-        <UserTable users={usersState} />
-      </div>
-    </div>
+    <>
+      {isLoading ? (
+        <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
+          <div className="w-11/12 flex flex-row justify-end">
+            <Skeleton className="h-9 w-9 bg-card" />
+          </div>
+          <div className="w-11/12">
+            <Skeleton className="h-96 bg-card" />
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
+          <div className="w-11/12 flex flex-row justify-end">
+            <InviteUserDialogue />
+          </div>
+          <div className="w-11/12">
+            <UserTable users={usersState} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

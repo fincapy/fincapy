@@ -37,6 +37,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { plaidItemsAtom } from '../state/atoms';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
@@ -344,6 +345,12 @@ const NewFinancialInstitutionCard = () => {
 
 export default function FinancialInstitutionsDashboard() {
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (plaidItemsState) {
+      setIsLoading(false);
+    }
+  }, [plaidItemsState]);
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8 justify-center items-center">
       <Script
@@ -356,13 +363,23 @@ export default function FinancialInstitutionsDashboard() {
           console.error('Error loading Plaid script:', error);
         }}
       />
-      {plaidItemsState.map((plaidItem) => (
-        <ExistingFinancialInstitutionCard
-          key={plaidItem.institutionId}
-          link={plaidItem}
-        />
-      ))}
-      <NewFinancialInstitutionCard key="new-financial-institution-card" />
+      {isLoading ? (
+        <>
+          {Array.from({ length: 7 }).map((_, index) => (
+            <Skeleton className="h-40 w-11/12 bg-card" key={index} />
+          ))}
+        </>
+      ) : (
+        <>
+          {plaidItemsState.map((plaidItem) => (
+            <ExistingFinancialInstitutionCard
+              key={plaidItem.institutionId}
+              link={plaidItem}
+            />
+          ))}
+          <NewFinancialInstitutionCard key="new-financial-institution-card" />
+        </>
+      )}
     </div>
   );
 }

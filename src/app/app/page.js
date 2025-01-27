@@ -13,6 +13,8 @@ import {
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useState, useMemo } from 'react';
+import { TransactionsDashboard } from '@/components/transactions-dashboard';
+
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
   return <CategoryDashboard type="spending" categories={spendingView} />;
@@ -41,5 +43,7 @@ export default function Home({ searchParams }) {
     return <FinancialInstitutionsDashboard />;
   } else if (page === 'manage-users') {
     return <Dashboard />;
+  } else if (page === 'transactions') {
+    return <TransactionsDashboard />;
   }
 }

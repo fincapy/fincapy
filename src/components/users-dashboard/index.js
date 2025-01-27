@@ -158,7 +158,12 @@ const InviteUserForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Name" {...field} />
+                <Input
+                  placeholder="Name"
+                  type="text"
+                  autoComplete="off"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -170,7 +175,12 @@ const InviteUserForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input
+                  placeholder="Email"
+                  type="email"
+                  autoComplete="off"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -181,7 +191,6 @@ const InviteUserForm = () => {
           name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
               <FormControl>
                 <SelectDemo field={field} />
               </FormControl>
@@ -209,7 +218,10 @@ const InviteUserDialogue = () => {
           <PlusIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="sm:max-w-11/12"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Invite User</DialogTitle>
           <DialogDescription>

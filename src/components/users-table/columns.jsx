@@ -157,7 +157,10 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <ChangeRoleForm
           role={row.original.role}
           email={row.original.email}
@@ -332,7 +335,13 @@ const ChangeNameForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Change name</FormLabel>
-              <Input placeholder="Name" {...field} value={field.value} />
+              <Input
+                placeholder="Name"
+                type="text"
+                autoComplete="off"
+                {...field}
+                value={field.value}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -350,7 +359,10 @@ const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <ChangeNameForm
           name={row.original.name}
           email={row.original.email}

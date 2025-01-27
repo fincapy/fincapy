@@ -22,7 +22,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { set } from 'zod';
 import { TransactionContext } from './transaction';
 
-export function DataTable({ columns, data, categoryId }) {
+export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);
 
   const table = useReactTable({

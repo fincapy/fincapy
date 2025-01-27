@@ -215,7 +215,11 @@ const CreateCategoryForm = () => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Category Name" {...field} />
+                <Input
+                  placeholder="Category Name"
+                  autoComplete="off"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -231,6 +235,7 @@ const CreateCategoryForm = () => {
                 <Input
                   placeholder="$0"
                   {...field}
+                  autoComplete="off"
                   value={formatValue(field.value)}
                 />
               </FormControl>
@@ -1003,7 +1008,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   );
 };
 
-const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
+const OpenTransactionTableDialogue = ({ transactions }) => {
   return (
     <Dialog className="max-w-full max-h-full">
       <DialogTrigger asChild>
@@ -1026,7 +1031,7 @@ const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <TransactionTable transactions={transactions} categoryId={categoryId} />
+        <TransactionTable transactions={transactions} />
       </DialogContent>
     </Dialog>
   );
@@ -1100,7 +1105,7 @@ const CategoryCard = ({
                 <DeleteCategoryDialogue categoryId={category.categoryId} />
               )}
               {category.type === 'savings' ? (
-                <div className="h-9 w-9" />
+                <div className="" />
               ) : (
                 <OpenTransactionTableDialogue
                   transactions={category.transactions}
@@ -1199,12 +1204,9 @@ const SubcategoryCard = forwardRef(
                   subcategoryId={subcategory.subcategoryId}
                   categoryId={category.categoryId}
                 />
-                <button
-                  className="text-muted-foreground hover:text-foreground"
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <Eye size={14} />
-                </button>
+                <OpenTransactionTableDialogue
+                  transactions={subcategory.transactions}
+                />
               </div>
             </div>
             <div className="flex flex-row gap-1 items-center">

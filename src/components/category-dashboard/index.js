@@ -14,8 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, Eye, Grip, Pen, Trash2 } from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
-import { ProgressCategory } from '@/components/ui/progress-category';
-import { ProgressSubcategory } from '@/components/ui/progress-subcategory';
+import { Progress } from '../ui/progress';
 import TransactionTable from '../transaction-table';
 import {
   Collapsible,
@@ -1113,17 +1112,17 @@ const CategoryCard = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pb-4">
-        <div className="flex flex-row gap-2 items-center">
-          <span>$0</span>
-          <ProgressCategory value={progress} />
-          <span>{`$${category.proratedGoal}`}</span>
+      <CardContent className="pb-4 pt-4">
+        <div className="flex flex-row gap-1 items-center">
+          <span className="text-muted-foreground text-sm">$0</span>
+          <Progress progressPercent={progress} rawValue={category.currentNet} />
+          <span className="text-muted-foreground text-sm">{`$${category.proratedGoal}`}</span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col justify-center p-0">
         <div className="flex justify-between w-full">
           <div
-            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
+            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
             onMouseDown={() => setIsGrabbing(true)}
             onMouseUp={() => setIsGrabbing(false)}
             onTouchStart={() => setIsGrabbing(true)}
@@ -1211,14 +1210,17 @@ const SubcategoryCard = forwardRef(
         <CardContent className="pb-4">
           <div className="flex flex-row gap-2 items-center">
             <span>$0</span>
-            <ProgressCategory value={progress} />
+            <Progress
+              progressPercent={progress}
+              rawValue={subcategory.currentNet}
+            />
             <span>{`$${subcategory.proratedGoal}`}</span>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col justify-center p-0">
           <div className="flex flex-row justify-between items-center w-full h-[36px]">
             <div
-              className={`flex flex-row w-full ml-1 touch-none select-none cursor-${isGrabbing ? 'grabbing' : 'grab'}`}
+              className={`flex flex-row w-full ml-1 touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
               onMouseDown={() => setIsGrabbing(true)}
               onMouseUp={() => setIsGrabbing(false)}
               onTouchStart={() => setIsGrabbing(true)}

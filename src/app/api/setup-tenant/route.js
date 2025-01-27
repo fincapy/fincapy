@@ -13,7 +13,7 @@ export const POST = async (req) => {
 
   try {
     const body = await req.json();
-    const { tenantId, email, name } = body;
+    const { tenantId, email, name, whitelistBilling } = body;
     const redisAdapter = new RedisAdapter({ redisClient });
     const tenantRepository = new TenantRepository({ redisAdapter });
     const service = new SetupNewTenantService({ tenantRepository });
@@ -21,6 +21,7 @@ export const POST = async (req) => {
       tenantId,
       email,
       name,
+      whitelistBilling,
     });
   } catch (error) {
     return new Response(JSON.stringify({ message: error.message }), {

@@ -8,7 +8,7 @@ class SetupNewTenantService {
     this.tenantRepository = tenantRepository;
   }
 
-  async execute({ tenantId, email, name }) {
+  async execute({ tenantId, email, name, whitelistBilling }) {
     let existingTenant = await this.tenantRepository.get({ tenantId });
     if (existingTenant) {
       return;
@@ -19,7 +19,7 @@ class SetupNewTenantService {
       plaidItems: [],
       outbox: [],
       inbox: [],
-      billingStatus: 'unpaid',
+      billingStatus: whitelistBilling ? 'active' : 'unpaid',
       users: [
         new User({
           email,

@@ -28,7 +28,7 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         <div
-          className="absolute top-[-25px] text-md font-bold text-foreground"
+          className="absolute top-[-23px] text-sm font-bold text-foreground"
           style={{
             left:
               percentage === 100

@@ -117,11 +117,8 @@ const progressBarColors = {
   fuchsia: { regular: 'bg-fuchsia-500', muted: 'bg-fuchsia-500/20' },
   rose: { regular: 'bg-rose-500', muted: 'bg-rose-500/20' },
   lime: { regular: 'bg-lime-500', muted: 'bg-lime-500/20' },
-  slate: { regular: 'bg-slate-500', muted: 'bg-slate-500/20' },
-  stone: { regular: 'bg-stone-500', muted: 'bg-stone-500/20' },
   amber: { regular: 'bg-amber-500', muted: 'bg-amber-500/20' },
   sky: { regular: 'bg-sky-500', muted: 'bg-sky-500/20' },
-  zinc: { regular: 'bg-zinc-500', muted: 'bg-zinc-500/20' },
 };
 
 const createCategoryFormSchema = z.object({
@@ -1110,7 +1107,7 @@ const CategoryCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-0 pt-0">
-        <div className="flex flex-col gap-[11px]">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-row items-center gap-1 ml-[6px]">
             <span className="text-muted-foreground text-sm font-bold">
               {category.name}

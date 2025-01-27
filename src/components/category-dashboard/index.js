@@ -102,6 +102,28 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 
+const progressBarColors = {
+  cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
+  indigo: { regular: 'bg-indigo-500', muted: 'bg-indigo-500/20' },
+  green: { regular: 'bg-green-500', muted: 'bg-green-500/20' },
+  yellow: { regular: 'bg-yellow-500', muted: 'bg-yellow-500/20' },
+  blue: { regular: 'bg-blue-500', muted: 'bg-blue-500/20' },
+  purple: { regular: 'bg-purple-500', muted: 'bg-purple-500/20' },
+  pink: { regular: 'bg-pink-500', muted: 'bg-pink-500/20' },
+  orange: { regular: 'bg-orange-500', muted: 'bg-orange-500/20' },
+  teal: { regular: 'bg-teal-500', muted: 'bg-teal-500/20' },
+  emerald: { regular: 'bg-emerald-500', muted: 'bg-emerald-500/20' },
+  violet: { regular: 'bg-violet-500', muted: 'bg-violet-500/20' },
+  fuchsia: { regular: 'bg-fuchsia-500', muted: 'bg-fuchsia-500/20' },
+  rose: { regular: 'bg-rose-500', muted: 'bg-rose-500/20' },
+  lime: { regular: 'bg-lime-500', muted: 'bg-lime-500/20' },
+  slate: { regular: 'bg-slate-500', muted: 'bg-slate-500/20' },
+  stone: { regular: 'bg-stone-500', muted: 'bg-stone-500/20' },
+  amber: { regular: 'bg-amber-500', muted: 'bg-amber-500/20' },
+  sky: { regular: 'bg-sky-500', muted: 'bg-sky-500/20' },
+  zinc: { regular: 'bg-zinc-500', muted: 'bg-zinc-500/20' },
+};
+
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, {
     message: 'Name must be at least 1 character.',
@@ -1048,6 +1070,8 @@ const CategoryCard = ({
   attributes,
   isGrabbing,
   setIsGrabbing,
+  color,
+  mutedColor,
 }) => {
   const getRoundedStyle = () => {
     if (!areSubcategoriesOpen) {
@@ -1120,6 +1144,8 @@ const CategoryCard = ({
               progressPercent={progress}
               rawValue={category.currentNet}
               goal={category.proratedGoal}
+              color={color}
+              mutedColor={mutedColor}
             />
             <span className="text-muted-foreground text-sm">{`$${category.proratedGoal}`}</span>
           </div>
@@ -1158,7 +1184,10 @@ const CategoryCard = ({
 };
 
 const SubcategoryCard = forwardRef(
-  ({ subcategory, subcategoryLength, index, category }, ref) => {
+  (
+    { subcategory, subcategoryLength, index, category, color, mutedColor },
+    ref
+  ) => {
     const [isGrabbing, setIsGrabbing] = useState(false);
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
@@ -1185,7 +1214,7 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card/50 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
+        className={`shadow-none bg-card/35 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
         style={style}
       >
         <CardHeader className="p-0"></CardHeader>
@@ -1215,6 +1244,8 @@ const SubcategoryCard = forwardRef(
                 progressPercent={progress}
                 rawValue={subcategory.currentNet}
                 goal={subcategory.proratedGoal}
+                color={color}
+                mutedColor={mutedColor}
               />
               <span className="text-muted-foreground text-sm">{`$${subcategory.proratedGoal}`}</span>
             </div>
@@ -1223,7 +1254,7 @@ const SubcategoryCard = forwardRef(
         <CardFooter className="flex flex-col justify-center p-0">
           <div className="flex flex-row justify-between items-center w-full">
             <div
-              className={`flex flex-row w-full touch-none select-none ml-1 mb-1 ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
+              className={`flex flex-row touch-none select-none ml-1 mb-1 ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
               onMouseDown={() => setIsGrabbing(true)}
               onMouseUp={() => setIsGrabbing(false)}
               onTouchStart={() => setIsGrabbing(true)}
@@ -1240,7 +1271,12 @@ const SubcategoryCard = forwardRef(
   }
 );
 
-const CategoryCardCollapsible = ({ category, subcategories }) => {
+const CategoryCardCollapsible = ({
+  category,
+  subcategories,
+  color,
+  mutedColor,
+}) => {
   const [areSubcategoriesOpen, setAreSubcategoriesOpen] = useState(false);
   const [isOverlapping, setIsOverlapping] = useState(false);
   const [isGrabbing, setIsGrabbing] = useState(false);
@@ -1351,6 +1387,8 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
         attributes={attributes}
         isGrabbing={isGrabbing}
         setIsGrabbing={setIsGrabbing}
+        color={color}
+        mutedColor={mutedColor}
       />
       <DndContext
         sensors={sensors}
@@ -1378,6 +1416,8 @@ const CategoryCardCollapsible = ({ category, subcategories }) => {
                 areSubcategoriesOpen={areSubcategoriesOpen}
                 subcategoryLength={subcategories.length}
                 index={index}
+                color={color}
+                mutedColor={mutedColor}
               />
             </CollapsibleContent>
           ))}
@@ -1540,6 +1580,8 @@ export default function CategoryDashboard({ type, categories }) {
     });
   };
 
+  const progressBarColorArray = Object.keys(progressBarColors);
+
   return (
     <CategoryContext.Provider
       value={{ categoriesState, setCategoriesState, setPreviousState }}
@@ -1600,7 +1642,7 @@ export default function CategoryDashboard({ type, categories }) {
                     )}
                     strategy={verticalListSortingStrategy}
                   >
-                    {categoriesState.map((category) => (
+                    {categoriesState.map((category, index) => (
                       <div
                         className="flex flex-col w-11/12 shadow-lg rounded-xl"
                         key={category.categoryId}
@@ -1610,6 +1652,20 @@ export default function CategoryDashboard({ type, categories }) {
                           id={category.categoryId}
                           category={category}
                           subcategories={category.subcategories}
+                          color={
+                            progressBarColors[
+                              progressBarColorArray[
+                                index % progressBarColorArray.length
+                              ]
+                            ].regular
+                          }
+                          mutedColor={
+                            progressBarColors[
+                              progressBarColorArray[
+                                index % progressBarColorArray.length
+                              ]
+                            ].muted
+                          }
                         />
                       </div>
                     ))}

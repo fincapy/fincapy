@@ -6,7 +6,10 @@ import * as ProgressPrimitive from '@radix-ui/react-progress';
 import { cn } from '@/lib/utils';
 
 const Progress = React.forwardRef(
-  ({ className, progressPercent, rawValue, goal, ...props }, ref) => {
+  (
+    { className, progressPercent, rawValue, goal, color, mutedColor, ...props },
+    ref
+  ) => {
     let percentage = Math.min(Math.max(progressPercent, 0), 100);
     if (rawValue === 0 && goal === 0) {
       percentage = 100;
@@ -16,14 +19,11 @@ const Progress = React.forwardRef(
       <div className="relative w-full">
         <ProgressPrimitive.Root
           ref={ref}
-          className={cn(
-            'relative h-2 w-full overflow-hidden rounded-full bg-primary/20',
-            className
-          )}
+          className={`relative h-2 w-full overflow-hidden rounded-full ${mutedColor}`}
           {...props}
         >
           <ProgressPrimitive.Indicator
-            className="h-full bg-primary transition-all"
+            className={`h-full ${color} transition-all`}
             style={{ width: `${percentage}%` }}
           />
         </ProgressPrimitive.Root>

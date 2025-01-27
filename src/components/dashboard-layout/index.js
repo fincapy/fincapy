@@ -311,6 +311,11 @@ export default function DashboardLayout({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
   const { toast } = useToast();
+  const previousDates = useRef({
+    startDate: startDateState,
+    endDate: endDateState,
+  });
+
   useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(
@@ -336,13 +341,17 @@ export default function DashboardLayout({
 
     const execute = async () => {
       if (firstRender.current) {
-        console.log('first render');
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
         setUsersState(users);
       } else {
-        setIsRefreshing(true);
+        if (
+          startDateState === previousDates.current.startDate &&
+          endDateState === previousDates.current.endDate
+        ) {
+          setIsRefreshing(true);
+        }
         const getPlanTime = performance.now();
         await getPlan();
         const getPlanTimeEnd = performance.now();
@@ -352,7 +361,10 @@ export default function DashboardLayout({
         );
         await new Promise((resolve) => setTimeout(resolve, plannedWaitTime));
         setIsRefreshing(false);
-        2;
+        previousDates.current = {
+          startDate: startDateState,
+          endDate: endDateState,
+        };
       }
     };
 
@@ -388,7 +400,9 @@ export default function DashboardLayout({
                 className="h-[94%] w-screen fixed top-0"
                 ref={scrollAreaRef}
                 onTouchStart={handleScrollAreaFocus}
-                triggerRefresh={() => setTriggerRefresh(!triggerRefresh)}
+                triggerRefresh={() => {
+                  setTriggerRefresh(!triggerRefresh);
+                }}
                 isRefreshing={isRefreshing}
               >
                 {children}

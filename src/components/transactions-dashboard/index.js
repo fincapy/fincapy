@@ -97,7 +97,7 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom } from 'jotai';
-import { planAtom } from '../state/atoms';
+import { transactionsViewAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -284,20 +284,99 @@ const CreateCategoryDialogue = () => {
   );
 };
 
+const DatePickers = () => {
+  const { startDateState, setStartDateState } = useContext(StartDateContext);
+  const { endDateState, setEndDateState } = useContext(EndDateContext);
+  const startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
+  const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
+
+  const setStartDate = (date) => {
+    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+    if (parsedDate <= endDate) {
+      setStartDateState(date);
+    } else {
+      alert('Start date cannot be after the end date.');
+    }
+  };
+
+  const setEndDate = (date) => {
+    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+    if (parsedDate >= startDate) {
+      setEndDateState(date);
+    } else {
+      alert('End date cannot be before the start date.');
+    }
+  };
+
+  return (
+    <div className="flex flex-row flex-wrap gap-2 items-center h-[37.73px]">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={'outline'}
+            className={cn(
+              'min-w-28 flex items-center',
+              !startDate && 'text-muted-foreground'
+            )}
+          >
+            <CalendarIcon />
+            {startDate ? (
+              format(startDate, 'LLL dd, y')
+            ) : (
+              <span>Start Date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={startDate}
+            onSelect={(date) => setStartDate(date.toISOString().split('T')[0])}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={'outline'}
+            className={cn(
+              'min-w-28 flex items-center',
+              !endDate && 'text-muted-foreground'
+            )}
+          >
+            <CalendarIcon />
+            {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={endDate}
+            onSelect={(date) => setEndDate(date.toISOString().split('T')[0])}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
 const TransactionsDashboard = () => {
-  const plan = useAtom(planAtom);
+  const [transactions, setTransactions] = useAtom(transactionsViewAtom);
 
   return (
     <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
       <div className="flex flex-col justify-center items-center gap-2">
         <div
-          className="flex flex-row justify-end gap-4 w-11/12"
+          className="flex flex-row justify-between gap-4 w-11/12"
           key="create-transaction-dialogue"
         >
+          <DatePickers />
           <CreateCategoryDialogue />
         </div>
         <div className="w-11/12">
-          <TransactionTable transactions={[]} />
+          <TransactionTable transactions={transactions} />
         </div>
       </div>
     </div>

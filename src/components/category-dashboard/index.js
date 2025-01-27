@@ -1043,7 +1043,6 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
       </DialogTrigger>
       <DialogContent
         className="max-w-[95vw] max-h-[95vh]"
-        onTouchStart={(e) => e.stopPropagation()}
         id="transaction-modal"
       >
         <DialogHeader>
@@ -1429,12 +1428,10 @@ const CategoryCardCollapsible = ({
 };
 
 const DatePickers = () => {
-  const type = useContext(TypeContext);
   const { startDateState, setStartDateState } = useContext(StartDateContext);
   const { endDateState, setEndDateState } = useContext(EndDateContext);
   const startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
   const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
-  const router = useRouter();
 
   const setStartDate = (date) => {
     const parsedDate = parse(date, 'yyyy-MM-dd', new Date());

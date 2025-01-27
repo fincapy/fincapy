@@ -139,6 +139,21 @@ class Plan {
     );
   }
 
+  toTransactionsView() {
+    let transactions = [];
+    this.categories.forEach((category) => {
+      category.transactions.forEach((transaction) => {
+        transactions.push(transaction);
+      });
+      category.subcategories.forEach((subcategory) => {
+        subcategory.transactions.forEach((transaction) => {
+          transactions.push(transaction);
+        });
+      });
+    });
+    return transactions;
+  }
+
   toView() {
     const planView = { ...this };
     planView.categories = planView.categories.map((category) => {

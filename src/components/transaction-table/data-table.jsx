@@ -42,7 +42,7 @@ export function DataTable({ columns, data }) {
         className={`rounded-md border h-full max-h-[80vh] overflow-auto relative`}
       >
         <div className="relative">
-          <Table className="m-0 p-0">
+          <Table className="m-0 p-0" onTouchStart={(e) => e.stopPropagation()}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

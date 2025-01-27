@@ -226,6 +226,7 @@ const CreateCategoryForm = () => {
         className="flex flex-col gap-3"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <FormField
           control={form.control}
@@ -235,6 +236,7 @@ const CreateCategoryForm = () => {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
+                  type="text"
                   placeholder="Category Name"
                   autoComplete="off"
                   {...field}
@@ -288,6 +290,7 @@ const CreateCategoryDialogue = () => {
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onPointerDown={(e) => e.stopPropagation()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle>{`Create ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>

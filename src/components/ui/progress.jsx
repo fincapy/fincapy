@@ -6,9 +6,9 @@ import * as ProgressPrimitive from '@radix-ui/react-progress';
 import { cn } from '@/lib/utils';
 
 const Progress = React.forwardRef(
-  ({ className, progressPercent, rawValue, ...props }, ref) => {
+  ({ className, progressPercent, rawValue, goal, ...props }, ref) => {
     let percentage = Math.min(Math.max(progressPercent, 0), 100);
-    if (rawValue === 0 && !progressPercent) {
+    if (rawValue === 0 && goal === 0) {
       percentage = 100;
     }
 
@@ -28,8 +28,13 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         <div
-          className="absolute top-[-23px] text-sm font-bold text-foreground"
-          style={{ left: `calc(${percentage}% - 15px)` }} // Adjust positioning
+          className="absolute top-[-20px] text-sm font-bold text-foreground"
+          style={{
+            left:
+              percentage === 100
+                ? `calc(${percentage}% - 15px)`
+                : `calc(${percentage}%`,
+          }} // Adjust positioning
         >
           ${rawValue}
         </div>

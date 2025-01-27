@@ -338,13 +338,12 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          className="h-4 w-4 text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 />
-        </Button>
+          <Trash2 size={14} />
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogHeader>
@@ -516,13 +515,12 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Pencil />
-        </Button>
+          <Pencil size={14} />
+        </button>
       </DialogTrigger>
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
@@ -693,18 +691,14 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
+        <button
           variant="ghost"
           size="icon"
-          style={{
-            marginRight: '-24px',
-            marginTop: '-32px',
-          }}
           className="rounded-lg"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon />
-        </Button>
+          <PlusIcon size={16} />
+        </button>
       </DialogTrigger>
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
@@ -884,13 +878,12 @@ const EditSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
           onPointerDown={(e) => e.stopPropagation()}
+          className="text-muted-foreground hover:text-foreground"
         >
-          <Pencil />
-        </Button>
+          <Pencil size={14} />
+        </button>
       </DialogTrigger>
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
@@ -982,13 +975,12 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 />
-        </Button>
+          <Trash2 size={14} />
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
         <DialogHeader>
@@ -1015,13 +1007,12 @@ const OpenTransactionTableDialogue = ({ transactions, categoryId }) => {
   return (
     <Dialog className="max-w-full max-h-full">
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Eye />
-        </Button>
+          <Eye size={14} />
+        </button>
       </DialogTrigger>
       <DialogContent
         className="max-w-[95vw] max-h-[95vh]"
@@ -1079,32 +1070,9 @@ const CategoryCard = ({
       ref={categoryCardRef}
       className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()}`}
     >
-      <CardHeader className="pb-3 pt-4">
+      <CardHeader className="p-0">
         <CardTitle>
-          <div className="flex flex-row justify-between items-center -mb-3">
-            <div className="flex flex-row items-center gap-2">
-              <span>{category.name}</span>
-              <div className="flex flex-row gap-0 items-center">
-                {!category.isImmutable && (
-                  <EditCategoryDialogue
-                    categoryName={category.name}
-                    monthlyGoal={category.monthlyGoal}
-                    categoryId={category.categoryId}
-                  />
-                )}
-                {!category.isImmutable && (
-                  <DeleteCategoryDialogue categoryId={category.categoryId} />
-                )}
-                {category.type === 'savings' ? (
-                  <div className="h-9 w-9" />
-                ) : (
-                  <OpenTransactionTableDialogue
-                    transactions={category.transactions}
-                    categoryId={category.categoryId}
-                  />
-                )}
-              </div>
-            </div>
+          <div className="flex flex-row width-full justify-end mt-1 mr-1">
             <CreateSubcategoryDialogue
               categoryId={category.categoryId}
               setDropdownIsOpen={setAreSubcategoriesOpen}
@@ -1112,17 +1080,50 @@ const CategoryCard = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pb-4 pt-4">
-        <div className="flex flex-row gap-1 items-center">
-          <span className="text-muted-foreground text-sm">$0</span>
-          <Progress progressPercent={progress} rawValue={category.currentNet} />
-          <span className="text-muted-foreground text-sm">{`$${category.proratedGoal}`}</span>
+      <CardContent className="pb-0 pt-0">
+        <div className="flex flex-col gap-[11px]">
+          <div className="flex flex-row items-center gap-1 ml-[6px]">
+            <span className="text-muted-foreground text-sm font-bold">
+              {category.name}
+            </span>
+            <div className="flex flex-row gap-1 items-center">
+              {!category.isImmutable && (
+                <div className="flex flex-col items-center justify-center">
+                  <EditCategoryDialogue
+                    categoryName={category.name}
+                    monthlyGoal={category.monthlyGoal}
+                    categoryId={category.categoryId}
+                  />
+                </div>
+              )}
+              {!category.isImmutable && (
+                <DeleteCategoryDialogue categoryId={category.categoryId} />
+              )}
+              {category.type === 'savings' ? (
+                <div className="h-9 w-9" />
+              ) : (
+                <OpenTransactionTableDialogue
+                  transactions={category.transactions}
+                  categoryId={category.categoryId}
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex flex-row gap-1 items-center">
+            <span className="text-muted-foreground text-sm">$0</span>
+            <Progress
+              progressPercent={progress}
+              rawValue={category.currentNet}
+              goal={category.proratedGoal}
+            />
+            <span className="text-muted-foreground text-sm">{`$${category.proratedGoal}`}</span>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col justify-center p-0">
+      <CardFooter className="flex flex-col justify-center p-0 pt-[22px]">
         <div className="flex justify-between w-full">
           <div
-            className={`flex flex-row gap-2 items-center ml-1 touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
+            className={`ml-1 mb-1 flex flex-row items-center touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
             onMouseDown={() => setIsGrabbing(true)}
             onMouseUp={() => setIsGrabbing(false)}
             onTouchStart={() => setIsGrabbing(true)}
@@ -1130,21 +1131,20 @@ const CategoryCard = ({
             {...listeners}
             {...attributes}
           >
-            <Grip />
+            <Grip size={20} />
           </div>
           <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onPointerDown={(e) => e.stopPropagation()}
-              className={`transition-transform duration-200 ${
+              className={`transition-transform duration-200 mb-1 mr-1 ${
                 areSubcategoriesOpen ? 'rotate-180' : ''
               } hover:bg-inherit`}
             >
               <ChevronDown
                 className={`transition-transform duration-300 rotate-180`}
+                size={17}
               />
-            </Button>
+            </button>
           </CollapsibleTrigger>
         </div>
       </CardFooter>
@@ -1180,14 +1180,17 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card-subcategory ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
+        className={`shadow-none bg-card/50 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
         style={style}
       >
-        <CardHeader className="pb-3 pt-4">
-          <CardTitle>
-            <div className="flex flex-row items-center gap-2 -mb-3">
-              <span>{subcategory.name}</span>
-              <div className="flex flex-row gap-0 items-center">
+        <CardHeader className="p-0"></CardHeader>
+        <CardContent className="pb-6 pt-4">
+          <div className="flex flex-col gap-[11px]">
+            <div className="flex flex-row items-center gap-1 ml-[6px]">
+              <span className="text-muted-foreground text-sm font-bold">
+                {subcategory.name}
+              </span>
+              <div className="flex flex-row gap-1 items-center">
                 <EditSubcategoryDialogue
                   subcategoryId={subcategory.subcategoryId}
                   categoryId={category.categoryId}
@@ -1196,31 +1199,29 @@ const SubcategoryCard = forwardRef(
                   subcategoryId={subcategory.subcategoryId}
                   categoryId={category.categoryId}
                 />
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <button
+                  className="text-muted-foreground hover:text-foreground"
                   onPointerDown={(e) => e.stopPropagation()}
                 >
-                  <Eye />
-                </Button>
+                  <Eye size={14} />
+                </button>
               </div>
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pb-4">
-          <div className="flex flex-row gap-2 items-center">
-            <span>$0</span>
-            <Progress
-              progressPercent={progress}
-              rawValue={subcategory.currentNet}
-            />
-            <span>{`$${subcategory.proratedGoal}`}</span>
+            <div className="flex flex-row gap-1 items-center">
+              <span className="text-muted-foreground text-sm">$0</span>
+              <Progress
+                progressPercent={progress}
+                rawValue={subcategory.currentNet}
+                goal={subcategory.proratedGoal}
+              />
+              <span className="text-muted-foreground text-sm">{`$${subcategory.proratedGoal}`}</span>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col justify-center p-0">
-          <div className="flex flex-row justify-between items-center w-full h-[36px]">
+          <div className="flex flex-row justify-between items-center w-full">
             <div
-              className={`flex flex-row w-full ml-1 touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
+              className={`flex flex-row w-full touch-none select-none ml-1 mb-1 ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
               onMouseDown={() => setIsGrabbing(true)}
               onMouseUp={() => setIsGrabbing(false)}
               onTouchStart={() => setIsGrabbing(true)}
@@ -1228,7 +1229,7 @@ const SubcategoryCard = forwardRef(
               {...listeners}
               {...attributes}
             >
-              <Grip />
+              <Grip size={20} />
             </div>
           </div>
         </CardFooter>

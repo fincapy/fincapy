@@ -28,6 +28,7 @@ import React, {
 import { set } from 'zod';
 import { TransactionContext } from './transaction';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);
@@ -96,7 +97,9 @@ export function DataTable({ columns, data }) {
             )}
           </TableBody>
         </Table>
-        <ScrollBar orientation="horizontal" />
+        <VisuallyHidden>
+          <ScrollBar orientation="horizontal" />
+        </VisuallyHidden>
       </ScrollArea>
     </TransactionContext.Provider>
   );

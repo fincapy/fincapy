@@ -254,7 +254,7 @@ const CreateCategoryForm = () => {
   );
 };
 
-const CreateCategoryDialogue = () => {
+const CreateTransactionDialogue = () => {
   const type = useContext(TypeContext);
   return (
     <Dialog>
@@ -273,8 +273,8 @@ const CreateCategoryDialogue = () => {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>{`Create Category`}</DialogTitle>
-          <DialogDescription>{`Add a new custom category`}</DialogDescription>
+          <DialogTitle>{`Create Transaction`}</DialogTitle>
+          <DialogDescription>{`Add a new custom transaction`}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <CreateCategoryForm />
@@ -373,21 +373,48 @@ const DatePickers = () => {
 const TransactionsDashboard = () => {
   const [transactions, setTransactions] = useAtom(transactionsViewAtom);
 
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (transactions) {
+      setIsLoading(false);
+    }
+  }, [transactions]);
+
   return (
-    <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
-      <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
-        <div
-          className="flex flex-row justify-between gap-4 w-11/12"
-          key="create-transaction-dialogue"
-        >
-          <DatePickers />
-          <CreateCategoryDialogue />
+    <>
+      {isLoading ? (
+        <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+          <div className="flex flex-col justify-center items-center gap-2">
+            <div
+              className="flex flex-row justify-between gap-4 w-11/12"
+              key="create-category-dialogue-skeleton"
+            >
+              <div className="flex flex-row flex-wrap gap-2 items-center">
+                <Skeleton className="h-9 w-[138.62px] bg-card" />
+                <Skeleton className="h-9 w-[138.62px] bg-card" />
+              </div>
+              <Skeleton className="h-9 w-9 bg-card" />
+            </div>
+            <Skeleton className="h-[75vh] w-11/12 bg-card" />
+          </div>
         </div>
-        <div className="grid w-11/12 max-w-11/12 h-[75vh] max-h-[75vh]">
-          <TransactionTable transactions={transactions} />
+      ) : (
+        <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+          <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
+            <div
+              className="flex flex-row justify-between gap-4 w-11/12"
+              key="create-transaction-dialogue"
+            >
+              <DatePickers />
+              <CreateTransactionDialogue />
+            </div>
+            <div className="grid w-11/12 max-w-11/12 h-[75vh] max-h-[75vh]">
+              <TransactionTable transactions={transactions} />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

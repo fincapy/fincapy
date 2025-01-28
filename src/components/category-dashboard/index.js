@@ -1262,8 +1262,15 @@ const SubcategoryCard = forwardRef(
               className={`flex flex-row touch-none select-none ml-1 mb-1 ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
               onMouseDown={() => setIsGrabbing(true)}
               onMouseUp={() => setIsGrabbing(false)}
-              onTouchStart={() => setIsGrabbing(true)}
-              onTouchEnd={() => setIsGrabbing(false)}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                setIsGrabbing(true);
+              }}
+              onTouchEnd={(e) => {
+                e.stopPropagation();
+                setIsGrabbing(false);
+              }}
+              onTouchMove={(e) => e.stopPropagation()}
               {...listeners}
               {...attributes}
             >

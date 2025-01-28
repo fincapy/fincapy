@@ -60,10 +60,6 @@ const ScrollAreaWithPulldown = React.forwardRef(
         if (scrollRef.current?.scrollTop <= 0) {
           const touch = e.touches[0];
 
-          if (touch.clientY > pullRef.current.lastY) {
-            e.preventDefault();
-          }
-
           updatePull(touch.clientY);
         }
       },
@@ -88,16 +84,28 @@ const ScrollAreaWithPulldown = React.forwardRef(
       setPullDistance(0);
     }, [pullDistance, triggerRefresh]);
 
-    useEffect(() => {
-      const options = { passive: false };
-      document.addEventListener('touchmove', handleTouchMove, options);
-      return () => {
-        document.removeEventListener('touchmove', handleTouchMove, options);
-        if (pullRef.current.rafId) {
-          cancelAnimationFrame(pullRef.current.rafId);
-        }
-      };
-    }, [handleTouchMove]);
+    // useEffect(() => {
+    //   const options = { passive: false };
+    //   if (scrollRef.current) {
+    //     scrollRef.current.addEventListener(
+    //       'touchmove',
+    //       handleTouchMove,
+    //       options
+    //     );
+    //   }
+    //   return () => {
+    //     if (scrollRef.current) {
+    //       scrollRef.current.removeEventListener(
+    //         'touchmove',
+    //         handleTouchMove,
+    //         options
+    //       );
+    //       if (pullRef.current.rafId) {
+    //         cancelAnimationFrame(pullRef.current.rafId);
+    //       }
+    //     }
+    //   };
+    // }, [handleTouchMove]);
 
     return (
       <ScrollAreaPrimitive.Root
@@ -109,11 +117,12 @@ const ScrollAreaWithPulldown = React.forwardRef(
           className="h-full w-full rounded-[inherit]"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
         >
           {/* Pull-to-refresh indicator */}
           <div
             className={cn(
-              'absolute left-0 right-0 flex justify-center items-center z-50',
+              'absolute left-0 right-0 flex justify-center items-center',
               'transition-opacity duration-200'
             )}
             style={{
@@ -124,7 +133,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
           >
             <div
               className={cn(
-                'absolute left-0 right-0 flex justify-center items-center z-50',
+                'absolute left-0 right-0 flex justify-center items-center',
                 'transition-opacity duration-200'
               )}
               style={{

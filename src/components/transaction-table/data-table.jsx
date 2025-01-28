@@ -45,7 +45,11 @@ export function DataTable({ columns, data }) {
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea className="border rounded-md">
+      <ScrollArea
+        className="border rounded-md"
+        onWheel={(e) => e.stopPropagation()}
+        onScrollCapture={(e) => e.stopPropagation()}
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

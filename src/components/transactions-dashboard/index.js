@@ -383,7 +383,7 @@ const TransactionsDashboard = () => {
           <DatePickers />
           <CreateCategoryDialogue />
         </div>
-        <div className="grid w-11/12 max-w-11/12 h-[85.5vh]">
+        <div className="grid w-11/12 max-w-11/12 h-[75vh] max-h-[75vh]">
           <TransactionTable transactions={transactions} />
         </div>
       </div>

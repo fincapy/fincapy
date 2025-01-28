@@ -12,7 +12,6 @@ const Progress = React.forwardRef(
     { className, progressPercent, rawValue, goal, color, mutedColor, ...props },
     ref // ref is an object, not a function
   ) => {
-    const [isHovered, setIsHovered] = React.useState(false);
     const [progressBarWidth, setProgressBarWidth] = React.useState(0);
     const progressBarRef = React.useRef(null);
 
@@ -78,7 +77,7 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         <div
-          className="absolute top-4 left-0 text-sm font-bold text-foreground transition-opacity duration-200"
+          className="absolute top-[10px] left-0 text-sm font-bold text-foreground transition-opacity duration-200"
           style={{
             left: `${calculateRawValuePosition()}px`,
             // opacity: isHovered ? 1 : 0,

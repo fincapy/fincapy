@@ -119,6 +119,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
             style={{
               opacity: pullDistance > 20 || isRefreshing ? 1 : 0,
               top: '12px',
+              display: pullDistance === 0 && !isRefreshing ? 'none' : 'flex',
             }}
           >
             <div
@@ -128,7 +129,9 @@ const ScrollAreaWithPulldown = React.forwardRef(
               )}
               style={{
                 opacity: pullDistance > 20 || isRefreshing ? 1 : 0,
-                top: '4px',
+                top: '12px',
+                height: pullDistance === 0 ? 0 : 'auto',
+                display: pullDistance === 0 && !isRefreshing ? 'none' : 'flex',
               }}
             >
               <div

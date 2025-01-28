@@ -61,11 +61,7 @@ const Progress = React.forwardRef(
     };
 
     return (
-      <div
-        className="relative w-full"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="relative w-full">
         <ProgressPrimitive.Root
           ref={mergedRef} // Use the mergedRef
           className={`relative h-2 w-full overflow-hidden rounded-full ${mutedColor}`}

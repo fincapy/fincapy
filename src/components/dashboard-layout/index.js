@@ -77,7 +77,7 @@ const AccountDropdown = ({
       onOpenChange={setAccountDropdownOpen}
     >
       <DropdownMenuTrigger asChild>
-        <button className="flex flex-col items-center gap-[1px] group outline-none">
+        <button className="flex flex-col items-center gap-[0px] group outline-none">
           <UserRound
             size={18}
             className={
@@ -176,7 +176,7 @@ const NavBar = ({
         <div className="flex flex-row justify-between items-center flex-1">
           <button
             onClick={() => changePage('spending')}
-            className="flex flex-col items-center gap-[1px] group"
+            className="flex flex-col items-center gap-[0px] group"
           >
             <HandCoins
               size={18}
@@ -198,7 +198,7 @@ const NavBar = ({
           </button>
           <button
             onClick={() => changePage('income')}
-            className="flex flex-col items-center gap-[1px] group"
+            className="flex flex-col items-center gap-[0px] group"
           >
             <CircleDollarSign
               size={18}
@@ -220,7 +220,7 @@ const NavBar = ({
           </button>
           <button
             onClick={() => changePage('savings')}
-            className="flex flex-col items-center gap-[1px] group"
+            className="flex flex-col items-center gap-[0px] group"
           >
             <PiggyBank
               size={18}
@@ -242,7 +242,7 @@ const NavBar = ({
           </button>
           <button
             onClick={() => changePage('transactions')}
-            className="flex flex-col items-center gap-[1px] group"
+            className="flex flex-col items-center gap-[0px] group"
           >
             <Table
               size={18}

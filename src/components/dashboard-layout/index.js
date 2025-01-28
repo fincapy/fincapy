@@ -79,7 +79,7 @@ const AccountDropdown = ({
       <DropdownMenuTrigger asChild>
         <button className="flex flex-col items-center gap-[1px] group outline-none">
           <UserRound
-            size={16}
+            size={18}
             className={
               accountDropdownOpen ||
               page === 'manage-users' ||
@@ -93,8 +93,8 @@ const AccountDropdown = ({
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-[10px] font-bold text-foreground'
-                : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                ? 'text-[11px] font-bold text-foreground'
+                : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
             }
           >
             Account
@@ -179,7 +179,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[1px] group"
           >
             <HandCoins
-              size={16}
+              size={18}
               className={
                 page === 'spending'
                   ? ''
@@ -189,8 +189,8 @@ const NavBar = ({
             <span
               className={
                 page === 'spending'
-                  ? 'text-[10px] font-bold'
-                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11px] font-bold'
+                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Spending
@@ -201,7 +201,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[1px] group"
           >
             <CircleDollarSign
-              size={16}
+              size={18}
               className={
                 page === 'income'
                   ? ''
@@ -211,8 +211,8 @@ const NavBar = ({
             <span
               className={
                 page === 'income'
-                  ? 'text-[10px] font-bold'
-                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11px] font-bold'
+                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Income
@@ -223,7 +223,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[1px] group"
           >
             <PiggyBank
-              size={16}
+              size={18}
               className={
                 page === 'savings'
                   ? ''
@@ -233,8 +233,8 @@ const NavBar = ({
             <span
               className={
                 page === 'savings'
-                  ? 'text-[10px] font-bold'
-                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11px] font-bold'
+                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Savings
@@ -245,7 +245,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[1px] group"
           >
             <Table
-              size={16}
+              size={18}
               className={
                 page === 'transactions'
                   ? ''
@@ -255,8 +255,8 @@ const NavBar = ({
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[10px] font-bold'
-                  : 'text-[10px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11px] font-bold'
+                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Transactions

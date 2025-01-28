@@ -27,8 +27,7 @@ import React, {
 } from 'react';
 import { set } from 'zod';
 import { TransactionContext } from './transaction';
-import { ScrollArea } from '../ui/scroll-area';
-import { ScrollBar } from '../ui/scroll-area';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);

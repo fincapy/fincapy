@@ -1113,7 +1113,7 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[2px]">
+          <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[3.5px]">
             <span className="text-sm font-bold">{category.name}</span>
             <div className="flex flex-row gap-1 items-center">
               {!category.isImmutable && (
@@ -1220,7 +1220,7 @@ const SubcategoryCard = forwardRef(
         <CardHeader className="p-0"></CardHeader>
         <CardContent className="pb-6 pt-4">
           <div className="flex flex-col">
-            <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[2px]">
+            <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[3.5px]">
               <span className="text-sm font-bold">{subcategory.name}</span>
               <div className="flex flex-row gap-1 items-center">
                 <EditSubcategoryDialogue

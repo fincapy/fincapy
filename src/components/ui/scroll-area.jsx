@@ -12,72 +12,92 @@ import { Loader } from 'lucide-react'; // Safari-like spinner icon
 const ScrollArea = React.forwardRef(
   ({ className, children, triggerRefresh, isRefreshing, ...props }, ref) => {
     const scrollRef = useRef(null);
-    const [pullState, setPullState] = useState({
-      distance: 0,
-    });
+    const contentRef = useRef(null);
+    const pullRef = useRef({ startY: 0, lastY: 0, rafId: null });
+    const [pullDistance, setPullDistance] = useState(0);
 
-    // Constants
-    const THRESHOLD = 70; // Distance required to trigger refresh
-    const RESISTANCE_FACTOR = 2; // Controls resistance scaling
+    const THRESHOLD = 70;
+    const RESISTANCE_FACTOR = 2;
 
     const calculateProgressiveResistance = (distance) => {
       return distance / (1 + distance / (THRESHOLD * RESISTANCE_FACTOR));
     };
 
-    const handleTouchStart = (e) => {
-      const scrollElement = scrollRef.current;
-      if (scrollElement.scrollTop === 0 && !isRefreshing) {
-        scrollElement.startY = e.touches[0].clientY;
-        scrollElement.isPulling = true;
+    const updatePull = useCallback((clientY) => {
+      if (pullRef.current.rafId) {
+        cancelAnimationFrame(pullRef.current.rafId);
       }
-    };
 
-    const handleTouchMove = (e) => {
-      const scrollElement = scrollRef.current;
-      if (scrollElement.isPulling && scrollElement.scrollTop <= 0) {
-        const currentY = e.touches[0].clientY;
-        const distance = currentY - scrollElement.startY;
-
-        if (distance > 0) {
-          e.preventDefault();
-          const resistedDistance = calculateProgressiveResistance(distance);
-          setPullState((prev) => ({
-            ...prev,
-            distance: resistedDistance,
-          }));
+      pullRef.current.rafId = requestAnimationFrame(() => {
+        const delta = clientY - pullRef.current.startY;
+        if (delta > 0) {
+          const resistance = calculateProgressiveResistance(delta);
+          setPullDistance(resistance);
         } else {
-          scrollElement.isPulling = false;
-          setPullState((prev) => ({ ...prev, distance: 0 }));
+          setPullDistance(0);
         }
-      }
-    };
+        pullRef.current.lastY = clientY;
+      });
+    }, []);
 
-    const handleTouchEnd = async () => {
-      const scrollElement = scrollRef.current;
-      if (scrollElement.isPulling) {
-        scrollElement.isPulling = false;
+    const handleTouchStart = useCallback(
+      (e) => {
+        if (scrollRef.current.scrollTop === 0 && !isRefreshing) {
+          pullRef.current.startY = e.touches[0].clientY;
+          pullRef.current.lastY = e.touches[0].clientY;
 
-        if (pullState.distance >= THRESHOLD) {
-          setPullState((prev) => ({
-            ...prev,
-            distance: THRESHOLD,
-          }));
-          triggerRefresh();
-          setPullState({ distance: 0 });
-        } else {
-          setPullState((prev) => ({ ...prev, distance: 0 }));
+          // Reset any ongoing transitions
+          if (contentRef.current) {
+            contentRef.current.style.transition = 'none';
+          }
         }
+      },
+      [isRefreshing]
+    );
+
+    const handleTouchMove = useCallback(
+      (e) => {
+        if (scrollRef.current?.scrollTop <= 0) {
+          const touch = e.touches[0];
+
+          if (touch.clientY > pullRef.current.lastY) {
+            e.preventDefault();
+          }
+
+          updatePull(touch.clientY);
+        }
+      },
+      [updatePull]
+    );
+
+    const handleTouchEnd = useCallback(() => {
+      if (pullRef.current.rafId) {
+        cancelAnimationFrame(pullRef.current.rafId);
       }
-    };
+
+      // Add transition back for smooth return
+      if (contentRef.current) {
+        contentRef.current.style.transition =
+          'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+      }
+
+      if (pullDistance >= THRESHOLD) {
+        triggerRefresh();
+      }
+
+      setPullDistance(0);
+    }, [pullDistance, triggerRefresh]);
 
     useEffect(() => {
-      document.addEventListener('touchmove', handleTouchMove, {
-        passive: false,
-      });
+      const options = { passive: false };
+      document.addEventListener('touchmove', handleTouchMove, options);
       return () => {
-        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchmove', handleTouchMove, options);
+        if (pullRef.current.rafId) {
+          cancelAnimationFrame(pullRef.current.rafId);
+        }
       };
-    }, []);
+    }, [handleTouchMove]);
 
     return (
       <ScrollAreaPrimitive.Root
@@ -92,44 +112,67 @@ const ScrollArea = React.forwardRef(
         >
           {/* Pull-to-refresh indicator */}
           <div
-            className="absolute left-0 right-0 flex justify-center items-center z-50 top-3"
+            className={cn(
+              'absolute left-0 right-0 flex justify-center items-center z-50',
+              'transition-opacity duration-200'
+            )}
             style={{
-              display:
-                pullState.distance > 20 || isRefreshing ? 'flex' : 'none',
-              color: pullState.distance >= THRESHOLD ? 'green' : 'currentColor',
-              opacity: isRefreshing
-                ? 1
-                : Math.min(pullState.distance / THRESHOLD, 1),
-              transition: isRefreshing
-                ? 'opacity 0.3s ease-out, transform 0.3s ease-out'
-                : 'transform 0.2s ease-out',
+              opacity: pullDistance > 20 || isRefreshing ? 1 : 0,
+              top: '12px',
             }}
           >
-            <Loader
-              className={
-                isRefreshing
-                  ? 'animate-spin text-gray-600 transition-all'
-                  : 'text-gray-400 transition-all'
-              }
+            <div
+              className={cn(
+                'absolute left-0 right-0 flex justify-center items-center z-50',
+                'transition-opacity duration-200'
+              )}
               style={{
-                color:
-                  pullState.distance >= THRESHOLD || isRefreshing
-                    ? 'green'
-                    : 'currentColor',
+                opacity: pullDistance > 20 || isRefreshing ? 1 : 0,
+                top: '4px',
               }}
-            />
+            >
+              <div
+                className={cn(
+                  'relative w-6 h-6', // Smaller loader
+                  isRefreshing ? 'animate-spin' : ''
+                )}
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  animation: isRefreshing
+                    ? 'spin 0.8s linear infinite'
+                    : 'none',
+                }}
+              >
+                {Array.from({ length: 8 }).map((_, index) => {
+                  const angle = (360 / 8) * index; // Divide into 8 petals
+                  const isVisible = pullDistance / THRESHOLD >= index / 8; // Reveal petals progressively
+                  return (
+                    <div
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        width: '2px',
+                        height: '6px', // Smaller, crisper petal
+                        backgroundColor:
+                          isVisible || isRefreshing ? 'green' : 'gray',
+                        borderRadius: '1px',
+                        transform: `rotate(${angle}deg) translateY(-8px)`,
+                        transition: 'background-color 0.2s',
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* Content */}
+          {/* Content with transform */}
           <div
-            className="relative bg-background"
+            ref={contentRef}
+            className="relative bg-background will-change-transform"
             style={{
-              transform: isRefreshing
-                ? `translateY(${THRESHOLD / 1.5}px)` // Compress pulled-down space more
-                : `translateY(${pullState.distance}px)`,
-              transition: pullState.isPulling
-                ? 'none'
-                : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+              transform: `translate3d(0, ${isRefreshing ? THRESHOLD / 1.5 : pullDistance}px, 0)`,
             }}
           >
             {children}

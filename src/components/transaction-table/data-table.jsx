@@ -24,7 +24,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
-} from 'react'; // Added useMemo
+} from 'react';
 import { set } from 'zod';
 import { TransactionContext } from './transaction';
 import { ScrollArea } from '../ui/scroll-area';

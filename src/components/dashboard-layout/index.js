@@ -19,7 +19,10 @@ import {
 } from '../ui/dropdown-menu';
 import { Fragment } from 'react';
 import { ChatWidget } from '@/components/chat-widget';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+  ScrollAreaWithPulldown,
+  ScrollBarWithPulldown,
+} from '@/components/ui/scroll-area-with-pulldown';
 import { PlanContext } from './planContext';
 import { useState } from 'react';
 import { Plan } from '@/backend/domain/plan';
@@ -396,7 +399,7 @@ export default function DashboardLayout({
               onTouchStart={handleScrollAreaFocus}
               onMouseDown={handleScrollAreaFocus}
             >
-              <ScrollArea
+              <ScrollAreaWithPulldown
                 className="h-[94%] w-screen fixed top-0"
                 ref={scrollAreaRef}
                 onTouchStart={handleScrollAreaFocus}
@@ -406,7 +409,7 @@ export default function DashboardLayout({
                 isRefreshing={isRefreshing}
               >
                 {children}
-              </ScrollArea>
+              </ScrollAreaWithPulldown>
               <NavBar
                 page={page}
                 setPage={setPage}

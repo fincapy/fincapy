@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollAreaWithPulldown } from '@/components/ui/scroll-area-with-pulldown';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -55,7 +55,7 @@ const ChatWidget = () => {
               <X className="h-4 w-4" />
             </Button>
           </CardHeader>
-          <ScrollArea className="h-64">
+          <ScrollAreaWithPulldown className="h-64">
             <CardContent className="p-4">
               {messages.map((msg, index) => (
                 <div
@@ -79,7 +79,7 @@ const ChatWidget = () => {
               ))}
               <div ref={messagesEndRef} />
             </CardContent>
-          </ScrollArea>
+          </ScrollAreaWithPulldown>
           <CardFooter className="p-4">
             <form onSubmit={handleSubmit} className="flex w-full gap-2">
               <Input

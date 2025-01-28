@@ -4,11 +4,7 @@ import { DataTable } from './data-table';
 import { DataTablePagination } from './data-table-pagination';
 
 const TransactionTable = ({ transactions }) => {
-  return (
-    <div className="overflow-auto">
-      <DataTable columns={columns} data={transactions} />
-    </div>
-  );
+  return <DataTable columns={columns} data={transactions} />;
 };
 
 export default TransactionTable;

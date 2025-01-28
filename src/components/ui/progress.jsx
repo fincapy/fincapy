@@ -34,9 +34,9 @@ const Progress = React.forwardRef(
               percentage === 100
                 ? `calc(${percentage}% - 15px)`
                 : `calc(${percentage}%`,
-          }} // Adjust positioning
+          }}
         >
-          ${rawValue}
+          ${rawValue.toFixed(2)}
         </div>
       </div>
     );

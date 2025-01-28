@@ -331,7 +331,11 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={startDate}
-            onSelect={(date) => setStartDate(date.toISOString().split('T')[0])}
+            onSelect={(date) => {
+              if (date) {
+                setStartDate(date.toISOString().split('T')[0]);
+              }
+            }}
             initialFocus
           />
         </PopoverContent>
@@ -353,7 +357,11 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={endDate}
-            onSelect={(date) => setEndDate(date.toISOString().split('T')[0])}
+            onSelect={(date) => {
+              if (date) {
+                setEndDate(date.toISOString().split('T')[0]);
+              }
+            }}
             initialFocus
           />
         </PopoverContent>
@@ -375,7 +383,7 @@ const TransactionsDashboard = () => {
           <DatePickers />
           <CreateCategoryDialogue />
         </div>
-        <div className="grid w-11/12 max-w-11/12 h-[80vh]">
+        <div className="grid w-11/12 max-w-11/12 h-[85.5vh]">
           <TransactionTable transactions={transactions} />
         </div>
       </div>

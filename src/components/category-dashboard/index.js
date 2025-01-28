@@ -1053,7 +1053,9 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <TransactionTable transactions={transactions} />
+        <div className="grid max-w-[95vw] max-h-[85vh]">
+          <TransactionTable transactions={transactions} />
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -1110,11 +1112,9 @@ const CategoryCard = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-0 pt-0">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-row items-center gap-1 ml-[6px]">
-            <span className="text-muted-foreground text-sm font-bold">
-              {category.name}
-            </span>
+        <div className="flex flex-col gap-0">
+          <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[2px]">
+            <span className="text-sm font-bold">{category.name}</span>
             <div className="flex flex-row gap-1 items-center">
               {!category.isImmutable && (
                 <div className="flex flex-col items-center justify-center">
@@ -1139,7 +1139,7 @@ const CategoryCard = ({
             </div>
           </div>
           <div className="flex flex-row gap-1 items-center">
-            <span className="text-muted-foreground text-sm">$0</span>
+            <span className="text-sm">$0</span>
             <Progress
               progressPercent={progress}
               rawValue={category.currentNet}
@@ -1147,11 +1147,11 @@ const CategoryCard = ({
               color={color}
               mutedColor={mutedColor}
             />
-            <span className="text-muted-foreground text-sm">{`$${category.proratedGoal}`}</span>
+            <span className="text-sm">{`$${category.proratedGoal}`}</span>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col justify-center p-0 pt-[22px]">
+      <CardFooter className="flex flex-col justify-center p-0 pt-[18px]">
         <div className="flex justify-between w-full">
           <div
             className={`ml-1 mb-1 flex flex-row items-center touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
@@ -1219,11 +1219,9 @@ const SubcategoryCard = forwardRef(
       >
         <CardHeader className="p-0"></CardHeader>
         <CardContent className="pb-6 pt-4">
-          <div className="flex flex-col gap-[11px]">
-            <div className="flex flex-row items-center gap-1 ml-[6px]">
-              <span className="text-muted-foreground text-sm font-bold">
-                {subcategory.name}
-              </span>
+          <div className="flex flex-col">
+            <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[2px]">
+              <span className="text-sm font-bold">{subcategory.name}</span>
               <div className="flex flex-row gap-1 items-center">
                 <EditSubcategoryDialogue
                   subcategoryId={subcategory.subcategoryId}
@@ -1239,7 +1237,7 @@ const SubcategoryCard = forwardRef(
               </div>
             </div>
             <div className="flex flex-row gap-1 items-center">
-              <span className="text-muted-foreground text-sm">$0</span>
+              <span className="text-sm">$0</span>
               <Progress
                 progressPercent={progress}
                 rawValue={subcategory.currentNet}
@@ -1247,7 +1245,7 @@ const SubcategoryCard = forwardRef(
                 color={color}
                 mutedColor={mutedColor}
               />
-              <span className="text-muted-foreground text-sm">{`$${subcategory.proratedGoal}`}</span>
+              <span className="text-sm">{`$${subcategory.proratedGoal}`}</span>
             </div>
           </div>
         </CardContent>
@@ -1474,7 +1472,11 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={startDate}
-            onSelect={(date) => setStartDate(date.toISOString().split('T')[0])}
+            onSelect={(date) => {
+              if (date) {
+                setStartDate(date.toISOString().split('T')[0]);
+              }
+            }}
             initialFocus
           />
         </PopoverContent>
@@ -1496,7 +1498,11 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={endDate}
-            onSelect={(date) => setEndDate(date.toISOString().split('T')[0])}
+            onSelect={(date) => {
+              if (date) {
+                setEndDate(date.toISOString().split('T')[0]);
+              }
+            }}
             initialFocus
           />
         </PopoverContent>

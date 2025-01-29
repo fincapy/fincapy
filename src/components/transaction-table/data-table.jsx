@@ -29,6 +29,7 @@ import { set } from 'zod';
 import { TransactionContext } from './transaction';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { sub } from 'date-fns';
 
 export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);
@@ -41,16 +42,17 @@ export function DataTable({ columns, data }) {
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting: sortingState,
+      columnVisibility: {
+        transactionId: false,
+        categoryId: false,
+        subcategoryId: false,
+      },
     },
   });
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea
-        className="border rounded-md"
-        onWheel={(e) => e.stopPropagation()}
-        onScrollCapture={(e) => e.stopPropagation()}
-      >
+      <ScrollArea className="border rounded-md h-full w-11/12 grid">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

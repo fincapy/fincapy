@@ -10,9 +10,6 @@ const ScrollArea = React.forwardRef(
     <ScrollAreaPrimitive.Root
       ref={ref}
       className={cn('relative overflow-hidden z-50', className)}
-      onTouchMove={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
-      onTouchEnd={(e) => e.stopPropagation()}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">

@@ -10,20 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DataTableColumnHeader } from './data-table-column-header';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/dialog';
 import { useState } from 'react';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,9 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -47,11 +36,14 @@ import { TransactionContext } from './transaction';
 import { recategorizeTransaction } from './serverActions';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
-import { useAtom } from 'jotai';
-import { planAtom } from '../state/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { planAtom, categoryNamesAtom } from '../state/atoms';
+import { Input } from '@/components/ui/input';
+import { transactionTypes } from '@/backend/domain/transaction';
 
 export function SelectDemo({ field }) {
-  const categories = useContext(CategoryNamesContext);
+  const categoryNames = useAtomValue(categoryNamesAtom);
+  console.log('field', field);
 
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -61,7 +53,7 @@ export function SelectDemo({ field }) {
         </SelectTrigger>
       </FormControl>
       <SelectContent>
-        {categories.map((category) => (
+        {categoryNames.map((category) => (
           <SelectItem key={category.id} value={category.id}>
             {category.name}
           </SelectItem>
@@ -73,9 +65,25 @@ export function SelectDemo({ field }) {
 
 const recategorizeFormSchema = z.object({
   category: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Enter a date in the format YYYY-MM-DD',
+  }),
+  description: z
+    .string()
+    .min(1, {
+      message: 'Description must be at least 1 character.',
+    })
+    .max(100, {
+      message: 'Description should be less than 100 characters',
+    }),
+  status: z.string(),
+  type: z.string(),
+  amount: z.string().regex(/^\d+(?:\.\d{1,2})?$/, {
+    message: 'Enter a valid currency amount',
+  }),
 });
 
-const RecategorizeForm = ({
+const EditTransactionForm = ({
   transaction,
   transactionId,
   setOuterDialogIsOpen,
@@ -87,6 +95,11 @@ const RecategorizeForm = ({
     resolver: zodResolver(recategorizeFormSchema),
     defaultValues: {
       category: transaction.categoryId,
+      date: transaction.date,
+      description: transaction.description,
+      status: transaction.status,
+      type: transaction.type,
+      amount: transaction.amount,
     },
   });
 
@@ -161,8 +174,75 @@ const RecategorizeForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3 h-full"
       >
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date</FormLabel>
+              <Input type="text" {...field} defaultValue={field.value} />
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <Input type="text" {...field} defaultValue={field.value} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {transactionTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="category"
@@ -174,15 +254,24 @@ const RecategorizeForm = ({
             </FormItem>
           )}
         />
-        <DialogClose asChild>
-          <Button type="submit">Create</Button>
-        </DialogClose>
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <Input type="text" {...field} defaultValue={field.value} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Create</Button>
       </form>
     </Form>
   );
 };
 
-const RecategorizeDialog = ({ row, setOuterDialogIsOpen }) => {
+const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const transactions = useContext(TransactionContext);
   const transactionId = transactions[row.id].transactionId;
@@ -190,7 +279,7 @@ const RecategorizeDialog = ({ row, setOuterDialogIsOpen }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-11/12">
-        <RecategorizeForm
+        <EditTransactionForm
           transaction={row.original}
           transactionId={transactionId}
           setOuterDialogIsOpen={setOuterDialogIsOpen}
@@ -204,7 +293,7 @@ const RecategorizeDialog = ({ row, setOuterDialogIsOpen }) => {
           setIsOpen(true);
         }}
       >
-        Recategorize
+        Edit
       </DropdownMenuItem>
     </Dialog>
   );
@@ -224,7 +313,7 @@ const Actions = ({ row }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <RecategorizeDialog row={row} setOuterDialogIsOpen={setIsOpen} />
+        <EditTransactionDialog row={row} setOuterDialogIsOpen={setIsOpen} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -232,10 +321,20 @@ const Actions = ({ row }) => {
 
 export const columns = [
   {
+    accessorKey: 'categoryId',
+  },
+  {
+    accessorKey: 'transactionId',
+  },
+  {
+    accessorKey: 'subcategoryId',
+  },
+  {
     accessorKey: 'date',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />
     ),
+    show: false,
   },
   {
     accessorKey: 'description',

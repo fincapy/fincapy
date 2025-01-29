@@ -258,11 +258,14 @@ export default function Dashboard() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
-          <div className="w-11/12 flex flex-row justify-end">
-            <InviteUserDialogue />
-          </div>
-          <div className="w-11/12">
+        <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+          <div className="flex flex-col justify-end items-center gap-2 w-full">
+            <div
+              className="flex flex-row justify-end w-11/12"
+              key="create-transaction-dialogue"
+            >
+              <InviteUserDialogue />
+            </div>
             <UserTable users={usersState} />
           </div>
         </div>

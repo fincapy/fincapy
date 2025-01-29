@@ -81,6 +81,54 @@ class Plan {
     );
   }
 
+  editTransaction({
+    transactionId,
+    categoryId,
+    subcategoryId,
+    date,
+    description,
+    status,
+    type,
+    newCategoryId,
+    amount,
+  }) {
+    let transaction;
+    const category = this.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+    if (subcategoryId) {
+      const subcategory = category.subcategories.find(
+        (subcategory) => subcategory.subcategoryId === subcategoryId
+      );
+      transaction = subcategory.transactions.find(
+        (tran) => tran.transactionId === transactionId
+      );
+    } else {
+      transaction = category.transactions.find(
+        (tran) => tran.transactionId === transactionId
+      );
+    }
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+    transaction.date = date;
+    transaction.description = description;
+    transaction.status = status;
+    transaction.type = type;
+    transaction.amount = amount;
+
+    let oldCategoryName = null;
+    let newCategoryName = null;
+    if (newCategoryId) {
+      const result = this.recategorizeTransaction({
+        transactionId,
+        newCategoryId,
+      });
+      oldCategoryName = result[0];
+      newCategoryName = result[1];
+    }
+  }
+
   recategorizeTransaction({ transactionId, newCategoryId }) {
     let oldCategory;
     let oldSubcategory;
@@ -129,24 +177,23 @@ class Plan {
     const newCategoryName = newSubcategory
       ? newCategory.name + ' - ' + newSubcategory.name
       : newCategory.name;
-    this.recategorizations.push(
-      new Recategorization({
-        createdAt: new Date(),
-        transactionDescription: transaction.description,
-        oldCategoryName,
-        newCategoryName,
-      })
-    );
+    return [oldCategoryName, newCategoryName];
   }
 
   toTransactionsView() {
     let transactions = [];
     this.categories.forEach((category) => {
       category.transactions.forEach((transaction) => {
+        transaction.categoryName = category.name;
+        transaction.categoryId = category.categoryId;
+        transaction.subcategoryId = null;
         transactions.push(transaction);
       });
       category.subcategories.forEach((subcategory) => {
         subcategory.transactions.forEach((transaction) => {
+          transaction.categoryName = category.name + ' - ' + subcategory.name;
+          transaction.categoryId = category.categoryId;
+          transaction.subcategoryId = subcategory.subcategoryId;
           transactions.push(transaction);
         });
       });

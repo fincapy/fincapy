@@ -408,9 +408,7 @@ const TransactionsDashboard = () => {
               <DatePickers />
               <CreateTransactionDialogue />
             </div>
-            <div className="grid w-11/12 max-w-11/12 h-[75vh] max-h-[75vh]">
-              <TransactionTable transactions={transactions} />
-            </div>
+            <TransactionTable transactions={transactions} />
           </div>
         </div>
       )}

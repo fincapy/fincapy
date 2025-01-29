@@ -79,7 +79,10 @@ const Progress = React.forwardRef(
             // opacity: isHovered ? 1 : 0,
           }}
         >
-          ${rawValue.toFixed(2)}
+          {new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }).format(rawValue)}
         </div>
       </div>
     );

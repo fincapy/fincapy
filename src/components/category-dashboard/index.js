@@ -766,14 +766,14 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   );
 };
 
-const EditSubcategoryForm = ({ subcategoryId, categoryId }) => {
+const EditSubcategoryForm = ({ subcategoryId, categoryId, subcategory }) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
-      name: '',
-      monthlyGoal: '',
+      name: subcategory.name,
+      monthlyGoal: subcategory.monthlyGoal,
     },
   });
 
@@ -919,7 +919,11 @@ const EditSubcategoryForm = ({ subcategoryId, categoryId }) => {
   );
 };
 
-const EditSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
+const EditSubcategoryDialogue = ({
+  subcategoryId,
+  categoryId,
+  subcategory,
+}) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -944,6 +948,7 @@ const EditSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <EditSubcategoryForm
+            subcategory={subcategory}
             subcategoryId={subcategoryId}
             categoryId={categoryId}
           />
@@ -1261,6 +1266,7 @@ const SubcategoryCard = forwardRef(
               <span className="text-sm font-bold">{subcategory.name}</span>
               <div className="flex flex-row gap-1 items-center">
                 <EditSubcategoryDialogue
+                  subcategory={subcategory}
                   subcategoryId={subcategory.subcategoryId}
                   categoryId={category.categoryId}
                 />

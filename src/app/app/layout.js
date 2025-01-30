@@ -80,7 +80,7 @@ export default async function Layout({ children }) {
   return (
     <Providers>
       <DashboardLayout
-        userName={user.name}
+        userEmail={userEmail}
         userRole={user.role}
         nonce={nonce}
         plan={planView}

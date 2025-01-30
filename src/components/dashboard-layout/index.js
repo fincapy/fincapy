@@ -277,7 +277,7 @@ const NavBar = ({
 
 export default function DashboardLayout({
   children,
-  userName,
+  userEmail,
   userRole,
   nonce,
   plan,
@@ -347,7 +347,7 @@ export default function DashboardLayout({
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
-        setUsersState(users);
+        setUsersState(users.filter((user) => user.email !== userEmail));
       } else {
         if (
           startDateState === previousDates.current.startDate &&

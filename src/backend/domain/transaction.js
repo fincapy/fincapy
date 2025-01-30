@@ -35,7 +35,7 @@ const spendingTransactionTypes = [
   'debit_card_refund',
 ];
 
-const incomeTransactionTypes = ['income'];
+const incomeTransactionTypes = ['income', 'interest_income'];
 
 export {
   Transaction,

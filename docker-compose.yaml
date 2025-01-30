@@ -40,6 +40,7 @@ services:
       - STRIPE_API_KEY=${STRIPE_API_KEY}
       - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
       - REDIS_URL=${REDIS_URL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
   minio:
     image: minio/minio:latest
     container_name: minio

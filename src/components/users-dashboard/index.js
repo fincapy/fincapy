@@ -221,6 +221,9 @@ const InviteUserDialogue = () => {
       <DialogContent
         className="sm:max-w-11/12"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>Invite User</DialogTitle>
@@ -254,7 +257,7 @@ export default function Dashboard() {
             <Skeleton className="h-9 w-9 bg-card" />
           </div>
           <div className="w-11/12">
-            <Skeleton className="h-96 bg-card" />
+            <Skeleton className="h-[70vh] bg-card" />
           </div>
         </div>
       ) : (
@@ -266,7 +269,14 @@ export default function Dashboard() {
             >
               <InviteUserDialogue />
             </div>
-            <UserTable users={usersState} />
+            <div
+              className="grid w-11/12 h-[70vh]"
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <UserTable users={usersState} />
+            </div>
           </div>
         </div>
       )}

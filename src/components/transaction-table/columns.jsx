@@ -317,6 +317,9 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
       <DialogContent
         className="sm:max-w-11/12"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <EditTransactionForm
           transaction={row.original}

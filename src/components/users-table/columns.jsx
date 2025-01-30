@@ -160,6 +160,9 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <ChangeRoleForm
           role={row.original.role}
@@ -237,7 +240,12 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
         <DialogTitle>Remove user</DialogTitle>
         <DialogDescription>
           Are you sure you want to remove this user?
@@ -362,6 +370,9 @@ const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <ChangeNameForm
           name={row.original.name}

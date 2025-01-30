@@ -294,7 +294,7 @@ class Plan {
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
         category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
-        categories.push(Object.assign({}, category));
+        categories.push(category);
       }
     });
     categories.sort((a, b) => a.rank - b.rank);
@@ -307,7 +307,7 @@ class Plan {
     this.categories.forEach((category) => {
       if (category.type === 'income') {
         category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
-        categories.push(Object.assign({}, category));
+        categories.push(category);
       }
     });
     categories.sort((a, b) => a.rank - b.rank);
@@ -331,9 +331,9 @@ class Plan {
       (category) => category.type === 'savings'
     );
     savingsCategory.currentNet = net;
+    savingsCategory.toSavingsView(fractionOfMonths);
     savingsCategory.allocateToSubcategories();
-    savingsCategory.toSavingsView();
-    categories.push(Object.assign({}, savingsCategory));
+    categories.push(savingsCategory);
     return categories;
   }
 

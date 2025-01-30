@@ -63,10 +63,11 @@ class Category {
     subcategory.monthlyGoal = monthlyGoal;
   }
 
-  toSavingsView() {
+  toSavingsView(fractionOfMonths) {
     const subcategories = [];
     this.subcategories.forEach((subcategory) => {
-      subcategories.push(Object.assign({}, subcategory));
+      subcategory.toSavingsView(fractionOfMonths);
+      subcategories.push(subcategory);
     });
     this.subcategories = subcategories;
   }
@@ -137,7 +138,10 @@ class Category {
     let amountLeft = this.currentNet;
     this.subcategories.forEach((subcategory) => {
       amountLeft -= subcategory.proratedGoal;
-      const amountToAllocate = Math.max(0, amountLeft);
+      const amountToAllocate = Math.min(
+        Math.max(0, amountLeft),
+        subcategory.proratedGoal
+      );
       subcategory.currentNet = amountToAllocate;
     });
   }

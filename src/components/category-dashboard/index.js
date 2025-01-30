@@ -291,6 +291,9 @@ const CreateCategoryDialogue = () => {
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>{`Create ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
@@ -372,7 +375,12 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
           <Trash2 size={14} />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>{`Delete ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
           <DialogDescription>
@@ -552,6 +560,9 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>{`Edit ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
@@ -642,11 +653,15 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       10
     );
     const name = values.name;
+    console.log('here?');
+    console.log('planState', planState);
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
+    console.log('what about here?');
     const category = newPlan.categories.find(
       (category) => category.categoryId === categoryId
     );
+    console.log('category', category);
     category.createSubcategory({ name, monthlyGoal, isImmutable: false });
     setPlanState(newPlan);
     handleServerSubcategoryCreation({
@@ -730,6 +745,9 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>Create Subcategory</DialogTitle>
@@ -916,6 +934,9 @@ const EditSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>Edit Subcategory</DialogTitle>
@@ -1009,7 +1030,12 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
           <Trash2 size={14} />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]">
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>Delete Subcategory</DialogTitle>
           <DialogDescription>

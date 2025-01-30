@@ -101,6 +101,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { transactionTypes } from '@/backend/domain/transaction';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -357,6 +358,9 @@ const CreateTransactionDialogue = () => {
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>Create Transaction</DialogTitle>
@@ -481,7 +485,7 @@ const TransactionsDashboard = () => {
               </div>
               <Skeleton className="h-9 w-9 bg-card" />
             </div>
-            <Skeleton className="h-[75vh] w-11/12 bg-card" />
+            <Skeleton className="h-[70vh] w-11/12 bg-card" />
           </div>
         </div>
       ) : (
@@ -494,7 +498,14 @@ const TransactionsDashboard = () => {
               <DatePickers />
               <CreateTransactionDialogue />
             </div>
-            <TransactionTable transactions={transactions} />
+            <div
+              className="grid w-11/12 h-[70vh]"
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <TransactionTable transactions={transactions} />
+            </div>
           </div>
         </div>
       )}

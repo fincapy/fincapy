@@ -39,6 +39,10 @@ class Subcategory {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
+  toSavingsView(fractionOfMonths) {
+    this.prorateMonthlyGoal(fractionOfMonths);
+  }
+
   toSpendingView(category, startDate, endDate, fractionOfMonths) {
     const transactions = [];
     let currentSpending = 0;

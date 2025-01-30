@@ -65,6 +65,7 @@ class Category {
 
   toSavingsView(fractionOfMonths) {
     const subcategories = [];
+    this.prorateMonthlyGoal(fractionOfMonths);
     this.subcategories.forEach((subcategory) => {
       subcategory.toSavingsView(fractionOfMonths);
       subcategories.push(subcategory);

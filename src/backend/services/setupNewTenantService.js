@@ -38,7 +38,7 @@ class SetupNewTenantService {
     });
     const spendingCategory = new Category({
       tenantId,
-      categoryId: '1',
+      categoryId: 'uncategorizedSpending',
       name: 'Uncategorized',
       type: 'spending',
       monthlyGoal: 0,
@@ -51,7 +51,7 @@ class SetupNewTenantService {
     });
     const incomeCategory = new Category({
       tenantId,
-      categoryId: '2',
+      categoryId: 'uncategorizedIncome',
       name: 'Uncategorized',
       type: 'income',
       monthlyGoal: 0,
@@ -64,7 +64,7 @@ class SetupNewTenantService {
     });
     const savingsCategory = new Category({
       tenantId,
-      categoryId: '3',
+      categoryId: 'uncategorizedSavings',
       name: 'Savings',
       type: 'savings',
       monthlyGoal: 0,

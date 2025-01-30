@@ -40,6 +40,7 @@ import { planAtom, categoryNamesAtom } from '../state/atoms';
 import { Input } from '@/components/ui/input';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { editTransaction } from '@/components/transaction-table/serverActions';
+import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -301,7 +302,7 @@ const EditTransactionForm = ({
             </FormItem>
           )}
         />
-        <Button type="submit">Save</Button>
+        <SubmitButton>Save</SubmitButton>
       </form>
     </Form>
   );

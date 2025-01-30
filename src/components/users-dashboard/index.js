@@ -42,6 +42,7 @@ import { usersAtom } from '../state/atoms';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   return (
@@ -200,10 +201,10 @@ const InviteUserForm = () => {
         />
         {form.formState.isValid ? (
           <DialogClose asChild>
-            <Button type="submit">Invite</Button>
+            <SubmitButton>Invite</SubmitButton>
           </DialogClose>
         ) : (
-          <Button type="submit">Invite</Button>
+          <SubmitButton>Invite</SubmitButton>
         )}
       </form>
     </Form>

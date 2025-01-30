@@ -102,6 +102,7 @@ import {
 } from '@/components/ui/select';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -334,7 +335,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Save</Button>
+          <SubmitButton>Create</SubmitButton>
         </DialogClose>
       </form>
     </Form>

@@ -101,6 +101,7 @@ import { planAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
+import SubmitButton from '@/components/SubmitButton';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -265,9 +266,7 @@ const CreateCategoryForm = () => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit" onPointerDown={(e) => e.stopPropagation()}>
-            Create
-          </Button>
+          <SubmitButton>Create</SubmitButton>
         </DialogClose>
       </form>
     </Form>
@@ -463,7 +462,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
       values.monthlyGoal.replace(',', '').replace('$', ''),
       10
     );
-    const name = values.name;
+    const name = values.name || categoryName;
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
     newPlan.updateCategory({ categoryId, name, monthlyGoal });
@@ -500,23 +499,27 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="Category Name"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        {categoryId !== 'uncategorizedIncome' &&
+          categoryId !== 'uncategorizedSavings' &&
+          categoryId !== 'uncategorizedSpending' && (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="Category Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
         <FormField
           control={form.control}
           name="monthlyGoal"
@@ -536,9 +539,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit" onPointerDown={(e) => e.stopPropagation()}>
-            Submit
-          </Button>
+          <SubmitButton>Save</SubmitButton>
         </DialogClose>
       </form>
     </Form>
@@ -720,7 +721,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Submit</Button>
+          <SubmitButton>Create</SubmitButton>
         </DialogClose>
       </form>
     </Form>
@@ -912,7 +913,7 @@ const EditSubcategoryForm = ({ subcategoryId, categoryId, subcategory }) => {
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Submit</Button>
+          <SubmitButton>Save</SubmitButton>
         </DialogClose>
       </form>
     </Form>
@@ -1151,15 +1152,13 @@ const CategoryCard = ({
           <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[3.5px]">
             <span className="text-sm font-bold">{category.name}</span>
             <div className="flex flex-row gap-1 items-center">
-              {!category.isImmutable && (
-                <div className="flex flex-col items-center justify-center">
-                  <EditCategoryDialogue
-                    categoryName={category.name}
-                    monthlyGoal={category.monthlyGoal}
-                    categoryId={category.categoryId}
-                  />
-                </div>
-              )}
+              <div className="flex flex-col items-center justify-center">
+                <EditCategoryDialogue
+                  categoryName={category.name}
+                  monthlyGoal={category.monthlyGoal}
+                  categoryId={category.categoryId}
+                />
+              </div>
               {!category.isImmutable && (
                 <DeleteCategoryDialogue categoryId={category.categoryId} />
               )}

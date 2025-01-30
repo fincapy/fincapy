@@ -42,6 +42,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { useAtom } from 'jotai';
 import { usersAtom } from '../state/atoms';
+import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   return (
@@ -145,7 +146,7 @@ const ChangeRoleForm = ({
           )}
         />
         <DialogClose asChild>
-          <Button type="submit">Submit</Button>
+          <SubmitButton>Save</SubmitButton>
         </DialogClose>
       </form>
     </Form>
@@ -354,9 +355,7 @@ const ChangeNameForm = ({
             </FormItem>
           )}
         />
-        <DialogClose asChild>
-          <Button type="submit">Submit</Button>
-        </DialogClose>
+        <SubmitButton>Save</SubmitButton>
       </form>
     </Form>
   );

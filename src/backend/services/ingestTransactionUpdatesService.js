@@ -1,4 +1,8 @@
-import { Transaction } from '../domain/transaction';
+import {
+  Transaction,
+  incomeTransactionTypes,
+  spendingTransactionTypes,
+} from '../domain/transaction';
 
 class IngestTransactionUpdatesService {
   constructor({
@@ -48,9 +52,14 @@ class IngestTransactionUpdatesService {
           plaidTransactions.accounts[plaidTransaction.account_id].subtype,
       });
 
+    let amount = plaidTransaction.amount;
+    if (incomeTransactionTypes.includes(aiTransactionCategories.type)) {
+      amount = Math.abs(amount);
+    }
+
     const transaction = new Transaction({
       transactionId: plaidTransaction.transaction_id,
-      amount: plaidTransaction.amount,
+      amount: amount,
       date: plaidTransaction.date,
       status: plaidTransaction.pending ? 'PENDING' : 'COMPLETED',
       description: plaidTransaction.merchant_name
@@ -97,9 +106,14 @@ class IngestTransactionUpdatesService {
           plaidTransactions.accounts[plaidTransaction.account_id].subtype,
       });
 
+    let amount = plaidTransaction.amount;
+    if (incomeTransactionTypes.includes(aiTransactionCategories.type)) {
+      amount = Math.abs(amount);
+    }
+
     const transaction = new Transaction({
       transactionId: plaidTransaction.transaction_id,
-      amount: plaidTransaction.amount,
+      amount: amount,
       date: plaidTransaction.date,
       status: plaidTransaction.pending ? 'PENDING' : 'COMPLETED',
       description: plaidTransaction.merchant_name

@@ -35,6 +35,10 @@ class Subcategory {
     );
   }
 
+  capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   toSpendingView(category, startDate, endDate, fractionOfMonths) {
     const transactions = [];
     let currentSpending = 0;
@@ -47,7 +51,8 @@ class Subcategory {
         spendingTransactionTypes.includes(transaction.type)
       ) {
         currentSpending += transaction.amount;
-        transaction.categoryName = category.name + ' - ' + this.name;
+        transaction.categoryName = `${this.capitalize(category.type)} - ${category.name} - ${this.name}`;
+        transaction.categoryId = this.subcategoryId;
         transactions.push(transaction);
         category.transactions.push(transaction);
       }

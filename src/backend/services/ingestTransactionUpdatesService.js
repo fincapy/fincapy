@@ -35,7 +35,7 @@ class IngestTransactionUpdatesService {
     const aiTransactionCategories =
       await this.openaiAdapter.categorizeTransaction({
         categoryIdToNameMap,
-        recategorizations: plan.recategorizations,
+        transactionEdits: plan.transactionEdits,
         transactionAmount: plaidTransaction.amount,
         transactionCategory: plaidTransaction.personal_finance_category.primary,
         transactionCategoryConfidenceLevel:
@@ -50,7 +50,6 @@ class IngestTransactionUpdatesService {
 
     const transaction = new Transaction({
       transactionId: plaidTransaction.transaction_id,
-      updatedAt: plaidTransaction.datetime,
       amount: plaidTransaction.amount,
       date: plaidTransaction.date,
       status: plaidTransaction.pending ? 'PENDING' : 'COMPLETED',
@@ -58,6 +57,7 @@ class IngestTransactionUpdatesService {
         ? plaidTransaction.merchant_name
         : plaidTransaction.original_description,
       type: aiTransactionCategories.type,
+      createdByUser: false,
     });
 
     const category = plan.categories.find(
@@ -84,7 +84,7 @@ class IngestTransactionUpdatesService {
     const aiTransactionCategories =
       await this.openaiAdapter.categorizeTransaction({
         categoryIdToNameMap,
-        recategorizations: plan.recategorizations,
+        transactionEdits: plan.transactionEdits,
         transactionAmount: plaidTransaction.amount,
         transactionCategory: plaidTransaction.personal_finance_category.primary,
         transactionCategoryConfidenceLevel:
@@ -99,7 +99,6 @@ class IngestTransactionUpdatesService {
 
     const transaction = new Transaction({
       transactionId: plaidTransaction.transaction_id,
-      updatedAt: plaidTransaction.datetime,
       amount: plaidTransaction.amount,
       date: plaidTransaction.date,
       status: plaidTransaction.pending ? 'PENDING' : 'COMPLETED',
@@ -107,6 +106,7 @@ class IngestTransactionUpdatesService {
         ? plaidTransaction.merchant_name
         : plaidTransaction.original_description,
       type: aiTransactionCategories.type,
+      createdByUser: false,
     });
 
     plan.categories.forEach((category) => {

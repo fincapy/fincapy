@@ -10,7 +10,7 @@ class OpenaiAdapter {
 
   async categorizeTransaction({
     categoryIdToNameMap,
-    recategorizations,
+    transactionEdits,
     transactionAmount,
     transactionCategory,
     transactionCategoryConfidenceLevel,
@@ -43,9 +43,9 @@ class OpenaiAdapter {
     };
 
     const prompt = `Categorize the transaction based on the following data. Money coming in will be negative. Money going out will be positive. For instance, credit card refunds, interest payments, etc. are negative. Refunds should be categorized the same as if they were purchases:
-    The recategorized manually by user transactions:
-    ${JSON.stringify(recategorizations)}
-    
+    Transactions manually edited by the user:
+    ${JSON.stringify(transactionEdits)}
+
     The transaction to be categorized:
     ${JSON.stringify({
       amount: transactionAmount,

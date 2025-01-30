@@ -1,18 +1,21 @@
 class TransactionEdit {
   constructor({
     createdAt,
-    transactionOldDescription,
-    transactionNewDescription,
-
-    transactionOldAmount,
-    transactionNewAmount,
+    oldTransactionDescription,
+    newTransactionDescription,
+    oldTransactionType,
+    newTransactionType,
+    oldTransactionCategory,
+    newTransactionCategory,
   }) {
-    this.transactionId = transactionId;
-    this.updatedAt = updatedAt;
-    this.amount = amount;
-    this.date = date;
-    this.description = description;
-    this.status = status;
-    this.type = type;
+    this.createdAt = createdAt;
+    this.oldTransactionDescription = oldTransactionDescription;
+    this.newTransactionDescription = newTransactionDescription;
+    this.oldTransactionType = oldTransactionType;
+    this.newTransactionType = newTransactionType;
+    this.oldTransactionCategory = oldTransactionCategory;
+    this.newTransactionCategory = newTransactionCategory;
   }
 }
+
+export { TransactionEdit };

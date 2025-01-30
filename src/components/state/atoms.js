@@ -22,6 +22,10 @@ export const transactionsViewAtom = atom((get) => {
 });
 
 export const categoryNamesAtom = atom((get) => {
+  const capitalize = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   const plan = get(planAtom);
   if (!plan) {
     return [];
@@ -30,11 +34,16 @@ export const categoryNamesAtom = atom((get) => {
   let categoryNames = [];
 
   plan.categories.forEach((category) => {
-    categoryNames.push({ id: category.categoryId, name: category.name });
+    if (category.type !== 'savings') {
+      categoryNames.push({
+        id: category.categoryId,
+        name: `${capitalize(category.type)} - ${category.name}`,
+      });
+    }
     category.subcategories.forEach((subcategory) => {
       categoryNames.push({
         id: subcategory.subcategoryId,
-        name: `${category.name} - ${subcategory.name}`,
+        name: `${capitalize(category.type)} - ${category.name} - ${subcategory.name}`,
       });
     });
   });

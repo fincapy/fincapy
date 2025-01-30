@@ -46,16 +46,7 @@ import {
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  createSubcategory,
-  updateSubcategory,
-  deleteSubcategory,
-  reorderCategories,
-  reorderSubcategories,
-} from './serverActions';
+import { createTransaction } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import { useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -96,158 +87,253 @@ import {
   StartDateContext,
   EndDateContext,
 } from '../dashboard-layout/datesContext';
-import { useAtom } from 'jotai';
-import { transactionsViewAtom } from '../state/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { planAtom } from '../state/atoms';
+import { transactionsViewAtom, categoryNamesAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { transactionTypes } from '@/backend/domain/transaction';
 
-const createCategoryFormSchema = z.object({
-  name: z.string().min(1, {
-    message: 'Name must be at least 1 character.',
+export function SelectDemo({ field }) {
+  const categoryNames = useAtomValue(categoryNamesAtom);
+
+  return (
+    <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <FormControl>
+        <SelectTrigger>
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+      </FormControl>
+      <SelectContent>
+        {categoryNames.map((category) => (
+          <SelectItem key={category.id} value={category.id}>
+            {category.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+const recategorizeFormSchema = z.object({
+  category: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Enter a date in the format YYYY-MM-DD',
   }),
-  monthlyGoal: z.string().regex(/^[\d$,]+$/, {
-    message: 'Enter a number between 0 and 1000000000',
-  }),
+  description: z
+    .string()
+    .min(1, {
+      message: 'Description must be at least 1 character.',
+    })
+    .max(100, {
+      message: 'Description should be less than 100 characters',
+    }),
+  status: z.string(),
+  type: z.string(),
+  amount: z.union([
+    z.number().refine((value) => /^\d+(\.\d{1,2})?$/.test(value.toString()), {
+      message: 'Must be a valid currency format (up to two decimal places)',
+    }),
+    z
+      .string()
+      .regex(
+        /^\d+(\.\d{1,2})?$/,
+        'Must be a valid currency format (up to two decimal places)'
+      ),
+  ]),
 });
-const CreateCategoryForm = () => {
-  const [planState, setPlanState] = useAtom(planAtom);
+
+const CreateTransactionForm = ({ transaction, transactionId }) => {
   const { toast } = useToast();
-  const type = useContext(TypeContext);
+  const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
-    resolver: zodResolver(createCategoryFormSchema),
+    resolver: zodResolver(recategorizeFormSchema),
     defaultValues: {
-      name: '',
-      monthlyGoal: null,
+      description: 'Your Description',
+      date: new Date().toISOString().split('T')[0],
+      status: 'COMPLETED',
+      type: 'spending',
+      amount: 0.0,
     },
   });
 
-  function handleCategoryCreation({
-    name,
-    categoryId,
-    monthlyGoal,
-    oldPlan,
-    setPlanState,
-    values,
+  const handleServerCreateTransaction = ({
+    oldPlanState,
     onSubmit,
-  }) {
+    values,
+  }) => {
     setTimeout(async () => {
       try {
-        const result = await createCategory({
-          name,
-          categoryId,
-          monthlyGoal,
+        const result = await createTransaction({
           planId: 'initial',
-          type,
+          categoryId: values.category,
+          date: values.date,
+          description: values.description,
+          status: values.status,
+          type: values.type,
+          amount: parseFloat(values.amount, 10),
         });
         if (!result) {
-          setPlanState(oldPlan);
+          setPlanState(oldPlanState);
           toast({
             variant: 'outline',
             title: 'Uh oh! Something went wrong.',
             description: 'There was a problem with your request.',
             action: (
-              <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              <ToastAction
+                altText="Try again"
+                onClick={() => {
+                  onSubmit(values);
+                }}
+              >
                 Try again
               </ToastAction>
             ),
           });
         }
       } catch (error) {
-        setPlanState(oldPlan);
+        setPlanState(oldPlanState);
         toast({
           variant: 'outline',
           title: 'Network Error',
           description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
+              Try again
+            </ToastAction>
+          ),
         });
       }
     }, 0);
-  }
+  };
 
-  async function onSubmit(values) {
-    const monthlyGoal = parseInt(
-      values.monthlyGoal.replace(',', '').replace('$', ''),
-      10
-    );
-    const name = values.name;
-    const categoryId = uuidv4();
-    const oldPlan = planState.clone();
-    const newPlan = planState.clone();
-    newPlan.addCategory({
-      categoryId,
-      name,
-      monthlyGoal,
-      type,
-      isImmutable: false,
+  const onSubmit = async (values) => {
+    const oldPlanState = planState.clone();
+    const newPlanState = planState.clone();
+    newPlanState.createTransaction({
+      categoryId: values.category,
+      date: values.date,
+      description: values.description,
+      status: values.status,
+      type: values.type,
+      amount: parseFloat(values.amount, 10),
     });
-    setPlanState(newPlan);
-    handleCategoryCreation({
-      name,
-      categoryId,
-      monthlyGoal,
-      oldPlan,
-      setPlanState,
-      values,
+    setPlanState(newPlanState);
+    handleServerCreateTransaction({
+      oldPlanState: oldPlanState,
       onSubmit,
+      values,
+      transactionId,
+      planId: 'initial',
+      newCategoryId: values.category,
     });
-  }
-
-  const formatValue = (value) => {
-    if (value === null || value === undefined || value === '' || value === '$')
-      return '';
-    const numericValue = value.replace(/[^0-9]/g, '');
-    return `$${new Intl.NumberFormat('en-US').format(Number(numericValue))}`;
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
-        onPointerDown={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="flex flex-col gap-3 h-full"
       >
         <FormField
           control={form.control}
-          name="name"
+          name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="Category Name"
-                  autoComplete="off"
-                  {...field}
-                />
-              </FormControl>
+              <FormLabel>Transaction Date</FormLabel>
+              <Input type="text" autoComplete="off" {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <Input type="text" autoComplete="off" {...field} />
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name="monthlyGoal"
+          name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Goal</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="$0"
-                  {...field}
-                  autoComplete="off"
-                  value={formatValue(field.value)}
-                />
-              </FormControl>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {transactionTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <SelectDemo field={field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <Input type="text" {...field} autoComplete="off" />
               <FormMessage />
             </FormItem>
           )}
         />
         <DialogClose asChild>
-          <Button type="submit" onPointerDown={(e) => e.stopPropagation()}>
-            Create
-          </Button>
+          <Button type="submit">Save</Button>
         </DialogClose>
       </form>
     </Form>
@@ -273,11 +359,11 @@ const CreateTransactionDialogue = () => {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>{`Create Transaction`}</DialogTitle>
-          <DialogDescription>{`Add a new custom transaction`}</DialogDescription>
+          <DialogTitle>Create Transaction</DialogTitle>
+          <DialogDescription>Add a new custom transaction</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <CreateCategoryForm />
+          <CreateTransactionForm />
         </div>
       </DialogContent>
     </Dialog>

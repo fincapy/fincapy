@@ -1,12 +1,19 @@
 'use server';
-import { RecategorizeTransactionService } from '@/backend/services/recategorizeTransactionService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { getSession } from '@auth0/nextjs-auth0';
+import { EditTransactionService } from '@/backend/services/editTransactionService';
 
-const recategorizeTransaction = async ({
+const editTransaction = async ({
   planId,
   transactionId,
+  categoryId,
+  subcategoryId,
+  date,
+  description,
+  status,
+  type,
+  amount,
   newCategoryId,
 }) => {
   try {
@@ -18,13 +25,20 @@ const recategorizeTransaction = async ({
 
     const redisAdapter = new RedisAdapter({ redisClient });
     const tenantRepository = new TenantRepository({ redisAdapter });
-    const service = new RecategorizeTransactionService({
-      tenantRepository: tenantRepository,
+    const service = new EditTransactionService({
+      tenantRepository,
     });
     await service.execute({
       tenantId,
       planId,
       transactionId,
+      categoryId,
+      subcategoryId,
+      date,
+      description,
+      status,
+      type,
+      amount,
       newCategoryId,
     });
     return true;
@@ -34,4 +48,4 @@ const recategorizeTransaction = async ({
   }
 };
 
-export { recategorizeTransaction };
+export { editTransaction };

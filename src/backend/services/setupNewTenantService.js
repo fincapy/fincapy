@@ -32,7 +32,7 @@ class SetupNewTenantService {
     const plan = new Plan({
       planId: 'initial',
       categories: [],
-      recategorizations: [],
+      transactionEdits: [],
       startDate: null,
       endDate: null,
     });

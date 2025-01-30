@@ -71,6 +71,10 @@ class Category {
     this.subcategories = subcategories;
   }
 
+  capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   toSpendingView(startDate, endDate, fractionOfMonths) {
     const transactions = [];
     let currentSpending = 0;
@@ -83,7 +87,8 @@ class Category {
         spendingTransactionTypes.includes(transaction.type)
       ) {
         currentSpending += transaction.amount;
-        transaction.categoryName = this.name;
+        transaction.categoryName = `${this.capitalize(this.type)} - ${this.name}`;
+        transaction.categoryId = this.categoryId;
         transactions.push(transaction);
       }
     });

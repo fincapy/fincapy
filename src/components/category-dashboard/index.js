@@ -1042,8 +1042,11 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[95vw] max-h-[95vh]"
+        className="max-w-[95vw] max-h-[80vh]"
         id="transaction-modal"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <VisuallyHidden>
@@ -1053,7 +1056,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <div className="grid max-w-[95vw] max-h-[85vh]">
+        <div className="grid place-items-center w-full max-h-[70vh]">
           <TransactionTable transactions={transactions} />
         </div>
       </DialogContent>
@@ -1095,6 +1098,7 @@ const CategoryCard = ({
     (category.currentNet / category.proratedGoal) * 100,
     100
   );
+  category.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
     <Card

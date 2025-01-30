@@ -33,17 +33,16 @@ import {
 import { useContext } from 'react';
 import { CategoryNamesContext } from '../category-dashboard/categoryNamesContext';
 import { TransactionContext } from './transaction';
-import { recategorizeTransaction } from './serverActions';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import { useAtom, useAtomValue } from 'jotai';
 import { planAtom, categoryNamesAtom } from '../state/atoms';
 import { Input } from '@/components/ui/input';
 import { transactionTypes } from '@/backend/domain/transaction';
+import { editTransaction } from '@/components/transaction-table/serverActions';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
-  console.log('field', field);
 
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -78,9 +77,17 @@ const recategorizeFormSchema = z.object({
     }),
   status: z.string(),
   type: z.string(),
-  amount: z.string().regex(/^\d+(?:\.\d{1,2})?$/, {
-    message: 'Enter a valid currency amount',
-  }),
+  amount: z.union([
+    z.number().refine((value) => /^\d+(\.\d{1,2})?$/.test(value.toString()), {
+      message: 'Must be a valid currency format (up to two decimal places)',
+    }),
+    z
+      .string()
+      .regex(
+        /^\d+(\.\d{1,2})?$/,
+        'Must be a valid currency format (up to two decimal places)'
+      ),
+  ]),
 });
 
 const EditTransactionForm = ({
@@ -103,7 +110,7 @@ const EditTransactionForm = ({
     },
   });
 
-  const handleServerRecategorizeTransaction = ({
+  const handleServerEditTransaction = ({
     oldPlanState,
     onSubmit,
     values,
@@ -111,10 +118,17 @@ const EditTransactionForm = ({
   }) => {
     setTimeout(async () => {
       try {
-        const result = await recategorizeTransaction({
+        const result = await editTransaction({
           transactionId,
           planId: 'initial',
           newCategoryId: values.category,
+          categoryId: transaction.categoryId,
+          subcategoryId: transaction.subcategoryId,
+          date: values.date,
+          description: values.description,
+          status: values.status,
+          type: values.type,
+          amount: parseFloat(values.amount, 10),
         });
         if (!result) {
           setPlanState(oldPlanState);
@@ -153,12 +167,19 @@ const EditTransactionForm = ({
   const onSubmit = async (values) => {
     const oldPlanState = planState.clone();
     const newPlanState = planState.clone();
-    newPlanState.recategorizeTransaction({
+    newPlanState.editTransaction({
       transactionId,
       newCategoryId: values.category,
+      categoryId: transaction.categoryId,
+      subcategoryId: transaction.subcategoryId,
+      date: values.date,
+      description: values.description,
+      status: values.status,
+      type: values.type,
+      amount: parseFloat(values.amount, 10),
     });
     setPlanState(newPlanState);
-    await handleServerRecategorizeTransaction({
+    handleServerEditTransaction({
       oldPlanState: oldPlanState,
       onSubmit,
       values,
@@ -182,7 +203,12 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Date</FormLabel>
-              <Input type="text" {...field} defaultValue={field.value} />
+              <Input
+                type="text"
+                autoComplete="off"
+                {...field}
+                defaultValue={field.value}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -193,7 +219,12 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input type="text" {...field} defaultValue={field.value} />
+              <Input
+                type="text"
+                autoComplete="off"
+                {...field}
+                defaultValue={field.value}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -260,12 +291,17 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <Input type="text" {...field} defaultValue={field.value} />
+              <Input
+                type="text"
+                {...field}
+                autoComplete="off"
+                defaultValue={field.value}
+              />
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Create</Button>
+        <Button type="submit">Save</Button>
       </form>
     </Form>
   );
@@ -278,7 +314,10 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-11/12">
+      <DialogContent
+        className="sm:max-w-11/12"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <EditTransactionForm
           transaction={row.original}
           transactionId={transactionId}

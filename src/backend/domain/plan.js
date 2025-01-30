@@ -321,7 +321,7 @@ class Plan {
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
         category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
-        net += category.currentNet;
+        net -= category.currentNet;
       } else if (category.type === 'income') {
         category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
         net += category.currentNet;

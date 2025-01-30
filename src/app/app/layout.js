@@ -17,7 +17,6 @@ export default async function Layout({ children }) {
   let endDate = headersList.get('x-end-date');
   let planId = headersList.get('x-plan-id');
   const page = headersList.get('x-page');
-  console.log(page);
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ redisAdapter });

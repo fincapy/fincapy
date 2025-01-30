@@ -24,7 +24,7 @@ export default async function Layout({ children }) {
   const tenant = await tenantRepository.get({ tenantId });
 
   if (!tenant) {
-    return <div>Tenant not found</div>;
+    redirect('/api/auth/login');
   }
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(

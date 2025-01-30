@@ -12,7 +12,7 @@ const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
 
 const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'base64');
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY || 'key', 'base64');
 const IV_LENGTH = 12;
 
 function encrypt(data) {

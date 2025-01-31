@@ -34,7 +34,7 @@ import React from 'react';
 import Script from 'next/script';
 import { PlaidItemsContext } from '../dashboard-layout/plaidItemsContext';
 import { useAtom, useSetAtom } from 'jotai';
-import { plaidItemsAtom } from '../state/atoms';
+import { plaidItemsAtom, isLoadingAtom } from '../state/atoms';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -345,7 +345,7 @@ const NewFinancialInstitutionCard = () => {
 
 export default function FinancialInstitutionsDashboard() {
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
     if (plaidItemsState) {
       const timer = setTimeout(() => {

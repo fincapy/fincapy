@@ -38,7 +38,7 @@ import { useContext } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { useAtom } from 'jotai';
-import { usersAtom } from '../state/atoms';
+import { usersAtom, isLoadingAtom } from '../state/atoms';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -242,7 +242,7 @@ const InviteUserDialogue = () => {
 
 export default function Dashboard() {
   const [usersState, setUsersState] = useAtom(usersAtom);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
 
   useEffect(() => {
     if (usersState) {

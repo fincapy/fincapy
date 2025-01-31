@@ -88,7 +88,7 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom, useAtomValue } from 'jotai';
-import { planAtom } from '../state/atoms';
+import { planAtom, isLoadingAtom } from '../state/atoms';
 import { transactionsViewAtom, categoryNamesAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
@@ -464,7 +464,7 @@ const DatePickers = () => {
 const TransactionsDashboard = () => {
   const [transactions, setTransactions] = useAtom(transactionsViewAtom);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
     if (transactions) {
       const timer = setTimeout(() => {

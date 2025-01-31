@@ -97,7 +97,7 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom } from 'jotai';
-import { planAtom } from '../state/atoms';
+import { planAtom, isLoadingAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -1561,7 +1561,7 @@ export default function CategoryDashboard({ type, categories }) {
   const { endDateState, setEndDateState } = useContext(EndDateContext);
   const [categoriesState, setCategoriesState] = useState(categories);
   const [categoryNames, setCategoryNames] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const { toast } = useToast();
   useEffect(() => {
     if (categories.length > 0) {
@@ -1660,7 +1660,7 @@ export default function CategoryDashboard({ type, categories }) {
                   className="flex flex-col w-11/12 shadow-lg rounded-xl"
                   key={index}
                 >
-                  <Skeleton className="h-[129.73px] w-full rounded-xl bg-card" />
+                  <Skeleton className="h-[100.23px] w-full rounded-xl bg-card" />
                 </div>
               )
             )}

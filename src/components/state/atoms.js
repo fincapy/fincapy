@@ -54,3 +54,5 @@ export const categoryNamesAtom = atom((get) => {
 export const plaidItemsAtom = atom([]);
 
 export const usersAtom = atom(null);
+
+export const isLoadingAtom = atom(true);

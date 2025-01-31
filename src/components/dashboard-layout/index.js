@@ -339,7 +339,6 @@ export default function DashboardLayout({
         }),
       });
       setPlanState(newPlan);
-      console.log('set new plan state');
     };
 
     const execute = async () => {

@@ -256,7 +256,6 @@ class Plan {
       });
     });
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-    console.log('transactions', transactions);
     return transactions;
   }
 

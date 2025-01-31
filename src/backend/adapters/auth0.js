@@ -7,7 +7,6 @@ class Auth0Adapter {
 
   async getUserByEmail(email) {
     const response = await this.client.usersByEmail.getByEmail({ email });
-    console.log('getUserByEmailResponse', response);
     return response.data[0];
   }
 
@@ -39,7 +38,6 @@ class Auth0Adapter {
       q: query,
       search_engine: 'v3',
     });
-    console.log('getUsersByTenantResponse', response);
     return response.data;
   }
 

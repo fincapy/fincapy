@@ -654,15 +654,11 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       10
     );
     const name = values.name;
-    console.log('here?');
-    console.log('planState', planState);
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
-    console.log('what about here?');
     const category = newPlan.categories.find(
       (category) => category.categoryId === categoryId
     );
-    console.log('category', category);
     category.createSubcategory({ name, monthlyGoal, isImmutable: false });
     setPlanState(newPlan);
     handleServerSubcategoryCreation({

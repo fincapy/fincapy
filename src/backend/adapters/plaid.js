@@ -2,7 +2,10 @@ import { redirect } from 'next/dist/server/api-utils';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 const configuration = new Configuration({
-  basePath: PlaidEnvironments.sandbox, // Use 'development' or 'production' for other environments
+  basePath:
+    process.env.NODE_ENV === 'production'
+      ? PlaidEnvironments.production
+      : PlaidEnvironments.sandbox, // Use 'development' or 'production' for other environments
   baseOptions: {
     headers: {
       'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,

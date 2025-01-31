@@ -1566,7 +1566,9 @@ export default function CategoryDashboard({ type, categories }) {
   useEffect(() => {
     if (categories.length > 0) {
       setCategoriesState(categories);
-      setIsLoading(false);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
       const newCategoryNames = Object.values(categoriesState)
         .map((category) =>
           category.subcategories.map((subcategory) => {
@@ -1597,6 +1599,7 @@ export default function CategoryDashboard({ type, categories }) {
         return 0;
       });
       setCategoryNames(newCategoryNames);
+      return () => clearTimeout(timer);
     }
   }, [categories]);
 

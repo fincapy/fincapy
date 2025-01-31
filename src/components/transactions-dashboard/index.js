@@ -467,7 +467,10 @@ const TransactionsDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (transactions) {
-      setIsLoading(false);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [transactions]);
 

@@ -246,7 +246,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (usersState) {
-      setIsLoading(false);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [usersState]);
 

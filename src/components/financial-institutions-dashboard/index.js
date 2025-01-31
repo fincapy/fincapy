@@ -348,7 +348,10 @@ export default function FinancialInstitutionsDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (plaidItemsState) {
-      setIsLoading(false);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [plaidItemsState]);
   return (

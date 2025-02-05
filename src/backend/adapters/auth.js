@@ -1,4 +1,5 @@
 import crypto, { timingSafeEqual } from 'crypto';
+import bcrypt from 'bcrypt';
 import { Session } from '../domain/session';
 
 const SESSION_TTL = 60 * 60; // 1 hour
@@ -65,7 +66,19 @@ class SessionManager {
     // Convert session ID to buffers for timing-safe comparison
     const providedBuffer = Buffer.from(providedSessionId);
     const session = await this.sessionRepository.get({ sessionId: providedSessionId });
-    if (session === null) {
+    
+    // Use constant-time operations for session validation
+    if (!session || !session.sessionId) {
+      this.deleteCookie({ res, cookies });
+      return false;
+    }
+
+    // Perform timing-safe comparison of session IDs
+    const storedBuffer = Buffer.from(session.sessionId);
+    const isValidSession = providedBuffer.length === storedBuffer.length && 
+                          timingSafeEqual(providedBuffer, storedBuffer);
+    
+    if (!isValidSession) {
       this.deleteCookie({ res, cookies });
       return false;
     }
@@ -101,7 +114,18 @@ class SessionManager {
     // Convert session ID to buffers for timing-safe comparison
     const providedBuffer = Buffer.from(providedSessionId);
     const session = await this.sessionRepository.get({ sessionId: providedSessionId });
-    if (session === null) {
+    
+    // Use constant-time operations for session validation
+    if (!session || !session.sessionId) {
+      return false;
+    }
+
+    // Perform timing-safe comparison of session IDs
+    const storedBuffer = Buffer.from(session.sessionId);
+    const isValidSession = providedBuffer.length === storedBuffer.length && 
+                          timingSafeEqual(providedBuffer, storedBuffer);
+    
+    if (!isValidSession) {
       return false;
     }
     if (Date.now() - session.createdAt > SESSION_TTL) {

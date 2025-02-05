@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto, { timingSafeEqual } from 'crypto';
 import { Session } from '../domain/session';
 
 const SESSION_TTL = 60 * 60; // 1 hour
@@ -55,13 +55,16 @@ class SessionManager {
         throw new Error('Attempting to use touchSession in a server component');
       }
     }
-    const sessionId = cookies
+    const providedSessionId = cookies
       ? cookies.get('session-id')?.value
       : req.cookies.get('session-id')?.value;
-    if (!sessionId) {
+    if (!providedSessionId) {
       return false;
     }
-    const session = await this.sessionRepository.get({ sessionId });
+    
+    // Convert session ID to buffers for timing-safe comparison
+    const providedBuffer = Buffer.from(providedSessionId);
+    const session = await this.sessionRepository.get({ sessionId: providedSessionId });
     if (session === null) {
       this.deleteCookie({ res, cookies });
       return false;
@@ -88,13 +91,16 @@ class SessionManager {
   }
 
   async getSession({ req, cookies }) {
-    const sessionId = cookies
+    const providedSessionId = cookies
       ? cookies.get('session-id')?.value
       : req.cookies.get('session-id')?.value;
-    if (!sessionId) {
+    if (!providedSessionId) {
       return false;
     }
-    const session = await this.sessionRepository.get({ sessionId });
+    
+    // Convert session ID to buffers for timing-safe comparison
+    const providedBuffer = Buffer.from(providedSessionId);
+    const session = await this.sessionRepository.get({ sessionId: providedSessionId });
     if (session === null) {
       return false;
     }

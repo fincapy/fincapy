@@ -10,7 +10,9 @@ import { UpdateSubcategoryService } from '@/backend/services/updateSubcategorySe
 import { DeleteSubcategoryService } from '@/backend/services/deleteSubcategoryService';
 import { ReorderCategoriesService } from '@/backend/services/reorderCategoriesService';
 import { ReorderSubcategoriesService } from '@/backend/services/reorderSubcategoriesService';
-import { getSession } from '@auth0/nextjs-auth0';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { cookies } from 'next/headers';
 
 const createCategory = async ({
   categoryId,
@@ -20,14 +22,15 @@ const createCategory = async ({
   type,
 }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
 
-    const tenantId = session.user.tenant_id;
-
-    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantId = session.tenantId;
     const service = new CreateCategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -50,13 +53,15 @@ const createCategory = async ({
 
 const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const service = new UpdateCategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -77,13 +82,15 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
 const deleteCategory = async ({ categoryId, planId }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const service = new DeleteCategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -102,13 +109,15 @@ const deleteCategory = async ({ categoryId, planId }) => {
 
 const createSubcategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const service = new CreateSubcategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -136,13 +145,15 @@ const updateSubcategory = async ({
   planId,
 }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const service = new UpdateSubcategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -169,13 +180,15 @@ const deleteSubcategory = async ({
   type,
 }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const service = new DeleteSubcategoryService({
       tenantRepository: new TenantRepository({ redisAdapter }),
     });
@@ -195,13 +208,15 @@ const deleteSubcategory = async ({
 };
 
 const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
-  const session = await getSession();
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.touchSession({ cookies: cookies() });
   if (!session) {
     return false;
   }
-  const tenantId = session.user.tenant_id;
+  const tenantId = session.tenantId;
 
-  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderCategoriesService({
     tenantRepository: new TenantRepository({ redisAdapter }),
   });
@@ -221,13 +236,15 @@ const reorderSubcategories = async ({
   oldIndex,
   newIndex,
 }) => {
-  const session = await getSession();
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.touchSession({ cookies: cookies() });
   if (!session) {
     return false;
   }
-  const tenantId = session.user.tenant_id;
+  const tenantId = session.tenantId;
 
-  const redisAdapter = new RedisAdapter({ redisClient });
   const service = new ReorderSubcategoriesService({
     tenantRepository: new TenantRepository({ redisAdapter }),
   });

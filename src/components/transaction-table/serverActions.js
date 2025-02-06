@@ -1,8 +1,10 @@
 'use server';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { getSession } from '@auth0/nextjs-auth0';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { EditTransactionService } from '@/backend/services/editTransactionService';
+import { cookies } from 'next/headers';
 
 const editTransaction = async ({
   planId,
@@ -17,13 +19,15 @@ const editTransaction = async ({
   newCategoryId,
 }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const tenantRepository = new TenantRepository({ redisAdapter });
     const service = new EditTransactionService({
       tenantRepository,

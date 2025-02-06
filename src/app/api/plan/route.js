@@ -1,10 +1,16 @@
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { redisClient, RedisAdapter } from '@/backend/adapters/redisAdapter';
-import { getSession } from '@auth0/nextjs-auth0';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { parse } from 'date-fns';
 
-export const GET = async (req) => {
-  const session = await getSession(req);
+export const GET = async (req, res) => {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const sessionRepository = new SessionRepository({
+    redisAdapter,
+  });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.touchSession({ req, res });
   const query = req.nextUrl.searchParams;
   const startDate = query.get('startDate');
   const endDate = query.get('endDate');
@@ -14,8 +20,7 @@ export const GET = async (req) => {
       status: 401,
     });
   }
-  const tenantId = session.user.tenant_id;
-  const redisAdapter = new RedisAdapter({ redisClient });
+  const tenantId = session.tenantId;
   const tenantRepository = new TenantRepository({ redisAdapter });
   const tenant = await tenantRepository.get({ tenantId });
   const plan = tenant.plans.find((plan) => plan.planId === planId);

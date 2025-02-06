@@ -41,7 +41,7 @@ class TenantRepository {
   }
 
   async get({ tenantId }) {
-    const tenantObject = await this.redisAdapter.get(tenantId);
+    const tenantObject = await this.redisAdapter.get(`tenant:${tenantId}`);
     if (tenantObject === null) {
       return null;
     }
@@ -69,7 +69,9 @@ class TenantRepository {
   }
 
   async getWithTransaction({ tenantId }) {
-    const tenantObject = await this.redisAdapter.getWithTransaction(tenantId);
+    const tenantObject = await this.redisAdapter.getWithTransaction(
+      `tenant:${tenantId}`
+    );
     if (tenantObject === null) {
       return null;
     }
@@ -115,7 +117,7 @@ class TenantRepository {
     const packedTenant = packr.pack(tenant);
     const compressedTenant = await brotliCompress(packedTenant);
     const encryptedTenant = encrypt(compressedTenant);
-    await this.redisAdapter.set(tenantId, encryptedTenant);
+    await this.redisAdapter.set(`tenant:${tenantId}`, encryptedTenant);
   }
 }
 

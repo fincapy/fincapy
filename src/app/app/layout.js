@@ -2,25 +2,35 @@ import DashboardLayout from '@/components/dashboard-layout';
 import { redirect } from 'next/navigation';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { parse } from 'date-fns';
 import { Providers } from '@/components/state/provider';
 import { Toaster } from '@/components/ui/toaster';
-import { cookies } from 'next/headers';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { SessionManager } from '@/backend/adapters/auth';
+import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 
 export default async function Layout({ children }) {
   const headersList = headers();
-  const tenantId = headersList.get('x-tenant-id');
   const nonce = headersList.get('x-nonce');
-  const userEmail = headersList.get('x-user-email');
-  let startDate = headersList.get('x-start-date');
-  let endDate = headersList.get('x-end-date');
-  let planId = headersList.get('x-plan-id');
+  let startDate;
+  let endDate;
+  let planId;
   const page = headersList.get('x-page');
 
   const redisAdapter = new RedisAdapter({ redisClient });
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.getSession({ cookies: cookies() });
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  const userRepository = new UserRepository({ redisAdapter });
+  const user = await userRepository.get({ userId: session.userId });
   const tenantRepository = new TenantRepository({ redisAdapter });
-  const tenant = await tenantRepository.get({ tenantId });
+  const tenant = await tenantRepository.get({ tenantId: user.tenantId });
 
   if (!tenant) {
     redirect('/api/auth/login');
@@ -65,7 +75,6 @@ export default async function Layout({ children }) {
   plan.endDate = endDate;
   const planView = plan.toView();
   let users = [];
-  const user = tenant.users.find((user) => user.email === userEmail);
   if (user.role === 'owner') {
     users = tenant.users;
   }
@@ -80,7 +89,7 @@ export default async function Layout({ children }) {
   return (
     <Providers>
       <DashboardLayout
-        userEmail={userEmail}
+        userEmail={user.emails[0]}
         userRole={user.role}
         nonce={nonce}
         plan={planView}

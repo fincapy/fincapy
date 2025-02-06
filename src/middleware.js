@@ -1,28 +1,7 @@
 // middleware.js
-import { withMiddlewareAuthRequired } from '@auth0/nextjs-auth0/edge';
-import { getSession } from '@auth0/nextjs-auth0/edge';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function middleware(request) {
-  let session = null;
-  if (
-    request.nextUrl.pathname.startsWith('/app') ||
-    request.nextUrl.pathname === '/'
-  ) {
-    session = await getSession(request);
-
-    if (request.nextUrl.pathname === '/') {
-      if (session) {
-        return NextResponse.redirect(new URL('/app', request.url));
-      }
-    } else {
-      if (!session) {
-        return NextResponse.redirect(new URL('/api/auth/login', request.url));
-      }
-    }
-  }
-
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const prodCspHeader = `
     default-src 'self';
@@ -55,19 +34,19 @@ export async function middleware(request) {
     );
   }
 
-  if (session) {
-    requestHeaders.set('x-tenant-id', session.user.tenant_id);
-    requestHeaders.set('x-user-email', session.user.email);
-    const cookies = request.cookies;
-    const pageCookie = cookies.get('page');
-    let page = 'spending';
-    if (pageCookie) {
-      if (pageCookie.value) {
-        page = pageCookie.value;
-      }
-    }
-    requestHeaders.set('x-page', page);
-  }
+  // if (session) {
+  //   requestHeaders.set('x-tenant-id', session.user.tenant_id);
+  //   requestHeaders.set('x-user-email', session.user.email);
+  //   const cookies = request.cookies;
+  //   const pageCookie = cookies.get('page');
+  //   let page = 'spending';
+  //   if (pageCookie) {
+  //     if (pageCookie.value) {
+  //       page = pageCookie.value;
+  //     }
+  //   }
+  //   requestHeaders.set('x-page', page);
+  // }
 
   const response = NextResponse.next({
     request: {

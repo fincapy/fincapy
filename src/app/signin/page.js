@@ -13,12 +13,15 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useState } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
+import { authenticateEmailPassword } from './serverActions';
+import { useRouter } from 'next/navigation';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,8 +40,10 @@ const LoginForm = () => {
 
     // TODO: Implement login logic here
     try {
-      // Placeholder for login implementation
-      setSuccess(true);
+      const result = await authenticateEmailPassword({ email, password });
+      if (result) {
+        router.push('/app');
+      }
     } catch (err) {
       setError('Invalid email or password');
     }
@@ -91,9 +96,7 @@ const LoginForm = () => {
 
               {success && (
                 <Alert>
-                  <AlertDescription>
-                    Login successful!
-                  </AlertDescription>
+                  <AlertDescription>Login successful!</AlertDescription>
                 </Alert>
               )}
 

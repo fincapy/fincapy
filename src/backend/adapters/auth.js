@@ -1,5 +1,5 @@
 import crypto, { timingSafeEqual } from 'crypto';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
 
 const SESSION_TTL = 60 * 60; // 1 hour
@@ -56,47 +56,39 @@ class SessionManager {
         throw new Error('Attempting to use touchSession in a server component');
       }
     }
-    const providedSessionId = cookies
-      ? cookies.get('session-id')?.value
-      : req.cookies.get('session-id')?.value;
-    if (!providedSessionId) {
-      return false;
-    }
-    
-    // Convert session ID to buffers for timing-safe comparison
-    const providedBuffer = Buffer.from(providedSessionId);
-    const session = await this.sessionRepository.get({ sessionId: providedSessionId });
-    
-    // Use constant-time operations for session validation
-    if (!session || !session.sessionId) {
+    const providedSessionId =
+      (cookies
+        ? cookies.get('session-id')?.value
+        : req.cookies.get('session-id')?.value) || '';
+
+    const session = await this.sessionRepository.get({
+      sessionId: providedSessionId,
+    });
+
+    if (!session) {
       this.deleteCookie({ res, cookies });
       return false;
     }
 
-    // Perform timing-safe comparison of session IDs
-    const storedBuffer = Buffer.from(session.sessionId);
-    const isValidSession = providedBuffer.length === storedBuffer.length && 
-                          timingSafeEqual(providedBuffer, storedBuffer);
-    
-    if (!isValidSession) {
-      this.deleteCookie({ res, cookies });
-      return false;
-    }
-    if (Date.now() - session.createdAt > SESSION_TTL) {
-      await sessionRepository.delete({ sessionId });
+    if (Date.now() - session.createdAt > SESSION_TTL * 1000) {
+      await this.sessionRepository.delete({ sessionId: providedSessionId });
       this.deleteCookie({ res, cookies });
       return false;
     }
 
-    if (Date.now() - session.createdAt > ROTATION_PERIOD) {
-      await sessionRepository.delete({ sessionId });
+    if (Date.now() - session.createdAt > ROTATION_PERIOD * 1000) {
+      await this.sessionRepository.delete({ sessionId: providedSessionId });
       const newSession = new Session({
         sessionId: crypto.randomUUID(),
-        userId,
+        userId: session.userId,
+        tenantId: session.tenantId,
         createdAt: Date.now(),
         lastRotated: Date.now(),
       });
-      await sessionRepository.set({ session: newSession });
+      await this.sessionRepository.set({
+        session: newSession,
+        ttl: SESSION_TTL,
+      });
       this.setCookie({ res, cookies, sessionId: newSession.sessionId });
       return session;
     }
@@ -104,44 +96,34 @@ class SessionManager {
   }
 
   async getSession({ req, cookies }) {
-    const providedSessionId = cookies
-      ? cookies.get('session-id')?.value
-      : req.cookies.get('session-id')?.value;
-    if (!providedSessionId) {
-      return false;
-    }
-    
-    // Convert session ID to buffers for timing-safe comparison
-    const providedBuffer = Buffer.from(providedSessionId);
-    const session = await this.sessionRepository.get({ sessionId: providedSessionId });
-    
-    // Use constant-time operations for session validation
-    if (!session || !session.sessionId) {
+    const providedSessionId =
+      (cookies
+        ? cookies.get('session-id')?.value
+        : req.cookies.get('session-id')?.value) || '';
+
+    const session = await this.sessionRepository.get({
+      sessionId: providedSessionId,
+    });
+
+    if (!session) {
       return false;
     }
 
-    // Perform timing-safe comparison of session IDs
-    const storedBuffer = Buffer.from(session.sessionId);
-    const isValidSession = providedBuffer.length === storedBuffer.length && 
-                          timingSafeEqual(providedBuffer, storedBuffer);
-    
-    if (!isValidSession) {
-      return false;
-    }
-    if (Date.now() - session.createdAt > SESSION_TTL) {
+    if (Date.now() - session.createdAt > SESSION_TTL * 1000) {
       return false;
     }
     return session;
   }
 
-  async createSession({ userId, cookies, res }) {
+  async createSession({ userId, tenantId, cookies, res }) {
     const session = new Session({
       sessionId: crypto.randomUUID(),
       userId,
+      tenantId,
       createdAt: Date.now(),
       lastRotated: Date.now(),
     });
-    await this.sessionRepository.set({ session });
+    await this.sessionRepository.set({ session, ttl: SESSION_TTL });
     this.setCookie({ res, cookies, sessionId: session.sessionId });
     return session;
   }
@@ -152,12 +134,12 @@ class EmailPasswordAuthenticator {
     this.userRepository = userRepository;
   }
 
-  async authenticate({ email, password }) {
-    const user = await this.userRepository.getByEmail({ email });
-    if (!user) {
-      return false;
-    }
-    const valid = await bcrypt.compare(password, user.password);
+  async authenticate({ unauthenticatedPassword, password }) {
+    const dummyPassword = crypto.randomUUID();
+    const valid = await bcrypt.compare(
+      unauthenticatedPassword || dummyPassword,
+      password
+    );
     if (!valid) {
       return false;
     }

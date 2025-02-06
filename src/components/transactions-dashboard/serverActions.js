@@ -3,7 +3,9 @@
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { CreateTransactionService } from '@/backend/services/createTransactionService';
-import { getSession } from '@auth0/nextjs-auth0';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { cookies } from 'next/headers';
 
 const createTransaction = async ({
   planId,
@@ -15,12 +17,15 @@ const createTransaction = async ({
   amount,
 }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.touchSession({ cookies: cookies() });
+  if (!session) return false;
   const tenantRepository = new TenantRepository({ redisAdapter });
   const createTransactionService = new CreateTransactionService({
     tenantRepository,
   });
-  const session = await getSession();
-  const tenantId = session.user.tenant_id;
+  const tenantId = session.tenantId;
   try {
     await createTransactionService.execute({
       tenantId,

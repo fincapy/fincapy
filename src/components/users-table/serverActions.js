@@ -2,22 +2,26 @@
 
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { getSession } from '@auth0/nextjs-auth0';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { RemoveUserService } from '@/backend/services/removeUserService';
 import { ChangeUserRoleService } from '@/backend/services/changeUserRoleService';
 import { ChangeUserNameService } from '@/backend/services/changeUserNameService';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
+import { cookies } from 'next/headers';
 
 const removeUser = async (email) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
 
-    const tenantId = session.user.tenant_id;
+    const tenantId = session.tenantId;
 
-    const redisAdapter = new RedisAdapter({ redisClient });
     const tenantRepository = new TenantRepository({ redisAdapter });
     const auth0Adapter = new Auth0Adapter({ client: auth0Client });
     const removeUserService = new RemoveUserService({
@@ -34,13 +38,15 @@ const removeUser = async (email) => {
 
 const changeUserRole = async ({ email, role }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
 
-    const tenantId = session.user.tenant_id;
-    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantId = session.tenantId;
     const tenantRepository = new TenantRepository({ redisAdapter });
     const changeUserRoleService = new ChangeUserRoleService({
       tenantRepository,
@@ -55,13 +61,15 @@ const changeUserRole = async ({ email, role }) => {
 
 const changeUserName = async ({ email, name }) => {
   try {
-    const session = await getSession();
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({ cookies: cookies() });
     if (!session) {
       return false;
     }
 
-    const tenantId = session.user.tenant_id;
-    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantId = session.tenantId;
     const tenantRepository = new TenantRepository({ redisAdapter });
     const changeUserNameService = new ChangeUserNameService({
       tenantRepository,

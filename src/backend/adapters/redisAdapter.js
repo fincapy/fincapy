@@ -11,6 +11,10 @@ class RedisAdapter {
     this.client = redisClient;
   }
 
+  async multiNoPipeline() {
+    await this.client.multi({ pipeline: false });
+  }
+
   async get(key) {
     const operationId = crypto.randomUUID();
     console.time(`get - ${operationId}`);
@@ -31,8 +35,50 @@ class RedisAdapter {
   async set(key, value) {
     const operationId = crypto.randomUUID();
     console.time(`set - ${operationId}`);
-    await this.client.multi().set(key, value).exec();
+    await this.client.set(key, value);
     console.timeEnd(`set - ${operationId}`);
+  }
+
+  async delete(key) {
+    const operationId = crypto.randomUUID();
+    console.time(`delete - ${operationId}`);
+    await this.client.del(key);
+    console.timeEnd(`delete - ${operationId}`);
+  }
+
+  async setWithExpiry(key, value, expiry) {
+    const operationId = crypto.randomUUID();
+    console.time(`setWithExpiry - ${operationId}`);
+    await this.client.set(key, value, 'EX', expiry);
+    console.timeEnd(`setWithExpiry - ${operationId}`);
+  }
+
+  async changeExpiry(key, expiry) {
+    const operationId = crypto.randomUUID();
+    console.time(`changeExpiry - ${operationId}`);
+    await this.client.expire(key, expiry);
+    console.timeEnd(`changeExpiry - ${operationId}`);
+  }
+
+  async exec() {
+    const operationId = crypto.randomUUID();
+    console.time(`exec - ${operationId}`);
+    await this.client.exec();
+    console.timeEnd(`exec - ${operationId}`);
+  }
+
+  async discard() {
+    const operationId = crypto.randomUUID();
+    console.time(`discard - ${operationId}`);
+    await this.client.discard();
+    console.timeEnd(`discard - ${operationId}`);
+  }
+
+  async unwatch() {
+    const operationId = crypto.randomUUID();
+    console.time(`unwatch - ${operationId}`);
+    await this.client.unwatch();
+    console.timeEnd(`unwatch - ${operationId}`);
   }
 }
 

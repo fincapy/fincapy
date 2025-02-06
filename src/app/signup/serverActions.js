@@ -7,6 +7,9 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 
 export async function createAccount(email, password) {
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const transactionManager = new TransactionManager({

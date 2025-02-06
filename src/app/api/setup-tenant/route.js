@@ -1,6 +1,8 @@
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
+import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 
 export const POST = async (req) => {
   const tenantApiKey = process.env.TENANT_API_KEY;
@@ -13,14 +15,24 @@ export const POST = async (req) => {
 
   try {
     const body = await req.json();
-    const { tenantId, email, name, whitelistBilling } = body;
+    const { tenantId, email, password, whitelistBilling } = body;
     const redisAdapter = new RedisAdapter({ redisClient });
     const tenantRepository = new TenantRepository({ redisAdapter });
-    const service = new SetupNewTenantService({ tenantRepository });
+    const userRepository = new UserRepository({ redisAdapter });
+    const transactionManager = new TransactionManager({
+      redisAdapter,
+      tenantRepositoryFactory: TenantRepository,
+      userRepositoryFactory: UserRepository,
+    });
+    const service = new SetupNewTenantService({
+      transactionManager,
+      tenantRepository,
+      userRepository,
+    });
     await service.execute({
       tenantId,
       email,
-      name,
+      password,
       whitelistBilling,
     });
   } catch (error) {

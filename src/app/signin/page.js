@@ -1,54 +1,9 @@
 'use client';
-import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
+
+import { GalleryVerticalEnd } from 'lucide-react';
+import { SignInForm } from '@/components/sign-in-form';
 import { ThemeProvider } from '@/components/theme-provider';
-import { authenticateEmailPassword } from './serverActions';
-import { useRouter } from 'next/navigation';
-
-const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-
-    if (!email || !password) {
-      setError('All fields are required');
-      return;
-    }
-
-    if (!email.includes('@') || !email.includes('.')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    // TODO: Implement login logic here
-    try {
-      const result = await authenticateEmailPassword({ email, password });
-      if (result) {
-        router.push('/app');
-      }
-    } catch (err) {
-      setError('Invalid email or password');
-    }
-  };
-
+export default function SignInPage() {
   return (
     <ThemeProvider
       attribute="class"
@@ -56,59 +11,20 @@ const LoginForm = () => {
       enableSystem
       disableTransitionOnChange
     >
-      <div className="w-screen h-screen flex flex-col justify-center items-center">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
-              Enter your email and password to login
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {success && (
-                <Alert>
-                  <AlertDescription>Login successful!</AlertDescription>
-                </Alert>
-              )}
-
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+        <div className="flex w-full max-w-sm flex-col gap-6">
+          <a
+            href="#"
+            className="flex items-center gap-2 self-center font-medium"
+          >
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Fincapy
+          </a>
+          <SignInForm />
+        </div>
       </div>
     </ThemeProvider>
   );
-};
-
-export default LoginForm;
+}

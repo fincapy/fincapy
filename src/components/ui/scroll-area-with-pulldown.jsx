@@ -109,12 +109,12 @@ const ScrollAreaWithPulldown = React.forwardRef(
 
     return (
       <ScrollAreaPrimitive.Root
-        className={cn('overflow-hidden relative', className)}
+        className={cn('overflow-hidden relative bg-muted', className)}
         {...props}
       >
         <ScrollAreaPrimitive.Viewport
           ref={scrollRef}
-          className="h-full w-full rounded-[inherit]"
+          className="h-full w-full rounded-[inherit] bg-muted"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
@@ -122,7 +122,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
           {/* Pull-to-refresh indicator */}
           <div
             className={cn(
-              'absolute left-0 right-0 flex justify-center items-center',
+              'absolute left-0 right-0 flex justify-center items-center bg-muted',
               'transition-opacity duration-200'
             )}
             style={{
@@ -133,7 +133,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
           >
             <div
               className={cn(
-                'absolute left-0 right-0 flex justify-center items-center',
+                'absolute left-0 right-0 flex justify-center items-center bg-muted',
                 'transition-opacity duration-200'
               )}
               style={{
@@ -182,7 +182,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
           {/* Content with transform */}
           <div
             ref={contentRef}
-            className="relative bg-background will-change-transform"
+            className="relative bg-muted will-change-transform"
             style={{
               transform: `translate3d(0, ${isRefreshing ? THRESHOLD / 1.5 : pullDistance}px, 0)`,
             }}

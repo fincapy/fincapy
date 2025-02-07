@@ -16,12 +16,37 @@ import { authenticateEmailPassword } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeProvider } from '@/components/theme-provider';
 import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
+
+const InputTOTP = () => {
+  return (
+    <InputOTP maxLength={6}>
+      <InputOTPGroup>
+        <InputOTPSlot index={0} />
+        <InputOTPSlot index={1} />
+        <InputOTPSlot index={2} />
+      </InputOTPGroup>
+      <InputOTPSeparator />
+      <InputOTPGroup>
+        <InputOTPSlot index={3} />
+        <InputOTPSlot index={4} />
+        <InputOTPSlot index={5} />
+      </InputOTPGroup>
+    </InputOTP>
+  );
+};
 
 export function SignInForm({ nonce }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [partiallyAuthenticated, setPartiallyAuthenticated] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -42,7 +67,7 @@ export function SignInForm({ nonce }) {
       setLoading(true);
       const result = await authenticateEmailPassword({ email, password });
       if (result) {
-        router.push('/app');
+        setPartiallyAuthenticated(true);
       } else {
         throw new Error();
       }
@@ -71,91 +96,108 @@ export function SignInForm({ nonce }) {
             </div>
             Fincapy
           </a>
-          <div className="flex flex-col gap-6">
-            <Card className="bg-background">
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Welcome back!</CardTitle>
-                <CardDescription>Sign in with your passkey</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit}>
-                  <div className="grid gap-6">
-                    <div className="flex flex-col gap-4">
-                      <Button variant="outline" className="w-full">
-                        Sign in with passkey
-                      </Button>
-                    </div>
-                    <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                      <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
-                    <div className="grid gap-6">
-                      <div className="grid gap-2 bg-background">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="m@example.com"
-                          required
-                          className="bg-background"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <div className="flex items-center">
-                          <Label htmlFor="password">Password</Label>
-                          <a
-                            href="#"
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                          >
-                            Forgot your password?
-                          </a>
-                        </div>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                      {error && (
-                        <Alert variant="destructive">
-                          <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                      )}
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          </>
-                        ) : (
-                          'Sign in'
-                        )}
-                      </Button>
-                    </div>
-                    <div className="text-center text-sm">
-                      Don&apos;t have an account?{' '}
-                      <a href="#" className="underline underline-offset-4">
-                        Sign up
-                      </a>
-                    </div>
+          {partiallyAuthenticated ? (
+            <div className="flex flex-col items-center justify-center">
+              <Card className="bg-background w-[384px] h-[192px] flex flex-col items-center justify-center">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-xl -mb-3">
+                    Enter your one time passcode
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex w-full items-center justify-center">
+                    <InputTOTP />
                   </div>
-                </form>
-              </CardContent>
-            </Card>
-            <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
-              By clicking continue, you agree to our{' '}
-              <a href="#">Terms of Service</a> and{' '}
-              <a href="#">Privacy Policy</a>.
+                </CardContent>
+              </Card>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              <Card className="bg-background">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-xl">Welcome back!</CardTitle>
+                  <CardDescription>Sign in with your passkey</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid gap-6">
+                      <div className="flex flex-col gap-4">
+                        <Button variant="outline" className="w-full">
+                          Sign in with passkey
+                        </Button>
+                      </div>
+                      <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                        <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                          Or continue with
+                        </span>
+                      </div>
+                      <div className="grid gap-6">
+                        <div className="grid gap-2 bg-background">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            required
+                            className="bg-background"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="flex items-center">
+                            <Label htmlFor="password">Password</Label>
+                            <a
+                              href="#"
+                              className="ml-auto text-sm underline-offset-4 hover:underline"
+                            >
+                              Forgot your password?
+                            </a>
+                          </div>
+                          <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                          />
+                        </div>
+                        {error && (
+                          <Alert variant="destructive">
+                            <AlertDescription>{error}</AlertDescription>
+                          </Alert>
+                        )}
+                        <Button
+                          type="submit"
+                          className="w-full"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            </>
+                          ) : (
+                            'Sign in'
+                          )}
+                        </Button>
+                      </div>
+                      <div className="text-center text-sm">
+                        Don&apos;t have an account?{' '}
+                        <a href="#" className="underline underline-offset-4">
+                          Sign up
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+              <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+                By clicking continue, you agree to our{' '}
+                <a href="#">Terms of Service</a> and{' '}
+                <a href="#">Privacy Policy</a>.
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </ThemeProvider>

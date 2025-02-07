@@ -8,6 +8,7 @@ import {
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
+import jwt from 'jsonwebtoken';
 
 async function authenticateEmailPassword({ email, password }) {
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -25,11 +26,12 @@ async function authenticateEmailPassword({ email, password }) {
     password: user?.password,
   });
   if (result) {
-    const session = await sessionManager.createSession({
-      userId: user.id,
-      tenantId: user.tenantId,
-    });
-    cookies().set('session-id', session.sessionId, {
+    const partialAuthToken = jwt.sign(
+      { userId: user.id, mfaMethod: user.mfa_method },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+    cookies().set('mfa-token', partialAuthToken, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

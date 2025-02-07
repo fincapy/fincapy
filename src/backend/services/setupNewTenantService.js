@@ -29,7 +29,7 @@ class SetupNewTenantService {
           role: 'owner',
           password: null,
         });
-        const hashedPassword = await bcrypt.hash(password, 14);
+        const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;
         const tenant = new Tenant({
           tenantId,

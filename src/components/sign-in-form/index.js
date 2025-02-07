@@ -15,19 +15,18 @@ import { useRouter } from 'next/navigation';
 import { authenticateEmailPassword } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeProvider } from '@/components/theme-provider';
-import { GalleryVerticalEnd } from 'lucide-react';
+import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
 
 export function SignInForm({ nonce }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess(false);
 
     if (!email || !password) {
       setError('All fields are required');
@@ -40,15 +39,16 @@ export function SignInForm({ nonce }) {
     }
 
     try {
-      const result = await authenticateEmailPassword({
-        email,
-        password,
-      });
+      setLoading(true);
+      const result = await authenticateEmailPassword({ email, password });
       if (result) {
         router.push('/app');
+      } else {
+        throw new Error();
       }
     } catch (err) {
       setError('Invalid email or password');
+      setLoading(false);
     }
   };
 
@@ -123,13 +123,21 @@ export function SignInForm({ nonce }) {
                       </div>
                       {error && (
                         <Alert variant="destructive">
-                          <AlertDescription>
-                            Invalid email or password
-                          </AlertDescription>
+                          <AlertDescription>{error}</AlertDescription>
                         </Alert>
                       )}
-                      <Button type="submit" className="w-full">
-                        Sign in
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          </>
+                        ) : (
+                          'Sign in'
+                        )}
                       </Button>
                     </div>
                     <div className="text-center text-sm">

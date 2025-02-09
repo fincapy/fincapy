@@ -11,7 +11,7 @@ class SetupNewTenantService {
     this.userRepository = userRepository;
   }
 
-  async execute({ tenantId, email, password, whitelistBilling }) {
+  async execute({ userId, tenantId, email, password, whitelistBilling }) {
     await this.transactionManager.transaction(
       { tenantId, userEmail: email },
       async ({ existingTenant, existingUser }) => {
@@ -21,13 +21,13 @@ class SetupNewTenantService {
         if (existingUser) {
           throw new Error('User already exists');
         }
-        const userId = crypto.randomUUID();
         const user = new User({
           id: userId,
           tenantId,
-          emails: [email],
+          emails: [{ email, verified: false, primary: true }],
           role: 'owner',
           password: null,
+          mfaMethod: 'email',
         });
         const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;

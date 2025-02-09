@@ -16,30 +16,7 @@ import { authenticateEmailPassword } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeProvider } from '@/components/theme-provider';
 import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from '@/components/ui/input-otp';
-
-const InputTOTP = () => {
-  return (
-    <InputOTP maxLength={6}>
-      <InputOTPGroup>
-        <InputOTPSlot index={0} />
-        <InputOTPSlot index={1} />
-        <InputOTPSlot index={2} />
-      </InputOTPGroup>
-      <InputOTPSeparator />
-      <InputOTPGroup>
-        <InputOTPSlot index={3} />
-        <InputOTPSlot index={4} />
-        <InputOTPSlot index={5} />
-      </InputOTPGroup>
-    </InputOTP>
-  );
-};
+import { InputTOTP } from '@/components/input-totp';
 
 export function SignInForm({ nonce }) {
   const [email, setEmail] = useState('');

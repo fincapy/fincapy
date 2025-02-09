@@ -16,7 +16,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { createAccount, verifyEmail } from './serverActions';
 import { InputTOTP } from '../input-totp';
 import { useRouter } from 'next/navigation';
-import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
+import { GalleryVerticalEnd, Loader2, LockKeyhole } from 'lucide-react';
 
 const PasswordSignupForm = ({ nonce }) => {
   const [email, setEmail] = useState('');
@@ -103,7 +103,7 @@ const PasswordSignupForm = ({ nonce }) => {
             className="flex items-center gap-2 self-center font-medium"
           >
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GalleryVerticalEnd className="size-4" />
+              <LockKeyhole className="size-4" />
             </div>
             Fincapy
           </a>
@@ -111,8 +111,8 @@ const PasswordSignupForm = ({ nonce }) => {
             <div className="flex flex-col items-center justify-center">
               <Card className="bg-background w-[384px] h-[192px] flex flex-col items-center justify-center">
                 <CardHeader className="text-center">
-                  <CardTitle className="text-xl -mb-3">
-                    Enter your one time passcode
+                  <CardTitle className="text-md -mb-3">
+                    Enter the one-time passcode sent to your email
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

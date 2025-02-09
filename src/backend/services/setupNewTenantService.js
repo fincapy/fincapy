@@ -11,7 +11,7 @@ class SetupNewTenantService {
     this.userRepository = userRepository;
   }
 
-  async execute({ userId, tenantId, email, password, whitelistBilling }) {
+  async execute({ userId, tenantId, email, name, password, whitelistBilling }) {
     await this.transactionManager.transaction(
       { tenantId, userEmail: email },
       async ({ existingTenant, existingUser }) => {
@@ -24,6 +24,7 @@ class SetupNewTenantService {
         const user = new User({
           id: userId,
           tenantId,
+          name,
           emails: [{ email, verified: false, primary: true }],
           role: 'owner',
           password: null,

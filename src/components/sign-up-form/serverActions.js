@@ -6,11 +6,13 @@ import { EmailVerificationCodeRepository } from '@/backend/adapters/repositories
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-export async function createAccount(email, password) {
+export async function createAccount(name, email, password) {
   if (process.env.NODE_ENV === 'production') {
     return false;
   }
@@ -33,15 +35,17 @@ export async function createAccount(email, password) {
       userRepository,
     });
     const userId = crypto.randomUUID();
+    const tenantId = crypto.randomUUID();
     await setupNewTenantService.execute({
-      tenantId: crypto.randomUUID(),
+      tenantId,
       userId,
+      name,
       email,
       password,
       whitelistBilling: true,
     });
     const partialRegistrationToken = jwt.sign(
-      { userId },
+      { userId, tenantId },
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
@@ -77,7 +81,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   let token;
   try {
     token = await jwt.verify(
-      cookies().get('partial-registration-token'),
+      cookies().get('partial-registration-token').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -96,9 +100,23 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   if (!emailVerificationCode) {
     return false;
   }
-  if (emailVerificationCode !== unverifiedEmailVerificationCode) {
+  if (emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)) {
     return false;
   }
   await emailVerificationCodeRepository.delete({ userId: token.userId });
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const session = await sessionManager.createSession({
+    userId: token.userId,
+    tenantId: token.tenantId,
+    cookies: cookies(),
+  });
+  cookies().set('session-id', session.sessionId, {
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 3,
+  });
   return true;
 }

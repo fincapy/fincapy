@@ -5,9 +5,9 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 
-const InputTOTP = () => {
+const InputTOTP = ({ onComplete }) => {
   return (
-    <InputOTP maxLength={6}>
+    <InputOTP maxLength={6} onComplete={async (otp) => await onComplete(otp)}>
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />

@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { createAccount, verifyEmail } from './serverActions';
 import { InputTOTP } from '../input-totp';
@@ -28,6 +28,7 @@ const PasswordSignupForm = ({ nonce }) => {
   const [partiallyRegistered, setPartiallyRegistered] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
 
   const validatePassword = (pass) => {
     if (pass.length < 8) return false;
@@ -78,6 +79,23 @@ const PasswordSignupForm = ({ nonce }) => {
 
   // const router = useRouter();
 
+  useEffect(() => {
+    if (partiallyRegistered && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.push('/signin');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [partiallyRegistered, timeLeft, router]);
+
   const handleOTPComplete = async (otp) => {
     const result = await verifyEmail(otp);
     if (result) {
@@ -109,6 +127,12 @@ const PasswordSignupForm = ({ nonce }) => {
           </a>
           {partiallyRegistered ? (
             <div className="flex flex-col items-center justify-center">
+              {timeLeft > 0 && (
+                <div className="mb-4 text-sm text-muted-foreground">
+                  Time remaining: {Math.floor(timeLeft / 60)}:
+                  {(timeLeft % 60).toString().padStart(2, '0')}
+                </div>
+              )}
               <Card className="bg-background w-[384px] h-[192px] flex flex-col items-center justify-center">
                 <CardHeader className="text-center">
                   <CardTitle className="text-md -mb-3">

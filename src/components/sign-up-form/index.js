@@ -42,7 +42,7 @@ const PasswordSignupForm = ({ nonce }) => {
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Welcome!</CardTitle>
               <CardDescription>
-                We&apos;re so excited you're here!
+                We&apos;re so excited you&apos;re here!
               </CardDescription>
             </CardHeader>
             <CardContent>

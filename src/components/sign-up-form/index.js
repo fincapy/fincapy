@@ -126,22 +126,41 @@ const PasswordSignupForm = ({ nonce }) => {
             Fincapy
           </a>
           {partiallyRegistered ? (
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <div className="flex flex-col items-center space-y-2">
+                <div className="rounded-full bg-primary/10 p-3">
+                  <GalleryVerticalEnd className="h-6 w-6 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold tracking-tight">Verify your email</h2>
+                <p className="text-center text-sm text-muted-foreground">
+                  We've sent a verification code to your email
+                </p>
+              </div>
+              
               {timeLeft > 0 && (
-                <div className="mb-4 text-sm text-muted-foreground">
-                  Time remaining: {Math.floor(timeLeft / 60)}:
-                  {(timeLeft % 60).toString().padStart(2, '0')}
+                <div className="flex items-center space-x-2 text-sm">
+                  <div className="flex h-8 w-20 items-center justify-center rounded-md border bg-muted/50">
+                    <span className="font-mono text-sm">
+                      {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground">remaining</span>
                 </div>
               )}
-              <Card className="bg-background w-[384px] h-[192px] flex flex-col items-center justify-center">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-md -mb-3">
-                    Enter the one-time passcode sent to your email
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex w-full items-center justify-center">
-                    <InputTOTP onComplete={(otp) => handleOTPComplete(otp)} />
+
+              <Card className="bg-background w-[384px] shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="flex w-full flex-col items-center justify-center space-y-4">
+                    <InputTOTP 
+                      onComplete={(otp) => handleOTPComplete(otp)} 
+                    />
+                    <Button 
+                      variant="link" 
+                      className="text-xs text-muted-foreground hover:text-primary"
+                      onClick={() => setTimeLeft(600)}
+                    >
+                      Didn't receive the code? Resend
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

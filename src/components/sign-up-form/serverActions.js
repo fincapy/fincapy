@@ -2,6 +2,7 @@
 
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
+import { SESAdapter } from '@/backend/adapters/sesAdapter';
 import { EmailVerificationCodeRepository } from '@/backend/adapters/repositories/emailVerificationCodeRepository';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
@@ -67,7 +68,14 @@ export async function createAccount(name, email, password) {
       userId,
       ttl: 60 * 10,
     });
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'production') {
+      const sesAdapter = new SESAdapter();
+      await sesAdapter.sendEmail({
+        to: email,
+        subject: 'Verify your Fincapy account',
+        text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+      });
+    } else {
       console.log('emailVerificationCode', emailVerificationCode);
     }
     return true;

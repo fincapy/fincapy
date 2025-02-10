@@ -13,7 +13,7 @@ class SESAdapter {
 
   async sendEmail({ to, subject, text }) {
     const params = {
-      Source: 'noreply@fincapy.com', // Replace with your verified SES sender
+      Source: 'support@fincapy.com', // Replace with your verified SES sender
       Destination: {
         ToAddresses: [to],
       },

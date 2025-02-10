@@ -16,7 +16,7 @@ import { authenticateEmailPassword } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ThemeProvider } from '@/components/theme-provider';
 import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
-import { InputTOTP } from '@/components/input-totp';
+import { TOTPMFAForm } from '../totp-mfa-form';
 
 export function SignInForm({ nonce }) {
   const [email, setEmail] = useState('');
@@ -74,20 +74,7 @@ export function SignInForm({ nonce }) {
             Fincapy
           </a>
           {partiallyAuthenticated ? (
-            <div className="flex flex-col items-center justify-center">
-              <Card className="bg-background w-[384px] h-[192px] flex flex-col items-center justify-center">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-xl -mb-3">
-                    Enter your one time passcode
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex w-full items-center justify-center">
-                    <InputTOTP />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <TOTPMFAForm />
           ) : (
             <div className="flex flex-col gap-6">
               <Card className="bg-background">

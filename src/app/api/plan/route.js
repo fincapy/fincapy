@@ -11,6 +11,7 @@ export const GET = async (req, res) => {
   });
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.touchSession({ req, res });
+  console.log('route session', session);
   const query = req.nextUrl.searchParams;
   const startDate = query.get('startDate');
   const endDate = query.get('endDate');

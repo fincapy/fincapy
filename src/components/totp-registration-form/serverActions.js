@@ -8,33 +8,21 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import speakeasy from 'speakeasy';
 
-export async function verifyTOTP(token) {
-  let jwtToken;
-  try {
-    jwtToken = await jwt.verify(
-      cookies().get('mfa-token').value,
-      process.env.JWT_SECRET
-    );
-  } catch (error) {
-    return false;
-  }
+export async function generateTOTPSecret() {
+  const secret = speakeasy.generateSecret({
+    name: 'Fincapy',
+    issuer: 'Fincapy',
+  });
 
-  console.log('here?');
+  return {
+    otpauthUrl: secret.otpauth_url,
+    secret: secret.base32,
+  };
+}
 
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const userRepository = new UserRepository({ redisAdapter });
-  const user = await userRepository.get({ userId: jwtToken.userId });
-
-  console.log('user', user);
-
-  if (!user || !user.totpSecret) {
-    return false;
-  }
-
-  console.log('what about here?');
-
+export async function verifyAndSaveTOTP(token, secret) {
   const isValid = speakeasy.totp.verify({
-    secret: user.totpSecret,
+    secret: secret,
     encoding: 'base32',
     token: token,
     window: 1,
@@ -44,11 +32,33 @@ export async function verifyTOTP(token) {
     return false;
   }
 
+  let jwtToken;
+  try {
+    jwtToken = await jwt.verify(
+      cookies().get('partial-registration-token').value,
+      process.env.JWT_SECRET
+    );
+  } catch (error) {
+    return false;
+  }
+
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const userRepository = new UserRepository({ redisAdapter });
+  const user = await userRepository.get({ userId: jwtToken.userId });
+
+  if (!user) {
+    return false;
+  }
+
+  user.totpSecret = secret;
+  user.totpEnabled = true;
+  await userRepository.set({ userId: jwtToken.userId, user });
+
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.createSession({
     userId: jwtToken.userId,
-    tenantId: user.tenantId,
+    tenantId: jwtToken.tenantId,
     cookies: cookies(),
   });
 

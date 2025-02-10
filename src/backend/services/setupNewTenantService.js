@@ -29,6 +29,8 @@ class SetupNewTenantService {
           role: 'owner',
           password: null,
           mfaMethod: 'email',
+          totpSecret: null,
+          totpVerified: false,
         });
         const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;

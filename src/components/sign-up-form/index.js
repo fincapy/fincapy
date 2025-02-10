@@ -16,7 +16,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { createAccount, verifyEmail } from './serverActions';
 import { InputTOTP } from '../input-totp';
 import { useRouter } from 'next/navigation';
-import { GalleryVerticalEnd, Loader2, LockKeyhole } from 'lucide-react';
+import { Loader2, LockKeyhole } from 'lucide-react';
+import { EmailMFAForm } from '../email-mfa-form';
+import { TOTPRegistrationForm } from '../totp-registration-form';
 
 const PasswordSignupForm = ({ nonce }) => {
   const [email, setEmail] = useState('');
@@ -29,6 +31,137 @@ const PasswordSignupForm = ({ nonce }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [totpVerified, setTOTPVerified] = useState(false);
+
+  const progression = () => {
+    if (!emailVerified && !partiallyRegistered) {
+      return (
+        <div className="flex flex-col gap-6">
+          <Card className="bg-background">
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">Welcome!</CardTitle>
+              <CardDescription>
+                We&apos;re so excited you're here!
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-6">
+                  {/* <div className="flex flex-col gap-4">
+                  <Button variant="outline" className="w-full">
+                    Sign in with passkey
+                  </Button>
+                </div>
+                <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                  <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div> */}
+                  <div className="grid gap-4">
+                    <div className="grid gap-2 bg-background">
+                      <Label htmlFor="name">First Name</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="John"
+                        required
+                        className="bg-background"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2 bg-background">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="john.doe@example.com"
+                        required
+                        className="bg-background"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        </>
+                      ) : (
+                        'Sign up'
+                      )}
+                    </Button>
+                  </div>
+                  <div className="text-center text-sm">
+                    Already have an account?{' '}
+                    <a href="#" className="underline underline-offset-4">
+                      Sign in
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+            By clicking Sign up, you agree to our{' '}
+            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+          </div>
+        </div>
+      );
+    }
+
+    if (partiallyRegistered && !emailVerified) {
+      return (
+        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+          <div className="flex flex-col items-center gap-0 mb-2">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Verify your email
+            </h2>
+          </div>
+          <EmailMFAForm setEmailVerified={setEmailVerified} />
+        </div>
+      );
+    }
+
+    if (partiallyRegistered && emailVerified) {
+      return (
+        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+          <div className="flex flex-col items-center gap-0 mb-2">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Register your authenticator app
+            </h2>
+          </div>
+          <TOTPRegistrationForm setTOTPVerified={setTOTPVerified} />
+        </div>
+      );
+    }
+  };
 
   const validatePassword = (pass) => {
     if (pass.length < 8) return false;
@@ -96,16 +229,6 @@ const PasswordSignupForm = ({ nonce }) => {
     }
   }, [partiallyRegistered, timeLeft, router]);
 
-  const handleOTPComplete = async (otp) => {
-    const result = await verifyEmail(otp);
-    if (result) {
-      router.push('/app');
-    } else {
-      console.log();
-      setError('Invalid OTP');
-    }
-  };
-
   return (
     <ThemeProvider
       attribute="class"
@@ -125,147 +248,7 @@ const PasswordSignupForm = ({ nonce }) => {
             </div>
             Fincapy
           </a>
-          {partiallyRegistered ? (
-            <div className="flex flex-col items-center justify-center space-y-6">
-              <div className="flex flex-col items-center space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight">Verify your email</h2>
-                <p className="text-center text-sm text-muted-foreground">
-                  We've sent a verification code to your email
-                </p>
-              </div>
-
-              <Card className="bg-background w-[384px] shadow-lg">
-                <CardContent className="pt-6">
-                  <div className="flex w-full flex-col items-center justify-center space-y-4">
-                    <InputTOTP 
-                      onComplete={(otp) => handleOTPComplete(otp)} 
-                    />
-                    {timeLeft > 0 && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <div className="flex h-8 w-20 items-center justify-center rounded-md border bg-muted/50">
-                          <span className="font-mono text-sm">
-                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                          </span>
-                        </div>
-                        <span className="text-muted-foreground">remaining</span>
-                      </div>
-                    )}
-                    <Button 
-                      variant="link" 
-                      className="text-xs text-muted-foreground hover:text-primary"
-                      onClick={() => setTimeLeft(600)}
-                    >
-                      Didn't receive the code? Resend
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-6">
-              <Card className="bg-background">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-xl">Welcome!</CardTitle>
-                  <CardDescription>
-                    We&apos;re so excited you're here!
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit}>
-                    <div className="grid gap-6">
-                      {/* <div className="flex flex-col gap-4">
-                        <Button variant="outline" className="w-full">
-                          Sign in with passkey
-                        </Button>
-                      </div>
-                      <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                        <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                          Or continue with
-                        </span>
-                      </div> */}
-                      <div className="grid gap-4">
-                        <div className="grid gap-2 bg-background">
-                          <Label htmlFor="name">First Name</Label>
-                          <Input
-                            id="name"
-                            type="text"
-                            placeholder="John"
-                            required
-                            className="bg-background"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                          />
-                        </div>
-                        <div className="grid gap-2 bg-background">
-                          <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="john.doe@example.com"
-                            required
-                            className="bg-background"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="password">Password</Label>
-                          <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="confirmPassword">
-                            Confirm Password
-                          </Label>
-                          <Input
-                            id="confirmPassword"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                          />
-                        </div>
-                        {error && (
-                          <Alert variant="destructive">
-                            <AlertDescription>{error}</AlertDescription>
-                          </Alert>
-                        )}
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={loading}
-                        >
-                          {loading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            </>
-                          ) : (
-                            'Sign up'
-                          )}
-                        </Button>
-                      </div>
-                      <div className="text-center text-sm">
-                        Already have an account?{' '}
-                        <a href="#" className="underline underline-offset-4">
-                          Sign in
-                        </a>
-                      </div>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-              <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
-                By clicking Sign up, you agree to our{' '}
-                <a href="#">Terms of Service</a> and{' '}
-                <a href="#">Privacy Policy</a>.
-              </div>
-            </div>
-          )}
+          {progression()}
         </div>
       </div>
     </ThemeProvider>

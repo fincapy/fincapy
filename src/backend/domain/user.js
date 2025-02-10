@@ -1,5 +1,16 @@
 class User {
-  constructor({ id, tenantId, emails, name, role, password, mfaMethod }) {
+  constructor({
+    id,
+    tenantId,
+    emails,
+    name,
+    role,
+    password,
+    mfaMethod,
+    emailVerified,
+    totpSecret,
+    totpVerified,
+  }) {
     this.id = id;
     this.tenantId = tenantId;
     this.emails = emails;
@@ -8,6 +19,9 @@ class User {
     this.password = password;
     this.mfaMethod = mfaMethod;
     this.totpSecret = null;
+    this.emailVerified = emailVerified;
+    this.totpVerified = totpVerified;
+    this.totpSecret = totpSecret;
   }
 
   toView() {

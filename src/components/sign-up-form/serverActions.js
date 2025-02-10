@@ -14,9 +14,9 @@ import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
 export async function createAccount(name, email, password) {
-  // if (process.env.NODE_ENV === 'production') {
-  //   return false;
-  // }
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const transactionManager = new TransactionManager({

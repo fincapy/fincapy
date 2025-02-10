@@ -128,25 +128,11 @@ const PasswordSignupForm = ({ nonce }) => {
           {partiallyRegistered ? (
             <div className="flex flex-col items-center justify-center space-y-6">
               <div className="flex flex-col items-center space-y-2">
-                <div className="rounded-full bg-primary/10 p-3">
-                  <GalleryVerticalEnd className="h-6 w-6 text-primary" />
-                </div>
                 <h2 className="text-2xl font-semibold tracking-tight">Verify your email</h2>
                 <p className="text-center text-sm text-muted-foreground">
                   We've sent a verification code to your email
                 </p>
               </div>
-              
-              {timeLeft > 0 && (
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="flex h-8 w-20 items-center justify-center rounded-md border bg-muted/50">
-                    <span className="font-mono text-sm">
-                      {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                  <span className="text-muted-foreground">remaining</span>
-                </div>
-              )}
 
               <Card className="bg-background w-[384px] shadow-lg">
                 <CardContent className="pt-6">
@@ -154,6 +140,16 @@ const PasswordSignupForm = ({ nonce }) => {
                     <InputTOTP 
                       onComplete={(otp) => handleOTPComplete(otp)} 
                     />
+                    {timeLeft > 0 && (
+                      <div className="flex items-center space-x-2 text-sm">
+                        <div className="flex h-8 w-20 items-center justify-center rounded-md border bg-muted/50">
+                          <span className="font-mono text-sm">
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">remaining</span>
+                      </div>
+                    )}
                     <Button 
                       variant="link" 
                       className="text-xs text-muted-foreground hover:text-primary"

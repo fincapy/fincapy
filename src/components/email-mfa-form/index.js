@@ -60,7 +60,7 @@ const EmailMFAForm = ({ setEmailVerified }) => {
               className="text-xs text-muted-foreground hover:text-primary"
               onClick={() => setTimeLeft(600)}
             >
-              Didn't receive the code? Resend
+              Didn&apos;t receive the code? Resend
             </Button>
           </div>
         </div>

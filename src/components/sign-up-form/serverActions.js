@@ -15,10 +15,12 @@ import crypto from 'crypto';
 
 export async function createAccount(name, email, password, accessCode) {
   try {
-    if (accessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE) {
+    if (
+      accessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE &&
+      process.env.NODE_ENV === 'production'
+    ) {
       return false;
     }
-    console.log('past access code');
     const redisAdapter = new RedisAdapter({ redisClient });
     const transactionManager = new TransactionManager({
       redisAdapter,
@@ -46,20 +48,22 @@ export async function createAccount(name, email, password, accessCode) {
       password,
       whitelistBilling: true,
     });
-    console.log('past setup new tenant');
     const partialRegistrationToken = jwt.sign(
       { userId, tenantId },
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
-    cookies().set('partial-registration-token', partialRegistrationToken, {
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 10,
-    });
-    console.log('past partial registration token');
+    cookies().set(
+      'awaiting-email-verification-after-signup',
+      partialRegistrationToken,
+      {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 10,
+      }
+    );
     const emailVerificationCode = crypto.randomInt(100000, 999999);
     const emailVerificationCodeRepository = new EmailVerificationCodeRepository(
       {
@@ -71,23 +75,16 @@ export async function createAccount(name, email, password, accessCode) {
       userId,
       ttl: 60 * 10,
     });
-    console.log('past email verification code');
     if (process.env.NODE_ENV === 'production') {
-      try {
-        const sesAdapter = new SESAdapter();
-        await sesAdapter.sendEmail({
-          to: email,
-          subject: 'Verify your Fincapy account',
-          text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
-        });
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
+      const sesAdapter = new SESAdapter();
+      await sesAdapter.sendEmail({
+        to: email,
+        subject: 'Verify your Fincapy account',
+        text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+      });
     } else {
       console.log('emailVerificationCode', emailVerificationCode);
     }
-    console.log('past ses adapter');
     return true;
   } catch (error) {
     console.error(error);
@@ -97,16 +94,19 @@ export async function createAccount(name, email, password, accessCode) {
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
   let token;
+  const awaitingEmailVerificationCookie = cookies().get(
+    'awaiting-email-verification-after-signup'
+  );
+  if (!awaitingEmailVerificationCookie) {
+    return 'cookie_invalid';
+  }
   try {
     token = await jwt.verify(
-      cookies().get('partial-registration-token').value,
+      awaitingEmailVerificationCookie.value,
       process.env.JWT_SECRET
     );
   } catch (error) {
-    return false;
-  }
-  if (!token) {
-    return false;
+    return 'jwt_invalid';
   }
   const redisAdapter = new RedisAdapter({ redisClient });
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
@@ -122,19 +122,17 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
     return false;
   }
   await emailVerificationCodeRepository.delete({ userId: token.userId });
-  const sessionRepository = new SessionRepository({ redisAdapter });
-  const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.createSession({
-    userId: token.userId,
-    tenantId: token.tenantId,
-    cookies: cookies(),
-  });
-  cookies().set('session-id', session.sessionId, {
+  const partialRegistrationToken = jwt.sign(
+    { userId, tenantId },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' }
+  );
+  cookies().set('awaiting-mfa-setup-after-signup', partialRegistrationToken, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 60 * 60 * 3,
+    maxAge: 60 * 10,
   });
   return true;
 }

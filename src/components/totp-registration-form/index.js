@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { InputTOTP } from '../input-totp';
+import { EyeIcon, EyeOffIcon, CopyIcon, CheckIcon } from 'lucide-react';
 import { generateTOTPSecret, verifyAndSaveTOTP } from './serverActions';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
@@ -14,6 +15,8 @@ const TOTPRegistrationForm = () => {
   const [otpauthUrl, setOtpauthUrl] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
 
   const getTimeLeft = () => {
@@ -100,9 +103,45 @@ const TOTPRegistrationForm = () => {
           <p className="text-sm text-center text-muted-foreground mb-2">
             Scan this QR code with your authenticator app or enter this code manually:
           </p>
-          <code className="bg-muted p-2 rounded text-sm mb-4 select-all block w-full text-center break-all">
-            {secret}
-          </code>
+          <div className="relative w-full mb-4">
+            <div className="flex items-center gap-2 bg-muted p-2 rounded">
+              <code className="flex-1 text-sm text-center break-all">
+                {showSecret ? secret : '••••• ••••• ••••• •••••'}
+              </code>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setShowSecret(!showSecret)}
+                  type="button"
+                >
+                  {showSecret ? (
+                    <EyeOffIcon className="h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(secret);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  type="button"
+                >
+                  {copied ? (
+                    <CheckIcon className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <CopyIcon className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
           <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex w-full flex-col items-center justify-center gap-1">

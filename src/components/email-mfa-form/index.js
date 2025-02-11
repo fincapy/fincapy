@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 
 const EmailMFAForm = ({ setEmailVerified }) => {
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,14 +31,29 @@ const EmailMFAForm = ({ setEmailVerified }) => {
   }, [timeLeft, router]);
 
   const handleOTPComplete = async (otp) => {
-    const result = await verifyEmail(otp);
-    if (result) {
-      if (setEmailVerified) {
-        setEmailVerified(true);
+    try {
+      setError('');
+      setIsSubmitting(true);
+      
+      const result = await verifyEmail(otp);
+      
+      if (result === 'cookie_invalid') {
+        router.push('/signin');
+        return;
       }
-    } else {
-      console.log();
-      setError('Invalid OTP');
+      
+      if (result === true) {
+        if (setEmailVerified) {
+          setEmailVerified(true);
+        }
+      } else {
+        setError('Invalid verification code. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      console.error('Email verification error:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -44,7 +61,13 @@ const EmailMFAForm = ({ setEmailVerified }) => {
     <Card className="bg-background w-[384px] shadow-lg">
       <CardContent className="pt-6">
         <div className="flex w-full flex-col items-center justify-center gap-4">
-          <InputTOTP onComplete={async (otp) => await handleOTPComplete(otp)} />
+          <InputTOTP 
+            onComplete={async (otp) => await handleOTPComplete(otp)} 
+            disabled={isSubmitting}
+          />
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
           <div className="flex w-full flex-col items-center justify-center gap-1">
             {timeLeft > 0 && (
               <div className="flex items-center space-x-1 text-xs -mb-4">
@@ -58,7 +81,11 @@ const EmailMFAForm = ({ setEmailVerified }) => {
             <Button
               variant="link"
               className="text-xs text-muted-foreground hover:text-primary"
-              onClick={() => setTimeLeft(600)}
+              onClick={() => {
+                setTimeLeft(600);
+                setError('');
+              }}
+              disabled={isSubmitting}
             >
               Didn&apos;t receive the code? Resend
             </Button>

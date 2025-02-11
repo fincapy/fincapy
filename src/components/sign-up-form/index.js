@@ -32,7 +32,19 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [partiallyRegistered, setPartiallyRegistered] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('signupTimeLeft');
+      const storedTime = stored ? parseInt(stored, 10) : 600;
+      const timestamp = localStorage.getItem('signupTimestamp');
+      if (timestamp) {
+        const elapsed = Math.floor((Date.now() - parseInt(timestamp, 10)) / 1000);
+        return Math.max(0, storedTime - elapsed);
+      }
+      return storedTime;
+    }
+    return 600;
+  });
   const [emailVerified, setEmailVerified] = useState(false);
   const [totpVerified, setTOTPVerified] = useState(false);
   const accessCode = useContext(AccessCodeContext);
@@ -213,6 +225,8 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     if (result) {
       setLoading(false);
       setPartiallyRegistered(true);
+      localStorage.setItem('signupTimeLeft', '600');
+      localStorage.setItem('signupTimestamp', Date.now().toString());
     } else {
       setLoading(false);
       setError('An error occurred while creating your account');
@@ -225,12 +239,15 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     if (partiallyRegistered && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
-          if (prev <= 1) {
+          const newTime = prev <= 1 ? 0 : prev - 1;
+          localStorage.setItem('signupTimeLeft', newTime.toString());
+          if (newTime <= 0) {
             clearInterval(timer);
+            localStorage.removeItem('signupTimeLeft');
+            localStorage.removeItem('signupTimestamp');
             router.push('/signin');
-            return 0;
           }
-          return prev - 1;
+          return newTime;
         });
       }, 1000);
 

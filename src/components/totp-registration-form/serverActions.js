@@ -33,9 +33,15 @@ export async function verifyAndSaveTOTP(token, secret) {
   }
 
   let jwtToken;
+  const awaitingMFASetupAfterSignupCookie = cookies().get(
+    'awaiting-mfa-setup-after-signup'
+  );
+  if (!awaitingMFASetupAfterSignupCookie) {
+    return false;
+  }
   try {
     jwtToken = await jwt.verify(
-      cookies().get('partial-registration-token').value,
+      awaitingMFASetupAfterSignupCookie.value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -52,7 +58,7 @@ export async function verifyAndSaveTOTP(token, secret) {
 
   user.totpSecret = secret;
   user.totpEnabled = true;
-  await userRepository.set({ userId: jwtToken.userId, user });
+  await userRepository.set({ userId: user.id, user });
 
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
@@ -61,7 +67,6 @@ export async function verifyAndSaveTOTP(token, secret) {
     tenantId: jwtToken.tenantId,
     cookies: cookies(),
   });
-
   cookies().set('session-id', session.sessionId, {
     path: '/',
     httpOnly: true,
@@ -69,6 +74,5 @@ export async function verifyAndSaveTOTP(token, secret) {
     sameSite: 'strict',
     maxAge: 60 * 60 * 3,
   });
-
   return true;
 }

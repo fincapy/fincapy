@@ -75,6 +75,7 @@ export async function createAccount(name, email, password, accessCode) {
       userId,
       ttl: 60 * 10,
     });
+    console.log('userId', userId);
     if (process.env.NODE_ENV === 'production') {
       const sesAdapter = new SESAdapter();
       await sesAdapter.sendEmail({

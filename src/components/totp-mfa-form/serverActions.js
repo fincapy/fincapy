@@ -19,19 +19,13 @@ export async function verifyTOTP(token) {
     return false;
   }
 
-  console.log('here?');
-
   const redisAdapter = new RedisAdapter({ redisClient });
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: jwtToken.userId });
 
-  console.log('user', user);
-
   if (!user || !user.totpSecret) {
     return false;
   }
-
-  console.log('what about here?');
 
   const isValid = speakeasy.totp.verify({
     secret: user.totpSecret,

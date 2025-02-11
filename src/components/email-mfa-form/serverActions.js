@@ -12,7 +12,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   let token;
   try {
     token = await jwt.verify(
-      cookies().get('partial-registration-token').value,
+      cookies().get('awaiting-email-verification-after-signup').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -21,6 +21,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   if (!token) {
     return false;
   }
+  console.log('token', token);
   const redisAdapter = new RedisAdapter({ redisClient });
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
     redisAdapter,
@@ -28,6 +29,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   const emailVerificationCode = await emailVerificationCodeRepository.get({
     userId: token.userId,
   });
+  console.log('emailVerificationCode', emailVerificationCode);
   if (!emailVerificationCode) {
     return false;
   }
@@ -46,12 +48,17 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   const user = await userRepository.get({ userId: token.userId });
   user.emailVerified = true;
   await userRepository.set({ userId: token.userId, user });
-  cookies().set('session-id', session.sessionId, {
+  const partialRegistrationToken = jwt.sign(
+    { userId: user.id, tenantId: user.tenantId },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' }
+  );
+  cookies().set('awaiting-mfa-setup-after-signup', partialRegistrationToken, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 60 * 60 * 3,
+    maxAge: 60 * 10,
   });
   return true;
 }

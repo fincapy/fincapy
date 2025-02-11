@@ -66,7 +66,7 @@ const TOTPRegistrationForm = () => {
   }, []);
 
   if (!mounted) {
-    return <Skeleton className="w-[382.27px] h-[420px] rounded-xl bg-card" />;
+    return <Skeleton className="w-[382.27px] h-[436px] rounded-xl bg-card" />;
   }
 
   const handleOTPComplete = async (otp) => {
@@ -94,21 +94,22 @@ const TOTPRegistrationForm = () => {
   return (
     <Card className="bg-background w-[384px] shadow-lg">
       <CardContent className="pt-6">
-        <div className="flex w-full flex-col items-center justify-center gap-4">
+        <div className="flex w-full flex-col items-center justify-center gap-1">
           {otpauthUrl && (
             <div className="mb-4">
               <QRCodeSVG value={otpauthUrl} size={200} />
             </div>
           )}
-          <p className="text-sm text-center text-muted-foreground mb-2">
-            Scan this QR code with your authenticator app or enter this code manually:
+          <p className="text-sm text-center text-muted-foreground">
+            Scan this QR code with your authenticator app or enter this code
+            manually:
           </p>
-          <div className="relative w-full mb-4">
-            <div className="flex items-center gap-2 bg-muted p-2 rounded">
+          <div className="relative mb-6 w-[314.5px]">
+            <div className="flex items-center gap-2 bg-muted rounded">
               <code className="flex-1 text-sm text-center break-all">
-                {showSecret ? secret : '••••• ••••• ••••• •••••'}
+                {showSecret ? secret : '••••••••••••••••••••••••••••'}
               </code>
-              <div className="flex gap-1">
+              <div className="flex">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -125,7 +126,7 @@ const TOTPRegistrationForm = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 -ml-[8px]"
                   onClick={async () => {
                     await navigator.clipboard.writeText(secret);
                     setCopied(true);
@@ -144,7 +145,7 @@ const TOTPRegistrationForm = () => {
           </div>
           <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <div className="flex w-full flex-col items-center justify-center gap-1">
+          <div className="flex w-full flex-col items-center justify-center gap-1 mt-2">
             {timeLeft > 0 && (
               <div className="flex items-center space-x-1 text-xs">
                 <span className="text-xs text-muted-foreground">

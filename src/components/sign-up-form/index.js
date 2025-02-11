@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { createAccount, verifyEmail } from './serverActions';
 import { InputTOTP } from '../input-totp';
@@ -29,30 +29,9 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [partiallyRegistered, setPartiallyRegistered] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('signupPartiallyRegistered') === 'true';
-    }
-    return false;
-  });
+  const [partiallyRegistered, setPartiallyRegistered] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const timestamp = localStorage.getItem('signupTimestamp');
-      if (timestamp) {
-        const elapsed = Math.floor((Date.now() - parseInt(timestamp, 10)) / 1000);
-        const remaining = Math.max(0, 600 - elapsed);
-        if (remaining === 0) {
-          localStorage.removeItem('signupTimestamp');
-          localStorage.removeItem('signupPartiallyRegistered');
-          return 0;
-        }
-        return remaining;
-      }
-    }
-    return 600;
-  });
   const [emailVerified, setEmailVerified] = useState(false);
   const [totpVerified, setTOTPVerified] = useState(false);
   const accessCode = useContext(AccessCodeContext);
@@ -233,34 +212,12 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     if (result) {
       setLoading(false);
       setPartiallyRegistered(true);
-      localStorage.setItem('signupPartiallyRegistered', 'true');
-      localStorage.setItem('signupTimestamp', Date.now().toString());
+      sessionStorage.setItem('signupTimestamp', Date.now().toString());
     } else {
       setLoading(false);
       setError('An error occurred while creating your account');
     }
   };
-
-  // const router = useRouter();
-
-  useEffect(() => {
-    if (partiallyRegistered && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          const newTime = prev <= 1 ? 0 : prev - 1;
-          if (newTime <= 0) {
-            clearInterval(timer);
-            localStorage.removeItem('signupTimestamp');
-            localStorage.removeItem('signupPartiallyRegistered');
-            router.push('/signin');
-          }
-          return newTime;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [partiallyRegistered, timeLeft, router]);
 
   return (
     <ThemeProvider

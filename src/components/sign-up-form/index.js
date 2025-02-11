@@ -22,7 +22,7 @@ import { TOTPRegistrationForm } from '../totp-registration-form';
 import { AccessCodeContext } from '../access-gate';
 import { useContext } from 'react';
 
-const PasswordSignupForm = ({ nonce }) => {
+const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -38,6 +38,38 @@ const PasswordSignupForm = ({ nonce }) => {
   const accessCode = useContext(AccessCodeContext);
 
   const progression = () => {
+    if (
+      (partiallyRegistered && emailVerified) ||
+      progressionPoint === 'mfaRegistration'
+    ) {
+      return (
+        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+          <div className="flex flex-col items-center gap-0 mb-2">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Register your authenticator app
+            </h2>
+          </div>
+          <TOTPRegistrationForm setTOTPVerified={setTOTPVerified} />
+        </div>
+      );
+    }
+
+    if (
+      (partiallyRegistered && !emailVerified) ||
+      progressionPoint === 'emailVerification'
+    ) {
+      return (
+        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+          <div className="flex flex-col items-center gap-0 mb-2">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Verify your email
+            </h2>
+          </div>
+          <EmailMFAForm setEmailVerified={setEmailVerified} />
+        </div>
+      );
+    }
+
     if (!emailVerified && !partiallyRegistered) {
       return (
         <div className="flex flex-col gap-6">
@@ -135,32 +167,6 @@ const PasswordSignupForm = ({ nonce }) => {
             By clicking Sign up, you agree to our{' '}
             <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
           </div>
-        </div>
-      );
-    }
-
-    if (partiallyRegistered && !emailVerified) {
-      return (
-        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-          <div className="flex flex-col items-center gap-0 mb-2">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Verify your email
-            </h2>
-          </div>
-          <EmailMFAForm setEmailVerified={setEmailVerified} />
-        </div>
-      );
-    }
-
-    if (partiallyRegistered && emailVerified) {
-      return (
-        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-          <div className="flex flex-col items-center gap-0 mb-2">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Register your authenticator app
-            </h2>
-          </div>
-          <TOTPRegistrationForm setTOTPVerified={setTOTPVerified} />
         </div>
       );
     }

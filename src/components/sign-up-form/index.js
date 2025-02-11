@@ -29,19 +29,27 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [partiallyRegistered, setPartiallyRegistered] = useState(false);
+  const [partiallyRegistered, setPartiallyRegistered] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('signupPartiallyRegistered') === 'true';
+    }
+    return false;
+  });
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('signupTimeLeft');
-      const storedTime = stored ? parseInt(stored, 10) : 600;
       const timestamp = localStorage.getItem('signupTimestamp');
       if (timestamp) {
         const elapsed = Math.floor((Date.now() - parseInt(timestamp, 10)) / 1000);
-        return Math.max(0, storedTime - elapsed);
+        const remaining = Math.max(0, 600 - elapsed);
+        if (remaining === 0) {
+          localStorage.removeItem('signupTimestamp');
+          localStorage.removeItem('signupPartiallyRegistered');
+          return 0;
+        }
+        return remaining;
       }
-      return storedTime;
     }
     return 600;
   });
@@ -225,7 +233,7 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     if (result) {
       setLoading(false);
       setPartiallyRegistered(true);
-      localStorage.setItem('signupTimeLeft', '600');
+      localStorage.setItem('signupPartiallyRegistered', 'true');
       localStorage.setItem('signupTimestamp', Date.now().toString());
     } else {
       setLoading(false);
@@ -240,11 +248,10 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = prev <= 1 ? 0 : prev - 1;
-          localStorage.setItem('signupTimeLeft', newTime.toString());
           if (newTime <= 0) {
             clearInterval(timer);
-            localStorage.removeItem('signupTimeLeft');
             localStorage.removeItem('signupTimestamp');
+            localStorage.removeItem('signupPartiallyRegistered');
             router.push('/signin');
           }
           return newTime;

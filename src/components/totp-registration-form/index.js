@@ -97,10 +97,12 @@ const TOTPRegistrationForm = () => {
               <QRCodeSVG value={otpauthUrl} size={200} />
             </div>
           )}
-          <p className="text-sm text-center text-muted-foreground mb-4">
-            Scan this QR code with your authenticator app and enter the code
-            below to verify
+          <p className="text-sm text-center text-muted-foreground mb-2">
+            Scan this QR code with your authenticator app or enter this code manually:
           </p>
+          <code className="bg-muted p-2 rounded text-sm mb-4 select-all">
+            {secret}
+          </code>
           <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex w-full flex-col items-center justify-center gap-1">

@@ -13,8 +13,11 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-export async function createAccount(name, email, password) {
+export async function createAccount(name, email, password, accessCode) {
   try {
+    if (accessCode !== process.env.SIGNUP_ACCESS_CODE) {
+      return false;
+    }
     const redisAdapter = new RedisAdapter({ redisClient });
     const transactionManager = new TransactionManager({
       redisAdapter,

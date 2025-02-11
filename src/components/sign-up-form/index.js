@@ -25,6 +25,7 @@ const PasswordSignupForm = ({ nonce }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [partiallyRegistered, setPartiallyRegistered] = useState(false);
@@ -101,6 +102,17 @@ const PasswordSignupForm = ({ nonce }) => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="accessCode">Access Code</Label>
+                      <Input
+                        id="accessCode"
+                        type="password"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value)}
+                        required
+                        placeholder="Enter access code"
                       />
                     </div>
                     {error && (
@@ -200,7 +212,7 @@ const PasswordSignupForm = ({ nonce }) => {
     }
 
     setLoading(true);
-    const result = await createAccount(name, email, password);
+    const result = await createAccount(name, email, password, accessCode);
     if (result) {
       setLoading(false);
       setPartiallyRegistered(true);

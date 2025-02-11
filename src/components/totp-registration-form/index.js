@@ -16,15 +16,13 @@ const TOTPRegistrationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const getTimeLeft = () => {
     if (typeof window !== 'undefined') {
       const timestamp = sessionStorage.getItem('totpRegistrationTimestamp');
       if (timestamp) {
-        const elapsed = Math.floor((Date.now() - parseInt(timestamp, 10)) / 1000);
+        const elapsed = Math.floor(
+          (Date.now() - parseInt(timestamp, 10)) / 1000
+        );
         const remaining = Math.max(0, 600 - elapsed);
         return remaining;
       }
@@ -59,25 +57,23 @@ const TOTPRegistrationForm = () => {
       const { otpauthUrl, secret } = await generateTOTPSecret();
       setSecret(secret);
       setOtpauthUrl(otpauthUrl);
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('totpRegistrationTimestamp', Date.now().toString());
-      }
+      setMounted(true);
     };
     initTOTP();
   }, []);
 
   if (!mounted) {
-    return <Skeleton className="w-[384px] h-[141.73px] rounded-xl bg-card" />;
+    return <Skeleton className="w-[382.27px] h-[420px] rounded-xl bg-card" />;
   }
 
   const handleOTPComplete = async (otp) => {
     if (!secret) return;
-    
+
     try {
       setError('');
       setIsSubmitting(true);
       const result = await verifyAndSaveTOTP(otp, secret);
-      
+
       if (result) {
         sessionStorage.removeItem('totpRegistrationTimestamp');
         router.push('/app');
@@ -105,10 +101,7 @@ const TOTPRegistrationForm = () => {
             Scan this QR code with your authenticator app and enter the code
             below to verify
           </p>
-          <InputTOTP 
-            onComplete={handleOTPComplete}
-            disabled={isSubmitting} 
-          />
+          <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex w-full flex-col items-center justify-center gap-1">
             {timeLeft > 0 && (

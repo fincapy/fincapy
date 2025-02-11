@@ -18,6 +18,7 @@ export async function createAccount(name, email, password, accessCode) {
     if (accessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE) {
       return false;
     }
+    console.log('past access code');
     const redisAdapter = new RedisAdapter({ redisClient });
     const transactionManager = new TransactionManager({
       redisAdapter,
@@ -45,6 +46,7 @@ export async function createAccount(name, email, password, accessCode) {
       password,
       whitelistBilling: true,
     });
+    console.log('past setup new tenant');
     const partialRegistrationToken = jwt.sign(
       { userId, tenantId },
       process.env.JWT_SECRET,
@@ -57,6 +59,7 @@ export async function createAccount(name, email, password, accessCode) {
       sameSite: 'strict',
       maxAge: 60 * 10,
     });
+    console.log('past partial registration token');
     const emailVerificationCode = crypto.randomInt(100000, 999999);
     const emailVerificationCodeRepository = new EmailVerificationCodeRepository(
       {
@@ -68,6 +71,7 @@ export async function createAccount(name, email, password, accessCode) {
       userId,
       ttl: 60 * 10,
     });
+    console.log('past email verification code');
     if (process.env.NODE_ENV === 'production') {
       try {
         const sesAdapter = new SESAdapter();
@@ -83,6 +87,7 @@ export async function createAccount(name, email, password, accessCode) {
     } else {
       console.log('emailVerificationCode', emailVerificationCode);
     }
+    console.log('past ses adapter');
     return true;
   } catch (error) {
     console.error(error);

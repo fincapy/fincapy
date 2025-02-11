@@ -100,7 +100,7 @@ const TOTPRegistrationForm = () => {
           <p className="text-sm text-center text-muted-foreground mb-2">
             Scan this QR code with your authenticator app or enter this code manually:
           </p>
-          <code className="bg-muted p-2 rounded text-sm mb-4 select-all">
+          <code className="bg-muted p-2 rounded text-sm mb-4 select-all block w-full text-center break-all">
             {secret}
           </code>
           <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />

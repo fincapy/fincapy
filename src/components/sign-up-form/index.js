@@ -19,13 +19,14 @@ import { useRouter } from 'next/navigation';
 import { Loader2, LockKeyhole } from 'lucide-react';
 import { EmailMFAForm } from '../email-mfa-form';
 import { TOTPRegistrationForm } from '../totp-registration-form';
+import { AccessCodeContext } from '../access-gate';
+import { useContext } from 'react';
 
 const PasswordSignupForm = ({ nonce }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [partiallyRegistered, setPartiallyRegistered] = useState(false);
@@ -34,6 +35,7 @@ const PasswordSignupForm = ({ nonce }) => {
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [emailVerified, setEmailVerified] = useState(false);
   const [totpVerified, setTOTPVerified] = useState(false);
+  const accessCode = useContext(AccessCodeContext);
 
   const progression = () => {
     if (!emailVerified && !partiallyRegistered) {
@@ -102,17 +104,6 @@ const PasswordSignupForm = ({ nonce }) => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="accessCode">Access Code</Label>
-                      <Input
-                        id="accessCode"
-                        type="password"
-                        value={accessCode}
-                        onChange={(e) => setAccessCode(e.target.value)}
-                        required
-                        placeholder="Enter access code"
                       />
                     </div>
                     {error && (

@@ -7,7 +7,7 @@ export default function SignInPage() {
   const nonce = headersList.get('x-nonce');
 
   return (
-    <AccessGate>
+    <AccessGate nonce={nonce}>
       <PasswordSignupForm nonce={nonce} />
     </AccessGate>
   );

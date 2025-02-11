@@ -15,7 +15,7 @@ import crypto from 'crypto';
 
 export async function createAccount(name, email, password, accessCode) {
   try {
-    if (accessCode !== process.env.SIGNUP_ACCESS_CODE) {
+    if (accessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE) {
       return false;
     }
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -69,12 +69,17 @@ export async function createAccount(name, email, password, accessCode) {
       ttl: 60 * 10,
     });
     if (process.env.NODE_ENV === 'production') {
-      const sesAdapter = new SESAdapter();
-      await sesAdapter.sendEmail({
-        to: email,
-        subject: 'Verify your Fincapy account',
-        text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
-      });
+      try {
+        const sesAdapter = new SESAdapter();
+        await sesAdapter.sendEmail({
+          to: email,
+          subject: 'Verify your Fincapy account',
+          text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+        });
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
     } else {
       console.log('emailVerificationCode', emailVerificationCode);
     }

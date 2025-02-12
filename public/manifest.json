@@ -14,13 +14,13 @@
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "theme_color": "#FFFFFF",
-  "background_color": "#FFFFFF",
+  "theme_color": "#09090b",
+  "background_color": "#09090b",
   "start_url": "/signin",
   "display": "standalone",
   "orientation": "portrait"

@@ -36,7 +36,7 @@ async function authenticateEmailPassword({ email, password }) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 10, // todo: fix
+      maxAge: 60 * 10,
     });
     return true;
   }

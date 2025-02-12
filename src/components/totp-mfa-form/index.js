@@ -11,7 +11,21 @@ const TOTPMFAForm = () => {
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600);
+  const getTimeLeft = () => {
+    if (typeof window !== 'undefined') {
+      const timestamp = sessionStorage.getItem('totpMfaTimestamp');
+      if (timestamp) {
+        const elapsed = Math.floor(
+          (Date.now() - parseInt(timestamp, 10)) / 1000
+        );
+        const remaining = Math.max(0, 600 - elapsed);
+        return remaining;
+      }
+    }
+    return 600;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(() => getTimeLeft());
   const router = useRouter();
 
   useEffect(() => {
@@ -20,12 +34,17 @@ const TOTPMFAForm = () => {
 
   const timerRef = useRef(null);
   useEffect(() => {
-    if (typeof window !== 'undefined' && timeLeft > 0) {
+    if (typeof window !== 'undefined') {
+      if (!sessionStorage.getItem('totpMfaTimestamp')) {
+        sessionStorage.setItem('totpMfaTimestamp', Date.now().toString());
+      }
+      if (timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = prev - 1;
           if (newTime <= 0) {
             clearInterval(timerRef.current);
+            sessionStorage.removeItem('totpMfaTimestamp');
             router.push('/signin');
           }
           return Math.max(0, newTime);
@@ -41,6 +60,7 @@ const TOTPMFAForm = () => {
       setIsSubmitting(true);
       const result = await verifyTOTP(otp);
       if (result) {
+        sessionStorage.removeItem('totpMfaTimestamp');
         router.push('/app');
       } else {
         setError('Invalid verification code. Please try again.');

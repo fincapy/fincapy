@@ -114,6 +114,7 @@ const EmailMFAForm = ({ setEmailVerified }) => {
               variant="link"
               className="text-xs text-muted-foreground hover:text-primary"
               onClick={() => {
+                sessionStorage.setItem('totpMfaTimestamp', Date.now().toString());
                 setTimeLeft(600);
                 setError('');
               }}

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { InputTOTP } from '../input-totp';
 import { verifyTOTP } from './serverActions';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '../ui/skeleton';
 
 const TOTPMFAForm = () => {

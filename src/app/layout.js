@@ -9,67 +9,67 @@ export const metadata = {
     startupImage: [
       // iPhone 14 Pro Max, 13 Pro Max (1290 x 2796)
       {
-        url: '/splash/apple-splash-1290x2796.jpg',
+        url: '/splash/apple-splash-1290x2796.jpeg',
         media:
           'screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 14 Pro, 13 Pro (1179 x 2556)
       {
-        url: '/splash/apple-splash-1179x2556.jpg',
+        url: '/splash/apple-splash-1179x2556.jpeg',
         media:
           'screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 14 Plus, 13 (1284 x 2778)
       {
-        url: '/splash/apple-splash-1284x2778.jpg',
+        url: '/splash/apple-splash-1284x2778.jpeg',
         media:
           'screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 14, 13 Mini, 12 Mini (1170 x 2532)
       {
-        url: '/splash/apple-splash-1170x2532.jpg',
+        url: '/splash/apple-splash-1170x2532.jpeg',
         media:
           'screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 12 Pro Max (1284 x 2778)
       {
-        url: '/splash/apple-splash-1284x2778.jpg',
+        url: '/splash/apple-splash-1284x2778.jpeg',
         media:
           'screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 12, 12 Pro (1170 x 2532)
       {
-        url: '/splash/apple-splash-1170x2532.jpg',
+        url: '/splash/apple-splash-1170x2532.jpeg',
         media:
           'screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 11 Pro Max, XS Max (1242 x 2688)
       {
-        url: '/splash/apple-splash-1242x2688.jpg',
+        url: '/splash/apple-splash-1242x2688.jpeg',
         media:
           'screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 11, XR (828 x 1792)
       {
-        url: '/splash/apple-splash-828x1792.jpg',
+        url: '/splash/apple-splash-828x1792.jpeg',
         media:
           'screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)',
       },
       // iPhone 11 Pro, XS, X (1125 x 2436)
       {
-        url: '/splash/apple-splash-1125x2436.jpg',
+        url: '/splash/apple-splash-1125x2436.jpeg',
         media:
           'screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 8 Plus, 7 Plus, 6s Plus (1242 x 2208)
       {
-        url: '/splash/apple-splash-1242x2208.jpg',
+        url: '/splash/apple-splash-1242x2208.jpeg',
         media:
           'screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)',
       },
       // iPhone 8, 7, 6s (750 x 1334)
       {
-        url: '/splash/apple-splash-750x1334.jpg',
+        url: '/splash/apple-splash-750x1334.jpeg',
         media:
           'screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)',
       },

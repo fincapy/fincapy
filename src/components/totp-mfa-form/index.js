@@ -53,7 +53,7 @@ const TOTPMFAForm = () => {
     }
   };
 
-  if (!mounted) 
+  if (!mounted)
     return <Skeleton className="w-[384px] h-[141.73px] rounded-xl bg-card" />;
 
   return (
@@ -78,17 +78,6 @@ const TOTPMFAForm = () => {
                   <span className="text-muted-foreground">remaining</span>
                 </div>
               )}
-              <Button
-                variant="link"
-                className="text-xs text-muted-foreground hover:text-primary"
-                onClick={() => {
-                  setTimeLeft(600);
-                  setError('');
-                }}
-                disabled={isSubmitting}
-              >
-                Didn&apos;t receive the code? Resend
-              </Button>
             </div>
           </div>
         </CardContent>

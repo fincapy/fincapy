@@ -39,18 +39,19 @@ const TOTPMFAForm = () => {
         sessionStorage.setItem('totpMfaTimestamp', Date.now().toString());
       }
       if (timeLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          const newTime = prev - 1;
-          if (newTime <= 0) {
-            clearInterval(timerRef.current);
-            sessionStorage.removeItem('totpMfaTimestamp');
-            router.push('/signin');
-          }
-          return Math.max(0, newTime);
-        });
-      }, 1000);
-      return () => clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          setTimeLeft((prev) => {
+            const newTime = prev - 1;
+            if (newTime <= 0) {
+              clearInterval(timerRef.current);
+              sessionStorage.removeItem('totpMfaTimestamp');
+              router.push('/signin');
+            }
+            return Math.max(0, newTime);
+          });
+        }, 1000);
+        return () => clearInterval(timerRef.current);
+      }
     }
   }, [router, timeLeft]);
 

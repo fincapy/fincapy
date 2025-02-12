@@ -43,9 +43,9 @@ COPY --from=build /app/.next/static /app/.next/static
 COPY --from=build /app/public /app/public
 
 # These files are needed for PWA functionality
-COPY --from=build /app/.next/service-worker.js /app/.next/
-COPY --from=build /app/.next/workbox-*.js /app/.next/
-COPY --from=build /app/server.js /app/
+# COPY --from=build /app/.next/service-worker.js /app/.next/
+# COPY --from=build /app/.next/workbox-*.js /app/.next/
+# COPY --from=build /app/server.js /app/
 
 
 # Start the server by default, this can be overwritten at runtime

@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "node ./setup-pubsub-local.js",
     "dev": "next dev",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true npm run build"

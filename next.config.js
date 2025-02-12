@@ -1,6 +1,6 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development'
+  disable: process.env.NODE_ENV === 'development',
 });
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -55,13 +55,13 @@ const securityHeaders = [
   },
 ];
 
-nextConfig.headers = async () => {
-  return [
+const nextConfig = {
+  headers: async () => [
     {
       source: '/:path*',
       headers: securityHeaders,
     },
-  ];
+  ],
 };
 
 module.exports = withPWA(withBundleAnalyzer(nextConfig));

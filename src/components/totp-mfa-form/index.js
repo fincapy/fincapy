@@ -26,7 +26,8 @@ const TOTPMFAForm = () => {
         </h2>
       </div>
       <Card className="bg-background w-[384px] shadow-lg">
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 flex flex-col items-center justify-center gap-1 h-32">
+          {/* <span className="text-sm text-muted-foreground">Code:</span> */}
           <div className="flex w-full flex-col items-center justify-center gap-4">
             <InputTOTP onComplete={handleOTPComplete} />
             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}

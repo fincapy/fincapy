@@ -1,7 +1,7 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'standalone',
-};
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development'
+});
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -64,4 +64,4 @@ nextConfig.headers = async () => {
   ];
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+module.exports = withPWA(withBundleAnalyzer(nextConfig));

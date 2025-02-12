@@ -75,35 +75,28 @@ const TOTPMFAForm = () => {
   };
 
   if (!mounted)
-    return <Skeleton className="w-[384px] h-[141.73px] rounded-xl bg-card" />;
+    return <Skeleton className="w-[384px] h-[129.73px] rounded-xl bg-card" />;
 
   return (
-    <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-      <div className="flex flex-col items-center gap-0 mb-2">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Enter your authenticator app code
-        </h2>
-      </div>
-      <Card className="bg-background w-[384px] shadow-lg">
-        <CardContent className="pt-6 flex flex-col items-center justify-center gap-1 h-32">
-          <div className="flex w-full flex-col items-center justify-center gap-4">
-            <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <div className="flex w-full flex-col items-center justify-center gap-1">
-              {timeLeft > 0 && (
-                <div className="flex items-center space-x-1 text-xs -mb-4">
-                  <span className="text-xs text-muted-foreground">
-                    {Math.floor(timeLeft / 60)}:
-                    {(timeLeft % 60).toString().padStart(2, '0')}
-                  </span>
-                  <span className="text-muted-foreground">remaining</span>
-                </div>
-              )}
-            </div>
+    <Card className="bg-background w-[384px] shadow-lg">
+      <CardContent className="pt-6 flex flex-col items-center justify-center gap-1 h-32">
+        <div className="flex w-full flex-col items-center justify-center gap-4">
+          <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex w-full flex-col items-center justify-center gap-1">
+            {timeLeft > 0 && (
+              <div className="flex items-center space-x-1 text-xs -mb-4">
+                <span className="text-xs text-muted-foreground">
+                  {Math.floor(timeLeft / 60)}:
+                  {(timeLeft % 60).toString().padStart(2, '0')}
+                </span>
+                <span className="text-muted-foreground">remaining</span>
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

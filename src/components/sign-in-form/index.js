@@ -18,7 +18,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { GalleryVerticalEnd, Loader2 } from 'lucide-react';
 import { TOTPMFAForm } from '../totp-mfa-form';
 
-export function SignInForm({ nonce }) {
+export function SignInForm({ nonce, mfaToken }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -73,8 +73,15 @@ export function SignInForm({ nonce }) {
             </div>
             Fincapy
           </a>
-          {partiallyAuthenticated ? (
-            <TOTPMFAForm />
+          {partiallyAuthenticated || mfaToken ? (
+            <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+              <div className="flex flex-col items-center gap-0 mb-2">
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Enter your authenticator app code
+                </h2>
+              </div>
+              <TOTPMFAForm />
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center -mt-4 gap-1">
               <div className="flex flex-col items-center gap-0 mb-2">

@@ -1,26 +1,21 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-function logToScreen(message) {
-  const el = document.createElement('div');
-  el.textContent = message;
-  el.style.position = 'fixed';
-  el.style.top = '0';
-  el.style.left = '0';
-  el.style.backgroundColor = 'rgba(0,0,0,0.7)';
-  el.style.color = 'white';
-  el.style.padding = '10px';
-  el.style.zIndex = '9999';
-  document.body.appendChild(el);
-}
+// function logToScreen(message) {
+//   const el = document.createElement('div');
+//   el.textContent = message;
+//   el.style.position = 'fixed';
+//   el.style.top = '0';
+//   el.style.left = '0';
+//   el.style.backgroundColor = 'rgba(0,0,0,0.7)';
+//   el.style.color = 'white';
+//   el.style.padding = '10px';
+//   el.style.zIndex = '9999';
+//   document.body.appendChild(el);
+// }
 
 export function useStandalone() {
   const [isStandalone, setIsStandalone] = useState(false);
-
-  logToScreen(`Standalone: ${window.navigator.standalone}`);
-  logToScreen(
-    `Display Mode: ${window.matchMedia('(display-mode: standalone)').matches}`
-  );
 
   useEffect(() => {
     const standalone =

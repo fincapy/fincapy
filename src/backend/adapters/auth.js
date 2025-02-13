@@ -1,6 +1,7 @@
 import crypto, { timingSafeEqual } from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
+import jwt from 'jsonwebtoken';
 
 const SESSION_TTL = 60 * 60; // 1 hour
 const ROTATION_PERIOD = 15 * 60; // 15 minutes
@@ -31,8 +32,11 @@ class SessionManager {
   }
 
   async setCookie({ res, cookies, sessionId }) {
+    const sessionToken = jwt.sign({ sessionId }, process.env.JWT_SECRET, {
+      expiresIn: '3h',
+    });
     if (cookies) {
-      cookies.set('session-id', sessionId, {
+      cookies.set('session-id', sessionToken, {
         maxAge: SESSION_TTL,
         path: '/',
         httpOnly: true,
@@ -40,7 +44,7 @@ class SessionManager {
         sameSite: 'strict',
       });
     } else if (res) {
-      res.cookies.set('session-id', sessionId, {
+      res.cookies.set('session-id', sessionToken, {
         maxAge: SESSION_TTL,
         path: '/',
         httpOnly: true,
@@ -56,13 +60,23 @@ class SessionManager {
         throw new Error('Attempting to use touchSession in a server component');
       }
     }
-    const providedSessionId =
+    const providedSessionToken =
       (cookies
         ? cookies.get('session-id')?.value
         : req.cookies.get('session-id')?.value) || '';
 
+    let providedSessionId;
+    try {
+      providedSessionId = jwt.verify(
+        providedSessionToken,
+        process.env.JWT_SECRET
+      );
+    } catch (error) {
+      return false;
+    }
+
     const session = await this.sessionRepository.get({
-      sessionId: providedSessionId,
+      sessionId: providedSessionId.sessionId,
     });
 
     if (!session) {
@@ -96,13 +110,23 @@ class SessionManager {
   }
 
   async getSession({ req, cookies }) {
-    const providedSessionId =
+    const providedSessionToken =
       (cookies
         ? cookies.get('session-id')?.value
         : req.cookies.get('session-id')?.value) || '';
 
+    let providedSessionId;
+    try {
+      providedSessionId = jwt.verify(
+        providedSessionToken,
+        process.env.JWT_SECRET
+      );
+    } catch (error) {
+      return false;
+    }
+
     const session = await this.sessionRepository.get({
-      sessionId: providedSessionId,
+      sessionId: providedSessionId.sessionId,
     });
 
     if (!session) {

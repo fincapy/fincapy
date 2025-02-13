@@ -67,7 +67,12 @@ export async function verifyAndSaveTOTP(token, secret) {
     tenantId: jwtToken.tenantId,
     cookies: cookies(),
   });
-  cookies().set('session-id', session.sessionId, {
+  const sessionToken = jwt.sign(
+    { sessionId: session.sessionId },
+    process.env.JWT_SECRET,
+    { expiresIn: '3h' }
+  );
+  cookies().set('session-id', sessionToken, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

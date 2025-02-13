@@ -1,4 +1,6 @@
 import './globals.css';
+import { headers } from 'next/headers';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata = {
   applicationName: 'Fincapy',
@@ -116,6 +118,8 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const nonce = headers().get('x-nonce');
+
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>
       <body className="touch-none overscroll-none">{children}</body>

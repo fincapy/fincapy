@@ -50,6 +50,7 @@ import { planAtom, plaidItemsAtom, usersAtom } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useStandalone } from '@/hooks/use-standalone';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 
@@ -170,7 +171,7 @@ const NavBar = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-background z-20 w-full h-[6%] fixed bottom-0 m-0 p-0 touch-none">
+    <div className={`flex flex-col items-center justify-center bg-background z-20 w-full h-[6%] fixed bottom-0 m-0 touch-none ${useStandalone() ? 'pb-5' : 'p-0'}`}>
       <Separator className="w-full h-[1px]" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
         <div className="flex flex-row justify-between items-center flex-1">

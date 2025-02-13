@@ -4,7 +4,8 @@ import { transactionTypes } from '../domain/transaction';
 class OpenaiAdapter {
   constructor() {
     this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.AI_URL,
+      apiKey: 'ignored',
     });
   }
 
@@ -60,7 +61,7 @@ class OpenaiAdapter {
     console.log('prompt', prompt);
 
     const completion = await this.client.beta.chat.completions.parse({
-      model: 'gpt-4o-mini',
+      model: process.env.MODEL_NAME,
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_schema', json_schema: jsonschema },
       temperature: 0,

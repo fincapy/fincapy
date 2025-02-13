@@ -3,6 +3,7 @@ import { redisClient, RedisAdapter } from '@/backend/adapters/redisAdapter';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { parse } from 'date-fns';
+import { cookies } from 'next/headers';
 
 export const GET = async (req, res) => {
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -10,7 +11,10 @@ export const GET = async (req, res) => {
     redisAdapter,
   });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({ req, res });
+  const session = await sessionManager.touchSession({
+    req,
+    cookies: cookies(),
+  });
   const query = req.nextUrl.searchParams;
   const startDate = query.get('startDate');
   const endDate = query.get('endDate');

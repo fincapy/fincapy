@@ -45,6 +45,8 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - JWT_SECRET=${JWT_SECRET}
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
+      - AI_URL=${AI_URL}
+      - MODEL_NAME=${MODEL_NAME}
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -59,3 +61,15 @@ services:
     image: redis:latest
     ports:
       - '6379:6379'
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - '11434:11434'
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+    driver: local

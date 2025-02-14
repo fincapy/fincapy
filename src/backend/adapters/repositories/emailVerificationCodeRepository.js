@@ -41,23 +41,35 @@ function decrypt(encryptedData) {
 }
 
 class EmailVerificationCodeRepository {
-  constructor({ redisAdapter }) {
+  constructor({ redisAdapter, transactionBuilder }) {
     this.redisAdapter = redisAdapter;
+    this.transactionBuilder = transactionBuilder;
   }
 
   async set({ emailVerificationCode, userId, ttl }) {
     const buffer = intToBuffer(emailVerificationCode);
     const encryptedEmailVerificationCode = encrypt(buffer);
-
-    await this.redisAdapter.setWithExpiry(
-      `user:emailVerificationCode:${userId}`,
-      encryptedEmailVerificationCode,
-      ttl
-    );
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addSetWithExpiry(
+        `user:emailVerificationCode:${userId}`,
+        encryptedEmailVerificationCode,
+        ttl
+      );
+    } else {
+      await this.redisAdapter.setWithExpiry(
+        `user:emailVerificationCode:${userId}`,
+        encryptedEmailVerificationCode,
+        ttl
+      );
+    }
   }
 
   async delete({ userId }) {
-    await this.redisAdapter.delete(`user:emailVerificationCode:${userId}`);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addDel(`user:emailVerificationCode:${userId}`);
+    } else {
+      await this.redisAdapter.delete(`user:emailVerificationCode:${userId}`);
+    }
   }
 
   async get({ userId }) {

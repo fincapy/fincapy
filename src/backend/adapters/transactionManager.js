@@ -1,71 +1,52 @@
+import { RedisLuaTransactionBuilder } from './redisAdapter';
+
 class TransactionManager {
   constructor({
     redisAdapter,
     tenantRepositoryFactory,
     userRepositoryFactory,
+    sessionRepositoryFactory,
+    emailVerificationCodeRepositoryFactory,
   }) {
     this.redisAdapter = redisAdapter;
     this.tenantRepositoryFactory = tenantRepositoryFactory;
     this.userRepositoryFactory = userRepositoryFactory;
+    this.sessionRepositoryFactory = sessionRepositoryFactory;
+    this.emailVerificationCodeRepositoryFactory =
+      emailVerificationCodeRepositoryFactory;
   }
 
-  async transaction(options, asyncFn) {
-    let tenantRepository;
-    let userRepository;
-    let tenant;
-    let user;
-    if (!options.watchKeys) {
-      options.watchKeys = [];
-    }
-    if (options.tenantId) {
-      tenantRepository = new this.tenantRepositoryFactory({
+  async transaction(asyncFn) {
+    const transactionBuilder = new RedisLuaTransactionBuilder();
+    const tenantRepository = new this.tenantRepositoryFactory({
+      redisAdapter: this.redisAdapter,
+      transactionBuilder,
+    });
+    const userRepository = new this.userRepositoryFactory({
+      redisAdapter: this.redisAdapter,
+      transactionBuilder,
+    });
+    const sessionRepository = new this.sessionRepositoryFactory({
+      redisAdapter: this.redisAdapter,
+      transactionBuilder,
+    });
+    const emailVerificationCodeRepository =
+      new this.emailVerificationCodeRepositoryFactory({
         redisAdapter: this.redisAdapter,
+        transactionBuilder,
       });
-      tenant = await tenantRepository.get({ tenantId: options.tenantId });
-    }
-    if (options.userId) {
-      userRepository = new this.userRepositoryFactory({
-        redisAdapter: this.redisAdapter,
-      });
-      user = await userRepository.get({ userId: options.userId });
-    }
-    if (options.userEmail) {
-      userRepository = new this.userRepositoryFactory({
-        redisAdapter: this.redisAdapter,
-      });
-      user = await userRepository.getByEmail({ email: options.userEmail });
-    }
-    if (!tenantRepository) {
-      tenantRepository = new this.tenantRepositoryFactory({
-        redisAdapter: this.redisAdapter,
-      });
-    }
-    if (!userRepository) {
-      userRepository = new this.userRepositoryFactory({
-        redisAdapter: this.redisAdapter,
-      });
-    }
-    try {
-      if (options.watchKeys.length > 0) {
-        for (const watchKey of options.watchKeys) {
-          await this.redisAdapter.watch(watchKey);
-        }
-      }
-      await this.redisAdapter.multiNoPipeline();
-      await asyncFn({
-        existingTenant: tenant,
-        existingUser: user,
-      });
-      await this.redisAdapter.exec();
-    } catch (e) {
-      await this.redisAdapter.discard();
-      if (options.watchKeys) {
-        if (options.watchKeys.length > 0) {
-          await this.redisAdapter.unwatch();
-        }
-      }
-      throw e;
-    }
+    await asyncFn({
+      tenantRepository,
+      userRepository,
+      sessionRepository,
+      emailVerificationCodeRepository,
+    });
+    const { script, args } = transactionBuilder.generateScript();
+    await this.redisAdapter.executeLuaScript(
+      script,
+      transactionBuilder.versionKey,
+      args
+    );
   }
 }
 

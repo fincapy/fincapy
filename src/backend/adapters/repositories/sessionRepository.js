@@ -31,7 +31,8 @@ function decrypt(encryptedData) {
 }
 
 class SessionRepository {
-  constructor({ redisAdapter }) {
+  constructor({ redisAdapter, transactionBuilder }) {
+    this.transactionBuilder = transactionBuilder;
     this.redisAdapter = redisAdapter;
   }
 
@@ -41,15 +42,27 @@ class SessionRepository {
     const compressedSession = await brotliCompress(packedSession);
     const encryptedSession = encrypt(compressedSession);
 
-    await this.redisAdapter.setWithExpiry(
-      `session:${session.sessionId}`,
-      encryptedSession,
-      ttl
-    );
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addSetWithExpiry(
+        `session:${session.sessionId}`,
+        encryptedSession,
+        ttl
+      );
+    } else {
+      await this.redisAdapter.setWithExpiry(
+        `session:${session.sessionId}`,
+        encryptedSession,
+        ttl
+      );
+    }
   }
 
   async delete({ sessionId }) {
-    await this.redisAdapter.delete(`session:${sessionId}`);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addDel(`session:${sessionId}`);
+    } else {
+      await this.redisAdapter.delete(`session:${sessionId}`);
+    }
   }
 
   async get({ sessionId }) {

@@ -8,7 +8,6 @@ import { TenantRepository } from '@/backend/adapters/repositories/TenantReposito
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
-import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
@@ -26,17 +25,11 @@ export async function createAccount(name, email, password, accessCode) {
       redisAdapter,
       tenantRepositoryFactory: TenantRepository,
       userRepositoryFactory: UserRepository,
-    });
-    const tenantRepository = new TenantRepository({
-      redisAdapter,
-    });
-    const userRepository = new UserRepository({
-      redisAdapter,
+      sessionRepositoryFactory: SessionRepository,
+      emailVerificationCodeRepositoryFactory: EmailVerificationCodeRepository,
     });
     const setupNewTenantService = new SetupNewTenantService({
       transactionManager,
-      tenantRepository,
-      userRepository,
     });
     const userId = crypto.randomUUID();
     const tenantId = crypto.randomUUID();

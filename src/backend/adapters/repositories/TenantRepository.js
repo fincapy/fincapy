@@ -36,8 +36,9 @@ function decrypt(encryptedData) {
 }
 
 class TenantRepository {
-  constructor({ redisAdapter }) {
+  constructor({ redisAdapter, transactionBuilder }) {
     this.redisAdapter = redisAdapter;
+    this.transactionBuilder = transactionBuilder;
   }
 
   async get({ tenantId }) {
@@ -66,6 +67,23 @@ class TenantRepository {
       return plan;
     });
     return tenant;
+  }
+
+  async getVersion({ tenantId }) {
+    const version = await this.redisAdapter.get(`tenant:${tenantId}:version`);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.watchVersion(version);
+      this.transactionBuilder.versionKey = `tenant:${tenantId}:version`;
+    }
+    return version;
+  }
+
+  async incrementVersion({ tenantId }) {
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addIncr(`tenant:${tenantId}:version`);
+    } else {
+      await this.redisAdapter.incr(`tenant:${tenantId}:version`);
+    }
   }
 
   async getWithTransaction({ tenantId }) {
@@ -117,7 +135,14 @@ class TenantRepository {
     const packedTenant = packr.pack(tenant);
     const compressedTenant = await brotliCompress(packedTenant);
     const encryptedTenant = encrypt(compressedTenant);
-    await this.redisAdapter.set(`tenant:${tenantId}`, encryptedTenant);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addCommand('SET', [
+        `tenant:${tenantId}`,
+        encryptedTenant,
+      ]);
+    } else {
+      await this.redisAdapter.set(`tenant:${tenantId}`, encryptedTenant);
+    }
   }
 }
 

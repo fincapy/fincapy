@@ -5,16 +5,15 @@ import { User } from '../domain/user';
 import bcrypt from 'bcryptjs';
 
 class SetupNewTenantService {
-  constructor({ transactionManager, tenantRepository, userRepository }) {
+  constructor({ transactionManager }) {
     this.transactionManager = transactionManager;
-    this.tenantRepository = tenantRepository;
-    this.userRepository = userRepository;
   }
 
   async execute({ userId, tenantId, email, name, password, whitelistBilling }) {
     await this.transactionManager.transaction(
-      { tenantId, userEmail: email },
-      async ({ existingTenant, existingUser }) => {
+      async ({ userRepository, tenantRepository }) => {
+        const existingUser = await userRepository.getByEmail({ email });
+        const existingTenant = await tenantRepository.get({ tenantId });
         if (existingTenant) {
           throw new Error('Tenant already exists');
         }
@@ -94,9 +93,11 @@ class SetupNewTenantService {
         plan.categories.push(incomeCategory);
         plan.categories.push(savingsCategory);
         tenant.plans.push(plan);
-        await this.tenantRepository.set({ tenantId, tenant });
-        await this.userRepository.setEmailLookup({ email, userId });
-        await this.userRepository.set({ userId: user.id, user });
+        await tenantRepository.set({ tenantId, tenant });
+        await tenantRepository.incrementVersion({ tenantId });
+        await userRepository.setEmailLookup({ email, userId });
+        await userRepository.set({ userId: user.id, user });
+        await userRepository.incrementVersion({ userId: user.id });
       }
     );
   }

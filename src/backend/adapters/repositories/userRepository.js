@@ -39,7 +39,8 @@ function hashEmail(email) {
 }
 
 class UserRepository {
-  constructor({ redisAdapter }) {
+  constructor({ redisAdapter, transactionBuilder }) {
+    this.transactionBuilder = transactionBuilder;
     this.redisAdapter = redisAdapter;
   }
 
@@ -58,7 +59,28 @@ class UserRepository {
 
   async setEmailLookup({ email, userId }) {
     const emailHash = hashEmail(email);
-    await this.redisAdapter.set(`user:email:${emailHash}`, userId);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addSet(`user:email:${emailHash}`, userId);
+    } else {
+      await this.redisAdapter.set(`user:email:${emailHash}`, userId);
+    }
+  }
+
+  async getVersion({ userId }) {
+    const version = await this.redisAdapter.get(`user:${userId}:version`);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.watchVersion(version);
+      this.transactionBuilder.versionKey = `user:${userId}:version`;
+    }
+    return version;
+  }
+
+  async incrementVersion({ userId }) {
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addIncr(`user:${userId}:version`);
+    } else {
+      await this.redisAdapter.incr(`user:${userId}:version`);
+    }
   }
 
   async get({ userId }) {
@@ -79,7 +101,11 @@ class UserRepository {
     const packedUser = packr.pack(user);
     const compressedUser = await brotliCompress(packedUser);
     const encryptedUser = encrypt(compressedUser);
-    await this.redisAdapter.set(`user:${userId}`, encryptedUser);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addSet(`user:${userId}`, encryptedUser);
+    } else {
+      await this.redisAdapter.set(`user:${userId}`, encryptedUser);
+    }
   }
 }
 

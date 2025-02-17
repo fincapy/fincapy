@@ -1,20 +1,27 @@
-import { TransactionIngestRequestedMessage } from '../adapters/messages';
+import { TransactionIngestRequestedMessage } from '../adapters/messages.js';
 
 class TriggerTransactionIngestForAllTenants {
-  constructor({ tenantRepository, pubsubAdapter }) {
-    this.tenantRepository = tenantRepository;
-    this.pubsubAdapter = pubsubAdapter;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   async execute() {
-    const tenants = await this.tenantRepository.getAllTenantIds();
-    for (const tenantId of tenants) {
-      const message = new TransactionIngestRequestedMessage({
-        topicName: 'transaction-ingest-requested',
-        tenantId,
-      });
-      this.pubsubAdapter.publish({ topicName: message.topicName, message });
-    }
+    await this.transactionManager.transaction(
+      async ({ tenantRepository, messageRepository }) => {
+        const tenants = await tenantRepository.getAllTenantIds();
+        for (const tenantId of tenants) {
+          const message = new TransactionIngestRequestedMessage({
+            topicName: 'transaction-ingest-requested',
+            tenantId,
+          });
+          await messageRepository.add({
+            message,
+            messageType: 'TRANSACTION_INGEST_REQUESTED',
+          });
+          console.log('message added');
+        }
+      }
+    );
   }
 }
 

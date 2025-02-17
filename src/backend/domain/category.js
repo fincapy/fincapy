@@ -1,10 +1,10 @@
 import {
   spendingTransactionTypes,
   incomeTransactionTypes,
-} from '@/backend/domain/transaction';
+} from './transaction.js';
 import { parse } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { Subcategory } from '@/backend/domain/subcategory';
+import { Subcategory } from './subcategory.js';
 
 class Category {
   constructor({

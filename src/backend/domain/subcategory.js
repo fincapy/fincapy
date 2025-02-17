@@ -2,7 +2,7 @@ import { parse } from 'date-fns';
 import {
   spendingTransactionTypes,
   incomeTransactionTypes,
-} from './transaction';
+} from './transaction.js';
 
 class Subcategory {
   constructor({

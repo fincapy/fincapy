@@ -1,11 +1,4 @@
 services:
-  pubsub:
-    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
-    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
-    ports:
-      - '8085:8085'
-    environment:
-      - PUBSUB_PROJECT_ID=spendmore
   nextjs:
     build:
       context: .
@@ -13,7 +6,7 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - pubsub
+      - redis
     volumes:
       - .:/app
     command: npm run dev
@@ -47,16 +40,45 @@ services:
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
       - AI_URL=${AI_URL}
       - MODEL_NAME=${MODEL_NAME}
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    ports:
-      - '9000:9000' # MinIO API
-      - '9001:9001' # MinIO Console
+  consumer:
+    build:
+      context: .
+      dockerfile: Localdockerfile
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    command: npm run consume
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
+      - AUTH0_SECRET=${AUTH0_SECRET}
+      - AUTH0_BASE_URL=${AUTH0_BASE_URL}
+      - AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - TENANT_API_KEY=${TENANT_API_KEY}
+      - PLAID_CLIENT_ID=${PLAID_CLIENT_ID}
+      - PLAID_SECRET=${PLAID_SECRET}
+      - PUBSUB_EMULATOR_HOST=${PUBSUB_EMULATOR_HOST}
+      - PUBSUB_PROJECT_ID=${PUBSUB_PROJECT_ID}
+      - NODE_ENV=${NODE_ENV}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PLAID_REDIRECT_URI=${PLAID_REDIRECT_URI}
+      - AWS_ENDPOINT_URL_S3=${AWS_ENDPOINT_URL_S3}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - REDIS_URL=${REDIS_URL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
+      - AI_URL=${AI_URL}
+      - MODEL_NAME=${MODEL_NAME}
   redis:
     image: redis:latest
     ports:

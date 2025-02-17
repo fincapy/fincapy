@@ -1,48 +1,54 @@
-import { RedisLuaTransactionBuilder } from './redisAdapter';
+import { RedisLuaTransactionBuilder } from './redisAdapter.js';
+import { MessageRepository } from './repositories/messageRepository.js';
+import { TenantRepository } from './repositories/TenantRepository.js';
+import { UserRepository } from './repositories/userRepository.js';
+import { SessionRepository } from './repositories/sessionRepository.js';
+import { EmailVerificationCodeRepository } from './repositories/emailVerificationCodeRepository.js';
+import { RedisAdapter, redisClient } from './redisAdapter.js';
+import {
+  CONSUMER_NAME,
+  GROUP_NAME,
+  STREAM_NAME,
+} from '../streamingConstants.js';
 
 class TransactionManager {
-  constructor({
-    redisAdapter,
-    tenantRepositoryFactory,
-    userRepositoryFactory,
-    sessionRepositoryFactory,
-    emailVerificationCodeRepositoryFactory,
-  }) {
-    this.redisAdapter = redisAdapter;
-    this.tenantRepositoryFactory = tenantRepositoryFactory;
-    this.userRepositoryFactory = userRepositoryFactory;
-    this.sessionRepositoryFactory = sessionRepositoryFactory;
-    this.emailVerificationCodeRepositoryFactory =
-      emailVerificationCodeRepositoryFactory;
-  }
-
   async transaction(asyncFn) {
     const transactionBuilder = new RedisLuaTransactionBuilder();
-    const tenantRepository = new this.tenantRepositoryFactory({
-      redisAdapter: this.redisAdapter,
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const tenantRepository = new TenantRepository({
+      redisAdapter,
       transactionBuilder,
     });
-    const userRepository = new this.userRepositoryFactory({
-      redisAdapter: this.redisAdapter,
+    const userRepository = new UserRepository({
+      redisAdapter,
       transactionBuilder,
     });
-    const sessionRepository = new this.sessionRepositoryFactory({
-      redisAdapter: this.redisAdapter,
+    const sessionRepository = new SessionRepository({
+      redisAdapter,
       transactionBuilder,
     });
-    const emailVerificationCodeRepository =
-      new this.emailVerificationCodeRepositoryFactory({
-        redisAdapter: this.redisAdapter,
+    const messageRepository = new MessageRepository({
+      redisAdapter,
+      transactionBuilder,
+      streamName: STREAM_NAME,
+      groupName: GROUP_NAME,
+      consumerName: CONSUMER_NAME,
+    });
+    const emailVerificationCodeRepository = new EmailVerificationCodeRepository(
+      {
+        redisAdapter,
         transactionBuilder,
-      });
+      }
+    );
     await asyncFn({
       tenantRepository,
       userRepository,
       sessionRepository,
+      messageRepository,
       emailVerificationCodeRepository,
     });
     const { script, args } = transactionBuilder.generateScript();
-    await this.redisAdapter.executeLuaScript(
+    await redisAdapter.executeLuaScript(
       script,
       transactionBuilder.versionKey,
       args

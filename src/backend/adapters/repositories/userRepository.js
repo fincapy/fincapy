@@ -2,7 +2,7 @@ import { Packr } from 'msgpackr';
 import zlib from 'zlib';
 import { promisify } from 'util';
 import crypto from 'crypto';
-import { User } from '@/backend/domain/user';
+import { User } from '../../domain/user.js';
 
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);

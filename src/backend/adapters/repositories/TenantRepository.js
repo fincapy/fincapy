@@ -2,11 +2,11 @@ import { Packr } from 'msgpackr';
 import zlib from 'zlib';
 import { promisify } from 'util';
 import crypto from 'crypto';
-import { Tenant } from '@/backend/domain/tenant';
-import { Plan } from '@/backend/domain/plan';
-import { PlaidItem } from '@/backend/domain/plaidItem';
-import { Category } from '@/backend/domain/category';
-import { Subcategory } from '@/backend/domain/subcategory';
+import { Tenant } from '../../domain/tenant.js';
+import { Plan } from '../../domain/plan.js';
+import { PlaidItem } from '../../domain/plaidItem.js';
+import { Category } from '../../domain/category.js';
+import { Subcategory } from '../../domain/subcategory.js';
 
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -46,6 +46,11 @@ class TenantRepository {
     if (tenantObject === null) {
       return null;
     }
+    if (this.transactionBuilder) {
+      const version = await this.redisAdapter.get(`version:tenant:${tenantId}`);
+      this.transactionBuilder.watchVersion(version);
+      this.transactionBuilder.versionKey = `version:tenant:${tenantId}`;
+    }
     const decryptedTenant = decrypt(tenantObject);
     const decompressedTenant = await brotliDecompress(decryptedTenant);
     const packr = new Packr();
@@ -70,19 +75,19 @@ class TenantRepository {
   }
 
   async getVersion({ tenantId }) {
-    const version = await this.redisAdapter.get(`tenant:${tenantId}:version`);
+    const version = await this.redisAdapter.get(`version:tenant:${tenantId}`);
     if (this.transactionBuilder) {
       this.transactionBuilder.watchVersion(version);
-      this.transactionBuilder.versionKey = `tenant:${tenantId}:version`;
+      this.transactionBuilder.versionKey = `version:tenant:${tenantId}`;
     }
     return version;
   }
 
   async incrementVersion({ tenantId }) {
     if (this.transactionBuilder) {
-      this.transactionBuilder.addIncr(`tenant:${tenantId}:version`);
+      this.transactionBuilder.addIncr(`version:tenant:${tenantId}`);
     } else {
-      await this.redisAdapter.incr(`tenant:${tenantId}:version`);
+      await this.redisAdapter.incr(`version:tenant:${tenantId}`);
     }
   }
 
@@ -117,16 +122,7 @@ class TenantRepository {
   }
 
   async getAllTenantIds() {
-    let cursor = 0;
-    let tenantIds = [];
-    do {
-      const [newCursor, batch] = await this.redisAdapter.scan(cursor, {
-        MATCH: '*',
-        COUNT: 100,
-      });
-      cursor = newCursor;
-      tenantIds.push(...batch);
-    } while (cursor !== 0);
+    const tenantIds = await this.redisAdapter.scanStream('tenant:*');
     return tenantIds;
   }
 

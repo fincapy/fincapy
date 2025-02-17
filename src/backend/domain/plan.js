@@ -1,7 +1,7 @@
-import { Category } from './category';
+import { Category } from './category.js';
 import { parse } from 'date-fns';
-import { TransactionEdit } from './transactionEdit';
-import { Transaction } from './transaction';
+import { TransactionEdit } from './transactionEdit.js';
+import { Transaction } from './transaction.js';
 import { v4 as uuidv4 } from 'uuid';
 
 class Plan {

@@ -1,8 +1,6 @@
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
 import { IngestTransactionUpdatesService } from '@/backend/services/ingestTransactionUpdatesService';
-import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { OpenaiAdapter } from '@/backend/adapters/openaiAdapter';
-import { TigrisAdapter, s3client } from '@/backend/adapters/tigris';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 
@@ -13,7 +11,6 @@ export const POST = async (req) => {
   const message = JSON.parse(decodedData);
   const { tenantId, institutionId } = message.payload;
 
-  const pubsubAdapter = new PubSubAdapter(pubSubClient);
   const plaidAdapter = new PlaidAdapter(client);
   const redisAdapter = new RedisAdapter({ redisClient });
   const tenantRepository = new TenantRepository({ redisAdapter });

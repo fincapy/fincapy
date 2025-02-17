@@ -2,18 +2,12 @@ import {
   Transaction,
   incomeTransactionTypes,
   spendingTransactionTypes,
-} from '../domain/transaction';
+} from '../domain/transaction.js';
 
 class IngestTransactionUpdatesService {
-  constructor({
-    plaidAdapter,
-    pubsubAdapter,
-    tenantRepository,
-    openaiAdapter,
-  }) {
+  constructor({ plaidAdapter, tenantRepository, openaiAdapter }) {
     this.plaidAdapter = plaidAdapter;
     this.tenantRepository = tenantRepository;
-    this.pubsubAdapter = pubsubAdapter;
     this.openaiAdapter = openaiAdapter;
   }
 

@@ -2,13 +2,14 @@
   "name": "spendmore",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "predev": "node ./setup-pubsub-local.js",
     "dev": "next dev",
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "ANALYZE=true npm run build",
+    "consume": "node ./src/backend/consumer.js"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -44,12 +45,11 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.28.1",
-    "drizzle-orm": "^0.36.2",
     "input-otp": "^1.4.2",
     "ioredis": "^5.4.2",
     "jotai": "^2.11.0",
     "jsonwebtoken": "^9.0.2",
+    "lru-cache": "^11.0.2",
     "lucide-react": "^0.460.0",
     "micro": "^10.0.1",
     "msgpackr": "^1.11.2",

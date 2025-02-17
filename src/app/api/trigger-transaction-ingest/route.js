@@ -1,7 +1,5 @@
 import { TriggerTransactionIngestForAllTenants } from '@/backend/services/triggerTransactionIngestForAllTenants';
-import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
-import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
-import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 
 export const POST = async (req) => {
   if (process.env.NODE_ENV !== 'development') {
@@ -10,12 +8,9 @@ export const POST = async (req) => {
     });
   }
 
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const pubsubAdapter = new PubSubAdapter(pubSubClient);
+  const transactionManager = new TransactionManager();
   const service = new TriggerTransactionIngestForAllTenants({
-    tenantRepository,
-    pubsubAdapter,
+    transactionManager,
   });
 
   try {

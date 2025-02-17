@@ -1,6 +1,5 @@
 'use server';
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
-import { PubSubAdapter, pubSubClient } from '@/backend/adapters/pubsub';
 import { CreatePlaidItemService } from '@/backend/services/createPlaidItemService';
 import { UpdatePlaidItemService } from '@/backend/services/updatePlaidItemService';
 import { DeletePlaidItemService } from '@/backend/services/deletePlaidItemService';
@@ -9,6 +8,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { cookies } from 'next/headers';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 
 const fetchLinkToken = async ({ institutionId }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -47,11 +47,9 @@ const createPlaidItem = async ({
     }
     const tenantId = session.tenantId;
     const plaidAdapter = new PlaidAdapter(client);
-    const pubsubAdapter = new PubSubAdapter(pubSubClient);
-    const tenantRepository = new TenantRepository({ redisAdapter });
+    const transactionManager = new TransactionManager();
     const service = new CreatePlaidItemService({
-      tenantRepository,
-      pubsubAdapter,
+      transactionManager,
       plaidAdapter,
     });
 
@@ -77,12 +75,10 @@ const updatePlaidItem = async ({ institutionId, publicToken }) => {
     return false;
   }
   const tenantId = session.tenantId;
-  const pubsubAdapter = new PubSubAdapter(pubSubClient);
-  const tenantRepository = new TenantRepository({ redisAdapter });
+  const transactionManager = new TransactionManager();
   const plaidAdapter = new PlaidAdapter(client);
   const service = new UpdatePlaidItemService({
-    tenantRepository,
-    pubsubAdapter,
+    transactionManager,
     plaidAdapter,
   });
   await service.execute({

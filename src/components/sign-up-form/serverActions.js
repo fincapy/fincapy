@@ -21,13 +21,7 @@ export async function createAccount(name, email, password, accessCode) {
       return false;
     }
     const redisAdapter = new RedisAdapter({ redisClient });
-    const transactionManager = new TransactionManager({
-      redisAdapter,
-      tenantRepositoryFactory: TenantRepository,
-      userRepositoryFactory: UserRepository,
-      sessionRepositoryFactory: SessionRepository,
-      emailVerificationCodeRepositoryFactory: EmailVerificationCodeRepository,
-    });
+    const transactionManager = new TransactionManager();
     const setupNewTenantService = new SetupNewTenantService({
       transactionManager,
     });

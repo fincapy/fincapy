@@ -1,4 +1,3 @@
-import { redirect } from 'next/dist/server/api-utils';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 const configuration = new Configuration({

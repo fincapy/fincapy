@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { transactionTypes } from '../domain/transaction';
+import { transactionTypes } from '../domain/transaction.js';
 
 class OpenaiAdapter {
   constructor() {

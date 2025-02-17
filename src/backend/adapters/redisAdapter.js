@@ -1,6 +1,4 @@
 import Redis from 'ioredis';
-import zlib from 'zlib';
-import { promisify } from 'util';
 import crypto from 'crypto';
 
 const options = {};
@@ -8,33 +6,7 @@ if (process.env.NODE_ENV === 'production') {
   options.family = 6;
 }
 const redisClient = new Redis(process.env.REDIS_URL, options);
-
-const brotliCompress = promisify(zlib.brotliCompress);
-const brotliDecompress = promisify(zlib.brotliDecompress);
-
-const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY || 'key', 'base64');
-const IV_LENGTH = 12;
-
-function encrypt(data) {
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);
-  let encrypted = cipher.update(data);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  const authTag = cipher.getAuthTag();
-  return Buffer.concat([iv, authTag, encrypted]);
-}
-
-function decrypt(encryptedData) {
-  const iv = encryptedData.slice(0, IV_LENGTH);
-  const authTag = encryptedData.slice(IV_LENGTH, IV_LENGTH + 16);
-  const encrypted = encryptedData.slice(IV_LENGTH + 16);
-  const decipher = crypto.createDecipheriv(ALGORITHM, KEY, iv);
-  decipher.setAuthTag(authTag);
-  let decrypted = decipher.update(encrypted);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted;
-}
+const MESSAGE_RETENTION_MILLISECONDS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 class RedisAdapter {
   constructor({ redisClient }) {
@@ -59,6 +31,46 @@ class RedisAdapter {
     await this.client.watch(key);
     const result = await this.client.getBuffer(key);
     console.timeEnd(`getWithTransaction - ${operationId}`);
+    return result;
+  }
+
+  streamToAsyncIterator(stream) {
+    return {
+      [Symbol.asyncIterator]() {
+        const chunks = [];
+        let done = false;
+
+        stream.on('data', (keys) => chunks.push(keys));
+        stream.on('end', () => (done = true));
+        stream.on('error', (err) => {
+          throw err;
+        });
+
+        return {
+          async next() {
+            while (!done || chunks.length > 0) {
+              const keys = chunks.shift();
+              if (keys) {
+                return { value: keys, done: false };
+              }
+              await new Promise((resolve) => setImmediate(resolve));
+            }
+            return { value: undefined, done: true };
+          },
+        };
+      },
+    };
+  }
+
+  async scanStream(pattern) {
+    const operationId = crypto.randomUUID();
+    console.time(`scan - ${operationId}`);
+    const result = [];
+    const stream = this.client.scanStream({ match: pattern });
+    for await (const keys of this.streamToAsyncIterator(stream)) {
+      result.push(...keys);
+    }
+    console.timeEnd(`scan - ${operationId}`);
     return result;
   }
 
@@ -127,19 +139,65 @@ class RedisAdapter {
     return result;
   }
 
-  async xadd(streamName, message_type, message) {
-    const packr = new Packr();
-    const packedMessage = packr.pack(message);
-    const compressedMessage = await brotliCompress(packedMessage);
-    const encryptedMessage = encrypt(compressedMessage);
+  async xadd(streamName, messageType, message) {
+    const retentionTimestamp = Date.now() - MESSAGE_RETENTION_MILLISECONDS;
     await redis.xadd(
       streamName,
+      'MINID',
+      '~',
+      retentionTimestamp,
       '*',
-      'message_type',
-      message_type,
+      'messageType',
+      messageType,
       'message',
-      encryptedMessage
+      message
     );
+  }
+
+  async createConsumerGroup(streamName, groupName) {
+    try {
+      await this.client.xgroup('CREATE', streamName, groupName, 0, 'MKSTREAM');
+      console.log('Consumer group created.');
+    } catch (err) {
+      if (err.message.includes('BUSYGROUP')) {
+        console.log('Consumer group already exists.');
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  async xack(streamName, groupName, messageId) {
+    const operationId = crypto.randomUUID();
+    console.time(`xack - ${operationId}`);
+    await this.client.xack(streamName, groupName, messageId);
+    console.timeEnd(`xack - ${operationId}`);
+  }
+
+  async xreadgroup({
+    groupName,
+    consumerName,
+    count,
+    block,
+    streamName,
+    readPending,
+  }) {
+    const operationId = crypto.randomUUID();
+    console.time(`xreadgroup - ${operationId}`);
+    const result = await this.client.xreadgroup(
+      'GROUP',
+      groupName,
+      consumerName,
+      'COUNT',
+      count,
+      'BLOCK',
+      block,
+      'STREAMS',
+      streamName,
+      readPending ? '0' : '>'
+    );
+    console.timeEnd(`xreadgroup - ${operationId}`);
+    return result;
   }
 }
 
@@ -181,6 +239,25 @@ class RedisLuaTransactionBuilder {
 
   addIncr(key) {
     this.addCommand('INCR', [key]);
+  }
+
+  addXAdd(streamName, messageType, message) {
+    const retentionTimestamp = Date.now() - MESSAGE_RETENTION_MILLISECONDS;
+    this.addCommand('XADD', [
+      streamName,
+      'MINID',
+      '~',
+      retentionTimestamp,
+      '*',
+      'messageType',
+      messageType,
+      'message',
+      message,
+    ]);
+  }
+
+  xAck(streamName, groupName, messageId) {
+    this.addCommand('XACK', [streamName, groupName, messageId]);
   }
 
   /**

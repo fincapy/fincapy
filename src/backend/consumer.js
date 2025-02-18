@@ -1,4 +1,4 @@
-import { RedisAdapter, redisClient } from './adapters/redisAdapter.js';
+import { RedisAdapter } from './adapters/redisAdapter.js';
 import { IngestTransactionUpdatesService } from './services/ingestTransactionUpdatesService.js';
 import { OpenaiAdapter } from './adapters/openaiAdapter.js';
 import { TenantRepository } from './adapters/repositories/TenantRepository.js';

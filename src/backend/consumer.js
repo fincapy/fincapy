@@ -144,7 +144,11 @@ process.on('SIGTERM', () => {
 });
 
 (async function main() {
-  const consumerRedisClient = new Redis(process.env.REDIS_URL);
+  const options = {};
+  if (process.env.NODE_ENV === 'production') {
+    options.family = 6;
+  }
+  const consumerRedisClient = new Redis(process.env.REDIS_URL, options);
   const redisAdapter = new RedisAdapter({ redisClient: consumerRedisClient });
   const messageRepository = new MessageRepository({
     redisAdapter,

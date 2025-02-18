@@ -26,7 +26,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { is } from 'drizzle-orm';
 
 export function NavUser() {
   const { isMobile } = useSidebar();

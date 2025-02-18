@@ -1,4 +1,4 @@
-FROM node
+FROM node:slim
 
 WORKDIR /app
 
@@ -7,4 +7,4 @@ COPY src/backend ./
 
 RUN npm install
 
-CMD ["npm", "consume"]
+CMD ["sh", "-c", "node consumer.js"]

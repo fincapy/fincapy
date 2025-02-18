@@ -1,0 +1,10 @@
+FROM node
+
+WORKDIR /app
+
+COPY package-lock.json package.json ./
+COPY src/backend ./
+
+RUN npm install
+
+CMD ["npm", "consume"]

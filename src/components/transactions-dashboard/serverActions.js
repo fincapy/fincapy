@@ -1,10 +1,10 @@
 'use server';
 
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { CreateTransactionService } from '@/backend/services/createTransactionService';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 
 const createTransaction = async ({
@@ -21,9 +21,9 @@ const createTransaction = async ({
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.touchSession({ cookies: cookies() });
   if (!session) return false;
-  const tenantRepository = new TenantRepository({ redisAdapter });
+  const transactionManager = new TransactionManager();
   const createTransactionService = new CreateTransactionService({
-    tenantRepository,
+    transactionManager,
   });
   const tenantId = session.tenantId;
   try {

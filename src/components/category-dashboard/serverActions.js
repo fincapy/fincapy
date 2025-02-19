@@ -2,6 +2,7 @@
 
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { CreateCategoryService } from '@/backend/services/createCategoryService';
 import { CreateSubcategoryService } from '@/backend/services/createSubcategoryService';
 import { UpdateCategoryService } from '@/backend/services/updateCategoryService';
@@ -32,7 +33,7 @@ const createCategory = async ({
 
     const tenantId = session.tenantId;
     const service = new CreateCategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -63,7 +64,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
     const tenantId = session.tenantId;
 
     const service = new UpdateCategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -92,7 +93,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
     const tenantId = session.tenantId;
 
     const service = new DeleteCategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -119,7 +120,7 @@ const createSubcategory = async ({ categoryId, name, monthlyGoal, planId }) => {
     const tenantId = session.tenantId;
 
     const service = new CreateSubcategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -155,7 +156,7 @@ const updateSubcategory = async ({
     const tenantId = session.tenantId;
 
     const service = new UpdateSubcategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -190,7 +191,7 @@ const deleteSubcategory = async ({
     const tenantId = session.tenantId;
 
     const service = new DeleteSubcategoryService({
-      tenantRepository: new TenantRepository({ redisAdapter }),
+      transactionManager: new TransactionManager(),
     });
 
     await service.execute({
@@ -218,7 +219,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
   const tenantId = session.tenantId;
 
   const service = new ReorderCategoriesService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
+    transactionManager: new TransactionManager(),
   });
 
   await service.execute({
@@ -246,7 +247,7 @@ const reorderSubcategories = async ({
   const tenantId = session.tenantId;
 
   const service = new ReorderSubcategoriesService({
-    tenantRepository: new TenantRepository({ redisAdapter }),
+    transactionManager: new TransactionManager(),
   });
 
   await service.execute({

@@ -1,12 +1,11 @@
 'use server';
 
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
-import { RemoveUserService } from '@/backend/services/removeUserService';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { CreateUserService } from '@/backend/services/createUserService';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 
 const inviteUser = async ({ email, role, name }) => {
@@ -20,10 +19,10 @@ const inviteUser = async ({ email, role, name }) => {
     }
 
     const tenantId = session.tenantId;
-    const tenantRepository = new TenantRepository({ redisAdapter });
     const auth0Adapter = new Auth0Adapter({ client: auth0Client });
+    const transactionManager = new TransactionManager();
     const createUserService = new CreateUserService({
-      tenantRepository,
+      transactionManager,
       auth0Adapter,
     });
     await createUserService.execute({ tenantId, email, role, name });

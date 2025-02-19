@@ -7,6 +7,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { RemoveUserService } from '@/backend/services/removeUserService';
 import { ChangeUserRoleService } from '@/backend/services/changeUserRoleService';
 import { ChangeUserNameService } from '@/backend/services/changeUserNameService';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { cookies } from 'next/headers';
 
@@ -22,10 +23,10 @@ const removeUser = async (email) => {
 
     const tenantId = session.tenantId;
 
-    const tenantRepository = new TenantRepository({ redisAdapter });
+    const transactionManager = new TransactionManager();
     const auth0Adapter = new Auth0Adapter({ client: auth0Client });
     const removeUserService = new RemoveUserService({
-      tenantRepository,
+      transactionManager,
       auth0Adapter,
     });
     await removeUserService.execute({ tenantId, email });
@@ -47,9 +48,9 @@ const changeUserRole = async ({ email, role }) => {
     }
 
     const tenantId = session.tenantId;
-    const tenantRepository = new TenantRepository({ redisAdapter });
+    const transactionManager = new TransactionManager();
     const changeUserRoleService = new ChangeUserRoleService({
-      tenantRepository,
+      transactionManager,
     });
     await changeUserRoleService.execute({ tenantId, email, role });
     return true;
@@ -70,9 +71,9 @@ const changeUserName = async ({ email, name }) => {
     }
 
     const tenantId = session.tenantId;
-    const tenantRepository = new TenantRepository({ redisAdapter });
+    const transactionManager = new TransactionManager();
     const changeUserNameService = new ChangeUserNameService({
-      tenantRepository,
+      transactionManager,
     });
     await changeUserNameService.execute({ tenantId, email, name });
     return true;

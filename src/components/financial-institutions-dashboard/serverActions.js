@@ -100,9 +100,9 @@ const deletePlaidItem = async ({ institutionId }) => {
     }
     const tenantId = session.tenantId;
     const plaidAdapter = new PlaidAdapter(client);
-    const tenantRepository = new TenantRepository({ redisAdapter });
+    const transactionManager = new TransactionManager();
     const service = new DeletePlaidItemService({
-      tenantRepository,
+      transactionManager,
       plaidAdapter,
     });
     await service.execute({ tenantId, institutionId });

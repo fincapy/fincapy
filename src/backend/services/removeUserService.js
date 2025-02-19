@@ -4,20 +4,22 @@ class RemoveUserService {
     this.auth0Adapter = auth0Adapter;
   }
 
-  async execute({ tenantId, email }) {
-    await this.transactionManager.transaction(async ({ tenantRepository }) => {
-      const tenant = await tenantRepository.get({ tenantId });
-      if (tenant === null) {
-        return;
-      }
-      const user = tenant.users.find((user) => user.email === email);
-      if (user) {
-        tenant.users = tenant.users.filter((user) => user.email !== email);
-        const auth0User = await this.auth0Adapter.getUserByEmail(email);
-        await this.auth0Adapter.deleteUser(auth0User.user_id);
+  async execute({ tenantId, userId }) {
+    await this.transactionManager.transaction(
+      async ({ tenantRepository, userRepository }) => {
+        const tenant = await tenantRepository.get({ tenantId });
+        const user = await userRepository.get({ userId });
+        if (tenant === null) {
+          return;
+        }
+        if (user === null) {
+          return;
+        }
+        tenant.users = tenant.users.filter((user) => user.id !== userId);
+        await userRepository.delete({ userId });
         await tenantRepository.set({ tenantId, tenant });
       }
-    });
+    );
   }
 }
 

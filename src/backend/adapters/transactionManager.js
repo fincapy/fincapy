@@ -47,12 +47,10 @@ class TransactionManager {
       messageRepository,
       emailVerificationCodeRepository,
     });
-    const { script, args } = transactionBuilder.generateScript();
-    await redisAdapter.executeLuaScript(
-      script,
-      transactionBuilder.versionKey,
-      args
-    );
+    const { script, keys, args } = transactionBuilder.generateScript();
+    console.log('script', script);
+    console.log('args', args);
+    await redisAdapter.executeLuaScript(script, keys, args);
   }
 }
 

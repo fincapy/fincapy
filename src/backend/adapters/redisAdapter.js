@@ -131,10 +131,15 @@ class RedisAdapter {
     console.timeEnd(`unwatch - ${operationId}`);
   }
 
-  async executeLuaScript(script, versionKey, args) {
+  async executeLuaScript(script, keys, args) {
     const operationId = crypto.randomUUID();
     console.time(`eval - ${operationId}`);
-    const result = await this.client.eval(script, 1, versionKey, ...args);
+    const result = await this.client.eval(
+      script,
+      keys.length,
+      ...keys,
+      ...args
+    );
     console.timeEnd(`eval - ${operationId}`);
     return result;
   }
@@ -207,8 +212,7 @@ class RedisLuaTransactionBuilder {
    */
   constructor() {
     this.commands = [];
-    this.watchedVersion = null;
-    this.versionKey = null; // Set this to a non-null value to enable version checking.
+    this.watchedVersions = new Map();
   }
 
   /**
@@ -269,8 +273,8 @@ class RedisLuaTransactionBuilder {
     this.addCommand('DEL', [key]);
   }
 
-  watchVersion(version) {
-    this.watchedVersion = version;
+  watchVersion(versionKey, version) {
+    this.watchedVersions.set(versionKey, version);
   }
 
   /**
@@ -291,17 +295,20 @@ class RedisLuaTransactionBuilder {
   generateScript() {
     const lines = [];
     const args = [];
+    const keys = [];
     let argIndex = 1; // Starting index for ARGV placeholders
 
     // If versionKey is provided, include version checking logic.
-    if (this.versionKey !== null) {
-      // ARGV[1] is reserved for the expected version.
-      args.push(this.watchedVersion);
-      lines.push(`local currentVersion = redis.call("GET", KEYS[1])`);
-      lines.push(`if currentVersion ~= ARGV[1] then`);
+    for (const [versionKey, watchedVersion] of this.watchedVersions) {
+      args.push(watchedVersion);
+      keys.push(versionKey);
+      lines.push(
+        `local currentVersion${argIndex} = redis.call("GET", KEYS[${argIndex}])`
+      );
+      lines.push(`if currentVersion${argIndex} ~= ARGV[${argIndex}] then`);
       lines.push(`  return {err = "Version mismatch"}`);
       lines.push(`end`);
-      argIndex = 2;
+      argIndex++;
     }
 
     // Execute each queued command using ARGV placeholders.
@@ -315,16 +322,15 @@ class RedisLuaTransactionBuilder {
       lines.push(`redis.call("${command.cmd}", ${placeholders.join(', ')})`);
     }
 
-    if (this.versionKey !== null) {
-      // If version checking is enabled, increment the version and return the new version.
-      lines.push(`redis.call("INCR", KEYS[1])`);
-    } else {
-      // Otherwise, simply return a success message.
-      lines.push(`return "OK"`);
+    let keyIndex = 1;
+    for (const [versionKey, watchedVersion] of this.watchedVersions) {
+      lines.push(`redis.call("INCR", KEYS[${keyIndex}])`);
+      keyIndex++;
     }
+    lines.push(`return "OK"`);
 
     const script = lines.join('\n');
-    return { script, args };
+    return { script, keys, args };
   }
 }
 

@@ -48,8 +48,10 @@ class TenantRepository {
     }
     if (this.transactionBuilder) {
       const version = await this.redisAdapter.get(`version:tenant:${tenantId}`);
-      this.transactionBuilder.watchVersion(version);
-      this.transactionBuilder.versionKey = `version:tenant:${tenantId}`;
+      this.transactionBuilder.watchVersion(
+        `version:tenant:${tenantId}`,
+        version
+      );
     }
     const decryptedTenant = decrypt(tenantObject);
     const decompressedTenant = await brotliDecompress(decryptedTenant);
@@ -72,15 +74,6 @@ class TenantRepository {
       return plan;
     });
     return tenant;
-  }
-
-  async getVersion({ tenantId }) {
-    const version = await this.redisAdapter.get(`version:tenant:${tenantId}`);
-    if (this.transactionBuilder) {
-      this.transactionBuilder.watchVersion(version);
-      this.transactionBuilder.versionKey = `version:tenant:${tenantId}`;
-    }
-    return version;
   }
 
   async incrementVersion({ tenantId }) {

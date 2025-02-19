@@ -128,6 +128,9 @@ class Consumer {
         }
       } catch (err) {
         console.error('Error consuming messages:', err);
+        if (err.message.includes('NOGROUP')) {
+          await this.redisAdapter.createConsumerGroup(STREAM_NAME, GROUP_NAME);
+        }
       }
     }
   }

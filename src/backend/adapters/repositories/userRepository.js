@@ -46,7 +46,7 @@ class UserRepository {
 
   async getByEmail({ email }) {
     const emailHash = hashEmail(email);
-    const userId = await this.redisAdapter.get(`user:email:${emailHash}`);
+    const userId = await this.redisAdapter.get(`email:user:${emailHash}`);
     if (userId === null) {
       return null;
     }
@@ -60,26 +60,17 @@ class UserRepository {
   async setEmailLookup({ email, userId }) {
     const emailHash = hashEmail(email);
     if (this.transactionBuilder) {
-      this.transactionBuilder.addSet(`user:email:${emailHash}`, userId);
+      this.transactionBuilder.addSet(`email:user:${emailHash}`, userId);
     } else {
-      await this.redisAdapter.set(`user:email:${emailHash}`, userId);
+      await this.redisAdapter.set(`email:user:${emailHash}`, userId);
     }
-  }
-
-  async getVersion({ userId }) {
-    const version = await this.redisAdapter.get(`user:${userId}:version`);
-    if (this.transactionBuilder) {
-      this.transactionBuilder.watchVersion(version);
-      this.transactionBuilder.versionKey = `user:${userId}:version`;
-    }
-    return version;
   }
 
   async incrementVersion({ userId }) {
     if (this.transactionBuilder) {
-      this.transactionBuilder.addIncr(`user:${userId}:version`);
+      this.transactionBuilder.addIncr(`version:user:${userId}`);
     } else {
-      await this.redisAdapter.incr(`user:${userId}:version`);
+      await this.redisAdapter.incr(`version:user:${userId}`);
     }
   }
 
@@ -88,6 +79,10 @@ class UserRepository {
     const userObject = await this.redisAdapter.get(`user:${userId}`);
     if (userObject === null) {
       return null;
+    }
+    if (this.transactionBuilder) {
+      const version = await this.redisAdapter.get(`version:user:${userId}`);
+      this.transactionBuilder.watchVersion(`version:user:${userId}`, version);
     }
     const decryptedUser = decrypt(userObject);
     const decompressedUser = await brotliDecompress(decryptedUser);
@@ -105,6 +100,14 @@ class UserRepository {
       this.transactionBuilder.addSet(`user:${userId}`, encryptedUser);
     } else {
       await this.redisAdapter.set(`user:${userId}`, encryptedUser);
+    }
+  }
+
+  async delete({ userId }) {
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addDel(`user:${userId}`);
+    } else {
+      await this.redisAdapter.del(`user:${userId}`);
     }
   }
 }

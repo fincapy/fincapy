@@ -1,8 +1,8 @@
 import { Category } from '@/backend/domain/category';
 
 class CreateCategoryService {
-  constructor({ tenantRepository }) {
-    this.tenantRepository = tenantRepository;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   async execute({
@@ -14,13 +14,15 @@ class CreateCategoryService {
     type,
     isImmutable,
   }) {
-    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
-    if (tenant === null) {
-      return;
-    }
-    const plan = tenant.plans.find((plan) => plan.planId === planId);
-    plan.addCategory({ categoryId, name, monthlyGoal, type, isImmutable });
-    await this.tenantRepository.set({ tenantId, tenant });
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({ tenantId });
+      if (tenant === null) {
+        return;
+      }
+      const plan = tenant.plans.find((plan) => plan.planId === planId);
+      plan.addCategory({ categoryId, name, monthlyGoal, type, isImmutable });
+      await tenantRepository.set({ tenantId, tenant });
+    });
   }
 }
 

@@ -30,6 +30,10 @@ function decrypt(encryptedData) {
   return decrypted;
 }
 
+function hashSessionId(sessionId) {
+  return crypto.createHash('sha256').update(sessionId).digest('hex');
+}
+
 class SessionRepository {
   constructor({ redisAdapter, transactionBuilder }) {
     this.transactionBuilder = transactionBuilder;
@@ -44,13 +48,13 @@ class SessionRepository {
 
     if (this.transactionBuilder) {
       this.transactionBuilder.addSetWithExpiry(
-        `session:${session.sessionId}`,
+        `session:${hashSessionId(session.sessionId)}`,
         encryptedSession,
         ttl
       );
     } else {
       await this.redisAdapter.setWithExpiry(
-        `session:${session.sessionId}`,
+        `session:${hashSessionId(session.sessionId)}`,
         encryptedSession,
         ttl
       );
@@ -59,15 +63,15 @@ class SessionRepository {
 
   async delete({ sessionId }) {
     if (this.transactionBuilder) {
-      this.transactionBuilder.addDel(`session:${sessionId}`);
+      this.transactionBuilder.addDel(`session:${hashSessionId(sessionId)}`);
     } else {
-      await this.redisAdapter.delete(`session:${sessionId}`);
+      await this.redisAdapter.delete(`session:${hashSessionId(sessionId)}`);
     }
   }
 
   async get({ sessionId }) {
     const encryptedSession = await this.redisAdapter.get(
-      `session:${sessionId}`
+      `session:${hashSessionId(sessionId)}`
     );
     if (encryptedSession === null) {
       return null;

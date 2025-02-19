@@ -1,6 +1,6 @@
 class EditTransactionService {
-  constructor({ tenantRepository }) {
-    this.tenantRepository = tenantRepository;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   async execute({
@@ -16,22 +16,24 @@ class EditTransactionService {
     amount,
     newCategoryId,
   }) {
-    const tenant = await this.tenantRepository.getWithTransaction({
-      tenantId,
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({
+        tenantId,
+      });
+      const plan = tenant.plans.find((plan) => plan.planId === planId);
+      plan.editTransaction({
+        transactionId,
+        description,
+        status,
+        type,
+        amount,
+        date,
+        categoryId,
+        subcategoryId,
+        newCategoryId,
+      });
+      await tenantRepository.set({ tenantId, tenant });
     });
-    const plan = tenant.plans.find((plan) => plan.planId === planId);
-    plan.editTransaction({
-      transactionId,
-      description,
-      status,
-      type,
-      amount,
-      date,
-      categoryId,
-      subcategoryId,
-      newCategoryId,
-    });
-    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

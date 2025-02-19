@@ -1,7 +1,7 @@
 import { Packr } from 'msgpackr';
 import zlib from 'zlib';
 import { promisify } from 'util';
-import crypto from 'crypto';
+import crypto, { hash } from 'crypto';
 
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -51,13 +51,13 @@ class EmailVerificationCodeRepository {
     const encryptedEmailVerificationCode = encrypt(buffer);
     if (this.transactionBuilder) {
       this.transactionBuilder.addSetWithExpiry(
-        `user:emailVerificationCode:${userId}`,
+        `emailVerificationCode:user:${userId}`,
         encryptedEmailVerificationCode,
         ttl
       );
     } else {
       await this.redisAdapter.setWithExpiry(
-        `user:emailVerificationCode:${userId}`,
+        `emailVerificationCode:user:${userId}`,
         encryptedEmailVerificationCode,
         ttl
       );
@@ -66,15 +66,15 @@ class EmailVerificationCodeRepository {
 
   async delete({ userId }) {
     if (this.transactionBuilder) {
-      this.transactionBuilder.addDel(`user:emailVerificationCode:${userId}`);
+      this.transactionBuilder.addDel(`emailVerificationCode:user:${userId}`);
     } else {
-      await this.redisAdapter.delete(`user:emailVerificationCode:${userId}`);
+      await this.redisAdapter.delete(`emailVerificationCode:user:${userId}`);
     }
   }
 
   async get({ userId }) {
     const encryptedEmailVerificationCode = await this.redisAdapter.get(
-      `user:emailVerificationCode:${userId}`
+      `emailVerificationCode:user:${userId}`
     );
     if (encryptedEmailVerificationCode === null) {
       return null;

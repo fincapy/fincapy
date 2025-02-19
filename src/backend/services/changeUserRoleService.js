@@ -1,13 +1,15 @@
 class ChangeUserRoleService {
-  constructor({ tenantRepository }) {
-    this.tenantRepository = tenantRepository;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   async execute({ tenantId, email, role }) {
-    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
-    const user = tenant.users.find((user) => user.email === email);
-    user.role = role;
-    await this.tenantRepository.set({ tenantId, tenant });
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({ tenantId });
+      const user = tenant.users.find((user) => user.email === email);
+      user.role = role;
+      await tenantRepository.set({ tenantId, tenant });
+    });
   }
 }
 

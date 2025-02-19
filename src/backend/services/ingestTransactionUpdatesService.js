@@ -5,9 +5,9 @@ import {
 } from '../domain/transaction.js';
 
 class IngestTransactionUpdatesService {
-  constructor({ plaidAdapter, tenantRepository, openaiAdapter }) {
+  constructor({ plaidAdapter, transactionManager, openaiAdapter }) {
     this.plaidAdapter = plaidAdapter;
-    this.tenantRepository = tenantRepository;
+    this.transactionManager = transactionManager;
     this.openaiAdapter = openaiAdapter;
   }
 
@@ -157,58 +157,62 @@ class IngestTransactionUpdatesService {
   }
 
   async execute({ tenantId, institutionId }) {
-    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
-    if (!tenant) {
-      return null;
-    }
-    let plaidItems = tenant.plaidItems;
-    if (institutionId) {
-      plaidItems = plaidItems.filter(
-        (plaidItem) => plaidItem.institutionId === institutionId
-      );
-    }
-    if (plaidItems.length === 0) {
-      return null;
-    }
-    for (const plaidItem of plaidItems) {
-      try {
-        await this.plaidAdapter.refreshTransactions({
-          accessToken: plaidItem.accessToken,
-        });
-      } catch (error) {}
-
-      const plaidTransactions = await this.plaidAdapter.getTransactions({
-        accessToken: plaidItem.accessToken,
-        cursor: plaidItem.cursor,
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({
+        tenantId,
       });
-      for (const plan of tenant.plans) {
-        const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-        for (const plaidTransaction of plaidTransactions.added) {
-          await this.addTransaction(
-            plaidTransactions,
-            plaidTransaction,
-            plan,
-            categoryIdToNameMap
-          );
-        }
-
-        for (const plaidTransaction of plaidTransactions.modified) {
-          await this.updateTransactions(
-            plaidTransactions,
-            plaidTransaction,
-            plan,
-            categoryIdToNameMap
-          );
-        }
-
-        for (const plaidTransaction of plaidTransactions.removed) {
-          await this.removeTransaction(plaidTransaction, plan);
-        }
+      if (!tenant) {
+        return null;
       }
-      plaidItem.cursor = plaidTransactions.next_cursor;
-    }
-    await this.tenantRepository.set({ tenantId, tenant });
-    return true;
+      let plaidItems = tenant.plaidItems;
+      if (institutionId) {
+        plaidItems = plaidItems.filter(
+          (plaidItem) => plaidItem.institutionId === institutionId
+        );
+      }
+      if (plaidItems.length === 0) {
+        return null;
+      }
+      for (const plaidItem of plaidItems) {
+        try {
+          await this.plaidAdapter.refreshTransactions({
+            accessToken: plaidItem.accessToken,
+          });
+        } catch (error) {}
+
+        const plaidTransactions = await this.plaidAdapter.getTransactions({
+          accessToken: plaidItem.accessToken,
+          cursor: plaidItem.cursor,
+        });
+        for (const plan of tenant.plans) {
+          const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
+          for (const plaidTransaction of plaidTransactions.added) {
+            await this.addTransaction(
+              plaidTransactions,
+              plaidTransaction,
+              plan,
+              categoryIdToNameMap
+            );
+          }
+
+          for (const plaidTransaction of plaidTransactions.modified) {
+            await this.updateTransactions(
+              plaidTransactions,
+              plaidTransaction,
+              plan,
+              categoryIdToNameMap
+            );
+          }
+
+          for (const plaidTransaction of plaidTransactions.removed) {
+            await this.removeTransaction(plaidTransaction, plan);
+          }
+        }
+        plaidItem.cursor = plaidTransactions.next_cursor;
+      }
+      await tenantRepository.set({ tenantId, tenant });
+      return true;
+    });
   }
 }
 

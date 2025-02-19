@@ -1,6 +1,6 @@
 class UpdateSubcategoryService {
-  constructor({ tenantRepository }) {
-    this.tenantRepository = tenantRepository;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   async execute({
@@ -11,13 +11,17 @@ class UpdateSubcategoryService {
     planId,
     categoryId,
   }) {
-    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
-    const plan = tenant.plans.find((plan) => plan.planId === planId);
-    const category = plan.categories.find(
-      (category) => category.categoryId === categoryId
-    );
-    category.updateSubcategory({ subcategoryId, name, monthlyGoal });
-    await this.tenantRepository.set({ tenantId, tenant });
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({
+        tenantId,
+      });
+      const plan = tenant.plans.find((plan) => plan.planId === planId);
+      const category = plan.categories.find(
+        (category) => category.categoryId === categoryId
+      );
+      category.updateSubcategory({ subcategoryId, name, monthlyGoal });
+      await tenantRepository.set({ tenantId, tenant });
+    });
   }
 }
 

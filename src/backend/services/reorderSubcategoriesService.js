@@ -1,6 +1,6 @@
 class ReorderSubcategoriesService {
-  constructor({ tenantRepository }) {
-    this.tenantRepository = tenantRepository;
+  constructor({ transactionManager }) {
+    this.transactionManager = transactionManager;
   }
 
   resortArray(array, oldIndex, newIndex) {
@@ -11,26 +11,31 @@ class ReorderSubcategoriesService {
   }
 
   async execute({ tenantId, planId, categoryId, oldIndex, newIndex }) {
-    const tenant = await this.tenantRepository.getWithTransaction({ tenantId });
-    const plan = tenant.plans.find((plan) => plan.planId === planId);
-    const category = plan.categories.find(
-      (category) => category.categoryId === categoryId
-    );
-    const subcategories = category.subcategories;
-    subcategories.sort((a, b) => a.rank - b.rank);
-    const newSubcategories = this.resortArray(
-      subcategories,
-      oldIndex,
-      newIndex
-    );
-    const newSubcategoryIdToPosition = {};
-    newSubcategories.forEach((newSubcategory, index) => {
-      newSubcategoryIdToPosition[newSubcategory.subcategoryId] = index;
+    await this.transactionManager.transaction(async ({ tenantRepository }) => {
+      const tenant = await tenantRepository.get({
+        tenantId,
+      });
+      const plan = tenant.plans.find((plan) => plan.planId === planId);
+      const category = plan.categories.find(
+        (category) => category.categoryId === categoryId
+      );
+      const subcategories = category.subcategories;
+      subcategories.sort((a, b) => a.rank - b.rank);
+      const newSubcategories = this.resortArray(
+        subcategories,
+        oldIndex,
+        newIndex
+      );
+      const newSubcategoryIdToPosition = {};
+      newSubcategories.forEach((newSubcategory, index) => {
+        newSubcategoryIdToPosition[newSubcategory.subcategoryId] = index;
+      });
+      category.subcategories.forEach((subcategory) => {
+        subcategory.rank =
+          newSubcategoryIdToPosition[subcategory.subcategoryId];
+      });
+      await tenantRepository.set({ tenantId, tenant });
     });
-    category.subcategories.forEach((subcategory) => {
-      subcategory.rank = newSubcategoryIdToPosition[subcategory.subcategoryId];
-    });
-    await this.tenantRepository.set({ tenantId, tenant });
   }
 }
 

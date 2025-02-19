@@ -615,6 +615,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
     setPlanState,
     values,
     onSubmit,
+    subcategoryId,
   }) {
     setTimeout(async () => {
       try {
@@ -623,6 +624,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
           categoryId,
           monthlyGoal,
           planId: 'initial',
+          subcategoryId,
         });
         if (!result) {
           setPlanState(oldPlan);
@@ -659,7 +661,13 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
     const category = newPlan.categories.find(
       (category) => category.categoryId === categoryId
     );
-    category.createSubcategory({ name, monthlyGoal, isImmutable: false });
+    const subcategoryId = uuidv4();
+    category.createSubcategory({
+      name,
+      monthlyGoal,
+      isImmutable: false,
+      subcategoryId,
+    });
     setPlanState(newPlan);
     handleServerSubcategoryCreation({
       name,
@@ -669,6 +677,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       setPlanState,
       values,
       onSubmit,
+      subcategoryId,
     });
     setDropdownIsOpen(true);
   }

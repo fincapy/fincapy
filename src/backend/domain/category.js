@@ -41,8 +41,7 @@ class Category {
     );
   }
 
-  createSubcategory({ name, monthlyGoal, isImmutable }) {
-    const subcategoryId = uuidv4();
+  createSubcategory({ name, monthlyGoal, isImmutable, subcategoryId }) {
     this.subcategories.push(
       new Subcategory({
         name,

@@ -62,6 +62,7 @@ class SessionRepository {
   }
 
   async delete({ sessionId }) {
+    console.log('sessionId', sessionId);
     if (this.transactionBuilder) {
       this.transactionBuilder.addDel(`session:${hashSessionId(sessionId)}`);
     } else {

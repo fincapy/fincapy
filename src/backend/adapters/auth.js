@@ -85,13 +85,17 @@ class SessionManager {
     }
 
     if (Date.now() - session.createdAt > SESSION_TTL * 1000) {
-      await this.sessionRepository.delete({ sessionId: providedSessionId });
+      await this.sessionRepository.delete({
+        sessionId: providedSessionId.sessionId,
+      });
       this.deleteCookie({ res, cookies });
       return false;
     }
 
     if (Date.now() - session.createdAt > ROTATION_PERIOD * 1000) {
-      await this.sessionRepository.delete({ sessionId: providedSessionId });
+      await this.sessionRepository.delete({
+        sessionId: providedSessionId.sessionId,
+      });
       const newSession = new Session({
         sessionId: crypto.randomUUID(),
         userId: session.userId,

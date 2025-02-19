@@ -12,6 +12,7 @@ class CreateSubcategoryService {
     name,
     monthlyGoal,
     isImmutable,
+    subcategoryId,
   }) {
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({ tenantId });
@@ -22,7 +23,12 @@ class CreateSubcategoryService {
       const category = plan.categories.find(
         (category) => category.categoryId === categoryId
       );
-      category.createSubcategory({ name, monthlyGoal, isImmutable });
+      category.createSubcategory({
+        name,
+        monthlyGoal,
+        isImmutable,
+        subcategoryId,
+      });
       await tenantRepository.set({ tenantId, tenant });
     });
   }

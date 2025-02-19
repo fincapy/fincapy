@@ -108,7 +108,13 @@ const deleteCategory = async ({ categoryId, planId }) => {
   return true;
 };
 
-const createSubcategory = async ({ categoryId, name, monthlyGoal, planId }) => {
+const createSubcategory = async ({
+  categoryId,
+  name,
+  monthlyGoal,
+  planId,
+  subcategoryId,
+}) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -130,6 +136,7 @@ const createSubcategory = async ({ categoryId, name, monthlyGoal, planId }) => {
       monthlyGoal,
       isImmutable: false,
       planId,
+      subcategoryId,
     });
   } catch (error) {
     console.error(error);

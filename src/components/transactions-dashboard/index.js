@@ -171,6 +171,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
     oldPlanState,
     onSubmit,
     values,
+    transactionId,
   }) => {
     setTimeout(async () => {
       try {
@@ -182,6 +183,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
           status: values.status,
           type: values.type,
           amount: parseFloat(values.amount, 10),
+          transactionId,
         });
         if (!result) {
           setPlanState(oldPlanState);
@@ -220,6 +222,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
   const onSubmit = async (values) => {
     const oldPlanState = planState.clone();
     const newPlanState = planState.clone();
+    const transactionId = uuidv4();
     newPlanState.createTransaction({
       categoryId: values.category,
       date: values.date,
@@ -227,6 +230,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
       status: values.status,
       type: values.type,
       amount: parseFloat(values.amount, 10),
+      transactionId,
     });
     setPlanState(newPlanState);
     handleServerCreateTransaction({

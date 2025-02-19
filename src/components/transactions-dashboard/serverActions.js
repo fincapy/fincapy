@@ -15,6 +15,7 @@ const createTransaction = async ({
   status,
   type,
   amount,
+  transactionId,
 }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
@@ -36,6 +37,7 @@ const createTransaction = async ({
       status,
       type,
       amount,
+      transactionId,
     });
     return true;
   } catch (error) {

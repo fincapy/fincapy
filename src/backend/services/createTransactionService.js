@@ -12,6 +12,7 @@ class CreateTransactionService {
     status,
     type,
     amount,
+    transactionId,
   }) {
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
@@ -28,6 +29,7 @@ class CreateTransactionService {
         status,
         type,
         amount,
+        transactionId,
       });
       await tenantRepository.set({ tenantId, tenant });
       return true;

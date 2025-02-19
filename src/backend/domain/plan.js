@@ -20,11 +20,19 @@ class Plan {
     });
   }
 
-  createTransaction({ categoryId, date, description, status, type, amount }) {
+  createTransaction({
+    categoryId,
+    date,
+    description,
+    status,
+    type,
+    amount,
+    transactionId,
+  }) {
     this.categories.forEach((category) => {
       if (category.categoryId === categoryId) {
         const transaction = new Transaction({
-          transactionId: uuidv4(),
+          transactionId,
           date,
           description,
           status,
@@ -37,7 +45,7 @@ class Plan {
         category.subcategories.forEach((subcategory) => {
           if (subcategory.subcategoryId === categoryId) {
             const transaction = new Transaction({
-              transactionId: uuidv4(),
+              transactionId,
               date,
               description,
               status,
@@ -129,9 +137,11 @@ class Plan {
   }) {
     let transaction;
     let oldTransactionCategory;
+    console.log('categoryId', categoryId);
     const category = this.categories.find(
       (category) => category.categoryId === categoryId
     );
+    console.log('category', category);
     oldTransactionCategory = category.name;
     if (subcategoryId) {
       const subcategory = category.subcategories.find(

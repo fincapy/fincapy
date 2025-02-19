@@ -93,7 +93,7 @@ class Consumer {
 
   async consume() {
     console.log('Starting consumer');
-    this.redisAdapter.createConsumerGroup(STREAM_NAME, GROUP_NAME);
+    await this.redisAdapter.createConsumerGroup(STREAM_NAME, GROUP_NAME);
     while (!isStopping) {
       try {
         // First, try to process pending messages (if any)

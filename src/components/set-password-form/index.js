@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { resetPassword } from './serverActions';
+import { setInitialPassword } from './serverActions';
 
 const SetPasswordForm = () => {
   const [mounted, setMounted] = useState(false);
@@ -74,7 +74,7 @@ const SetPasswordForm = () => {
     try {
       setError('');
       setIsSubmitting(true);
-      const result = await resetPassword(password);
+      const result = await setInitialPassword(password);
 
       if (result) {
         sessionStorage.removeItem('resetPasswordTimestamp');

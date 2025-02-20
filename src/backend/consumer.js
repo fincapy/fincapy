@@ -13,6 +13,8 @@ import {
 } from './streamingConstants.js';
 import { LRUCache } from 'lru-cache';
 import Redis from 'ioredis';
+import { SendUserInviteEmailService } from './services/sendUserInviteEmailService.js';
+import { SESAdapter } from './adapters/sesAdapter.js';
 
 let isStopping = false;
 
@@ -68,10 +70,16 @@ class CronProducer {
 }
 
 class Consumer {
-  constructor({ messageRepository, redisAdapter, service }) {
+  constructor({
+    messageRepository,
+    redisAdapter,
+    ingestService,
+    emailService,
+  }) {
     this.redisAdapter = redisAdapter;
     this.messageRepository = messageRepository;
-    this.service = service;
+    this.ingestService = ingestService;
+    this.emailService = emailService;
     this.messagesSeen = new LRUCache({ max: 1 });
   }
 
@@ -103,12 +111,28 @@ class Consumer {
         });
 
         for (const envelope of pendingMessages) {
-          await this.service.execute(envelope.message);
-          await this.messageRepository.acknowledge(envelope.messageId);
-          this.messagesSeen.set('mostRecent', {
-            time: new Date(),
-            messageId: envelope.messageId,
-          });
+          if (
+            envelope.message.payload.eventType === 'PLAID_ITEM_UPDATED' ||
+            envelope.message.payload.eventType ===
+              'TRANSACTION_INGEST_REQUESTED' ||
+            envelope.message.payload.eventType === 'PLAID_ITEM_CREATED'
+          ) {
+            await this.ingestService.execute(envelope.message.payload);
+            await this.messageRepository.acknowledge({
+              messageId: envelope.messageId,
+            });
+            this.messagesSeen.set('mostRecent', {
+              time: new Date(),
+              messageId: envelope.messageId,
+            });
+          }
+
+          if (envelope.message.payload.eventType === 'USER_CREATED') {
+            await this.emailService.execute(envelope.message.payload);
+            await this.messageRepository.acknowledge({
+              messageId: envelope.messageId,
+            });
+          }
         }
 
         const newMessages = await this.messageRepository.getSome({
@@ -117,14 +141,28 @@ class Consumer {
         });
 
         for (const envelope of newMessages) {
-          await this.service.execute(envelope.message);
-          await this.messageRepository.acknowledge({
-            messageId: envelope.messageId,
-          });
-          this.messagesSeen.set('mostRecent', {
-            time: new Date(),
-            messageId: envelope.messageId,
-          });
+          if (
+            envelope.message.payload.eventType === 'PLAID_ITEM_UPDATED' ||
+            envelope.message.payload.eventType ===
+              'TRANSACTION_INGEST_REQUESTED' ||
+            envelope.message.payload.eventType === 'PLAID_ITEM_CREATED'
+          ) {
+            await this.ingestService.execute(envelope.message.payload);
+            await this.messageRepository.acknowledge({
+              messageId: envelope.messageId,
+            });
+            this.messagesSeen.set('mostRecent', {
+              time: new Date(),
+              messageId: envelope.messageId,
+            });
+          }
+
+          if (envelope.message.payload.eventType === 'USER_CREATED') {
+            await this.emailService.execute(envelope.message.payload);
+            await this.messageRepository.acknowledge({
+              messageId: envelope.messageId,
+            });
+          }
         }
       } catch (err) {
         console.error('Error consuming messages:', err);
@@ -162,13 +200,16 @@ process.on('SIGTERM', () => {
   const plaidAdapter = new PlaidAdapter(client);
   const openaiAdapter = new OpenaiAdapter();
   const tenantRepository = new TenantRepository({ redisAdapter });
-  const service = new IngestTransactionUpdatesService({
+  const ingestService = new IngestTransactionUpdatesService({
     plaidAdapter,
     tenantRepository,
     openaiAdapter,
   });
+  const sesAdapter = new SESAdapter();
+  const emailService = new SendUserInviteEmailService({ sesAdapter });
   const consumer = new Consumer({
-    service,
+    ingestService,
+    emailService,
     redisAdapter,
     messageRepository,
   });

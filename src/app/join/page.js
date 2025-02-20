@@ -1,4 +1,4 @@
-import { JoinPasswordForm } from '@/components/join-password-form';
+import { SetPasswordForm } from '@/components/set-password-form';
 import { headers, cookies } from 'next/headers';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
@@ -8,19 +8,14 @@ import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
 import jwt from 'jsonwebtoken';
 
-export default async function JoinPage({ params }) {
+export default async function JoinPage({ searchParams }) {
   const headersList = headers();
   const nonce = headersList.get('x-nonce');
-  const { token } = params;
+  const { token } = searchParams;
+  console.log('params', searchParams);
+  console.log('token', token);
   try {
     const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
-    // Set the token in a cookie for the form to use
-    cookies().set('join-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 600 // 10 minutes
-    });
   } catch (error) {
     return 'Invalid or expired invitation link';
   }
@@ -44,7 +39,7 @@ export default async function JoinPage({ params }) {
             </div>
             Fincapy
           </a>
-          <JoinPasswordForm />
+          <SetPasswordForm token={token} />
         </div>
       </div>
     </ThemeProvider>

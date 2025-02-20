@@ -35,6 +35,9 @@ export function DataTable({ columns, data }) {
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting: sortingState,
+      columnVisibility: {
+        userId: false,
+      },
     },
   });
 

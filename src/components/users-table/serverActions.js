@@ -11,7 +11,7 @@ import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { cookies } from 'next/headers';
 
-const removeUser = async (email) => {
+const removeUser = async ({ userId }) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -29,7 +29,7 @@ const removeUser = async (email) => {
       transactionManager,
       auth0Adapter,
     });
-    await removeUserService.execute({ tenantId, email });
+    await removeUserService.execute({ tenantId, userId });
     return true;
   } catch (error) {
     console.error(error);
@@ -37,7 +37,7 @@ const removeUser = async (email) => {
   }
 };
 
-const changeUserRole = async ({ email, role }) => {
+const changeUserRole = async ({ userId, role }) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -52,7 +52,7 @@ const changeUserRole = async ({ email, role }) => {
     const changeUserRoleService = new ChangeUserRoleService({
       transactionManager,
     });
-    await changeUserRoleService.execute({ tenantId, email, role });
+    await changeUserRoleService.execute({ tenantId, userId, role });
     return true;
   } catch (error) {
     console.error(error);
@@ -60,7 +60,7 @@ const changeUserRole = async ({ email, role }) => {
   }
 };
 
-const changeUserName = async ({ email, name }) => {
+const changeUserName = async ({ userId, name }) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -75,7 +75,7 @@ const changeUserName = async ({ email, name }) => {
     const changeUserNameService = new ChangeUserNameService({
       transactionManager,
     });
-    await changeUserNameService.execute({ tenantId, email, name });
+    await changeUserNameService.execute({ tenantId, userId, name });
     return true;
   } catch (error) {
     console.error(error);

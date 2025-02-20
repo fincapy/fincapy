@@ -40,6 +40,7 @@ services:
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
       - AI_URL=${AI_URL}
       - MODEL_NAME=${MODEL_NAME}
+      - SITE_URL=${SITE_URL}
   consumer:
     build:
       context: .

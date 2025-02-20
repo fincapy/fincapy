@@ -14,7 +14,7 @@ class ChangeUserRoleService {
         if (user === null) {
           return;
         }
-        const tenantUser = tenant.users.find((user) => user.email === email);
+        const tenantUser = tenant.users.find((user) => user.id === userId);
         tenantUser.role = role;
         user.role = role;
         await userRepository.set({ userId, user });

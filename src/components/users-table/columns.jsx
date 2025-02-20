@@ -72,7 +72,7 @@ const ChangeRoleForm = ({
   setOuterDialogIsOpen,
   setInnerDialogIsOpen,
   role,
-  email,
+  userId,
 }) => {
   const { toast } = useToast();
   const [usersState, setUsersState] = useAtom(usersAtom);
@@ -83,10 +83,10 @@ const ChangeRoleForm = ({
     },
   });
 
-  function handleServerChangeRole({ email, oldUsersState, onSubmit, values }) {
+  function handleServerChangeRole({ oldUsersState, onSubmit, values }) {
     setTimeout(async () => {
       try {
-        const result = await changeUserRole({ email, role: values.role });
+        const result = await changeUserRole({ userId, role: values.role });
         if (!result) {
           setUsersState(oldUsersState);
           toast({
@@ -119,13 +119,13 @@ const ChangeRoleForm = ({
   const onSubmit = async (values) => {
     const oldUsersState = usersState.map((user) => ({ ...user }));
     const newUsersState = usersState.map((user) => {
-      if (user.email === email) {
+      if (user.id === userId) {
         return { ...user, role: values.role };
       }
       return { ...user };
     });
     setUsersState(newUsersState);
-    handleServerChangeRole({ email, oldUsersState, onSubmit, values });
+    handleServerChangeRole({ oldUsersState, onSubmit, values });
   };
 
   return (
@@ -167,7 +167,7 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
       >
         <ChangeRoleForm
           role={row.original.role}
-          email={row.original.email}
+          userId={row.original.id}
           setOuterDialogIsOpen={setOuterDialogIsOpen}
           setInnerDialogIsOpen={setIsOpen}
         />
@@ -189,11 +189,12 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [usersState, setUsersState] = useAtom(usersAtom);
+  const userId = row.original.id;
 
-  function handleServerRemoveUser({ email, oldUsersState, handleRemoveUser }) {
+  function handleServerRemoveUser({ oldUsersState, handleRemoveUser }) {
     setTimeout(async () => {
       try {
-        const result = await removeUser(email);
+        const result = await removeUser({ userId });
         if (!result) {
           setUsersState(oldUsersState);
           toast({
@@ -228,12 +229,9 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
 
   const handleRemoveUser = async () => {
     const oldUsersState = usersState.map((user) => ({ ...user }));
-    const newUsersState = usersState.filter(
-      (user) => user.email !== row.original.email
-    );
+    const newUsersState = usersState.filter((user) => user.id !== userId);
     setUsersState(newUsersState);
     handleServerRemoveUser({
-      email: row.original.email,
       oldUsersState,
       handleRemoveUser,
     });
@@ -276,7 +274,7 @@ const ChangeNameForm = ({
   setOuterDialogIsOpen,
   setInnerDialogIsOpen,
   name,
-  email,
+  userId,
 }) => {
   const { toast } = useToast();
   const [usersState, setUsersState] = useAtom(usersAtom);
@@ -287,10 +285,10 @@ const ChangeNameForm = ({
     },
   });
 
-  function handleServerChangeName({ email, oldUsersState, onSubmit, values }) {
+  function handleServerChangeName({ oldUsersState, onSubmit, values }) {
     setTimeout(async () => {
       try {
-        const result = await changeUserName({ email, name: values.name });
+        const result = await changeUserName({ userId, name: values.name });
         if (!result) {
           setUsersState(oldUsersState);
           toast({
@@ -323,13 +321,17 @@ const ChangeNameForm = ({
   const onSubmit = async (values) => {
     const oldUsersState = usersState.map((user) => ({ ...user }));
     const newUsersState = usersState.map((user) => {
-      if (user.email === email) {
+      if (user.id === userId) {
         return { ...user, name: values.name };
       }
       return { ...user };
     });
     setUsersState(newUsersState);
-    handleServerChangeName({ email, oldUsersState, onSubmit, values });
+    handleServerChangeName({
+      oldUsersState,
+      onSubmit,
+      values,
+    });
   };
 
   return (
@@ -375,7 +377,7 @@ const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
       >
         <ChangeNameForm
           name={row.original.name}
-          email={row.original.email}
+          userId={row.original.id}
           setOuterDialogIsOpen={setOuterDialogIsOpen}
           setInnerDialogIsOpen={setIsOpen}
         />
@@ -416,6 +418,9 @@ const Actions = ({ row }) => {
 };
 
 export const columns = [
+  {
+    accessorKey: 'id',
+  },
   {
     accessorKey: 'name',
     header: ({ column }) => (

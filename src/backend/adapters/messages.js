@@ -28,8 +28,16 @@ class PlaidItemUpdatedMessage extends Message {
   }
 }
 
+class UserCreatedMessage extends Message {
+  constructor({ topicName, inviterName, userId, email }) {
+    super({ topicName });
+    this.payload = { userId, email, inviterName, eventType: 'USER_CREATED' };
+  }
+}
+
 export {
   PlaidItemCreatedMessage,
   TransactionIngestRequestedMessage,
   PlaidItemUpdatedMessage,
+  UserCreatedMessage,
 };

@@ -8,7 +8,7 @@ import { CreateUserService } from '@/backend/services/createUserService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 
-const inviteUser = async ({ email, role, name }) => {
+const inviteUser = async ({ userId, email, role, name }) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -25,7 +25,13 @@ const inviteUser = async ({ email, role, name }) => {
       transactionManager,
       auth0Adapter,
     });
-    await createUserService.execute({ tenantId, email, role, name });
+    await createUserService.execute({
+      tenantId,
+      userId,
+      email,
+      role,
+      name,
+    });
   } catch (error) {
     console.error(error);
     return false;

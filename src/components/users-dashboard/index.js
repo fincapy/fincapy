@@ -43,6 +43,8 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import SubmitButton from '@/components/SubmitButton';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '@/backend/domain/user';
 
 export function SelectDemo({ field }) {
   return (
@@ -85,6 +87,7 @@ const InviteUserForm = () => {
   });
 
   function handleServerInviteUser({
+    userId,
     name,
     email,
     role,
@@ -99,6 +102,7 @@ const InviteUserForm = () => {
           name,
           email,
           role,
+          userId,
         });
         if (!result) {
           setUsersState(oldUsersState);
@@ -133,10 +137,24 @@ const InviteUserForm = () => {
     const email = values.email;
     const role = values.role;
     const name = values.name;
+    const userId = uuidv4();
     const oldUsersState = usersState.map((user) => ({ ...user }));
-    const newUsersState = [...usersState, { email, role, name }];
+    const newUsersState = [
+      ...usersState,
+      new User({
+        id: userId,
+        name,
+        emails: [{ email, verified: false, primary: true }],
+        role: role,
+        password: null,
+        mfaMethod: 'email',
+        totpSecret: null,
+        totpVerified: false,
+      }),
+    ];
     setUsersState(newUsersState);
     handleServerInviteUser({
+      userId,
       name,
       email,
       role,

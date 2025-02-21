@@ -73,19 +73,16 @@ const TOTPRegistrationForm = () => {
     if (!secret) return;
 
     try {
-      setError('');
       setIsSubmitting(true);
       const result = await verifyAndSaveTOTP(otp, secret);
 
       if (result) {
-        sessionStorage.removeItem('totpRegistrationTimestamp');
         router.push('/app');
       } else {
         setError('Invalid verification code. Please try again.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
-      console.error('TOTP verification error:', err);
     } finally {
       setIsSubmitting(false);
     }

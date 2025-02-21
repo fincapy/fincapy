@@ -34,7 +34,7 @@ export async function verifyAndSaveTOTP(token, secret) {
 
   let jwtToken;
   const awaitingMFASetupAfterSignupCookie = cookies().get(
-    'awaiting-mfa-setup-after-signup'
+    'emailPasswordAuthenticatedToken'
   );
   if (!awaitingMFASetupAfterSignupCookie) {
     return false;
@@ -59,7 +59,6 @@ export async function verifyAndSaveTOTP(token, secret) {
   user.totpSecret = secret;
   user.totpEnabled = true;
   await userRepository.set({ userId: user.id, user });
-
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.createSession({

@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '../ui/skeleton';
 
-const EmailMFAForm = ({ setEmailVerified }) => {
+const EmailVerificationForm = () => {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -57,27 +57,10 @@ const EmailMFAForm = ({ setEmailVerified }) => {
 
   const handleOTPComplete = async (otp) => {
     try {
-      setError('');
       setIsSubmitting(true);
 
       const result = await verifyEmail(otp);
-
-      if (result === 'cookie_invalid') {
-        router.push('/signin');
-        return;
-      }
-
-      if (result === true) {
-        if (setEmailVerified) {
-          sessionStorage.removeItem('signupTimestamp');
-          sessionStorage.setItem(
-            'totpRegistrationTimestamp',
-            Date.now().toString()
-          );
-          setEmailVerified(true);
-          console.log('setEmailVerified?');
-        }
-      } else {
+      if (!result) {
         setError('Invalid verification code. Please try again.');
       }
     } catch (err) {
@@ -114,7 +97,10 @@ const EmailMFAForm = ({ setEmailVerified }) => {
               variant="link"
               className="text-xs text-muted-foreground hover:text-primary"
               onClick={() => {
-                sessionStorage.setItem('totpMfaTimestamp', Date.now().toString());
+                sessionStorage.setItem(
+                  'totpMfaTimestamp',
+                  Date.now().toString()
+                );
                 setTimeLeft(600);
                 setError('');
               }}
@@ -129,4 +115,4 @@ const EmailMFAForm = ({ setEmailVerified }) => {
   );
 };
 
-export { EmailMFAForm };
+export { EmailVerificationForm };

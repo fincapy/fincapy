@@ -4,10 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { InputTOTP } from '../input-totp';
 import { verifyTOTP } from './serverActions';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '../ui/skeleton';
 
-const TOTPMFAForm = () => {
+const TOTPVerificationForm = () => {
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,18 +56,13 @@ const TOTPMFAForm = () => {
 
   const handleOTPComplete = async (otp) => {
     try {
-      setError('');
       setIsSubmitting(true);
       const result = await verifyTOTP(otp);
-      if (result) {
-        sessionStorage.removeItem('totpMfaTimestamp');
-        router.push('/app');
-      } else {
+      if (!result) {
         setError('Invalid verification code. Please try again.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
-      console.error('TOTP verification error:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,4 +94,4 @@ const TOTPMFAForm = () => {
   );
 };
 
-export { TOTPMFAForm };
+export { TOTPVerificationForm };

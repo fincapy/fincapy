@@ -3,25 +3,24 @@
 import { EmailVerificationCodeRepository } from '@/backend/adapters/repositories/emailVerificationCodeRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
-import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
   let token;
   try {
     token = await jwt.verify(
-      cookies().get('awaiting-email-verification-after-signup').value,
+      cookies().get('emailPasswordAuthenticatedToken').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
+    console.log('here? bad token?');
     return false;
   }
   if (!token) {
     return false;
   }
-  console.log('token', token);
   const redisAdapter = new RedisAdapter({ redisClient });
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
     redisAdapter,
@@ -29,36 +28,38 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   const emailVerificationCode = await emailVerificationCodeRepository.get({
     userId: token.userId,
   });
-  console.log('emailVerificationCode', emailVerificationCode);
   if (!emailVerificationCode) {
+    console.log('here?');
     return false;
   }
   if (emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)) {
+    console.log('what about here?');
     return false;
   }
   await emailVerificationCodeRepository.delete({ userId: token.userId });
-  const sessionRepository = new SessionRepository({ redisAdapter });
-  const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.createSession({
-    userId: token.userId,
-    tenantId: token.tenantId,
-    cookies: cookies(),
-  });
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: token.userId });
-  user.emailVerified = true;
+  user.emails.find((emailInfo) => emailInfo.primary === true).verified = true;
   await userRepository.set({ userId: token.userId, user });
-  const partialRegistrationToken = jwt.sign(
+  const emailPasswordAuthenticatedToken = jwt.sign(
     { userId: user.id, tenantId: user.tenantId },
     process.env.JWT_SECRET,
     { expiresIn: '10m' }
   );
-  cookies().set('awaiting-mfa-setup-after-signup', partialRegistrationToken, {
-    path: '/',
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 10,
-  });
-  return true;
+  cookies().set(
+    'emailPasswordAuthenticatedToken',
+    emailPasswordAuthenticatedToken,
+    {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 10,
+    }
+  );
+  if (user.totpEnabled) {
+    redirect('/verify-totp');
+  } else {
+    redirect('/register-totp');
+  }
 }

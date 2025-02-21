@@ -1,4 +1,4 @@
-import { SignInForm } from '@/components/sign-in-form';
+import { TOTPRegistrationForm } from '@/components/totp-registration-form';
 import { headers, cookies } from 'next/headers';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
 
-export default async function SignInPage() {
+export default async function RegisterTOTPPage() {
   const headersList = headers();
   const nonce = headersList.get('x-nonce');
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -37,7 +37,14 @@ export default async function SignInPage() {
             </div>
             Fincapy
           </a>
-          <SignInForm />
+          <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+            <div className="flex flex-col items-center gap-0 mb-2">
+              <h2 className="text-2xl text-center font-semibold tracking-tight">
+                Register your authenticator app
+              </h2>
+            </div>
+            <TOTPRegistrationForm />
+          </div>
         </div>
       </div>
     </ThemeProvider>

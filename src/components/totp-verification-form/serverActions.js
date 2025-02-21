@@ -7,12 +7,13 @@ import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import speakeasy from 'speakeasy';
+import { redirect } from 'next/navigation';
 
 export async function verifyTOTP(token) {
   let jwtToken;
   try {
     jwtToken = await jwt.verify(
-      cookies().get('mfa-token').value,
+      cookies().get('emailPasswordAuthenticatedToken').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -57,6 +58,5 @@ export async function verifyTOTP(token) {
     sameSite: 'strict',
     maxAge: 60 * 60 * 3,
   });
-
-  return true;
+  redirect('/app');
 }

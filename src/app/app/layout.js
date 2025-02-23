@@ -11,7 +11,7 @@ import { SessionManager } from '@/backend/adapters/auth';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 
 export default async function Layout({ children }) {
-  const headersList = headers();
+  const headersList = await headers();
   const nonce = headersList.get('x-nonce');
   let startDate;
   let endDate;
@@ -21,7 +21,7 @@ export default async function Layout({ children }) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.getSession({ cookies: cookies() });
+  const session = await sessionManager.getSession({ cookies: await cookies() });
 
   if (!session) {
     redirect('/login');

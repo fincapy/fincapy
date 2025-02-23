@@ -38,7 +38,7 @@ async function authenticateEmailPassword({ email, password }) {
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
-    cookies().set(
+    (await cookies()).set(
       'emailPasswordAuthenticatedToken',
       emailPasswordAuthenticatedToken,
       {

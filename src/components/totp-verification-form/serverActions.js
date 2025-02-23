@@ -13,7 +13,7 @@ export async function verifyTOTP(token) {
   let jwtToken;
   try {
     jwtToken = await jwt.verify(
-      cookies().get('emailPasswordAuthenticatedToken').value,
+      (await cookies()).get('emailPasswordAuthenticatedToken').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -44,14 +44,14 @@ export async function verifyTOTP(token) {
   const session = await sessionManager.createSession({
     userId: jwtToken.userId,
     tenantId: user.tenantId,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   const sessionToken = jwt.sign(
     { sessionId: session.sessionId },
     process.env.JWT_SECRET,
     { expiresIn: '3h' }
   );
-  cookies().set('session-id', sessionToken, {
+  (await cookies()).set('session-id', sessionToken, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

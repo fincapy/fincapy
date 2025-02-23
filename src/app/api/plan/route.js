@@ -13,7 +13,7 @@ export const GET = async (req, res) => {
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.touchSession({
     req,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   const query = req.nextUrl.searchParams;
   const startDate = query.get('startDate');

@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package-lock.json package.json ./
 COPY src/backend ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 EXPOSE 8080
 
 CMD ["sh", "-c", "node consumer.js"]

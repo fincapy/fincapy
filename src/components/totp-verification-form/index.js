@@ -12,7 +12,7 @@ const TOTPVerificationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const getTimeLeft = () => {
     if (typeof window !== 'undefined') {
-      const timestamp = sessionStorage.getItem('totpMfaTimestamp');
+      const timestamp = sessionStorage.getItem('emailPasswordCountdown');
       if (timestamp) {
         const elapsed = Math.floor(
           (Date.now() - parseInt(timestamp, 10)) / 1000
@@ -34,16 +34,12 @@ const TOTPVerificationForm = () => {
   const timerRef = useRef(null);
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (!sessionStorage.getItem('totpMfaTimestamp')) {
-        sessionStorage.setItem('totpMfaTimestamp', Date.now().toString());
-      }
       if (timeLeft > 0) {
         timerRef.current = setInterval(() => {
           setTimeLeft((prev) => {
             const newTime = prev - 1;
             if (newTime <= 0) {
               clearInterval(timerRef.current);
-              sessionStorage.removeItem('totpMfaTimestamp');
               router.push('/signin');
             }
             return Math.max(0, newTime);

@@ -82,9 +82,6 @@ export const metadata = {
     telephone: false,
   },
   mobileWebAppCapable: true,
-  themeColor: '#09090b',
-  viewport:
-    'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover',
   icons: {
     icon: [
       { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
@@ -115,6 +112,16 @@ export const metadata = {
   //   url: 'https://yourdomain.com',
   //   images: ['https://yourdomain.com/icons/apple-touch-icon.png'],
   // },
+};
+
+export const viewport = {
+  themeColor: '#09090b',
+  minimumScale: 1,
+  initialScale: 1,
+  width: 'device-width',
+  shrinkToFit: false,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }) {

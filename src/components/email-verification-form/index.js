@@ -16,7 +16,7 @@ const EmailVerificationForm = () => {
 
   const getTimeLeft = () => {
     if (typeof window !== 'undefined') {
-      const timestamp = sessionStorage.getItem('signupTimestamp');
+      const timestamp = sessionStorage.getItem('emailPasswordCountdown');
 
       if (timestamp) {
         const elapsed = Math.floor(
@@ -37,14 +37,12 @@ const EmailVerificationForm = () => {
   const timerRef = useRef(null);
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('timeLeft', timeLeft);
       if (timeLeft > 0) {
         timerRef.current = setInterval(() => {
           setTimeLeft((prev) => {
             const newTime = prev - 1;
             if (newTime <= 0) {
               clearInterval(timerRef.current);
-              sessionStorage.removeItem('signupTimestamp');
               router.push('/signin');
             }
             return Math.max(0, newTime);
@@ -60,10 +58,9 @@ const EmailVerificationForm = () => {
       setIsSubmitting(true);
 
       const result = await verifyEmail(otp);
-      if (!result) {
-        setError('Invalid verification code. Please try again.');
-      }
+      if (!result) setError('Invalid verification code. Please try again.');
     } catch (err) {
+      console.log('Email verification error:', err);
       setError('An error occurred. Please try again.');
       console.error('Email verification error:', err);
     } finally {

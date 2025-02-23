@@ -66,6 +66,7 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     }
 
     setLoading(true);
+    sessionStorage.setItem('emailPasswordCountdown', Date.now().toString());
     const result = await createAccount(name, email, password, accessCode);
     if (result) {
       setLoading(false);

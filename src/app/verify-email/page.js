@@ -6,16 +6,30 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { redirect } from 'next/navigation';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
+import jwt from 'jsonwebtoken';
 
 export default async function VerifyEmailPage() {
   const headersList = headers();
   const nonce = headersList.get('x-nonce');
+  const cookiesList = cookies();
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.getSession({ cookies: cookies() });
   if (session) {
     redirect('/app');
+  }
+
+  const emailPasswordAuthenticatedToken = cookiesList.get(
+    'emailPasswordAuthenticatedToken'
+  );
+  if (!emailPasswordAuthenticatedToken) {
+    redirect('/signin');
+  }
+  try {
+    jwt.verify(emailPasswordAuthenticatedToken.value, process.env.JWT_SECRET);
+  } catch (error) {
+    redirect('/signin');
   }
 
   return (

@@ -31,6 +31,7 @@ export function SignInForm() {
 
     try {
       setLoading(true);
+      sessionStorage.setItem('emailPasswordCountdown', Date.now().toString());
       const result = await authenticateEmailPassword({ email, password });
       if (!result) {
         setError('Invalid email or password');

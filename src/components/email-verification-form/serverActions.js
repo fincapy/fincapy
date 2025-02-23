@@ -15,7 +15,6 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       process.env.JWT_SECRET
     );
   } catch (error) {
-    console.log('here? bad token?');
     return false;
   }
   if (!token) {
@@ -29,11 +28,9 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
     userId: token.userId,
   });
   if (!emailVerificationCode) {
-    console.log('here?');
     return false;
   }
   if (emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)) {
-    console.log('what about here?');
     return false;
   }
   await emailVerificationCodeRepository.delete({ userId: token.userId });

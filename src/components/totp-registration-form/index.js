@@ -21,7 +21,7 @@ const TOTPRegistrationForm = () => {
 
   const getTimeLeft = () => {
     if (typeof window !== 'undefined') {
-      const timestamp = sessionStorage.getItem('totpRegistrationTimestamp');
+      const timestamp = sessionStorage.getItem('emailPasswordCountdown');
       if (timestamp) {
         const elapsed = Math.floor(
           (Date.now() - parseInt(timestamp, 10)) / 1000
@@ -44,7 +44,6 @@ const TOTPRegistrationForm = () => {
             const newTime = prev - 1;
             if (newTime <= 0) {
               clearInterval(timerRef.current);
-              sessionStorage.removeItem('totpRegistrationTimestamp');
               router.push('/signin');
             }
             return Math.max(0, newTime);

@@ -41,7 +41,7 @@ export async function createAccount(name, email, password, accessCode) {
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
-    cookies().set('emailPasswordAuthenticatedToken', partialRegistrationToken, {
+    (await cookies()).set('emailPasswordAuthenticatedToken', partialRegistrationToken, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

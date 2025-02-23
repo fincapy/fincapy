@@ -8,12 +8,12 @@ import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export default async function SignInPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const nonce = headersList.get('x-nonce');
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.getSession({ cookies: cookies() });
+  const session = await sessionManager.getSession({ cookies: await cookies() });
   if (session) {
     redirect('/app');
   }

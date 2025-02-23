@@ -8,8 +8,9 @@ import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
 import jwt from 'jsonwebtoken';
 
-export default async function JoinPage({ searchParams }) {
-  const headersList = headers();
+export default async function JoinPage(props) {
+  const searchParams = await props.searchParams;
+  const headersList = await headers();
   const nonce = headersList.get('x-nonce');
   const { token } = searchParams;
   console.log('params', searchParams);

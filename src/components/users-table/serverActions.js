@@ -16,7 +16,7 @@ const removeUser = async ({ userId }) => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: cookies() });
+    const session = await sessionManager.touchSession({ cookies: await cookies() });
     if (!session) {
       return false;
     }
@@ -42,7 +42,7 @@ const changeUserRole = async ({ userId, role }) => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: cookies() });
+    const session = await sessionManager.touchSession({ cookies: await cookies() });
     if (!session) {
       return false;
     }
@@ -65,7 +65,7 @@ const changeUserName = async ({ userId, name }) => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: cookies() });
+    const session = await sessionManager.touchSession({ cookies: await cookies() });
     if (!session) {
       return false;
     }

@@ -33,7 +33,7 @@ export async function verifyAndSaveTOTP(token, secret) {
   }
 
   let jwtToken;
-  const awaitingMFASetupAfterSignupCookie = cookies().get(
+  const awaitingMFASetupAfterSignupCookie = (await cookies()).get(
     'emailPasswordAuthenticatedToken'
   );
   if (!awaitingMFASetupAfterSignupCookie) {
@@ -64,14 +64,14 @@ export async function verifyAndSaveTOTP(token, secret) {
   const session = await sessionManager.createSession({
     userId: jwtToken.userId,
     tenantId: jwtToken.tenantId,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   const sessionToken = jwt.sign(
     { sessionId: session.sessionId },
     process.env.JWT_SECRET,
     { expiresIn: '3h' }
   );
-  cookies().set('session-id', sessionToken, {
+  (await cookies()).set('session-id', sessionToken, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

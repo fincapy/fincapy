@@ -11,7 +11,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   let token;
   try {
     token = await jwt.verify(
-      cookies().get('emailPasswordAuthenticatedToken').value,
+      (await cookies()).get('emailPasswordAuthenticatedToken').value,
       process.env.JWT_SECRET
     );
   } catch (error) {
@@ -43,7 +43,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
     process.env.JWT_SECRET,
     { expiresIn: '10m' }
   );
-  cookies().set(
+  (await cookies()).set(
     'emailPasswordAuthenticatedToken',
     emailPasswordAuthenticatedToken,
     {

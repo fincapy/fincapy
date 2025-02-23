@@ -124,8 +124,8 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }) {
-  const nonce = headers().get('x-nonce');
+export default async function RootLayout({ children }) {
+  const nonce = (await headers()).get('x-nonce');
 
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>

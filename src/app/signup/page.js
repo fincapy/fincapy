@@ -4,8 +4,8 @@ import { headers } from 'next/headers';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LockKeyhole } from 'lucide-react';
 
-export default function SignUpPage() {
-  const headersList = headers();
+export default async function SignUpPage() {
+  const headersList = await headers();
   const nonce = headersList.get('x-nonce');
   const env = process.env.NODE_ENV;
 

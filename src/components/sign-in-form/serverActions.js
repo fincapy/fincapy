@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { headers } from 'next/headers';
+import { checkRateLimit } from '@/backend/utils/rateLimitChecker';
 import {
   EmailPasswordAuthenticator,
   SessionManager,
@@ -38,36 +39,17 @@ async function authenticateEmailPassword({ email, password }) {
   const headersList = headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
-  // Check rate limits with initial fixed window, then exponential backoff after threshold
-  const isIpLimited = await rateLimiter.isRateLimited({
+  // Check IP-based rate limit
+  await checkRateLimit({
+    rateLimiter,
     key: `ip:${hashIp(ip)}`,
-    limit: 10,
-    windowInSeconds: 60,
-    backoffThreshold: 10
   });
 
-  const isEmailLimited = await rateLimiter.isRateLimited({
+  // Check email-based rate limit
+  await checkRateLimit({
+    rateLimiter,
     key: `email:${hashEmail(email)}`,
-    limit: 10,
-    windowInSeconds: 60,
-    backoffThreshold: 10
   });
-
-  if (isIpLimited || isEmailLimited) {
-    const ipAttempts = await rateLimiter.getAttempts(`ip:${hashIp(ip)}`);
-    const emailAttempts = await rateLimiter.getAttempts(`email:${hashEmail(email)}`);
-    
-    if (Math.max(ipAttempts, emailAttempts) <= 10) {
-      throw new Error('Too many login attempts. Please try again in 1 minute.');
-    } else {
-      const attemptsOverThreshold = Math.max(ipAttempts, emailAttempts) - 10;
-      const backoffMinutes = Math.min(
-        Math.pow(2, Math.floor(attemptsOverThreshold / 10)),
-        1440 // Max 24 hours
-      );
-      throw new Error(`Too many login attempts. Please try again in ${backoffMinutes} minutes.`);
-    }
-  }
   const userRepository = new UserRepository({ redisAdapter });
   const authenticator = new EmailPasswordAuthenticator({
     userRepository,

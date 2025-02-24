@@ -43,9 +43,6 @@ export function SignInForm() {
         setError('Invalid email or password');
       }
       setLoading(false);
-    } catch (err) {
-      setError('Invalid email or password');
-      setLoading(false);
     }
   };
 

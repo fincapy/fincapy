@@ -58,7 +58,11 @@ const TOTPVerificationForm = () => {
         setError('Invalid verification code. Please try again.');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      if (err.message.includes('Too many verification attempts')) {
+        setError('Too many verification attempts. Please try again later.');
+      } else {
+        setError('An error occurred. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

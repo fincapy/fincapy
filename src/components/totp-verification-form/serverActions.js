@@ -4,12 +4,39 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { SessionManager } from '@/backend/adapters/auth';
+import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 import speakeasy from 'speakeasy';
 import { redirect } from 'next/navigation';
+import crypto from 'crypto';
+
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(ip.trim().toLowerCase())
+    .digest('hex');
+}
 
 export async function verifyTOTP(token) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+
+  // Get IP address from headers
+  const headersList = headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+
+  // Check IP-based rate limit for TOTP attempts
+  const isIpLimited = await rateLimiter.isRateLimited({
+    key: `totp:ip:${hashIp(ip)}`,
+    limit: 5, // Stricter limit for TOTP attempts
+    windowInSeconds: 60,
+  });
+
+  if (isIpLimited) {
+    throw new Error('Too many verification attempts. Please try again later.');
+  }
   let jwtToken;
   try {
     jwtToken = await jwt.verify(

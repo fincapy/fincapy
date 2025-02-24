@@ -8,10 +8,18 @@ import { TenantRepository } from '@/backend/adapters/repositories/TenantReposito
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
+
+function hashEmail(email) {
+  return crypto
+    .createHash('sha256')
+    .update(email.trim().toLowerCase())
+    .digest('hex');
+}
 
 export async function createAccount(name, email, password, accessCode) {
   try {
@@ -22,6 +30,19 @@ export async function createAccount(name, email, password, accessCode) {
       return false;
     }
     const redisAdapter = new RedisAdapter({ redisClient });
+    const rateLimiter = new RateLimiter({ redisAdapter });
+    const headersList = await headers();
+    const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+    try {
+      await rateLimiter.checkRateLimit({
+        key: `ip:sign-up:${hashIp(ip)}`,
+      });
+      await rateLimiter.checkRateLimit({
+        key: `email:sign-up:${hashEmail(email)}`,
+      });
+    } catch (error) {
+      return false;
+    }
     const transactionManager = new TransactionManager();
     const setupNewTenantService = new SetupNewTenantService({
       transactionManager,
@@ -41,13 +62,17 @@ export async function createAccount(name, email, password, accessCode) {
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
-    (await cookies()).set('emailPasswordAuthenticatedToken', partialRegistrationToken, {
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 10,
-    });
+    (await cookies()).set(
+      'emailPasswordAuthenticatedToken',
+      partialRegistrationToken,
+      {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 10,
+      }
+    );
     const emailVerificationCode = crypto.randomInt(100000, 999999);
     const emailVerificationCodeRepository = new EmailVerificationCodeRepository(
       {

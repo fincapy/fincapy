@@ -3,11 +3,23 @@
 import { EmailVerificationCodeRepository } from '@/backend/adapters/repositories/emailVerificationCodeRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
+import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:email-verification:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    return false;
+  }
   let token;
   try {
     token = await jwt.verify(
@@ -20,7 +32,13 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   if (!token) {
     return false;
   }
-  const redisAdapter = new RedisAdapter({ redisClient });
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `user:email-verification:${token.userId}`,
+    });
+  } catch (error) {
+    return false;
+  }
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
     redisAdapter,
   });

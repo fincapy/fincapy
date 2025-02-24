@@ -2,7 +2,6 @@
 
 import { cookies } from 'next/headers';
 import { headers } from 'next/headers';
-import { checkRateLimit } from '@/backend/utils/rateLimitChecker';
 import {
   EmailPasswordAuthenticator,
   SessionManager,
@@ -36,20 +35,19 @@ async function authenticateEmailPassword({ email, password }) {
   const rateLimiter = new RateLimiter({ redisAdapter });
 
   // Get IP address from headers
-  const headersList = headers();
+  const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-
-  // Check IP-based rate limit
-  await checkRateLimit({
-    rateLimiter,
-    key: `ip:${hashIp(ip)}`,
-  });
-
-  // Check email-based rate limit
-  await checkRateLimit({
-    rateLimiter,
-    key: `email:${hashEmail(email)}`,
-  });
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:email-password:${hashIp(ip)}`,
+    });
+    await rateLimiter.checkRateLimit({
+      key: `email:email-password:${hashEmail(email)}`,
+    });
+  } catch (error) {
+    console.log('error', error);
+    return false;
+  }
   const userRepository = new UserRepository({ redisAdapter });
   const authenticator = new EmailPasswordAuthenticator({
     userRepository,

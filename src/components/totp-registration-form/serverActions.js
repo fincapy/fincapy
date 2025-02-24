@@ -7,6 +7,7 @@ import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import speakeasy from 'speakeasy';
+import { RateLimiter } from '@/backend/adapters/rateLimiter';
 
 export async function generateTOTPSecret() {
   const secret = speakeasy.generateSecret({
@@ -21,6 +22,18 @@ export async function generateTOTPSecret() {
 }
 
 export async function verifyAndSaveTOTP(token, secret) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:totp-registration:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    return false;
+  }
+
   const isValid = speakeasy.totp.verify({
     secret: secret,
     encoding: 'base32',
@@ -48,7 +61,14 @@ export async function verifyAndSaveTOTP(token, secret) {
     return false;
   }
 
-  const redisAdapter = new RedisAdapter({ redisClient });
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `user:totp-registration:${jwtToken.userId}`,
+    });
+  } catch (error) {
+    return false;
+  }
+
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: jwtToken.userId });
 

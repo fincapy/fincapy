@@ -43,6 +43,8 @@ export function SignInForm() {
         setError('Invalid email or password');
       }
       setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 

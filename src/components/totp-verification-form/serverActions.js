@@ -24,15 +24,17 @@ export async function verifyTOTP(token) {
   const rateLimiter = new RateLimiter({ redisAdapter });
 
   // Get IP address from headers
-  const headersList = headers();
+  const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
   // Check IP-based rate limit for TOTP attempts
-  const isIpLimited = await rateLimiter.isRateLimited({
-    key: `totp:ip:${hashIp(ip)}`,
-    limit: 5, // Stricter limit for TOTP attempts
-    windowInSeconds: 60,
-  });
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:totp:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    return false;
+  }
 
   if (isIpLimited) {
     throw new Error('Too many verification attempts. Please try again later.');
@@ -47,7 +49,14 @@ export async function verifyTOTP(token) {
     return false;
   }
 
-  const redisAdapter = new RedisAdapter({ redisClient });
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `user:totp:${jwtToken.userId}`,
+    });
+  } catch (error) {
+    return false;
+  }
+
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: jwtToken.userId });
 

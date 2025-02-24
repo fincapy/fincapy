@@ -38,22 +38,30 @@ async function authenticateEmailPassword({ email, password }) {
   const headersList = headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
-  // Check IP-based rate limit
+  // Get attempt counts
+  const ipAttempts = await rateLimiter.getAttempts(`ip:${hashIp(ip)}`);
+  const emailAttempts = await rateLimiter.getAttempts(`email:${hashEmail(email)}`);
+  
+  // Calculate backoff windows (doubles with each attempt: 1min, 2min, 4min, 8min, etc)
+  const ipWindowSeconds = Math.min(60 * Math.pow(2, ipAttempts), 60 * 60 * 24); // Max 24 hours
+  const emailWindowSeconds = Math.min(60 * Math.pow(2, emailAttempts), 60 * 60 * 24);
+
+  // Check rate limits with exponential backoff
   const isIpLimited = await rateLimiter.isRateLimited({
     key: `ip:${hashIp(ip)}`,
-    limit: 10,
-    windowInSeconds: 60,
+    limit: 5, // Reduced limit
+    windowInSeconds: ipWindowSeconds,
   });
 
-  // Check email-based rate limit
   const isEmailLimited = await rateLimiter.isRateLimited({
     key: `email:${hashEmail(email)}`,
-    limit: 10,
-    windowInSeconds: 60,
+    limit: 5, // Reduced limit 
+    windowInSeconds: emailWindowSeconds,
   });
 
   if (isIpLimited || isEmailLimited) {
-    throw new Error('Too many login attempts. Please try again later.');
+    const waitMinutes = Math.ceil(Math.max(ipWindowSeconds, emailWindowSeconds) / 60);
+    throw new Error(`Too many login attempts. Please try again in ${waitMinutes} minutes.`);
   }
   const userRepository = new UserRepository({ redisAdapter });
   const authenticator = new EmailPasswordAuthenticator({

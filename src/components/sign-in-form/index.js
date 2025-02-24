@@ -36,6 +36,12 @@ export function SignInForm() {
       if (!result) {
         setError('Invalid email or password');
       }
+    } catch (err) {
+      if (err.message.includes('Too many login attempts')) {
+        setError('Too many login attempts. Please try again later.');
+      } else {
+        setError('Invalid email or password');
+      }
       setLoading(false);
     } catch (err) {
       setError('Invalid email or password');

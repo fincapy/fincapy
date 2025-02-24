@@ -1,10 +1,12 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 import {
   EmailPasswordAuthenticator,
   SessionManager,
 } from '@/backend/adapters/auth';
+import { RateLimiter } from '@/utils/rateLimiter';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
@@ -16,6 +18,29 @@ import { redirect } from 'next/navigation';
 
 async function authenticateEmailPassword({ email, password }) {
   const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+  
+  // Get IP address from headers
+  const headersList = headers();
+  const ip = headersList.get('x-forwarded-for') || 'unknown-ip';
+  
+  // Check IP-based rate limit
+  const isIpLimited = await rateLimiter.isRateLimited({
+    key: `ip:${ip}`,
+    limit: 10,
+    windowInSeconds: 60
+  });
+
+  // Check email-based rate limit
+  const isEmailLimited = await rateLimiter.isRateLimited({
+    key: `email:${email}`,
+    limit: 10,
+    windowInSeconds: 60
+  });
+
+  if (isIpLimited || isEmailLimited) {
+    throw new Error('Too many login attempts. Please try again later.');
+  }
   const userRepository = new UserRepository({ redisAdapter });
   const authenticator = new EmailPasswordAuthenticator({
     userRepository,

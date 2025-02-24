@@ -6,7 +6,7 @@ import {
   EmailPasswordAuthenticator,
   SessionManager,
 } from '@/backend/adapters/auth';
-import { RateLimiter } from '@/utils/rateLimiter';
+import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
@@ -16,26 +16,40 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
 
+function hashEmail(email) {
+  return crypto
+    .createHash('sha256')
+    .update(email.trim().toLowerCase())
+    .digest('hex');
+}
+
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(ip.trim().toLowerCase())
+    .digest('hex');
+}
+
 async function authenticateEmailPassword({ email, password }) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
-  
+
   // Get IP address from headers
   const headersList = headers();
-  const ip = headersList.get('x-forwarded-for') || 'unknown-ip';
-  
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+
   // Check IP-based rate limit
   const isIpLimited = await rateLimiter.isRateLimited({
-    key: `ip:${ip}`,
+    key: `ip:${hashIp(ip)}`,
     limit: 10,
-    windowInSeconds: 60
+    windowInSeconds: 60,
   });
 
   // Check email-based rate limit
   const isEmailLimited = await rateLimiter.isRateLimited({
-    key: `email:${email}`,
+    key: `email:${hashEmail(email)}`,
     limit: 10,
-    windowInSeconds: 60
+    windowInSeconds: 60,
   });
 
   if (isIpLimited || isEmailLimited) {

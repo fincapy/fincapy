@@ -38,30 +38,35 @@ async function authenticateEmailPassword({ email, password }) {
   const headersList = headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
-  // Get attempt counts
-  const ipAttempts = await rateLimiter.getAttempts(`ip:${hashIp(ip)}`);
-  const emailAttempts = await rateLimiter.getAttempts(`email:${hashEmail(email)}`);
-  
-  // Calculate backoff windows (doubles with each attempt: 1min, 2min, 4min, 8min, etc)
-  const ipWindowSeconds = Math.min(60 * Math.pow(2, ipAttempts), 60 * 60 * 24); // Max 24 hours
-  const emailWindowSeconds = Math.min(60 * Math.pow(2, emailAttempts), 60 * 60 * 24);
-
-  // Check rate limits with exponential backoff
+  // Check rate limits with initial fixed window, then exponential backoff after threshold
   const isIpLimited = await rateLimiter.isRateLimited({
     key: `ip:${hashIp(ip)}`,
-    limit: 5, // Reduced limit
-    windowInSeconds: ipWindowSeconds,
+    limit: 10,
+    windowInSeconds: 60,
+    backoffThreshold: 10
   });
 
   const isEmailLimited = await rateLimiter.isRateLimited({
     key: `email:${hashEmail(email)}`,
-    limit: 5, // Reduced limit 
-    windowInSeconds: emailWindowSeconds,
+    limit: 10,
+    windowInSeconds: 60,
+    backoffThreshold: 10
   });
 
   if (isIpLimited || isEmailLimited) {
-    const waitMinutes = Math.ceil(Math.max(ipWindowSeconds, emailWindowSeconds) / 60);
-    throw new Error(`Too many login attempts. Please try again in ${waitMinutes} minutes.`);
+    const ipAttempts = await rateLimiter.getAttempts(`ip:${hashIp(ip)}`);
+    const emailAttempts = await rateLimiter.getAttempts(`email:${hashEmail(email)}`);
+    
+    if (Math.max(ipAttempts, emailAttempts) <= 10) {
+      throw new Error('Too many login attempts. Please try again in 1 minute.');
+    } else {
+      const attemptsOverThreshold = Math.max(ipAttempts, emailAttempts) - 10;
+      const backoffMinutes = Math.min(
+        Math.pow(2, Math.floor(attemptsOverThreshold / 10)),
+        1440 // Max 24 hours
+      );
+      throw new Error(`Too many login attempts. Please try again in ${backoffMinutes} minutes.`);
+    }
   }
   const userRepository = new UserRepository({ redisAdapter });
   const authenticator = new EmailPasswordAuthenticator({

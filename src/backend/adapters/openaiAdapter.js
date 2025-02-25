@@ -5,12 +5,44 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 import { transactionTypes } from '../domain/transaction.js';
 
+// Rate limiter for Bedrock API calls
+class RateLimiter {
+  constructor(maxRequestsPerMinute) {
+    this.maxRequestsPerMinute = maxRequestsPerMinute;
+    this.requestTimestamps = [];
+  }
+
+  async waitForPermission() {
+    const now = Date.now();
+    
+    // Remove timestamps older than 1 minute
+    this.requestTimestamps = this.requestTimestamps.filter(
+      timestamp => now - timestamp < 60000
+    );
+    
+    if (this.requestTimestamps.length >= this.maxRequestsPerMinute) {
+      // Calculate how long to wait
+      const oldestTimestamp = this.requestTimestamps[0];
+      const waitTime = 60000 - (now - oldestTimestamp);
+      
+      if (waitTime > 0) {
+        console.log(`Rate limit reached. Waiting ${waitTime}ms before next request.`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
+    
+    // Add current timestamp and allow the request
+    this.requestTimestamps.push(Date.now());
+  }
+}
+
 class OpenaiAdapter {
   constructor() {
     this.client = new OpenAI({
       baseURL: process.env.AI_URL,
       apiKey: 'ignored',
     });
+    this.rateLimiter = new RateLimiter(10); // Limit to 10 requests per minute
   }
 
   async categorizeTransaction({
@@ -125,6 +157,9 @@ class OpenaiAdapter {
       },
     };
 
+    // Wait for rate limiter permission before making the request
+    await this.rateLimiter.waitForPermission();
+    
     const client = new BedrockRuntimeClient({ region: 'us-west-2' });
     const command = new InvokeModelCommand({
       modelId: 'anthropic.claude-3-5-haiku-20241022-v1:0',

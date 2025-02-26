@@ -53,8 +53,16 @@ class OpenaiAdapter {
     transactionAccountType,
     transactionSubAccountType,
   }) {
-    const prompt = `
-      Rules:
+    const createPrompt = (attemptCount) => {
+      let emphasisLevel = '';
+      if (attemptCount > 0) {
+        emphasisLevel = attemptCount >= 3 
+          ? 'CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE. '
+          : 'IMPORTANT: Your response must be valid JSON. ';
+      }
+      
+      return `
+      ${emphasisLevel}Rules:
       - Incoming (negative): refunds, interest, etc
       - Outgoing (positive): purchases, withdrawals, etc
       - Refunds must mirror their original purchase's category
@@ -71,47 +79,99 @@ class OpenaiAdapter {
       - Description: ${transactionOriginalDescription}
       - Acct: ${transactionAccountType}
       - Sub-Acct: ${transactionSubAccountType}
-    `;
-    console.log('prompt', prompt);
-
-    // Format for Bedrock Converse API
-    const requestBody = {
-      modelId: 'us.meta.llama3-3-70b-instruct-v1:0',
-      system: [
-        {
-          text: 'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.',
-        },
-      ],
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-      inferenceConfig: {
-        maxTokens: 1000,
-        temperature: 0,
-        topP: 0.3,
-      },
+      
+      ${attemptCount > 0 ? 'YOU MUST RESPOND WITH VALID JSON ONLY. NO MARKDOWN, NO EXPLANATIONS, JUST THE JSON OBJECT.' : ''}
+      `;
     };
 
-    // Wait for rate limiter permission before making the request
-    await this.rateLimiter.waitForPermission();
+    const createSystemPrompt = (attemptCount) => {
+      let basePrompt = 'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.';
+      
+      if (attemptCount > 0) {
+        basePrompt += ' RESPOND WITH VALID JSON ONLY. NO MARKDOWN DELIMITERS, NO EXPLANATIONS, JUST THE RAW JSON OBJECT.';
+      }
+      
+      if (attemptCount >= 3) {
+        basePrompt += ' THIS IS CRITICAL: YOUR ENTIRE RESPONSE MUST BE PARSEABLE AS JSON.';
+      }
+      
+      return basePrompt;
+    };
 
-    const client = new BedrockRuntimeClient({ region: 'us-west-2' });
-    const command = new ConverseCommand(requestBody);
+    const MAX_RETRIES = 5;
+    let attemptCount = 0;
+    let categories;
 
-    const response = await client.send(command);
-    let rawOutput = response.output.message.content[0].text;
-    rawOutput = rawOutput = rawOutput
-      .replace(/^```json\s*/, '')
-      .replace(/\s*```$/, '');
-    const categories = JSON.parse(rawOutput);
-    console.log('categories', categories);
+    while (attemptCount <= MAX_RETRIES) {
+      const prompt = createPrompt(attemptCount);
+      console.log(`Attempt ${attemptCount + 1} prompt:`, prompt);
+
+      // Format for Bedrock Converse API
+      const requestBody = {
+        modelId: 'us.meta.llama3-3-70b-instruct-v1:0',
+        system: [
+          {
+            text: createSystemPrompt(attemptCount),
+          },
+        ],
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        inferenceConfig: {
+          maxTokens: 1000,
+          temperature: 0,
+          topP: 0.3,
+        },
+      };
+
+      // Wait for rate limiter permission before making the request
+      await this.rateLimiter.waitForPermission();
+
+      try {
+        const client = new BedrockRuntimeClient({ region: 'us-west-2' });
+        const command = new ConverseCommand(requestBody);
+
+        const response = await client.send(command);
+        let rawOutput = response.output.message.content[0].text;
+        
+        // Clean up the output to handle potential markdown or other formatting
+        rawOutput = rawOutput
+          .replace(/^```json\s*/, '')
+          .replace(/\s*```$/, '')
+          .trim();
+          
+        // Try to find JSON in the response if it's not already valid JSON
+        if (!rawOutput.startsWith('{')) {
+          const jsonMatch = rawOutput.match(/({[\s\S]*})/);
+          if (jsonMatch) {
+            rawOutput = jsonMatch[1];
+          }
+        }
+        
+        // Parse the JSON
+        categories = JSON.parse(rawOutput);
+        console.log('categories', categories);
+        
+        // If we got here, parsing succeeded
+        break;
+      } catch (error) {
+        console.error(`Attempt ${attemptCount + 1} failed:`, error.message);
+        
+        if (attemptCount >= MAX_RETRIES) {
+          throw new Error(`Failed to get valid JSON response after ${MAX_RETRIES + 1} attempts`);
+        }
+        
+        // Increment attempt counter and try again
+        attemptCount++;
+      }
+    }
 
     Object.keys(categoryIdToNameMap).forEach((key) => {
       const categoryName = categoryIdToNameMap[key];

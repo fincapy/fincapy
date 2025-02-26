@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(3); // Limit to 10 requests per minute
+    this.rateLimiter = new RateLimiter(80); // Limit to 10 requests per minute
   }
 
   async categorizeTransaction({
@@ -54,12 +54,12 @@ class OpenaiAdapter {
     transactionSubAccountType,
   }) {
     const prompt = `
-      Categorize the transaction using these rules:
-      - **Incoming** (negative): refunds, interest, etc.
-      - **Outgoing** (positive): purchases, withdrawals, etc.
-      - Refunds must mirror their original purchase's category.
-      - Refer to the edited transactions below.
-      - Use these valid values:
+      Rules:
+      - Incoming (negative): refunds, interest, etc
+      - Outgoing (positive): purchases, withdrawals, etc
+      - Refunds must mirror their original purchase's category
+      - Reference edited transactions
+      - Valid values:
         - Categories: ${JSON.stringify(Object.values(categoryIdToNameMap))}
         - Types: ${JSON.stringify(transactionTypes)}
 
@@ -67,8 +67,6 @@ class OpenaiAdapter {
 
       Transaction:
       - Amount: ${transactionAmount}
-      - Category: ${transactionCategory}
-      - Confidence: ${transactionCategoryConfidenceLevel}
       - Merchant: ${transactionMerchantName}
       - Description: ${transactionOriginalDescription}
       - Acct: ${transactionAccountType}
@@ -78,23 +76,27 @@ class OpenaiAdapter {
 
     // Format for Bedrock Converse API
     const requestBody = {
-      modelId: 'anthropic.claude-3-7-sonnet-20250219-v1:0',
-      system: "You are a transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: 'category' and 'type'. Use only the values provided in the valid lists. Do not include any additional text or commentary. Follow the instructions precisely.",
+      modelId: 'us.meta.llama3-3-70b-instruct-v1:0',
+      system: [
+        {
+          text: 'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.',
+        },
+      ],
       messages: [
         {
           role: 'user',
           content: [
             {
-              text: prompt
-            }
-          ]
-        }
+              text: prompt,
+            },
+          ],
+        },
       ],
       inferenceConfig: {
         maxTokens: 1000,
         temperature: 0,
-        topP: 1
-      }
+        topP: 0.3,
+      },
     };
 
     // Wait for rate limiter permission before making the request
@@ -104,8 +106,11 @@ class OpenaiAdapter {
     const command = new ConverseCommand(requestBody);
 
     const response = await client.send(command);
-    console.log('usage', response.usage);
-    const categories = JSON.parse(response.output.message.content[0].text);
+    let rawOutput = response.output.message.content[0].text;
+    rawOutput = rawOutput = rawOutput
+      .replace(/^```json\s*/, '')
+      .replace(/\s*```$/, '');
+    const categories = JSON.parse(rawOutput);
     console.log('categories', categories);
 
     Object.keys(categoryIdToNameMap).forEach((key) => {

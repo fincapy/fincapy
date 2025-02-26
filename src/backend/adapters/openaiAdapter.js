@@ -56,13 +56,14 @@ class OpenaiAdapter {
     const createPrompt = (attemptCount) => {
       let emphasisLevel = '';
       if (attemptCount > 0) {
-        emphasisLevel = attemptCount >= 3 
-          ? 'CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE. '
-          : 'IMPORTANT: Your response must be valid JSON. ';
+        emphasisLevel =
+          attemptCount >= 3
+            ? 'CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE. '
+            : 'IMPORTANT: Your response must be valid JSON. ';
       }
-      
+
       return `
-      ${emphasisLevel}Rules:
+      Rules:
       - Incoming (negative): refunds, interest, etc
       - Outgoing (positive): purchases, withdrawals, etc
       - Refunds must mirror their original purchase's category
@@ -80,21 +81,24 @@ class OpenaiAdapter {
       - Acct: ${transactionAccountType}
       - Sub-Acct: ${transactionSubAccountType}
       
-      ${attemptCount > 0 ? 'YOU MUST RESPOND WITH VALID JSON ONLY. NO MARKDOWN, NO EXPLANATIONS, JUST THE JSON OBJECT.' : ''}
+      ${emphasisLevel}
       `;
     };
 
     const createSystemPrompt = (attemptCount) => {
-      let basePrompt = 'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.';
-      
+      let basePrompt =
+        'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.';
+
       if (attemptCount > 0) {
-        basePrompt += ' RESPOND WITH VALID JSON ONLY. NO MARKDOWN DELIMITERS, NO EXPLANATIONS, JUST THE RAW JSON OBJECT.';
+        basePrompt +=
+          ' RESPOND WITH VALID JSON ONLY. NO MARKDOWN DELIMITERS, NO EXPLANATIONS, JUST THE RAW JSON OBJECT.';
       }
-      
+
       if (attemptCount >= 3) {
-        basePrompt += ' THIS IS CRITICAL: YOUR ENTIRE RESPONSE MUST BE PARSEABLE AS JSON.';
+        basePrompt +=
+          ' THIS IS CRITICAL: YOUR ENTIRE RESPONSE MUST BE PARSEABLE AS JSON.';
       }
-      
+
       return basePrompt;
     };
 
@@ -140,13 +144,13 @@ class OpenaiAdapter {
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;
-        
+
         // Clean up the output to handle potential markdown or other formatting
         rawOutput = rawOutput
           .replace(/^```json\s*/, '')
           .replace(/\s*```$/, '')
           .trim();
-          
+
         // Try to find JSON in the response if it's not already valid JSON
         if (!rawOutput.startsWith('{')) {
           const jsonMatch = rawOutput.match(/({[\s\S]*})/);
@@ -154,20 +158,22 @@ class OpenaiAdapter {
             rawOutput = jsonMatch[1];
           }
         }
-        
+
         // Parse the JSON
         categories = JSON.parse(rawOutput);
         console.log('categories', categories);
-        
+
         // If we got here, parsing succeeded
         break;
       } catch (error) {
         console.error(`Attempt ${attemptCount + 1} failed:`, error.message);
-        
+
         if (attemptCount >= MAX_RETRIES) {
-          throw new Error(`Failed to get valid JSON response after ${MAX_RETRIES + 1} attempts`);
+          throw new Error(
+            `Failed to get valid JSON response after ${MAX_RETRIES + 1} attempts`
+          );
         }
-        
+
         // Increment attempt counter and try again
         attemptCount++;
       }

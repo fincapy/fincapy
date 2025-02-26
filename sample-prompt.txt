@@ -1,0 +1,17 @@
+Rules:
+- Incoming (negative): refunds, interest, etc
+- Outgoing (positive): purchases, withdrawals, etc
+- Refunds must mirror their original purchase's category
+- Reference edited transactions
+- Valid values:  
+  - Categories: ["spending.uncategorized","income.uncategorized","savings.savings","spending.fixed_costs","spending.fixed_costs.rent","spending.fixed_costs.groceries","spending.fixed_costs.car_payment","spending.fixed_costs.insurance","spending.fixed_costs.dog_care","spending.fixed_costs.house_maintenance","spending.guilt_free spending","spending.guilt_free spending.date_night","spending.guilt_free spending.restaurants","spending.guilt_free spending.electronic_gadgets","income.paycheck","income.interest"]  
+  - Types: ["spending","transfer","credit_card_payment","credit_card_refund","debit_card_refund","investment_transfer","interest_income","income"]
+
+Edited: []
+
+Transaction:
+- Amount: -500
+- Merchant: KFC
+- Description: KFC
+- Acct: credit
+- Sub-Acct: credit card

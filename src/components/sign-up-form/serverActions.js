@@ -21,6 +21,13 @@ function hashEmail(email) {
     .digest('hex');
 }
 
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(ip.trim().toLowerCase())
+    .digest('hex');
+}
+
 export async function createAccount(name, email, password, accessCode) {
   try {
     if (
@@ -41,6 +48,7 @@ export async function createAccount(name, email, password, accessCode) {
         key: `email:sign-up:${hashEmail(email)}`,
       });
     } catch (error) {
+      console.log('error', error);
       return false;
     }
     const transactionManager = new TransactionManager();

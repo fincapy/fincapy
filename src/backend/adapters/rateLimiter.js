@@ -10,6 +10,7 @@ export class RateLimiter {
 
   async isRateLimited({ key, limit, windowInSeconds, backoffThreshold = 10 }) {
     const currentCount = await this.redisAdapter.incr(`ratelimit:${key}`);
+    console.log('currentCount', currentCount);
 
     // Set expiry on first hit
     if (currentCount === 1) {
@@ -48,28 +49,34 @@ export class RateLimiter {
     windowInSeconds = 60,
     backoffThreshold = 10,
   }) {
-    const isLimited = await this.isRateLimited({
-      key,
-      limit,
-      windowInSeconds,
-      backoffThreshold,
-    });
+    try {
+      const isLimited = await this.isRateLimited({
+        key,
+        limit,
+        windowInSeconds,
+        backoffThreshold,
+      });
+      console.log('isLimited', isLimited);
 
-    if (isLimited) {
-      const attempts = await this.getAttempts(key);
+      if (isLimited) {
+        const attempts = await this.getAttempts(key);
 
-      if (attempts <= backoffThreshold) {
-        throw new Error(`Too many attempts. Please try again in 1 minute.`);
-      } else {
-        const attemptsOverThreshold = attempts - backoffThreshold;
-        const backoffMinutes = Math.min(
-          Math.pow(2, Math.floor(attemptsOverThreshold / limit)),
-          1440 // Max 24 hours
-        );
-        throw new Error(
-          `Too many attempts. Please try again in ${backoffMinutes} minutes.`
-        );
+        if (attempts <= backoffThreshold) {
+          throw new Error(`Too many attempts. Please try again in 1 minute.`);
+        } else {
+          const attemptsOverThreshold = attempts - backoffThreshold;
+          const backoffMinutes = Math.min(
+            Math.pow(2, Math.floor(attemptsOverThreshold / limit)),
+            1440 // Max 24 hours
+          );
+          throw new Error(
+            `Too many attempts. Please try again in ${backoffMinutes} minutes.`
+          );
+        }
       }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 }

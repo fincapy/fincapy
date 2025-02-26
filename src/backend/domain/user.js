@@ -1,3 +1,5 @@
+import { totp } from 'speakeasy';
+
 class User {
   constructor({
     id,
@@ -9,7 +11,7 @@ class User {
     mfaMethod,
     emailVerified,
     totpSecret,
-    totpVerified,
+    totpEnabled,
   }) {
     this.id = id;
     this.tenantId = tenantId;
@@ -20,7 +22,7 @@ class User {
     this.mfaMethod = mfaMethod;
     this.totpSecret = null;
     this.emailVerified = emailVerified;
-    this.totpVerified = totpVerified;
+    this.totpEnabled = totpEnabled;
     this.totpSecret = totpSecret;
   }
 

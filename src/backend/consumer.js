@@ -117,6 +117,8 @@ class Consumer {
               'TRANSACTION_INGEST_REQUESTED' ||
             envelope.message.payload.eventType === 'PLAID_ITEM_CREATED'
           ) {
+            console.log('Processing pending message:', envelope);
+            console.log('envelope.message.payload', envelope.message.payload);
             await this.ingestService.execute(envelope.message.payload);
             await this.messageRepository.acknowledge({
               messageId: envelope.messageId,
@@ -135,10 +137,12 @@ class Consumer {
           }
         }
 
+        console.log('reading new messages');
         const newMessages = await this.messageRepository.getSome({
           count: 10,
           readPending: false,
         });
+        console.log('New messages:', newMessages);
 
         for (const envelope of newMessages) {
           if (
@@ -199,10 +203,10 @@ process.on('SIGTERM', () => {
   });
   const plaidAdapter = new PlaidAdapter(client);
   const openaiAdapter = new OpenaiAdapter();
-  const tenantRepository = new TenantRepository({ redisAdapter });
+  const transactionManager = new TransactionManager();
   const ingestService = new IngestTransactionUpdatesService({
     plaidAdapter,
-    tenantRepository,
+    transactionManager,
     openaiAdapter,
   });
   const sesAdapter = new SESAdapter();
@@ -213,7 +217,6 @@ process.on('SIGTERM', () => {
     redisAdapter,
     messageRepository,
   });
-  const transactionManager = new TransactionManager();
   const triggerService = new TriggerTransactionIngestForAllTenants({
     transactionManager,
   });

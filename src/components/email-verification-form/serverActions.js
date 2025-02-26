@@ -7,6 +7,14 @@ import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import crypto from 'crypto';
+
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(ip.trim().toLowerCase())
+    .digest('hex');
+}
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -18,6 +26,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       key: `ip:email-verification:${hashIp(ip)}`,
     });
   } catch (error) {
+    console.log('error', error);
     return false;
   }
   let token;

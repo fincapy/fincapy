@@ -25,10 +25,6 @@ services:
       - NODE_ENV=${NODE_ENV}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PLAID_REDIRECT_URI=${PLAID_REDIRECT_URI}
-      - AWS_ENDPOINT_URL_S3=${AWS_ENDPOINT_URL_S3}
-      - AWS_REGION=${AWS_REGION}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - BUCKET_NAME=${BUCKET_NAME}
       - STRIPE_API_KEY=${STRIPE_API_KEY}
       - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
@@ -49,6 +45,7 @@ services:
       - redis
     volumes:
       - .:/app
+      - ~/.aws:/root/.aws:ro
     command: npm run consume
     environment:
       - AUTH0_SECRET=${AUTH0_SECRET}
@@ -65,10 +62,6 @@ services:
       - NODE_ENV=${NODE_ENV}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PLAID_REDIRECT_URI=${PLAID_REDIRECT_URI}
-      - AWS_ENDPOINT_URL_S3=${AWS_ENDPOINT_URL_S3}
-      - AWS_REGION=${AWS_REGION}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - BUCKET_NAME=${BUCKET_NAME}
       - STRIPE_API_KEY=${STRIPE_API_KEY}
       - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
@@ -78,21 +71,7 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - JWT_SECRET=${JWT_SECRET}
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
-      - AI_URL=${AI_URL}
-      - MODEL_NAME=${MODEL_NAME}
   redis:
     image: redis:latest
     ports:
       - '6379:6379'
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    volumes:
-      - ollama_data:/root/.ollama
-    ports:
-      - '11434:11434'
-    restart: unless-stopped
-
-volumes:
-  ollama_data:
-    driver: local

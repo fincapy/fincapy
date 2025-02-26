@@ -37,7 +37,7 @@ class CreatePlaidItemService {
           institutionId,
           topicName: 'plaid-item-created',
         });
-        messageRepository.add({
+        await messageRepository.add({
           message: plaidItemCreatedMessage,
           messageType: 'PLAID_ITEM_CREATED',
         });

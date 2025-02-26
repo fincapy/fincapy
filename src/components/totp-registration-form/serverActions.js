@@ -5,9 +5,17 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import speakeasy from 'speakeasy';
 import { RateLimiter } from '@/backend/adapters/rateLimiter';
+import crypto from 'crypto';
+
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(ip.trim().toLowerCase())
+    .digest('hex');
+}
 
 export async function generateTOTPSecret() {
   const secret = speakeasy.generateSecret({
@@ -31,6 +39,7 @@ export async function verifyAndSaveTOTP(token, secret) {
       key: `ip:totp-registration:${hashIp(ip)}`,
     });
   } catch (error) {
+    console.log('here?');
     return false;
   }
 
@@ -58,6 +67,7 @@ export async function verifyAndSaveTOTP(token, secret) {
       process.env.JWT_SECRET
     );
   } catch (error) {
+    console.log('what about here?');
     return false;
   }
 

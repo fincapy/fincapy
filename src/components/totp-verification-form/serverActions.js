@@ -36,9 +36,6 @@ export async function verifyTOTP(token) {
     return false;
   }
 
-  if (isIpLimited) {
-    throw new Error('Too many verification attempts. Please try again later.');
-  }
   let jwtToken;
   try {
     jwtToken = await jwt.verify(

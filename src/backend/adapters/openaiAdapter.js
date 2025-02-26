@@ -1,7 +1,6 @@
-import OpenAI from 'openai';
 import {
   BedrockRuntimeClient,
-  InvokeModelCommand,
+  ConverseCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import { transactionTypes } from '../domain/transaction.js';
 
@@ -77,46 +76,36 @@ class OpenaiAdapter {
     `;
     console.log('prompt', prompt);
 
-    // Fixed request body format for Bedrock
+    // Format for Bedrock Converse API
     const requestBody = {
-      system:
-        "You are a transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: 'category' and 'type'. Use only the values provided in the valid lists. Do not include any additional text or commentary. Follow the instructions precisely.",
-      anthropic_version: 'bedrock-2023-05-31',
-      max_tokens: 1000,
-      temperature: 0,
+      modelId: 'anthropic.claude-3-7-sonnet-20250219-v1:0',
+      system: "You are a transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: 'category' and 'type'. Use only the values provided in the valid lists. Do not include any additional text or commentary. Follow the instructions precisely.",
       messages: [
         {
           role: 'user',
           content: [
             {
-              type: 'text',
-              text: prompt,
-            },
-          ],
-        },
+              text: prompt
+            }
+          ]
+        }
       ],
-      // tools: claudeTools,
-      // tool_choice: {
-      //   type: 'tool',
-      //   name: 'categorizeTransaction',
-      // },
+      inferenceConfig: {
+        maxTokens: 1000,
+        temperature: 0,
+        topP: 1
+      }
     };
 
     // Wait for rate limiter permission before making the request
     await this.rateLimiter.waitForPermission();
 
     const client = new BedrockRuntimeClient({ region: 'us-west-2' });
-    const command = new InvokeModelCommand({
-      modelId: 'anthropic.claude-3-7-sonnet-20250219-v1:0',
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify(requestBody),
-    });
+    const command = new ConverseCommand(requestBody);
 
     const response = await client.send(command);
-    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-    console.log('usage', responseBody.usage);
-    const categories = JSON.parse(responseBody.content[0].text);
+    console.log('usage', response.usage);
+    const categories = JSON.parse(response.output.message.content[0].text);
     console.log('categories', categories);
 
     Object.keys(categoryIdToNameMap).forEach((key) => {

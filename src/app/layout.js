@@ -1,6 +1,7 @@
 import './globals.css';
 import { headers } from 'next/headers';
 import { ThemeProvider } from 'next-themes';
+import Script from 'next/script';
 
 export const metadata = {
   applicationName: 'Fincapy',
@@ -130,7 +131,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>
       <body className="touch-none overscroll-none">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>
       </body>

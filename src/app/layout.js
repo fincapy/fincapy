@@ -1,7 +1,6 @@
 import './globals.css';
 import { headers } from 'next/headers';
 import { ThemeProvider } from 'next-themes';
-import Script from 'next/script';
 
 export const metadata = {
   applicationName: 'Fincapy',

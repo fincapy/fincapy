@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LockKeyhole, Loader2 } from 'lucide-react';
-import { ThemeProvider } from '../theme-provider';
 import { createContext, useContext } from 'react';
 import { verifyAccessCode } from './serverActions';
 

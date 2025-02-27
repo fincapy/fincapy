@@ -3,7 +3,6 @@
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Separator } from '@/components/ui/separator';
-import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname } from 'next/navigation';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -390,44 +389,36 @@ export default function DashboardLayout({
   const isStandalone = useStandalone();
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange
-      nonce={nonce}
-    >
-      <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
-        <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
-          <PageContext.Provider value={{ page, setPage }}>
-            <main
-              className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+    <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
+      <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
+        <PageContext.Provider value={{ page, setPage }}>
+          <main
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+            onTouchStart={handleScrollAreaFocus}
+            onMouseDown={handleScrollAreaFocus}
+          >
+            <ScrollAreaWithPulldown
+              className={`${isStandalone ? 'h-[90%]' : 'h-[94%]'} w-screen fixed top-0`}
+              ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
-              onMouseDown={handleScrollAreaFocus}
+              triggerRefresh={() => {
+                setTriggerRefresh(!triggerRefresh);
+              }}
+              isRefreshing={isRefreshing}
             >
-              <ScrollAreaWithPulldown
-                className={`${isStandalone ? 'h-[90%]' : 'h-[94%]'} w-screen fixed top-0`}
-                ref={scrollAreaRef}
-                onTouchStart={handleScrollAreaFocus}
-                triggerRefresh={() => {
-                  setTriggerRefresh(!triggerRefresh);
-                }}
-                isRefreshing={isRefreshing}
-              >
-                {children}
-              </ScrollAreaWithPulldown>
-              <NavBar
-                page={page}
-                setPage={setPage}
-                userRole={userRole}
-                accountDropdownOpen={accountDropdownOpen}
-                setAccountDropdownOpen={setAccountDropdownOpen}
-              />
-              {/* <ChatWidget /> */}
-            </main>
-          </PageContext.Provider>
-        </EndDateContext.Provider>
-      </StartDateContext.Provider>
-    </ThemeProvider>
+              {children}
+            </ScrollAreaWithPulldown>
+            <NavBar
+              page={page}
+              setPage={setPage}
+              userRole={userRole}
+              accountDropdownOpen={accountDropdownOpen}
+              setAccountDropdownOpen={setAccountDropdownOpen}
+            />
+            {/* <ChatWidget /> */}
+          </main>
+        </PageContext.Provider>
+      </EndDateContext.Provider>
+    </StartDateContext.Provider>
   );
 }

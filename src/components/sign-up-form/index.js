@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useState, useEffect, useRef } from 'react';
-import { ThemeProvider } from '@/components/theme-provider';
 import { createAccount, verifyEmail } from './serverActions';
 import { InputTOTP } from '../input-totp';
 import { useRouter } from 'next/navigation';

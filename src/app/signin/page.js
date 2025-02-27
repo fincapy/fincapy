@@ -6,6 +6,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { redirect } from 'next/navigation';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Suspense } from 'react';
 
 export default async function SignInPage() {
   const headersList = await headers();
@@ -37,7 +38,9 @@ export default async function SignInPage() {
             </div>
             Fincapy
           </a>
-          <SignInForm />
+          <Suspense fallback={<div className="h-[484px]" />}>
+            <SignInForm />
+          </Suspense>
         </div>
       </div>
     </ThemeProvider>

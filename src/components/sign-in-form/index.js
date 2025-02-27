@@ -51,16 +51,18 @@ export function SignInForm() {
 
   return (
     <div
-      className={cn('flex flex-col items-center justify-center -mt-4 gap-1')}
+      className={cn(
+        'flex flex-col items-center justify-center -mt-4 gap-1 w-[100vw]'
+      )}
     >
       <div className="flex flex-col items-center gap-0 mb-2">
         <h2 className="text-2xl text-center font-semibold tracking-tight">
           Welcome back!
         </h2>
       </div>
-      <div className="flex flex-col gap-6">
-        <Card className="bg-background">
-          <CardContent className="pt-6 w-[384px]">
+      <div className="flex flex-col gap-6 w-full items-center">
+        <Card className="bg-background w-11/12 sm:w-96 flex flex-col items-center">
+          <CardContent className="pt-6 w-full">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-6">
                 <div className="grid gap-4">

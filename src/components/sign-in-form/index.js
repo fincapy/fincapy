@@ -15,12 +15,6 @@ export function SignInForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  
-  // Prevent flash by waiting for client-side hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,11 +50,9 @@ export function SignInForm() {
   };
 
   return (
-    <div className={cn(
-      "flex flex-col items-center justify-center -mt-4 gap-1",
-      !mounted && "opacity-0",
-      mounted && "animate-in fade-in duration-300"
-    )}>
+    <div
+      className={cn('flex flex-col items-center justify-center -mt-4 gap-1')}
+    >
       <div className="flex flex-col items-center gap-0 mb-2">
         <h2 className="text-2xl text-center font-semibold tracking-tight">
           Welcome back!

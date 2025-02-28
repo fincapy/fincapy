@@ -67,6 +67,7 @@ async function authenticateEmailPassword({ email, password }) {
         mfaMethod: user.mfa_method,
         emailVerified: emailVerified,
         tenantId: user.tenantId,
+        type: 'emailPasswordAuthenticated',
       },
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
@@ -141,9 +142,13 @@ async function sendPasswordResetEmail({ email }) {
   }
 
   // Generate a reset token
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign(
+    { userId: user.id, type: 'resetPassword' },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1h',
+    }
+  );
   const resetUrl = `${process.env.SITE_URL}/reset-password?token=${token}`;
 
   // Send email with the reset link

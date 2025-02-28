@@ -25,9 +25,16 @@ export default async function VerifyTOTPPage() {
   if (!emailPasswordAuthenticatedToken) {
     redirect('/signin');
   }
+  let token;
   try {
-    jwt.verify(emailPasswordAuthenticatedToken.value, process.env.JWT_SECRET);
+    token = jwt.verify(
+      emailPasswordAuthenticatedToken.value,
+      process.env.JWT_SECRET
+    );
   } catch (error) {
+    redirect('/signin');
+  }
+  if (token.type !== 'emailPasswordAuthenticated') {
     redirect('/signin');
   }
 

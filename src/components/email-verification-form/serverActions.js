@@ -42,6 +42,9 @@ export async function resendEmailVerificationCode() {
     console.log('Invalid token:', error);
     return false;
   }
+  if (token.type !== 'emailPasswordAuthenticated') {
+    return false;
+  }
 
   if (!token || !token.userId) {
     return false;
@@ -120,7 +123,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   } catch (error) {
     return false;
   }
-  if (!token) {
+  if (token.type !== 'emailPasswordAuthenticated') {
     return false;
   }
   try {
@@ -148,7 +151,11 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   user.emails.find((emailInfo) => emailInfo.primary === true).verified = true;
   await userRepository.set({ userId: token.userId, user });
   const emailPasswordAuthenticatedToken = jwt.sign(
-    { userId: user.id, tenantId: user.tenantId },
+    {
+      userId: user.id,
+      tenantId: user.tenantId,
+      type: 'emailPasswordAuthenticated',
+    },
     process.env.JWT_SECRET,
     { expiresIn: '10m' }
   );

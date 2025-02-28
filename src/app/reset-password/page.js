@@ -10,8 +10,9 @@ import jwt from 'jsonwebtoken';
 export default async function ResetPasswordPage(props) {
   const searchParams = await props.searchParams;
   const { token } = searchParams;
+  let verifiedToken;
   try {
-    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+    verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
     return 'Invalid or expired reset password link';
   }

@@ -10,9 +10,13 @@ import jwt from 'jsonwebtoken';
 export default async function JoinPage(props) {
   const searchParams = await props.searchParams;
   const { token } = searchParams;
+  let verifiedToken;
   try {
-    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+    verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
+    return 'Invalid or expired invitation link';
+  }
+  if (verifiedToken.type !== 'inviteUser') {
     return 'Invalid or expired invitation link';
   }
 

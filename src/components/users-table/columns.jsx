@@ -244,12 +244,17 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogTitle>Remove user</DialogTitle>
         <DialogDescription>
           Are you sure you want to remove this user?
         </DialogDescription>
-        <Button variant="destructive" onClick={handleRemoveUser}>
+        <Button
+          variant="destructive"
+          className="border-none outline-none ring-0"
+          onClick={handleRemoveUser}
+        >
           Remove user
         </Button>
       </DialogContent>

@@ -14,6 +14,9 @@ export async function setInitialPassword(newPassword, token) {
   } catch (error) {
     return false;
   }
+  if (verifiedToken.type !== 'inviteUser') {
+    return false;
+  }
   const userId = verifiedToken.userId;
 
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -35,6 +38,7 @@ export async function setInitialPassword(newPassword, token) {
       mfaMethod: user.mfa_method,
       emailVerified: true,
       tenantId: user.tenantId,
+      type: 'emailPasswordAuthenticated',
     },
     process.env.JWT_SECRET,
     { expiresIn: '10m' }
@@ -65,6 +69,9 @@ export async function resetPassword(newPassword, token) {
   } catch (error) {
     return false;
   }
+  if (verifiedToken.type !== 'resetPassword') {
+    return false;
+  }
   const userId = verifiedToken.userId;
 
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -86,6 +93,7 @@ export async function resetPassword(newPassword, token) {
       mfaMethod: user.mfa_method,
       emailVerified: true,
       tenantId: user.tenantId,
+      type: 'emailPasswordAuthenticated',
     },
     process.env.JWT_SECRET,
     { expiresIn: '10m' }

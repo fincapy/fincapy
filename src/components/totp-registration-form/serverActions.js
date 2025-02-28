@@ -72,6 +72,9 @@ export async function verifyAndSaveTOTP(token, secret) {
     console.log('what about here?');
     return false;
   }
+  if (jwtToken.type !== 'emailPasswordAuthenticated') {
+    return false;
+  }
 
   try {
     await rateLimiter.checkRateLimit({
@@ -89,8 +92,7 @@ export async function verifyAndSaveTOTP(token, secret) {
   }
 
   // Generate backup codes for the user
-  const { codes, hashedCodes } = generateBackupCodes();
-
+  const { codes, hashedCodes } = await generateBackupCodes();
   user.totpSecret = secret;
   user.totpEnabled = true;
   user.backupCodes = hashedCodes; // Store hashed backup codes
@@ -104,7 +106,7 @@ export async function verifyAndSaveTOTP(token, secret) {
     cookies: await cookies(),
   });
   const sessionToken = jwt.sign(
-    { sessionId: session.sessionId },
+    { sessionId: session.sessionId, type: 'session' },
     process.env.JWT_SECRET,
     { expiresIn: '3h' }
   );
@@ -115,7 +117,5 @@ export async function verifyAndSaveTOTP(token, secret) {
     sameSite: 'strict',
     maxAge: 60 * 60 * 3,
   });
-  
-  // Return the plaintext backup codes before redirecting
   return { success: true, backupCodes: codes };
 }

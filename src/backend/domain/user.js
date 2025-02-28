@@ -12,6 +12,7 @@ class User {
     emailVerified,
     totpSecret,
     totpEnabled,
+    backupCodes,
   }) {
     this.id = id;
     this.tenantId = tenantId;
@@ -24,6 +25,7 @@ class User {
     this.emailVerified = emailVerified;
     this.totpEnabled = totpEnabled;
     this.totpSecret = totpSecret;
+    this.backupCodes = backupCodes;
   }
 
   toView() {

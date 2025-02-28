@@ -65,14 +65,14 @@ export async function createAccount(name, email, password, accessCode) {
       password,
       whitelistBilling: true,
     });
-    const partialRegistrationToken = jwt.sign(
-      { userId, tenantId },
+    const emailPasswordAuthenticatedToken = jwt.sign(
+      { userId, tenantId, type: 'emailPasswordAuthenticated' },
       process.env.JWT_SECRET,
       { expiresIn: '10m' }
     );
     (await cookies()).set(
       'emailPasswordAuthenticatedToken',
-      partialRegistrationToken,
+      emailPasswordAuthenticatedToken,
       {
         path: '/',
         httpOnly: true,

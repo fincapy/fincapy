@@ -46,6 +46,9 @@ export async function verifyTOTP(token, isBackupCode = false) {
   } catch (error) {
     return false;
   }
+  if (jwtToken.type !== 'emailPasswordAuthenticated') {
+    return false;
+  }
 
   try {
     await rateLimiter.checkRateLimit({
@@ -63,17 +66,10 @@ export async function verifyTOTP(token, isBackupCode = false) {
   }
 
   let isValid = false;
-  
+
   if (isBackupCode) {
-    // Verify backup code
-    if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
-      return false;
-    }
-    
-    const codeIndex = verifyBackupCode(token, user.backupCodes);
-    
+    const codeIndex = await verifyBackupCode(token, user.backupCodes);
     if (codeIndex >= 0) {
-      // Mark the backup code as used
       user.backupCodes[codeIndex].used = true;
       await userRepository.set({ userId: user.id, user });
       isValid = true;
@@ -100,7 +96,7 @@ export async function verifyTOTP(token, isBackupCode = false) {
     cookies: await cookies(),
   });
   const sessionToken = jwt.sign(
-    { sessionId: session.sessionId },
+    { sessionId: session.sessionId, type: 'session' },
     process.env.JWT_SECRET,
     { expiresIn: '3h' }
   );

@@ -6,9 +6,13 @@ class SendUserInviteEmailService {
   }
 
   async execute({ email, userId, inviterName }) {
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { userId, type: 'inviteUser' },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '24h',
+      }
+    );
     const inviteUrl = `${process.env.SITE_URL}/join?token=${token}`;
     if (process.env.NODE_ENV === 'production') {
       await this.sesAdapter.sendEmail({

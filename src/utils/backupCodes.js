@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 /**
  * Generates a set of backup codes for TOTP recovery
@@ -6,27 +7,19 @@ import crypto from 'crypto';
  * @param {number} length Length of each backup code
  * @returns {Object} Object containing plaintext codes and their hashed versions
  */
-export function generateBackupCodes(count = 10, length = 8) {
+export async function generateBackupCodes(count = 10, length = 16) {
   const codes = [];
   const hashedCodes = [];
-  
+
   for (let i = 0; i < count; i++) {
     // Generate random alphanumeric code
-    const code = crypto.randomBytes(length)
-      .toString('hex')
-      .slice(0, length)
-      .toUpperCase();
-    
-    // Create a salted hash of the code
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto
-      .pbkdf2Sync(code, salt, 10000, 64, 'sha512')
-      .toString('hex');
-    
+    const code = crypto.randomBytes(length).toString('hex').slice(0, length);
+
     codes.push(code);
-    hashedCodes.push({ hash, salt, used: false });
+    const hashedCode = await bcrypt.hash(code, 12);
+    hashedCodes.push({ hashedCode, used: false });
   }
-  
+
   return { codes, hashedCodes };
 }
 
@@ -36,27 +29,20 @@ export function generateBackupCodes(count = 10, length = 8) {
  * @param {Array} hashedCodes Array of hashed codes with their salts
  * @returns {number} Index of the matched code or -1 if no match
  */
-export function verifyBackupCode(code, hashedCodes) {
-  if (!code || !hashedCodes || !Array.isArray(hashedCodes)) {
-    return -1;
-  }
-  
-  const normalizedCode = code.trim().toUpperCase();
-  
+export async function verifyBackupCode(code, hashedCodes) {
+  let matchFoundIndex = -1;
   for (let i = 0; i < hashedCodes.length; i++) {
-    const { hash, salt, used } = hashedCodes[i];
-    
+    const { hashedCode, used } = hashedCodes[i];
+
     // Skip already used codes
     if (used) continue;
-    
-    const hashCheck = crypto
-      .pbkdf2Sync(normalizedCode, salt, 10000, 64, 'sha512')
-      .toString('hex');
-    
-    if (hash === hashCheck) {
-      return i; // Return index of matched code
+
+    const valid = await bcrypt.compare(code, hashedCode);
+    if (valid) {
+      matchFoundIndex = i;
+      break;
     }
   }
-  
-  return -1; // No match found
+
+  return matchFoundIndex;
 }

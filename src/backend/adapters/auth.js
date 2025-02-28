@@ -33,9 +33,13 @@ class SessionManager {
   }
 
   async setCookie({ res, cookies, sessionId }) {
-    const sessionToken = jwt.sign({ sessionId }, process.env.JWT_SECRET, {
-      expiresIn: '3h',
-    });
+    const sessionToken = jwt.sign(
+      { sessionId, type: 'session' },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '3h',
+      }
+    );
     if (cookies) {
       cookies.set('session-id', sessionToken, {
         maxAge: SESSION_TTL,
@@ -73,6 +77,9 @@ class SessionManager {
         process.env.JWT_SECRET
       );
     } catch (error) {
+      return false;
+    }
+    if (providedSessionId.type !== 'session') {
       return false;
     }
 
@@ -135,6 +142,9 @@ class SessionManager {
         process.env.JWT_SECRET
       );
     } catch (error) {
+      return false;
+    }
+    if (providedSessionId.type !== 'session') {
       return false;
     }
 

@@ -3,7 +3,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { InputTOTP } from '../input-totp';
-import { EyeIcon, EyeOffIcon, CopyIcon, CheckIcon, DownloadIcon } from 'lucide-react';
+import {
+  EyeIcon,
+  EyeOffIcon,
+  CopyIcon,
+  CheckIcon,
+  DownloadIcon,
+} from 'lucide-react';
 import { generateTOTPSecret, verifyAndSaveTOTP } from './serverActions';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
@@ -75,19 +81,21 @@ const TOTPRegistrationForm = () => {
 
     setIsSubmitting(true);
     const result = await verifyAndSaveTOTP(otp, secret);
+    console.log('result', result);
     if (!result) {
       setError('Invalid verification code. Please try again.');
       setIsSubmitting(false);
     } else if (result.success && result.backupCodes) {
+      console.log('here?');
       setBackupCodes(result.backupCodes);
       setShowBackupCodes(true);
       setIsSubmitting(false);
     }
   };
-  
+
   const downloadBackupCodes = () => {
     if (!backupCodes) return;
-    
+
     const codesText = backupCodes.join('\n');
     const blob = new Blob([codesText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -154,34 +162,39 @@ const TOTPRegistrationForm = () => {
                   </div>
                 </div>
               </div>
-              <InputTOTP onComplete={handleOTPComplete} disabled={isSubmitting} />
+              <InputTOTP
+                onComplete={handleOTPComplete}
+                disabled={isSubmitting}
+              />
               {error && <p className="text-sm text-destructive">{error}</p>}
             </>
           ) : (
             <>
               <h3 className="text-lg font-semibold mb-2">Backup Codes</h3>
               <p className="text-sm text-center text-muted-foreground mb-4">
-                Save these backup codes in a secure location. Each code can be used once
-                if you lose access to your authenticator app.
+                Save these backup codes in a secure location. Each code can be
+                used once if you lose access to your authenticator app.
               </p>
               <div className="bg-muted rounded p-3 w-full mb-4">
                 <pre className="text-xs font-mono">
                   {backupCodes.map((code) => (
-                    <div key={code} className="mb-1">{code}</div>
+                    <div key={code} className="mb-1">
+                      {code}
+                    </div>
                   ))}
                 </pre>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full mb-2"
                 onClick={downloadBackupCodes}
               >
                 <DownloadIcon className="h-4 w-4 mr-2" />
                 Download Backup Codes
               </Button>
-              <Button 
+              <Button
                 className="w-full"
-                onClick={() => window.location.href = '/app'}
+                onClick={() => (window.location.href = '/app')}
               >
                 Continue to Dashboard
               </Button>

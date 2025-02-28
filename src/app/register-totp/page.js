@@ -10,12 +10,12 @@ import jwt from 'jsonwebtoken';
 export default async function RegisterTOTPPage() {
   const cookiesList = await cookies();
   const redisAdapter = new RedisAdapter({ redisClient });
-  const sessionRepository = new SessionRepository({ redisAdapter });
-  const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.getSession({ cookies: await cookies() });
-  if (session) {
-    redirect('/app');
-  }
+  // const sessionRepository = new SessionRepository({ redisAdapter });
+  // const sessionManager = new SessionManager({ sessionRepository });
+  // const session = await sessionManager.getSession({ cookies: await cookies() });
+  // if (session) {
+  //   redirect('/app');
+  // }
 
   const emailPasswordAuthenticatedToken = cookiesList.get(
     'emailPasswordAuthenticatedToken'
@@ -23,9 +23,16 @@ export default async function RegisterTOTPPage() {
   if (!emailPasswordAuthenticatedToken) {
     redirect('/signin');
   }
+  let token;
   try {
-    jwt.verify(emailPasswordAuthenticatedToken.value, process.env.JWT_SECRET);
+    token = jwt.verify(
+      emailPasswordAuthenticatedToken.value,
+      process.env.JWT_SECRET
+    );
   } catch (error) {
+    redirect('/signin');
+  }
+  if (token.type !== 'emailPasswordAuthenticated') {
     redirect('/signin');
   }
 

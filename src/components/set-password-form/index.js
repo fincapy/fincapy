@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { setInitialPassword, resetPassword } from './serverActions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 
 const SetPasswordForm = ({ token, isReset }) => {
   const [password, setPassword] = useState('');
@@ -13,6 +13,7 @@ const SetPasswordForm = ({ token, isReset }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -40,9 +41,13 @@ const SetPasswordForm = ({ token, isReset }) => {
 
       if (!result) {
         setError('Failed to reset password. Please try again.');
+      } else {
+        setIsSuccess(true);
+        // Wait 2 seconds to show the success message before redirecting
+        setTimeout(() => {
+          router.push('/signin');
+        }, 2000);
       }
-
-      router.push('/signin');
     } catch (err) {
       setError('An error occurred. Please try again.');
     } finally {
@@ -71,7 +76,13 @@ const SetPasswordForm = ({ token, isReset }) => {
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSuccess && (
+            <div className="flex items-center p-3 rounded-md bg-green-50 text-green-700">
+              <CheckCircle className="mr-2 h-4 w-4" />
+              <span>Password {isReset ? 'reset' : 'set'} successfully! Redirecting to sign in...</span>
+            </div>
+          )}
+          <Button type="submit" className="w-full" disabled={isSubmitting || isSuccess}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -115,4 +115,54 @@ async function authenticateEmailPassword({ email, password }) {
   return false;
 }
 
-export { authenticateEmailPassword };
+async function sendPasswordResetEmail({ email }) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+
+  // Get IP address from headers
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:password-reset:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    console.log('error', error);
+    return false;
+  }
+  
+  // Check if user exists
+  const userRepository = new UserRepository({ redisAdapter });
+  const user = await userRepository.getByEmail({ email });
+  
+  // Even if user doesn't exist, pretend we sent something for security
+  if (!user) {
+    return true;
+  }
+  
+  // Generate a reset token
+  const resetToken = crypto.randomUUID();
+  
+  // Store the token in Redis with expiration (1 hour)
+  await redisAdapter.set(`password-reset:${resetToken}`, user.id);
+  await redisAdapter.expire(`password-reset:${resetToken}`, 60 * 60);
+  
+  // Create the reset URL
+  const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+  
+  // Send email with the reset link
+  if (process.env.NODE_ENV === 'production') {
+    const sesAdapter = new SESAdapter();
+    await sesAdapter.sendEmail({
+      to: email,
+      subject: 'Reset your Fincapy password',
+      text: `Click the link below to reset your password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.`,
+    });
+  } else {
+    console.log('Password reset URL:', resetUrl);
+  }
+  
+  return true;
+}
+
+export { authenticateEmailPassword, sendPasswordResetEmail };

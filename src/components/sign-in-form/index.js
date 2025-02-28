@@ -6,9 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { authenticateEmailPassword } from './serverActions';
+import { authenticateEmailPassword, sendPasswordResetEmail } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose
+} from '@/components/ui/dialog';
 import Link from 'next/link';
 
 export function SignInForm() {
@@ -16,6 +25,10 @@ export function SignInForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,12 +95,17 @@ export function SignInForm() {
                   <div className="grid gap-2">
                     <div className="flex items-center">
                       <Label htmlFor="password">Password</Label>
-                      <a
-                        href="#"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setResetEmail(email);
+                          setResetDialogOpen(true);
+                          setResetEmailSent(false);
+                        }}
                         className="ml-auto text-sm underline-offset-4 hover:underline"
                       >
                         Forgot your password?
-                      </a>
+                      </button>
                     </div>
                     <Input
                       id="password"
@@ -123,6 +141,76 @@ export function SignInForm() {
           </CardContent>
         </Card>
       </div>
+      
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              {!resetEmailSent 
+                ? "Enter your email address and we'll send you a link to reset your password."
+                : "Check your email for a password reset link. The link will expire in 1 hour."
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          {!resetEmailSent ? (
+            <form 
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setResetLoading(true);
+                try {
+                  await sendPasswordResetEmail({ email: resetEmail });
+                  setResetEmailSent(true);
+                } catch (error) {
+                  console.error("Failed to send reset email:", error);
+                } finally {
+                  setResetLoading(false);
+                }
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div className="grid gap-2">
+                <Label htmlFor="resetEmail">Email</Label>
+                <Input
+                  id="resetEmail"
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="m@example.com"
+                  className="bg-background"
+                  required
+                />
+              </div>
+              
+              <DialogFooter className="sm:justify-between">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="submit" disabled={resetLoading || !resetEmail}>
+                  {resetLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Reset Link'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            <DialogFooter>
+              <Button 
+                onClick={() => setResetDialogOpen(false)} 
+                className="w-full"
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

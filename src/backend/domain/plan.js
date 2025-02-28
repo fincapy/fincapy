@@ -369,46 +369,16 @@ class Plan {
   }
 
   getFractionOfMonths() {
-    let totalDaysInMonths = 0;
-
-    let current = new Date(
-      this.startDate.getFullYear(),
-      this.startDate.getMonth(),
-      1
-    );
-
-    // More precise condition to include exactly the months we need
-    while (
-      current.getFullYear() < this.endDate.getFullYear() ||
-      (current.getFullYear() === this.endDate.getFullYear() &&
-        current.getMonth() <= this.endDate.getMonth())
-    ) {
-      // Get the number of days in current month (accounts for leap years in February)
-      const totalDaysInMonth = new Date(
-        current.getFullYear(),
-        current.getMonth() + 1,
-        0
-      ).getDate();
-
-      totalDaysInMonths += totalDaysInMonth;
-      current.setMonth(current.getMonth() + 1);
-    }
-
-    const differenceInMilliseconds = this.endDate - this.startDate;
-    const daysBetween =
-      Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24)) + 1;
-
-    const factor = daysBetween / totalDaysInMonths;
-
-    const yearsDifference =
-      this.endDate.getFullYear() - this.startDate.getFullYear();
-    const monthsDifference =
-      this.endDate.getMonth() - this.startDate.getMonth();
+    // Calculate years difference
+    const yearsDifference = this.endDate.getFullYear() - this.startDate.getFullYear();
+    
+    // Calculate months difference
+    const monthsDifference = this.endDate.getMonth() - this.startDate.getMonth();
+    
+    // Total months between dates (inclusive of both start and end months)
     const monthsBetween = yearsDifference * 12 + monthsDifference + 1;
-    console.log('monthsBetween', monthsBetween);
-    console.log('factor', factor);
-
-    return factor * monthsBetween;
+    
+    return monthsBetween;
   }
 }
 

@@ -77,7 +77,7 @@ const SetPasswordForm = ({ token, isReset }) => {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           {isSuccess && (
-            <div className="flex items-center p-3 rounded-md bg-green-50 text-green-700">
+            <div className="flex items-center text-sm text-primary">
               <CheckCircle className="mr-2 h-4 w-4" />
               <span>Password {isReset ? 'reset' : 'set'} successfully! Redirecting to sign in...</span>
             </div>

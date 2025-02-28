@@ -115,11 +115,13 @@ export function SelectDemo({ field }) {
         </SelectTrigger>
       </FormControl>
       <SelectContent>
-        {categoryNames.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
+        <ScrollArea className="max-h-[200px]">
+          {categoryNames.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </ScrollArea>
       </SelectContent>
     </Select>
   );
@@ -284,8 +286,10 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  <ScrollArea className="max-h-[200px]">
+                    <SelectItem value="PENDING">PENDING</SelectItem>
+                    <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  </ScrollArea>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -305,11 +309,13 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {transactionTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
+                  <ScrollArea className="max-h-[200px]">
+                    {transactionTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
               <FormMessage />

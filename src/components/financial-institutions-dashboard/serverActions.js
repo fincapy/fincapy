@@ -14,7 +14,9 @@ const fetchLinkToken = async ({ institutionId }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({ cookies: await cookies() });
+  const session = await sessionManager.touchSession({
+    cookies: await cookies(),
+  });
   if (!session) {
     return false;
   }
@@ -41,11 +43,14 @@ const createPlaidItem = async ({
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
       return false;
     }
     const tenantId = session.tenantId;
+    const userId = session.userId;
     const plaidAdapter = new PlaidAdapter(client);
     const transactionManager = new TransactionManager();
     const service = new CreatePlaidItemService({
@@ -54,6 +59,7 @@ const createPlaidItem = async ({
     });
 
     await service.execute({
+      userId,
       tenantId,
       institutionId,
       institutionName,
@@ -66,11 +72,13 @@ const createPlaidItem = async ({
   return true;
 };
 
-const updatePlaidItem = async ({ institutionId, publicToken }) => {
+const updatePlaidItem = async ({ plaidItemId, publicToken }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({ cookies: await cookies() });
+  const session = await sessionManager.touchSession({
+    cookies: await cookies(),
+  });
   if (!session) {
     return false;
   }
@@ -83,18 +91,20 @@ const updatePlaidItem = async ({ institutionId, publicToken }) => {
   });
   await service.execute({
     tenantId,
-    institutionId,
+    plaidItemId,
     publicToken,
   });
   return true;
 };
 
-const deletePlaidItem = async ({ institutionId }) => {
+const deletePlaidItem = async ({ plaidItemId }) => {
   try {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
       return false;
     }
@@ -105,7 +115,7 @@ const deletePlaidItem = async ({ institutionId }) => {
       transactionManager,
       plaidAdapter,
     });
-    await service.execute({ tenantId, institutionId });
+    await service.execute({ tenantId, plaidItemId });
   } catch (error) {
     console.error(error);
     return false;

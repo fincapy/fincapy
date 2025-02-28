@@ -101,11 +101,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { transactionTypes } from '@/backend/domain/transaction';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
+  console.log('categoryNames', categoryNames);
 
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -115,13 +115,11 @@ export function SelectDemo({ field }) {
         </SelectTrigger>
       </FormControl>
       <SelectContent>
-        <ScrollArea className="max-h-[200px]">
-          {categoryNames.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
-              {category.name}
-            </SelectItem>
-          ))}
-        </ScrollArea>
+        {categoryNames.map((category) => (
+          <SelectItem key={category.id} value={category.id}>
+            {category.name}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
@@ -286,10 +284,8 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <ScrollArea className="max-h-[200px]">
-                    <SelectItem value="PENDING">PENDING</SelectItem>
-                    <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                  </ScrollArea>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -309,13 +305,11 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <ScrollArea className="max-h-[200px]">
-                    {transactionTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
+                  {transactionTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

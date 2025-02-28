@@ -38,18 +38,20 @@ import { plaidItemsAtom, isLoadingAtom } from '../state/atoms';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usersAtom, plaidItemDisplayNamesAtom } from '../state/atoms';
 
-const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
+const DeletePlaidItemDialogue = ({
+  institutionId,
+  institutionName,
+  plaidItemId,
+}) => {
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
   const { toast } = useToast();
-  const handleServerDeletePlaidItem = ({
-    institutionId,
-    oldPlaidItemsState,
-  }) => {
+  const handleServerDeletePlaidItem = ({ oldPlaidItemsState }) => {
     setTimeout(async () => {
       try {
         const result = await deletePlaidItem({
-          institutionId,
+          plaidItemId,
         });
         if (!result) {
           setPlaidItemsState(oldPlaidItemsState);
@@ -83,7 +85,7 @@ const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
   const onClick = async () => {
     const oldPlaidItemsState = [...plaidItemsState];
     const newPlaidItemsState = plaidItemsState.filter(
-      (plaidItem) => plaidItem.institutionId !== institutionId
+      (plaidItem) => plaidItem.plaidItemId !== plaidItemId
     );
     setPlaidItemsState(newPlaidItemsState);
     handleServerDeletePlaidItem({
@@ -115,7 +117,7 @@ const DeletePlaidItemDialogue = ({ institutionId, institutionName }) => {
   );
 };
 
-const ExistingFinancialInstitutionCard = ({ link }) => {
+const ExistingFinancialInstitutionCard = ({ link, name }) => {
   const [isLinking, setIsLinking] = useState(false);
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
   const { toast } = useToast();
@@ -128,6 +130,7 @@ const ExistingFinancialInstitutionCard = ({ link }) => {
       try {
         const result = await updatePlaidItem({
           publicToken,
+          plaidItemId: link.plaidItemId,
           institutionId: metadata.institution.institution_id,
         });
         if (!result) {
@@ -199,10 +202,12 @@ const ExistingFinancialInstitutionCard = ({ link }) => {
     }
   };
 
+  console.log('link', link);
+
   return (
     <Card className="w-11/12 min-h-40 flex items-center justify-center relative">
       <CardHeader className="flex flex-row items-center justify-center gap-2">
-        <CardTitle>{link.institutionName}</CardTitle>
+        <CardTitle>{name}</CardTitle>
         {link.status === 'active' ? (
           <CircleCheck color="green" style={{ marginTop: '0px' }} />
         ) : (
@@ -226,6 +231,7 @@ const ExistingFinancialInstitutionCard = ({ link }) => {
           <DeletePlaidItemDialogue
             institutionId={link.institutionId}
             institutionName={link.institutionName}
+            plaidItemId={link.plaidItemId}
           />
         </div>
         <Button
@@ -345,6 +351,10 @@ const NewFinancialInstitutionCard = () => {
 
 export default function FinancialInstitutionsDashboard() {
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
+  const [plaidItemDisplayNames, setPlaidItemDisplayNames] = useAtom(
+    plaidItemDisplayNamesAtom
+  );
+  console.log('plaidItemDisplayNames', plaidItemDisplayNames);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
     if (plaidItemsState) {
@@ -378,6 +388,7 @@ export default function FinancialInstitutionsDashboard() {
             <ExistingFinancialInstitutionCard
               key={plaidItem.institutionId}
               link={plaidItem}
+              name={plaidItemDisplayNames[plaidItem.itemId]}
             />
           ))}
           <NewFinancialInstitutionCard key="new-financial-institution-card" />

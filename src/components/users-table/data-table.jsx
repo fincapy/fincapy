@@ -36,7 +36,7 @@ export function DataTable({ columns, data }) {
     state: {
       sorting: sortingState,
       columnVisibility: {
-        userId: false,
+        id: false,
       },
     },
   });

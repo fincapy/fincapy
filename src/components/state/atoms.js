@@ -27,6 +27,7 @@ export const categoryNamesAtom = atom((get) => {
   };
 
   const plan = get(planAtom);
+  console.log('plan', plan);
   if (!plan) {
     return [];
   }
@@ -53,6 +54,22 @@ export const categoryNamesAtom = atom((get) => {
 
 export const plaidItemsAtom = atom([]);
 
-export const usersAtom = atom(null);
+export const usersAtom = atom([]);
 
 export const isLoadingAtom = atom(true);
+
+export const plaidItemDisplayNamesAtom = atom((get) => {
+  const plaidItems = get(plaidItemsAtom);
+  const users = get(usersAtom);
+  const plaidItemIdToName = {};
+  plaidItems.forEach((plaidItem) => {
+    const user = users.find((user) => user.userId === plaidItem.userId);
+    if (user) {
+      plaidItemIdToName[plaidItem.plaidItemId] =
+        plaidItem.institutionName + ' - ' + user.name;
+    } else {
+      plaidItemIdToName[plaidItem.plaidItemId] = plaidItem.institutionName;
+    }
+  });
+  return plaidItemIdToName;
+});

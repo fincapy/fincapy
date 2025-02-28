@@ -79,7 +79,7 @@ const AccountDropdown = ({
       <DropdownMenuTrigger asChild>
         <button className="flex flex-col items-center gap-[0px] group outline-none">
           <UserRound
-            size={18}
+            size={20}
             className={
               accountDropdownOpen ||
               page === 'manage-users' ||
@@ -93,8 +93,8 @@ const AccountDropdown = ({
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-[11px] font-bold text-foreground'
-                : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
+                ? 'text-[11.5px] font-bold text-foreground'
+                : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
             }
           >
             Account
@@ -183,7 +183,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <HandCoins
-              size={18}
+              size={20}
               className={
                 page === 'spending'
                   ? ''
@@ -193,8 +193,8 @@ const NavBar = ({
             <span
               className={
                 page === 'spending'
-                  ? 'text-[11px] font-bold'
-                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Spending
@@ -205,7 +205,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <CircleDollarSign
-              size={18}
+              size={20}
               className={
                 page === 'income'
                   ? ''
@@ -215,8 +215,8 @@ const NavBar = ({
             <span
               className={
                 page === 'income'
-                  ? 'text-[11px] font-bold'
-                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Income
@@ -227,7 +227,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <PiggyBank
-              size={18}
+              size={20}
               className={
                 page === 'savings'
                   ? ''
@@ -237,8 +237,8 @@ const NavBar = ({
             <span
               className={
                 page === 'savings'
-                  ? 'text-[11px] font-bold'
-                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Savings
@@ -249,7 +249,7 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <Table
-              size={18}
+              size={20}
               className={
                 page === 'transactions'
                   ? ''
@@ -259,8 +259,8 @@ const NavBar = ({
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[11px] font-bold'
-                  : 'text-[11px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
               }
             >
               Transactions
@@ -285,8 +285,8 @@ export default function DashboardLayout({
   userRole,
   nonce,
   plan,
-  startDate,
-  endDate,
+  // startDate,
+  // endDate,
   users,
   plaidItems,
   pageParam,
@@ -304,6 +304,15 @@ export default function DashboardLayout({
       });
     }),
   });
+  // get starting date of current month
+  const startDate = new Date();
+  startDate.setDate(1);
+  // get ending date of current month
+  const endDate = new Date();
+  endDate.setMonth(endDate.getMonth() + 1);
+  endDate.setDate(0);
+  newPlan.startDate = startDate;
+  newPlan.endDate = endDate;
 
   const setPlanState = useSetAtom(planAtom);
   const setPlaidItemsState = useSetAtom(plaidItemsAtom);
@@ -317,7 +326,6 @@ export default function DashboardLayout({
   const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
-  const { toast } = useToast();
   const previousDates = useRef({
     startDate: startDateState,
     endDate: endDateState,

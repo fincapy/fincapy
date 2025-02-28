@@ -53,26 +53,15 @@ export default async function Layout({ children }) {
     planId = 'initial';
   }
 
-  const currentDate = new Date();
   if (startDate) {
     startDate = parse(startDate, 'yyyy-MM-dd', new Date());
-  } else {
-    startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   }
 
   if (endDate) {
     endDate = parse(endDate, 'yyyy-MM-dd', new Date());
-  } else {
-    endDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    );
   }
 
   const plan = tenant.plans.find((plan) => plan.planId === planId);
-  plan.startDate = startDate;
-  plan.endDate = endDate;
   const planView = plan.toView();
   let users = [];
   if (user.role === 'owner') {
@@ -83,6 +72,8 @@ export default async function Layout({ children }) {
       institutionId: plaidItem.institutionId,
       institutionName: plaidItem.institutionName,
       status: plaidItem.status,
+      userId: plaidItem.userId,
+      plaidItemId: plaidItem.plaidItemId,
     };
   });
 

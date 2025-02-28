@@ -34,7 +34,7 @@ class PlaidAdapter {
       user: {
         client_user_id: tenantId,
       },
-      client_name: 'SpendMore',
+      client_name: 'Fincapy',
       products: ['transactions'],
       country_codes: ['US'],
       language: 'en',
@@ -52,7 +52,10 @@ class PlaidAdapter {
       public_token: publicToken,
     };
     const response = await this.client.itemPublicTokenExchange(payload);
-    return response.data.access_token;
+    return {
+      accessToken: response.data.access_token,
+      itemId: response.data.item_id,
+    };
   }
 
   async deleteItem({ accessToken }) {

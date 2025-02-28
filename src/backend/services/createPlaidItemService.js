@@ -7,23 +7,31 @@ class CreatePlaidItemService {
     this.plaidAdapter = plaidAdapter;
   }
 
-  async execute({ tenantId, institutionId, institutionName, publicToken }) {
+  async execute({
+    userId,
+    tenantId,
+    institutionId,
+    institutionName,
+    publicToken,
+  }) {
     await this.transactionManager.transaction(
       async ({ tenantRepository, messageRepository }) => {
-        const accessToken = await this.plaidAdapter.exchangePublicToken({
-          publicToken,
-        });
         const tenant = await tenantRepository.get({ tenantId });
-        if (tenant === null) {
-          return;
-        }
         const existingPlaidItem = tenant.plaidItems.find(
-          (plaidItem) => plaidItem.institutionId === institutionId
+          (plaidItem) =>
+            plaidItem.institutionId == institutionId &&
+            plaidItem.userId == userId
         );
         if (existingPlaidItem) {
           throw new Error('Plaid item already exists');
         }
+        const { accessToken, itemId } =
+          await this.plaidAdapter.exchangePublicToken({
+            publicToken,
+          });
         const plaidItem = new PlaidItem({
+          userId: userId,
+          plaidItemId: itemId,
           institutionId,
           institutionName,
           accessToken,

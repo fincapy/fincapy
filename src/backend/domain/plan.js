@@ -272,24 +272,7 @@ class Plan {
   toView() {
     const planView = { ...this };
     planView.categories = planView.categories.map((category) => {
-      category.transactions = category.transactions.filter((transaction) => {
-        return (
-          parse(transaction.date, 'yyyy-MM-dd', new Date()) >=
-            planView.startDate &&
-          parse(transaction.date, 'yyyy-MM-dd', new Date()) <= planView.endDate
-        );
-      });
       category.subcategories = category.subcategories.map((subcategory) => {
-        subcategory.transactions = subcategory.transactions.filter(
-          (transaction) => {
-            return (
-              parse(transaction.date, 'yyyy-MM-dd', new Date()) >=
-                planView.startDate &&
-              parse(transaction.date, 'yyyy-MM-dd', new Date()) <=
-                planView.endDate
-            );
-          }
-        );
         return { ...subcategory };
       });
       return { ...category };
@@ -369,15 +352,19 @@ class Plan {
   }
 
   getFractionOfMonths() {
+    console.log('startDate', this.startDate);
+    console.log('endDate', this.endDate);
     // Calculate years difference
-    const yearsDifference = this.endDate.getFullYear() - this.startDate.getFullYear();
-    
+    const yearsDifference =
+      this.endDate.getFullYear() - this.startDate.getFullYear();
+
     // Calculate months difference
-    const monthsDifference = this.endDate.getMonth() - this.startDate.getMonth();
-    
+    const monthsDifference =
+      this.endDate.getMonth() - this.startDate.getMonth();
+
     // Total months between dates (inclusive of both start and end months)
     const monthsBetween = yearsDifference * 12 + monthsDifference + 1;
-    
+
     return monthsBetween;
   }
 }

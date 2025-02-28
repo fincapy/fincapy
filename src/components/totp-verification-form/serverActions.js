@@ -11,6 +11,7 @@ import { headers } from 'next/headers';
 import speakeasy from 'speakeasy';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
+import { verifyBackupCode } from '@/utils/backupCodes';
 
 function hashIp(ip) {
   return crypto
@@ -19,7 +20,7 @@ function hashIp(ip) {
     .digest('hex');
 }
 
-export async function verifyTOTP(token) {
+export async function verifyTOTP(token, isBackupCode = false) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
 
@@ -57,16 +58,35 @@ export async function verifyTOTP(token) {
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: jwtToken.userId });
 
-  if (!user || !user.totpSecret) {
+  if (!user || (!user.totpSecret && !isBackupCode)) {
     return false;
   }
 
-  const isValid = speakeasy.totp.verify({
-    secret: user.totpSecret,
-    encoding: 'base32',
-    token: token,
-    window: 1,
-  });
+  let isValid = false;
+  
+  if (isBackupCode) {
+    // Verify backup code
+    if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
+      return false;
+    }
+    
+    const codeIndex = verifyBackupCode(token, user.backupCodes);
+    
+    if (codeIndex >= 0) {
+      // Mark the backup code as used
+      user.backupCodes[codeIndex].used = true;
+      await userRepository.set({ userId: user.id, user });
+      isValid = true;
+    }
+  } else {
+    // Verify TOTP code
+    isValid = speakeasy.totp.verify({
+      secret: user.totpSecret,
+      encoding: 'base32',
+      token: token,
+      window: 1,
+    });
+  }
 
   if (!isValid) {
     return false;

@@ -10,6 +10,7 @@ import speakeasy from 'speakeasy';
 import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
+import { generateBackupCodes } from '@/utils/backupCodes';
 
 function hashIp(ip) {
   return crypto
@@ -87,8 +88,13 @@ export async function verifyAndSaveTOTP(token, secret) {
     return false;
   }
 
+  // Generate backup codes for the user
+  const { codes, hashedCodes } = generateBackupCodes();
+
   user.totpSecret = secret;
   user.totpEnabled = true;
+  user.backupCodes = hashedCodes; // Store hashed backup codes
+
   await userRepository.set({ userId: user.id, user });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
@@ -109,5 +115,7 @@ export async function verifyAndSaveTOTP(token, secret) {
     sameSite: 'strict',
     maxAge: 60 * 60 * 3,
   });
-  redirect('/app');
+  
+  // Return the plaintext backup codes before redirecting
+  return { success: true, backupCodes: codes };
 }

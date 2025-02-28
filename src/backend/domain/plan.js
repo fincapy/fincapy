@@ -352,20 +352,54 @@ class Plan {
   }
 
   getFractionOfMonths() {
-    console.log('startDate', this.startDate);
-    console.log('endDate', this.endDate);
-    // Calculate years difference
-    const yearsDifference =
-      this.endDate.getFullYear() - this.startDate.getFullYear();
-
-    // Calculate months difference
-    const monthsDifference =
-      this.endDate.getMonth() - this.startDate.getMonth();
-
-    // Total months between dates (inclusive of both start and end months)
-    const monthsBetween = yearsDifference * 12 + monthsDifference + 1;
-
-    return monthsBetween;
+    let totalFraction = 0;
+    
+    // Clone the start date to avoid modifying the original
+    let currentDate = new Date(this.startDate.getTime());
+    
+    // Set to first day of month to help with calculations
+    const firstDayCurrentMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    
+    // Process each month in the range
+    while (
+      currentDate.getFullYear() < this.endDate.getFullYear() ||
+      (currentDate.getFullYear() === this.endDate.getFullYear() &&
+        currentDate.getMonth() <= this.endDate.getMonth())
+    ) {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      // Days in current month
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      // Calculate start day for counting
+      let startDay = 1;
+      if (year === this.startDate.getFullYear() && month === this.startDate.getMonth()) {
+        startDay = this.startDate.getDate();
+      }
+      
+      // Calculate end day for counting
+      let endDay = daysInMonth;
+      if (year === this.endDate.getFullYear() && month === this.endDate.getMonth()) {
+        endDay = this.endDate.getDate();
+      }
+      
+      // Calculate fraction of this month
+      const daysIncluded = endDay - startDay + 1;
+      const monthFraction = daysIncluded / daysInMonth;
+      
+      totalFraction += monthFraction;
+      
+      // Move to first day of next month
+      currentDate.setMonth(month + 1);
+      currentDate.setDate(1);
+    }
+    
+    return totalFraction;
   }
 }
 

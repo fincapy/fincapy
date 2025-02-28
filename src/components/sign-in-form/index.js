@@ -47,23 +47,13 @@ export function SignInForm() {
       return;
     }
 
-    try {
-      setLoading(true);
-      sessionStorage.setItem('emailPasswordCountdown', Date.now().toString());
-      const result = await authenticateEmailPassword({ email, password });
-      if (!result) {
-        setError('Invalid email or password');
-      }
-    } catch (err) {
-      if (err.message.includes('Too many login attempts')) {
-        setError('Too many login attempts. Please try again later.');
-      } else {
-        setError('Invalid email or password');
-      }
-      setLoading(false);
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    sessionStorage.setItem('emailPasswordCountdown', Date.now().toString());
+    const result = await authenticateEmailPassword({ email, password });
+    if (!result) {
+      setError('Invalid email or password');
     }
+    setLoading(false);
   };
 
   return (

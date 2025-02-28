@@ -28,30 +28,23 @@ const SetPasswordForm = ({ token, isReset }) => {
       setError('Password must be at least 8 characters long');
       return;
     }
-
-    try {
-      setError('');
-      setIsSubmitting(true);
-      let result;
-      if (isReset) {
-        result = await resetPassword(password, token);
-      } else {
-        result = await setInitialPassword(password, token);
-      }
-
-      if (!result) {
-        setError('Failed to reset password. Please try again.');
-      } else {
-        setIsSuccess(true);
-        // Wait 2 seconds to show the success message before redirecting
-        setTimeout(() => {
-          router.push('/signin');
-        }, 1500);
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    setError('');
+    setIsSubmitting(true);
+    let result;
+    if (isReset) {
+      result = await resetPassword(password, token);
+    } else {
+      result = await setInitialPassword(password, token);
+    }
+    setIsSubmitting(false);
+    if (!result) {
+      setError('Failed to reset password. Please try again.');
+    } else {
+      setIsSuccess(true);
+      // Wait 2 seconds to show the success message before redirecting
+      setTimeout(() => {
+        router.push('/signin');
+      }, 1500);
     }
   };
 

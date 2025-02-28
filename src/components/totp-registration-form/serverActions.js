@@ -9,6 +9,7 @@ import { cookies, headers } from 'next/headers';
 import speakeasy from 'speakeasy';
 import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import crypto from 'crypto';
+import { redirect } from 'next/navigation';
 
 function hashIp(ip) {
   return crypto
@@ -108,5 +109,5 @@ export async function verifyAndSaveTOTP(token, secret) {
     sameSite: 'strict',
     maxAge: 60 * 60 * 3,
   });
-  return true;
+  redirect('/app');
 }

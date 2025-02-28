@@ -22,7 +22,7 @@ export async function resendEmailVerificationCode() {
   const rateLimiter = new RateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-  
+
   try {
     await rateLimiter.checkRateLimit({
       key: `ip:email-verification-resend:${hashIp(ip)}`,
@@ -31,7 +31,7 @@ export async function resendEmailVerificationCode() {
     console.log('Rate limit exceeded for resend:', error);
     return false;
   }
-  
+
   let token;
   try {
     token = await jwt.verify(
@@ -42,11 +42,11 @@ export async function resendEmailVerificationCode() {
     console.log('Invalid token:', error);
     return false;
   }
-  
+
   if (!token || !token.userId) {
     return false;
   }
-  
+
   try {
     await rateLimiter.checkRateLimit({
       key: `user:email-verification-resend:${token.userId}`,
@@ -55,32 +55,34 @@ export async function resendEmailVerificationCode() {
     console.log('User rate limit exceeded for resend:', error);
     return false;
   }
-  
+
   // Generate a new verification code
   const emailVerificationCode = crypto.randomInt(100000, 999999);
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
     redisAdapter,
   });
-  
+
   // Save the new code
   await emailVerificationCodeRepository.set({
     emailVerificationCode,
     userId: token.userId,
     ttl: 60 * 10, // 10 minutes
   });
-  
+
   // Get the user to find their email
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: token.userId });
   if (!user) {
     return false;
   }
-  
-  const primaryEmail = user.emails.find(email => email.primary === true)?.email;
+
+  const primaryEmail = user.emails.find(
+    (email) => email.primary === true
+  )?.email;
   if (!primaryEmail) {
     return false;
   }
-  
+
   // Send the email with the new code
   if (process.env.NODE_ENV === 'production') {
     const sesAdapter = new SESAdapter();
@@ -92,7 +94,7 @@ export async function resendEmailVerificationCode() {
   } else {
     console.log('Resent emailVerificationCode', emailVerificationCode);
   }
-  
+
   return true;
 }
 

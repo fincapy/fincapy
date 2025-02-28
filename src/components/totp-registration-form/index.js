@@ -71,20 +71,12 @@ const TOTPRegistrationForm = () => {
   const handleOTPComplete = async (otp) => {
     if (!secret) return;
 
-    try {
-      setIsSubmitting(true);
-      const result = await verifyAndSaveTOTP(otp, secret);
-
-      if (result) {
-        router.push('/app');
-      } else {
-        setError('Invalid verification code. Please try again.');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    setIsSubmitting(true);
+    const result = await verifyAndSaveTOTP(otp, secret);
+    if (!result) {
+      setError('Invalid verification code. Please try again.');
     }
+    setIsSubmitting(false);
   };
 
   return (

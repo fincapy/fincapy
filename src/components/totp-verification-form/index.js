@@ -51,21 +51,12 @@ const TOTPVerificationForm = () => {
   }, [router, timeLeft]);
 
   const handleOTPComplete = async (otp) => {
-    try {
-      setIsSubmitting(true);
-      const result = await verifyTOTP(otp);
-      if (!result) {
-        setError('Invalid verification code. Please try again.');
-      }
-    } catch (err) {
-      if (err.message.includes('Too many verification attempts')) {
-        setError('Too many verification attempts. Please try again later.');
-      } else {
-        setError('An error occurred. Please try again.');
-      }
-    } finally {
-      setIsSubmitting(false);
+    setIsSubmitting(true);
+    const result = await verifyTOTP(otp);
+    if (!result) {
+      setError('Invalid verification code. Please try again.');
     }
+    setIsSubmitting(false);
   };
 
   if (!mounted)

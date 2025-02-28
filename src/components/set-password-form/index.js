@@ -4,23 +4,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { setInitialPassword } from './serverActions';
+import { setInitialPassword, resetPassword } from './serverActions';
+import { Loader2 } from 'lucide-react';
 
-const SetPasswordForm = ({ token }) => {
-  const [mounted, setMounted] = useState(false);
+const SetPasswordForm = ({ token, isReset }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <div className="w-[384px] h-[300px] bg-card rounded-xl" />;
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,16 +31,20 @@ const SetPasswordForm = ({ token }) => {
     try {
       setError('');
       setIsSubmitting(true);
-      const result = await setInitialPassword(password, token);
-
-      if (result) {
-        router.push('/signin');
+      let result;
+      if (isReset) {
+        result = await resetPassword(password, token);
       } else {
+        result = await setInitialPassword(password, token);
+      }
+
+      if (!result) {
         setError('Failed to reset password. Please try again.');
       }
+
+      router.push('/signin');
     } catch (err) {
       setError('An error occurred. Please try again.');
-      console.error('Password reset error:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +72,13 @@ const SetPasswordForm = ({ token }) => {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            Reset Password
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              <>{isReset ? 'Reset Password' : 'Set Password'}</>
+            )}
           </Button>
         </form>
       </CardContent>

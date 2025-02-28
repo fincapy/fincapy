@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { InputTOTP } from '../input-totp';
-import { verifyEmail } from './serverActions';
+import { verifyEmail, resendEmailVerificationCode } from './serverActions';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '../ui/skeleton';
@@ -93,13 +93,26 @@ const EmailVerificationForm = () => {
             <Button
               variant="link"
               className="text-xs text-muted-foreground hover:text-primary"
-              onClick={() => {
-                sessionStorage.setItem(
-                  'totpMfaTimestamp',
-                  Date.now().toString()
-                );
-                setTimeLeft(600);
-                setError('');
+              onClick={async () => {
+                try {
+                  setIsSubmitting(true);
+                  setError('');
+                  const result = await resendEmailVerificationCode();
+                  if (result) {
+                    sessionStorage.setItem(
+                      'emailPasswordCountdown',
+                      Date.now().toString()
+                    );
+                    setTimeLeft(600);
+                  } else {
+                    setError('Failed to resend verification code. Please try again later.');
+                  }
+                } catch (err) {
+                  console.error('Error resending code:', err);
+                  setError('An error occurred. Please try again.');
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}
               disabled={isSubmitting}
             >

@@ -6,17 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { authenticateEmailPassword, sendPasswordResetEmail } from './serverActions';
+import {
+  authenticateEmailPassword,
+  sendPasswordResetEmail,
+} from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, X } from 'lucide-react';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose
+  DialogClose,
 } from '@/components/ui/dialog';
 import Link from 'next/link';
 
@@ -141,21 +144,20 @@ export function SignInForm() {
           </CardContent>
         </Card>
       </div>
-      
+
       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Reset Password</DialogTitle>
             <DialogDescription>
-              {!resetEmailSent 
-                ? "Enter your email address and we'll send you a link to reset your password."
-                : "Check your email for a password reset link. The link will expire in 1 hour."
-              }
+              {!resetEmailSent
+                ? "Enter your email address and we'll send you a link to reset your password if you have an account."
+                : 'Check your email for a password reset link. The link will expire in 1 hour.'}
             </DialogDescription>
           </DialogHeader>
-          
+
           {!resetEmailSent ? (
-            <form 
+            <form
               onSubmit={async (e) => {
                 e.preventDefault();
                 setResetLoading(true);
@@ -163,7 +165,7 @@ export function SignInForm() {
                   await sendPasswordResetEmail({ email: resetEmail });
                   setResetEmailSent(true);
                 } catch (error) {
-                  console.error("Failed to send reset email:", error);
+                  console.error('Failed to send reset email:', error);
                 } finally {
                   setResetLoading(false);
                 }
@@ -182,10 +184,12 @@ export function SignInForm() {
                   required
                 />
               </div>
-              
+
               <DialogFooter className="sm:justify-between">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button type="submit" disabled={resetLoading || !resetEmail}>
                   {resetLoading ? (
@@ -201,8 +205,8 @@ export function SignInForm() {
             </form>
           ) : (
             <DialogFooter>
-              <Button 
-                onClick={() => setResetDialogOpen(false)} 
+              <Button
+                onClick={() => setResetDialogOpen(false)}
                 className="w-full"
               >
                 Close

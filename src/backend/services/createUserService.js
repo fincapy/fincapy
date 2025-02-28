@@ -1,5 +1,7 @@
 import { User } from '../domain/user';
 import { UserCreatedMessage } from '../adapters/messages';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 function generateSecurePassword(length = 16) {
   return crypto

@@ -24,7 +24,9 @@ export const GET = async (req, res) => {
       status: 401,
     });
   }
+  console.log('session', session);
   const tenantId = session.tenantId;
+  console.log('tenantId', tenantId);
   const tenantRepository = new TenantRepository({ redisAdapter });
   const tenant = await tenantRepository.get({ tenantId });
   const plan = tenant.plans.find((plan) => plan.planId === planId);

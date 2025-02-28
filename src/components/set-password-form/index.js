@@ -46,7 +46,7 @@ const SetPasswordForm = ({ token, isReset }) => {
         // Wait 2 seconds to show the success message before redirecting
         setTimeout(() => {
           router.push('/signin');
-        }, 2000);
+        }, 1500);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -79,10 +79,17 @@ const SetPasswordForm = ({ token, isReset }) => {
           {isSuccess && (
             <div className="flex items-center text-sm text-primary">
               <CheckCircle className="mr-2 h-4 w-4" />
-              <span>Password {isReset ? 'reset' : 'set'} successfully! Redirecting to sign in...</span>
+              <span>
+                Password {isReset ? 'reset' : 'set'} successfully! Redirecting
+                to sign in...
+              </span>
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={isSubmitting || isSuccess}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || isSuccess}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

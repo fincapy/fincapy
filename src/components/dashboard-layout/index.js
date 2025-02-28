@@ -140,10 +140,10 @@ const AccountDropdown = ({
         <DropdownMenuItem className="cursor-pointer">
           <a
             className="w-full flex items-center content-center gap-2"
-            href="/api/auth/logout"
+            href="/api/signout"
           >
             <LogOut size={16} />
-            Log out
+            Sign out
           </a>
         </DropdownMenuItem>
       </DropdownMenuContent>

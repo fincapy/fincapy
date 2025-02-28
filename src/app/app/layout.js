@@ -24,7 +24,7 @@ export default async function Layout({ children }) {
   const session = await sessionManager.getSession({ cookies: await cookies() });
 
   if (!session) {
-    redirect('/login');
+    redirect('/signin');
   }
 
   const userRepository = new UserRepository({ redisAdapter });
@@ -33,7 +33,7 @@ export default async function Layout({ children }) {
   const tenant = await tenantRepository.get({ tenantId: user.tenantId });
 
   if (!tenant) {
-    redirect('/api/auth/login');
+    redirect('/signin');
   }
   if (tenant.billingStatus === 'unpaid' || !tenant.billingStatus) {
     redirect(

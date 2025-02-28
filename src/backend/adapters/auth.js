@@ -2,6 +2,7 @@ import crypto, { timingSafeEqual } from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 const SESSION_TTL = 60 * 60; // 1 hour
 const ROTATION_PERIOD = 15 * 60; // 15 minutes
@@ -111,6 +112,14 @@ class SessionManager {
       return session;
     }
     return session;
+  }
+
+  async deleteSession({ sessionId, cookies }) {
+    await this.sessionRepository.delete({ sessionId });
+    cookies.set('session-id', '', {
+      maxAge: 0,
+    });
+    return true;
   }
 
   async getSession({ req, cookies }) {

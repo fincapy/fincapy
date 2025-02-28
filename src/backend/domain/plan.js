@@ -376,12 +376,12 @@ class Plan {
       this.startDate.getMonth(),
       1
     );
-    
+
     // More precise condition to include exactly the months we need
     while (
-      current.getFullYear() < this.endDate.getFullYear() || 
-      (current.getFullYear() === this.endDate.getFullYear() && 
-       current.getMonth() <= this.endDate.getMonth())
+      current.getFullYear() < this.endDate.getFullYear() ||
+      (current.getFullYear() === this.endDate.getFullYear() &&
+        current.getMonth() <= this.endDate.getMonth())
     ) {
       // Get the number of days in current month (accounts for leap years in February)
       const totalDaysInMonth = new Date(
@@ -389,7 +389,7 @@ class Plan {
         current.getMonth() + 1,
         0
       ).getDate();
-      
+
       totalDaysInMonths += totalDaysInMonth;
       current.setMonth(current.getMonth() + 1);
     }
@@ -405,6 +405,8 @@ class Plan {
     const monthsDifference =
       this.endDate.getMonth() - this.startDate.getMonth();
     const monthsBetween = yearsDifference * 12 + monthsDifference + 1;
+    console.log('monthsBetween', monthsBetween);
+    console.log('factor', factor);
 
     return factor * monthsBetween;
   }

@@ -53,12 +53,21 @@ const EmailVerificationForm = () => {
     }
   }, []);
 
+  const [isSuccess, setIsSuccess] = useState(false);
+  
   const handleOTPComplete = async (otp) => {
     try {
       setIsSubmitting(true);
+      setError('');
 
       const result = await verifyEmail(otp);
-      if (!result) setError('Invalid verification code. Please try again.');
+      if (result) {
+        setIsSuccess(true);
+        // Redirect to app after successful verification
+        router.push('/app');
+      } else {
+        setError('Invalid verification code. Please try again.');
+      }
     } catch (err) {
       console.log('Email verification error:', err);
       setError('An error occurred. Please try again.');
@@ -77,9 +86,10 @@ const EmailVerificationForm = () => {
         <div className="flex w-full flex-col items-center justify-center gap-4">
           <InputTOTP
             onComplete={async (otp) => await handleOTPComplete(otp)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isSuccess}
           />
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && !isSuccess && <p className="text-sm text-destructive">{error}</p>}
+          {isSuccess && <p className="text-sm text-green-500">Verification successful! Redirecting...</p>}
           <div className="flex w-full flex-col items-center justify-center gap-1">
             {timeLeft > 0 && (
               <div className="flex items-center space-x-1 text-xs -mb-4">

@@ -66,6 +66,7 @@ async function authenticateEmailPassword({ email, password }) {
         userId: user.id,
         mfaMethod: user.mfa_method,
         emailVerified: emailVerified,
+        tenantId: user.tenantId,
       },
       process.env.JWT_SECRET,
       { expiresIn: '10m' }

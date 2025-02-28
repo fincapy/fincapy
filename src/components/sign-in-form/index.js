@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { authenticateEmailPassword } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -113,9 +114,9 @@ export function SignInForm() {
                 </div>
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{' '}
-                  <a href="#" className="underline underline-offset-4">
+                  <Link href="/signup" className="underline underline-offset-4">
                     Sign up
-                  </a>
+                  </Link>
                 </div>
               </div>
             </form>

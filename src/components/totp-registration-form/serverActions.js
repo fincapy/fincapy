@@ -102,6 +102,7 @@ export async function verifyAndSaveTOTP(token, secret) {
   const sessionManager = new SessionManager({ sessionRepository });
   const session = await sessionManager.createSession({
     userId: jwtToken.userId,
+    userRole: user.role,
     tenantId: jwtToken.tenantId,
     cookies: await cookies(),
   });

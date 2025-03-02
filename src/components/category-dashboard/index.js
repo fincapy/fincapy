@@ -97,7 +97,7 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom } from 'jotai';
-import { planAtom, isLoadingAtom } from '../state/atoms';
+import { planAtom, isLoadingAtom, currentUserRoleAtom } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -1131,6 +1131,8 @@ const CategoryCard = ({
     return 'rounded-none rounded-b-xl';
   };
 
+  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
+
   const progress = Math.min(
     (category.currentNet / category.proratedGoal) * 100,
     100
@@ -1145,10 +1147,14 @@ const CategoryCard = ({
       <CardHeader className="p-0">
         <CardTitle>
           <div className="flex flex-row width-full justify-end mt-1 mr-1">
-            <CreateSubcategoryDialogue
-              categoryId={category.categoryId}
-              setDropdownIsOpen={setAreSubcategoriesOpen}
-            />
+            {currentUserRole !== 'viewer' ? (
+              <CreateSubcategoryDialogue
+                categoryId={category.categoryId}
+                setDropdownIsOpen={setAreSubcategoriesOpen}
+              />
+            ) : (
+              <div className="h-4 w-4" />
+            )}
           </div>
         </CardTitle>
       </CardHeader>
@@ -1158,13 +1164,15 @@ const CategoryCard = ({
             <span className="text-sm font-bold">{category.name}</span>
             <div className="flex flex-row gap-1 items-center">
               <div className="flex flex-col items-center justify-center">
-                <EditCategoryDialogue
-                  categoryName={category.name}
-                  monthlyGoal={category.monthlyGoal}
-                  categoryId={category.categoryId}
-                />
+                {currentUserRole !== 'viewer' && (
+                  <EditCategoryDialogue
+                    categoryName={category.name}
+                    monthlyGoal={category.monthlyGoal}
+                    categoryId={category.categoryId}
+                  />
+                )}
               </div>
-              {!category.isImmutable && (
+              {!category.isImmutable && currentUserRole !== 'viewer' && (
                 <DeleteCategoryDialogue categoryId={category.categoryId} />
               )}
               {category.type === 'savings' ? (
@@ -1571,6 +1579,8 @@ export default function CategoryDashboard({ type, categories }) {
   const [categoriesState, setCategoriesState] = useState(categories);
   const [categoryNames, setCategoryNames] = useState([]);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
+  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
+  console.log(currentUserRole);
   const { toast } = useToast();
   useEffect(() => {
     if (categories.length > 0) {
@@ -1688,9 +1698,8 @@ export default function CategoryDashboard({ type, categories }) {
                     startDate={startDateState}
                     endDate={endDateState}
                   />
-                  {(type === 'spending' || type === 'income') && (
-                    <CreateCategoryDialogue />
-                  )}
+                  {(type === 'spending' || type === 'income') &&
+                    currentUserRole !== 'viewer' && <CreateCategoryDialogue />}
                 </div>
                 <DndContext
                   sensors={sensors}

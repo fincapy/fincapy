@@ -75,3 +75,5 @@ export const plaidItemDisplayNamesAtom = atom((get) => {
 });
 
 export const currentUserIdAtom = atom(null);
+
+export const currentUserRoleAtom = atom(null);

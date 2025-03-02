@@ -50,6 +50,7 @@ import {
   plaidItemsAtom,
   usersAtom,
   currentUserIdAtom,
+  currentUserRoleAtom,
 } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
@@ -331,6 +332,7 @@ export default function DashboardLayout({
     endDate.toISOString().split('T')[0]
   );
   const setCurrentUserId = useSetAtom(currentUserIdAtom);
+  const setCurrentUserRole = useSetAtom(currentUserRoleAtom);
   const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
@@ -368,6 +370,7 @@ export default function DashboardLayout({
         setPlaidItemsState(plaidItems);
         setUsersState(users.filter((user) => user.email !== userEmail));
         setCurrentUserId(userId);
+        setCurrentUserRole(userRole);
       } else {
         if (
           startDateState === previousDates.current.startDate &&

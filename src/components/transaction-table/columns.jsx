@@ -36,7 +36,11 @@ import { TransactionContext } from './transaction';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import { useAtom, useAtomValue } from 'jotai';
-import { planAtom, categoryNamesAtom } from '../state/atoms';
+import {
+  planAtom,
+  categoryNamesAtom,
+  currentUserRoleAtom,
+} from '../state/atoms';
 import { Input } from '@/components/ui/input';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { editTransaction } from '@/components/transaction-table/serverActions';
@@ -344,6 +348,7 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
 
 const Actions = ({ row }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -355,8 +360,12 @@ const Actions = ({ row }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <EditTransactionDialog row={row} setOuterDialogIsOpen={setIsOpen} />
+        {currentUserRole !== 'viewer' && (
+          <>
+            <DropdownMenuSeparator />
+            <EditTransactionDialog row={row} setOuterDialogIsOpen={setIsOpen} />
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

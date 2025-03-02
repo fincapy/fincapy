@@ -26,8 +26,13 @@ const createCategory = async ({
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
 
@@ -57,8 +62,13 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -86,8 +96,13 @@ const deleteCategory = async ({ categoryId, planId }) => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -119,8 +134,13 @@ const createSubcategory = async ({
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -156,8 +176,13 @@ const updateSubcategory = async ({
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -191,8 +216,13 @@ const deleteSubcategory = async ({
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
-    const session = await sessionManager.touchSession({ cookies: await cookies() });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -219,7 +249,9 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({ cookies: await cookies() });
+  const session = await sessionManager.touchSession({
+    cookies: await cookies(),
+  });
   if (!session) {
     return false;
   }
@@ -247,7 +279,9 @@ const reorderSubcategories = async ({
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
   const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({ cookies: await cookies() });
+  const session = await sessionManager.touchSession({
+    cookies: await cookies(),
+  });
   if (!session) {
     return false;
   }

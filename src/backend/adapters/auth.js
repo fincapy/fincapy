@@ -106,6 +106,7 @@ class SessionManager {
       });
       const newSession = new Session({
         sessionId: crypto.randomUUID(),
+        userRole: session.userRole,
         userId: session.userId,
         tenantId: session.tenantId,
         createdAt: Date.now(),
@@ -162,10 +163,11 @@ class SessionManager {
     return session;
   }
 
-  async createSession({ userId, tenantId, cookies, res }) {
+  async createSession({ userId, userRole, tenantId, cookies, res }) {
     const session = new Session({
       sessionId: crypto.randomUUID(),
       userId,
+      userRole,
       tenantId,
       createdAt: Date.now(),
       lastRotated: Date.now(),

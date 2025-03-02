@@ -89,7 +89,11 @@ import {
 } from '../dashboard-layout/datesContext';
 import { useAtom, useAtomValue } from 'jotai';
 import { planAtom, isLoadingAtom } from '../state/atoms';
-import { transactionsViewAtom, categoryNamesAtom } from '../state/atoms';
+import {
+  transactionsViewAtom,
+  categoryNamesAtom,
+  currentUserRoleAtom,
+} from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -467,6 +471,7 @@ const DatePickers = () => {
 
 const TransactionsDashboard = () => {
   const [transactions, setTransactions] = useAtom(transactionsViewAtom);
+  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
 
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
@@ -504,7 +509,7 @@ const TransactionsDashboard = () => {
               key="create-transaction-dialogue"
             >
               <DatePickers />
-              <CreateTransactionDialogue />
+              {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
             </div>
             <div
               className="grid w-11/12 h-[70vh]"

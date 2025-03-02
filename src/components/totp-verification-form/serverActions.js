@@ -93,6 +93,7 @@ export async function verifyTOTP(token, isBackupCode = false) {
   const session = await sessionManager.createSession({
     userId: jwtToken.userId,
     tenantId: user.tenantId,
+    userRole: user.role,
     cookies: await cookies(),
   });
   const sessionToken = jwt.sign(

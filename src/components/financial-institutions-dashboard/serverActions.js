@@ -20,6 +20,9 @@ const fetchLinkToken = async ({ institutionId }) => {
   if (!session) {
     return false;
   }
+  if (session.userRole === 'viewer') {
+    return false;
+  }
   const tenantId = session.tenantId;
   const tenantRepository = new TenantRepository({ redisAdapter });
   const tenant = await tenantRepository.get({ tenantId });
@@ -48,6 +51,9 @@ const createPlaidItem = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;
@@ -84,6 +90,9 @@ const updatePlaidItem = async ({ plaidItemId, publicToken }) => {
   if (!session) {
     return false;
   }
+  if (session.userRole === 'viewer') {
+    return false;
+  }
   const tenantId = session.tenantId;
   const transactionManager = new TransactionManager();
   const plaidAdapter = new PlaidAdapter(client);
@@ -108,6 +117,9 @@ const deletePlaidItem = async ({ plaidItemId }) => {
       cookies: await cookies(),
     });
     if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
       return false;
     }
     const tenantId = session.tenantId;

@@ -45,7 +45,12 @@ import {
   LogOut,
 } from 'lucide-react';
 import { parse } from 'date-fns';
-import { planAtom, plaidItemsAtom, usersAtom } from '../state/atoms';
+import {
+  planAtom,
+  plaidItemsAtom,
+  usersAtom,
+  currentUserIdAtom,
+} from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -287,11 +292,13 @@ export default function DashboardLayout({
   plan,
   // startDate,
   // endDate,
+  userId,
   users,
   plaidItems,
   pageParam,
 }) {
   const firstRender = useRef(true);
+  console.log('userId', userId);
 
   const newPlan = new Plan({
     ...plan,
@@ -323,6 +330,7 @@ export default function DashboardLayout({
   const [endDateState, setEndDateState] = useState(
     endDate.toISOString().split('T')[0]
   );
+  const setCurrentUserId = useSetAtom(currentUserIdAtom);
   const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
@@ -359,6 +367,7 @@ export default function DashboardLayout({
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
         setUsersState(users.filter((user) => user.email !== userEmail));
+        setCurrentUserId(userId);
       } else {
         if (
           startDateState === previousDates.current.startDate &&

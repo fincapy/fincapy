@@ -156,7 +156,7 @@ class IngestTransactionUpdatesService {
     });
   }
 
-  async execute({ tenantId, institutionId }) {
+  async execute({ tenantId, plaidItemId }) {
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
         tenantId,
@@ -165,9 +165,9 @@ class IngestTransactionUpdatesService {
         return null;
       }
       let plaidItems = tenant.plaidItems;
-      if (institutionId) {
+      if (plaidItemId) {
         plaidItems = plaidItems.filter(
-          (plaidItem) => plaidItem.institutionId === institutionId
+          (plaidItem) => plaidItem.plaidItemId === plaidItemId
         );
       }
       if (plaidItems.length === 0) {
@@ -196,7 +196,7 @@ class IngestTransactionUpdatesService {
           }
 
           for (const plaidTransaction of plaidTransactions.modified) {
-            await this.updateTransactions(
+            await this.updateTransaction(
               plaidTransactions,
               plaidTransaction,
               plan,

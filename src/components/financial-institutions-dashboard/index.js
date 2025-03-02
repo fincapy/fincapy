@@ -38,7 +38,12 @@ import { plaidItemsAtom, isLoadingAtom } from '../state/atoms';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usersAtom, plaidItemDisplayNamesAtom } from '../state/atoms';
+import {
+  usersAtom,
+  plaidItemDisplayNamesAtom,
+  currentUserIdAtom,
+} from '../state/atoms';
+import { v4 as uuidv4 } from 'uuid';
 
 const DeletePlaidItemDialogue = ({
   institutionId,
@@ -247,19 +252,21 @@ const ExistingFinancialInstitutionCard = ({ link, name }) => {
   );
 };
 
-const NewFinancialInstitutionCard = () => {
+const NewFinancialInstitutionCard = ({ currentUserId }) => {
   const { toast } = useToast();
   const [isLinking, setIsLinking] = useState(false);
   const [plaidItemsState, setPlaidItemsState] = useAtom(plaidItemsAtom);
   const handleServerCreatePlaidItem = (
     publicToken,
     metadata,
-    oldPlaidItemsState
+    oldPlaidItemsState,
+    plaidItemId
   ) => {
     setTimeout(async () => {
       try {
         const result = await createPlaidItem({
           publicToken,
+          plaidItemId,
           institutionId: metadata.institution.institution_id,
           institutionName: metadata.institution.name,
         });
@@ -300,16 +307,24 @@ const NewFinancialInstitutionCard = () => {
 
   const onSuccess = async (public_token, metadata) => {
     const oldPlaidItemsState = [...plaidItemsState];
+    const newPlaidItemId = uuidv4();
     const newPlaidItemsState = [
       ...oldPlaidItemsState,
       {
+        plaidItemId: newPlaidItemId,
+        userId: currentUserId,
         institutionId: metadata.institution.institution_id,
         institutionName: metadata.institution.name,
         status: 'active',
       },
     ];
     setPlaidItemsState(newPlaidItemsState);
-    handleServerCreatePlaidItem(public_token, metadata, oldPlaidItemsState);
+    handleServerCreatePlaidItem(
+      public_token,
+      metadata,
+      oldPlaidItemsState,
+      newPlaidItemId
+    );
   };
 
   const handleLink = async ({ institutionId }) => {
@@ -354,6 +369,8 @@ export default function FinancialInstitutionsDashboard() {
   const [plaidItemDisplayNames, setPlaidItemDisplayNames] = useAtom(
     plaidItemDisplayNamesAtom
   );
+  const [currentUserId, setCurrentUserId] = useAtom(currentUserIdAtom);
+  console.log('currentUserId', currentUserId);
   console.log('plaidItemDisplayNames', plaidItemDisplayNames);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
@@ -388,10 +405,13 @@ export default function FinancialInstitutionsDashboard() {
             <ExistingFinancialInstitutionCard
               key={plaidItem.institutionId}
               link={plaidItem}
-              name={plaidItemDisplayNames[plaidItem.itemId]}
+              name={plaidItemDisplayNames[plaidItem.plaidItemId]}
             />
           ))}
-          <NewFinancialInstitutionCard key="new-financial-institution-card" />
+          <NewFinancialInstitutionCard
+            key="new-financial-institution-card"
+            currentUserId={currentUserId}
+          />
         </>
       )}
     </div>

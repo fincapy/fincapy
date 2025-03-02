@@ -6,7 +6,7 @@ class UpdatePlaidItemService {
     this.plaidAdapter = plaidAdapter;
   }
 
-  async execute({ tenantId, institutionId, publicToken }) {
+  async execute({ tenantId, plaidItemId, publicToken }) {
     await this.transactionManager.transaction(
       async ({ tenantRepository, messageRepository }) => {
         const tenant = await tenantRepository.get({
@@ -16,9 +16,9 @@ class UpdatePlaidItemService {
           return;
         }
         const existingPlaidItem = tenant.plaidItems.find(
-          (plaidItem) => plaidItem.institutionId === institutionId
+          (plaidItem) => plaidItem.plaidItemId === plaidItemId
         );
-        const accessToken = await this.plaidAdapter.exchangePublicToken({
+        const { accessToken } = await this.plaidAdapter.exchangePublicToken({
           publicToken,
         });
         if (!existingPlaidItem) {
@@ -28,7 +28,7 @@ class UpdatePlaidItemService {
         existingPlaidItem.accessToken = accessToken;
         const plaidItemUpdatedMessage = new PlaidItemUpdatedMessage({
           tenantId,
-          institutionId,
+          plaidItemId: existingPlaidItem.plaidItemId,
           topicName: 'plaid-item-updated',
         });
         await tenantRepository.set({ tenantId, tenant });

@@ -63,7 +63,7 @@ export const plaidItemDisplayNamesAtom = atom((get) => {
   const users = get(usersAtom);
   const plaidItemIdToName = {};
   plaidItems.forEach((plaidItem) => {
-    const user = users.find((user) => user.userId === plaidItem.userId);
+    const user = users.find((user) => user.id === plaidItem.userId);
     if (user) {
       plaidItemIdToName[plaidItem.plaidItemId] =
         plaidItem.institutionName + ' - ' + user.name;
@@ -73,3 +73,5 @@ export const plaidItemDisplayNamesAtom = atom((get) => {
   });
   return plaidItemIdToName;
 });
+
+export const currentUserIdAtom = atom(null);

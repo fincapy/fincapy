@@ -82,6 +82,7 @@ export default async function Layout({ children }) {
       <DashboardLayout
         userEmail={user.emails[0]}
         userRole={user.role}
+        userId={user.id}
         nonce={nonce}
         plan={planView}
         startDate={startDate}

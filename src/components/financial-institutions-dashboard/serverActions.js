@@ -36,6 +36,7 @@ const fetchLinkToken = async ({ institutionId }) => {
 
 const createPlaidItem = async ({
   publicToken,
+  plaidItemId,
   institutionId,
   institutionName,
 }) => {
@@ -60,6 +61,7 @@ const createPlaidItem = async ({
 
     await service.execute({
       userId,
+      plaidItemId,
       tenantId,
       institutionId,
       institutionName,

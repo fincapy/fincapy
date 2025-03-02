@@ -8,6 +8,7 @@ class CreatePlaidItemService {
   }
 
   async execute({
+    plaidItemId,
     userId,
     tenantId,
     institutionId,
@@ -25,13 +26,12 @@ class CreatePlaidItemService {
         if (existingPlaidItem) {
           throw new Error('Plaid item already exists');
         }
-        const { accessToken, itemId } =
-          await this.plaidAdapter.exchangePublicToken({
-            publicToken,
-          });
+        const { accessToken } = await this.plaidAdapter.exchangePublicToken({
+          publicToken,
+        });
         const plaidItem = new PlaidItem({
           userId: userId,
-          plaidItemId: itemId,
+          plaidItemId,
           institutionId,
           institutionName,
           accessToken,

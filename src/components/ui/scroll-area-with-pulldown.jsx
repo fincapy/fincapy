@@ -133,7 +133,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
           >
             <div
               className={cn(
-                'absolute left-0 right-0 flex justify-center items-center bg-muted',
+                'absolute left-0 right-0 flex justify-center items-center',
                 'transition-opacity duration-200'
               )}
               style={{

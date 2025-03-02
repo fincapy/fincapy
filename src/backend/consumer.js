@@ -80,23 +80,6 @@ class Consumer {
     this.messageRepository = messageRepository;
     this.ingestService = ingestService;
     this.emailService = emailService;
-    this.messagesSeen = new LRUCache({ max: 1 });
-  }
-
-  async monitor() {
-    let messageId;
-    while (!isStopping) {
-      const mostRecent = this.messagesSeen.get('mostRecent');
-      if (mostRecent) {
-        const now = new Date();
-        const diff = now.getTime() - mostRecent.time.getTime();
-        if (diff > 2000 && (messageId !== mostRecent.messageId || !messageId)) {
-          console.log('No new messages received in 2 secs');
-          messageId = mostRecent.messageId;
-        }
-      }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
   }
 
   async consume() {
@@ -105,6 +88,7 @@ class Consumer {
     while (!isStopping) {
       try {
         // First, try to process pending messages (if any)
+        console.log('reading pending messages');
         const pendingMessages = await this.messageRepository.getSome({
           count: 10,
           readPending: true,
@@ -121,10 +105,6 @@ class Consumer {
             console.log('envelope.message.payload', envelope.message.payload);
             await this.ingestService.execute(envelope.message.payload);
             await this.messageRepository.acknowledge({
-              messageId: envelope.messageId,
-            });
-            this.messagesSeen.set('mostRecent', {
-              time: new Date(),
               messageId: envelope.messageId,
             });
           }
@@ -151,22 +131,29 @@ class Consumer {
               'TRANSACTION_INGEST_REQUESTED' ||
             envelope.message.payload.eventType === 'PLAID_ITEM_CREATED'
           ) {
-            await this.ingestService.execute(envelope.message.payload);
+            try {
+              await this.ingestService.execute(envelope.message.payload);
+            } catch (err) {
+              console.error('Error processing message:', err);
+            }
             await this.messageRepository.acknowledge({
-              messageId: envelope.messageId,
-            });
-            this.messagesSeen.set('mostRecent', {
-              time: new Date(),
               messageId: envelope.messageId,
             });
           }
 
           if (envelope.message.payload.eventType === 'USER_CREATED') {
-            await this.emailService.execute(envelope.message.payload);
+            try {
+              await this.emailService.execute(envelope.message.payload);
+            } catch (err) {
+              console.error('Error processing message:', err);
+            }
             await this.messageRepository.acknowledge({
               messageId: envelope.messageId,
             });
           }
+          await this.messageRepository.acknowledge({
+            messageId: envelope.messageId,
+          });
         }
       } catch (err) {
         console.error('Error consuming messages:', err);
@@ -221,9 +208,5 @@ process.on('SIGTERM', () => {
     transactionManager,
   });
   const cronProducer = new CronProducer({ service: triggerService });
-  await Promise.all([
-    consumer.consume(),
-    consumer.monitor(),
-    cronProducer.produce(),
-  ]);
+  await Promise.all([consumer.consume(), cronProducer.produce()]);
 })();

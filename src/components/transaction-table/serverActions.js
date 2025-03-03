@@ -6,6 +6,32 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { EditTransactionService } from '@/backend/services/editTransactionService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
+
+// Schema for validating transaction data
+const transactionSchema = z.object({
+  planId: z.string().uuid(),
+  transactionId: z.string().uuid(),
+  categoryId: z.string().uuid(),
+  subcategoryId: z.string().uuid().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
+  description: z.string().min(1).max(500),
+  status: z.enum(['pending', 'completed', 'cancelled']),
+  type: z.enum(['income', 'expense', 'transfer']),
+  amount: z.number().positive(),
+  newCategoryId: z.string().uuid().optional(),
+});
+
+// Sanitize function for text inputs
+const sanitizeText = (text) => {
+  if (!text) return text;
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'discard'
+  });
+};
 
 const editTransaction = async ({
   planId,
@@ -20,6 +46,30 @@ const editTransaction = async ({
   newCategoryId,
 }) => {
   try {
+    // Sanitize text inputs
+    const sanitizedDescription = sanitizeText(description);
+    
+    // Validate the input data
+    const validationResult = transactionSchema.safeParse({
+      planId,
+      transactionId,
+      categoryId,
+      subcategoryId,
+      date,
+      description: sanitizedDescription,
+      status,
+      type,
+      amount,
+      newCategoryId,
+    });
+    
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.format());
+      return { success: false, error: 'Invalid input data' };
+    }
+    
+    // Use validated and sanitized data
+    const validData = validationResult.data;
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -27,10 +77,10 @@ const editTransaction = async ({
       cookies: await cookies(),
     });
     if (!session) {
-      return false;
+      return { success: false, error: 'Authentication required' };
     }
     if (session.userRole === 'viewer') {
-      return false;
+      return { success: false, error: 'Insufficient permissions' };
     }
     const tenantId = session.tenantId;
 
@@ -40,21 +90,21 @@ const editTransaction = async ({
     });
     await service.execute({
       tenantId,
-      planId,
-      transactionId,
-      categoryId,
-      subcategoryId,
-      date,
-      description,
-      status,
-      type,
-      amount,
-      newCategoryId,
+      planId: validData.planId,
+      transactionId: validData.transactionId,
+      categoryId: validData.categoryId,
+      subcategoryId: validData.subcategoryId,
+      date: validData.date,
+      description: validData.description,
+      status: validData.status,
+      type: validData.type,
+      amount: validData.amount,
+      newCategoryId: validData.newCategoryId,
     });
-    return true;
+    return { success: true };
   } catch (error) {
     console.error(error);
-    return false;
+    return { success: false, error: 'Server error' };
   }
 };
 

@@ -2,6 +2,8 @@
 
 import { cookies } from 'next/headers';
 import { headers } from 'next/headers';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 import {
   EmailPasswordAuthenticator,
   SessionManager,
@@ -30,11 +32,40 @@ function hashIp(ip) {
     .digest('hex');
 }
 
-async function authenticateEmailPassword({ email, password }) {
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+// Input validation schemas
+const emailPasswordSchema = z.object({
+  email: z.string().email().trim().max(255),
+  password: z.string().min(8).max(100)
+});
 
-  // Get IP address from headers
+const passwordResetSchema = z.object({
+  email: z.string().email().trim().max(255)
+});
+
+// Sanitize function for string inputs
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return sanitizeHtml(input, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'recursiveEscape'
+  });
+}
+
+async function authenticateEmailPassword(rawInput) {
+  try {
+    // Validate input
+    const sanitizedInput = {
+      email: sanitizeInput(rawInput.email),
+      password: rawInput.password // Don't sanitize password as it may contain special characters
+    };
+    
+    const { email, password } = emailPasswordSchema.parse(sanitizedInput);
+    
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const rateLimiter = new RateLimiter({ redisAdapter });
+
+    // Get IP address from headers
   const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
   try {
@@ -114,13 +145,25 @@ async function authenticateEmailPassword({ email, password }) {
     redirect('/verify-totp');
   }
   return false;
+  } catch (error) {
+    console.error('Authentication validation error:', error);
+    return false;
+  }
 }
 
-async function sendPasswordResetEmail({ email }) {
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+async function sendPasswordResetEmail(rawInput) {
+  try {
+    // Validate input
+    const sanitizedInput = {
+      email: sanitizeInput(rawInput.email)
+    };
+    
+    const { email } = passwordResetSchema.parse(sanitizedInput);
+    
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const rateLimiter = new RateLimiter({ redisAdapter });
 
-  // Get IP address from headers
+    // Get IP address from headers
   const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
   try {
@@ -164,6 +207,10 @@ async function sendPasswordResetEmail({ email }) {
   }
 
   return true;
+  } catch (error) {
+    console.error('Password reset validation error:', error);
+    return false;
+  }
 }
 
 export { authenticateEmailPassword, sendPasswordResetEmail };

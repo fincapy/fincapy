@@ -9,6 +9,8 @@ import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 function hashIp(ip) {
   return crypto
@@ -17,11 +19,34 @@ function hashIp(ip) {
     .digest('hex');
 }
 
+// Create validation schema for tokens
+const tokenSchema = z.object({
+  type: z.literal('emailPasswordAuthenticated'),
+  userId: z.string().uuid(),
+  tenantId: z.string().uuid().optional(),
+});
+
+// Create validation schema for verification code
+const verificationCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, { message: "Verification code must be a 6-digit number" });
+
+// Sanitize inputs to prevent XSS
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return sanitizeHtml(input, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'discard'
+  });
+}
+
 export async function resendEmailVerificationCode() {
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
   const headersList = await headers();
-  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
 
   try {
     await rateLimiter.checkRateLimit({
@@ -34,19 +59,23 @@ export async function resendEmailVerificationCode() {
 
   let token;
   try {
-    token = await jwt.verify(
-      (await cookies()).get('emailPasswordAuthenticatedToken').value,
-      process.env.JWT_SECRET
-    );
+    const cookieValue = (await cookies()).get('emailPasswordAuthenticatedToken')?.value;
+    if (!cookieValue) {
+      return false;
+    }
+
+    token = await jwt.verify(cookieValue, process.env.JWT_SECRET);
+    
+    // Validate token structure
+    const tokenValidation = tokenSchema.safeParse(token);
+    if (!tokenValidation.success) {
+      console.log('Token validation failed:', tokenValidation.error);
+      return false;
+    }
+    
+    token = tokenValidation.data;
   } catch (error) {
     console.log('Invalid token:', error);
-    return false;
-  }
-  if (token.type !== 'emailPasswordAuthenticated') {
-    return false;
-  }
-
-  if (!token || !token.userId) {
     return false;
   }
 
@@ -102,10 +131,29 @@ export async function resendEmailVerificationCode() {
 }
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
+  // Validate and sanitize the verification code
+  try {
+    // First sanitize to prevent any HTML injection
+    const sanitizedCode = sanitizeInput(unverifiedEmailVerificationCode);
+    
+    // Then validate the format
+    const validationResult = verificationCodeSchema.safeParse(sanitizedCode);
+    if (!validationResult.success) {
+      console.log('Verification code validation failed:', validationResult.error);
+      return false;
+    }
+    
+    // Use the validated and sanitized code
+    unverifiedEmailVerificationCode = validationResult.data;
+  } catch (error) {
+    console.log('Verification code processing error:', error);
+    return false;
+  }
+
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
   const headersList = await headers();
-  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
   try {
     await rateLimiter.checkRateLimit({
       key: `ip:email-verification:${hashIp(ip)}`,
@@ -116,14 +164,23 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   }
   let token;
   try {
-    token = await jwt.verify(
-      (await cookies()).get('emailPasswordAuthenticatedToken').value,
-      process.env.JWT_SECRET
-    );
+    const cookieValue = (await cookies()).get('emailPasswordAuthenticatedToken')?.value;
+    if (!cookieValue) {
+      return false;
+    }
+    
+    token = await jwt.verify(cookieValue, process.env.JWT_SECRET);
+    
+    // Validate token structure
+    const tokenValidation = tokenSchema.safeParse(token);
+    if (!tokenValidation.success) {
+      console.log('Token validation failed:', tokenValidation.error);
+      return false;
+    }
+    
+    token = tokenValidation.data;
   } catch (error) {
-    return false;
-  }
-  if (token.type !== 'emailPasswordAuthenticated') {
+    console.log('Invalid token:', error);
     return false;
   }
   try {

@@ -13,6 +13,8 @@ import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 function hashEmail(email) {
   return crypto
@@ -28,10 +30,50 @@ function hashIp(ip) {
     .digest('hex');
 }
 
+// Schema for user input validation
+const createAccountSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  accessCode: z.string().min(1, "Access code is required")
+});
+
+// Sanitize HTML content to prevent XSS attacks
+function sanitizeInput(input) {
+  if (typeof input === 'string') {
+    return sanitizeHtml(input, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+  }
+  return input;
+}
+
 export async function createAccount(name, email, password, accessCode) {
   try {
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(name);
+    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedAccessCode = sanitizeInput(accessCode);
+    // Note: We don't sanitize password as it shouldn't be rendered as HTML
+
+    // Validate inputs
+    const validationResult = createAccountSchema.safeParse({
+      name: sanitizedName,
+      email: sanitizedEmail,
+      password,
+      accessCode: sanitizedAccessCode
+    });
+
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.format());
+      return false;
+    }
+
+    const { name: validatedName, email: validatedEmail, password: validatedPassword, accessCode: validatedAccessCode } = validationResult.data;
+
     if (
-      accessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE &&
+      validatedAccessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE &&
       process.env.NODE_ENV === 'production'
     ) {
       return false;
@@ -45,7 +87,7 @@ export async function createAccount(name, email, password, accessCode) {
         key: `ip:sign-up:${hashIp(ip)}`,
       });
       await rateLimiter.checkRateLimit({
-        key: `email:sign-up:${hashEmail(email)}`,
+        key: `email:sign-up:${hashEmail(validatedEmail)}`,
       });
     } catch (error) {
       console.log('error', error);
@@ -60,9 +102,9 @@ export async function createAccount(name, email, password, accessCode) {
     await setupNewTenantService.execute({
       tenantId,
       userId,
-      name,
-      email,
-      password,
+      name: validatedName,
+      email: validatedEmail,
+      password: validatedPassword,
       whitelistBilling: true,
     });
     const emailPasswordAuthenticatedToken = jwt.sign(
@@ -95,7 +137,7 @@ export async function createAccount(name, email, password, accessCode) {
     if (process.env.NODE_ENV === 'production') {
       const sesAdapter = new SESAdapter();
       await sesAdapter.sendEmail({
-        to: email,
+        to: validatedEmail,
         subject: 'Verify your Fincapy account',
         text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
       });
@@ -103,6 +145,7 @@ export async function createAccount(name, email, password, accessCode) {
       console.log('emailVerificationCode', emailVerificationCode);
     }
   } catch (error) {
+    console.error('Account creation error:', error);
     return false;
   }
   redirect('/verify-email');

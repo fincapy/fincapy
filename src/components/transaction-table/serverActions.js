@@ -17,8 +17,8 @@ const transactionSchema = z.object({
   subcategoryId: z.string().uuid().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
   description: z.string().min(1).max(500),
-  status: z.enum(['pending', 'completed', 'cancelled']),
-  type: z.enum(['income', 'expense', 'transfer']),
+  status: z.string().max(100),
+  type: z.string().max(100),
   amount: z.number().positive(),
   newCategoryId: z.string().uuid().optional(),
 });
@@ -29,7 +29,7 @@ const sanitizeText = (text) => {
   return sanitizeHtml(text, {
     allowedTags: [],
     allowedAttributes: {},
-    disallowedTagsMode: 'discard'
+    disallowedTagsMode: 'discard',
   });
 };
 
@@ -48,26 +48,34 @@ const editTransaction = async ({
   try {
     // Sanitize text inputs
     const sanitizedDescription = sanitizeText(description);
-    
+    const sanitizedStatus = sanitizeText(status);
+    const sanitizedType = sanitizeText(type);
+    const sanitizedPlanId = sanitizeText(planId);
+    const sanitizedTransactionId = sanitizeText(transactionId);
+    const sanitizedCategoryId = sanitizeText(categoryId);
+    const sanitizedSubcategoryId = sanitizeText(subcategoryId);
+    const sanitizedDate = sanitizeText(date);
+    const sanitizedNewCategoryId = sanitizeText(newCategoryId);
+
     // Validate the input data
     const validationResult = transactionSchema.safeParse({
-      planId,
-      transactionId,
-      categoryId,
-      subcategoryId,
-      date,
+      planId: sanitizedPlanId,
+      transactionId: sanitizedTransactionId,
+      categoryId: sanitizedCategoryId,
+      subcategoryId: sanitizedSubcategoryId,
+      date: sanitizedDate,
       description: sanitizedDescription,
-      status,
-      type,
+      status: sanitizedStatus,
+      type: sanitizedType,
       amount,
-      newCategoryId,
+      newCategoryId: sanitizedNewCategoryId,
     });
-    
+
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
       return { success: false, error: 'Invalid input data' };
     }
-    
+
     // Use validated and sanitized data
     const validData = validationResult.data;
     const redisAdapter = new RedisAdapter({ redisClient });

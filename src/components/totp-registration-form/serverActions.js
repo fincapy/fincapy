@@ -21,7 +21,7 @@ const secretSchema = z.string().trim().min(16);
 // Sanitization options
 const sanitizeOptions = {
   allowedTags: [],
-  allowedAttributes: {}
+  allowedAttributes: {},
 };
 
 function hashIp(ip) {
@@ -41,13 +41,13 @@ export async function generateTOTPSecret() {
     return {
       otpauthUrl: secret.otpauth_url,
       secret: secret.base32,
-      success: true
+      success: true,
     };
   } catch (error) {
     console.error('Error generating TOTP secret:', error);
     return {
       success: false,
-      error: 'Failed to generate authentication secret'
+      error: 'Failed to generate authentication secret',
     };
   }
 }
@@ -57,22 +57,25 @@ export async function verifyAndSaveTOTP(token, secret) {
     // Validate and sanitize inputs
     const validatedToken = tokenSchema.parse(token);
     const sanitizedToken = sanitizeHtml(validatedToken, sanitizeOptions);
-    
+
     const validatedSecret = secretSchema.parse(secret);
     const sanitizedSecret = sanitizeHtml(validatedSecret, sanitizeOptions);
-    
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const rateLimiter = new RateLimiter({ redisAdapter });
     const headersList = await headers();
     const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-    
+
     try {
       await rateLimiter.checkRateLimit({
         key: `ip:totp-registration:${hashIp(ip)}`,
       });
     } catch (error) {
       console.log('Rate limit exceeded for IP');
-      return { success: false, error: 'Too many attempts, please try again later' };
+      return {
+        success: false,
+        error: 'Too many attempts, please try again later',
+      };
     }
 
     const isValid = speakeasy.totp.verify({
@@ -111,7 +114,10 @@ export async function verifyAndSaveTOTP(token, secret) {
         key: `user:totp-registration:${jwtToken.userId}`,
       });
     } catch (error) {
-      return { success: false, error: 'Too many attempts, please try again later' };
+      return {
+        success: false,
+        error: 'Too many attempts, please try again later',
+      };
     }
 
     const userRepository = new UserRepository({ redisAdapter });
@@ -152,9 +158,10 @@ export async function verifyAndSaveTOTP(token, secret) {
   } catch (error) {
     console.error('Error in verifyAndSaveTOTP:', error);
     if (error instanceof z.ZodError) {
-      return { 
-        success: false, 
-        error: 'Invalid input: ' + error.errors.map(e => e.message).join(', ')
+      return {
+        success: false,
+        error:
+          'Invalid input: ' + error.errors.map((e) => e.message).join(', '),
       };
     }
     return { success: false, error: 'An unexpected error occurred' };

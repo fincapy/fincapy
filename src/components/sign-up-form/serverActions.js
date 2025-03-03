@@ -32,10 +32,10 @@ function hashIp(ip) {
 
 // Schema for user input validation
 const createAccountSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  accessCode: z.string().min(1, "Access code is required")
+  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  accessCode: z.string().min(1, 'Access code is required'),
 });
 
 // Sanitize HTML content to prevent XSS attacks
@@ -62,7 +62,7 @@ export async function createAccount(name, email, password, accessCode) {
       name: sanitizedName,
       email: sanitizedEmail,
       password,
-      accessCode: sanitizedAccessCode
+      accessCode: sanitizedAccessCode,
     });
 
     if (!validationResult.success) {
@@ -70,7 +70,12 @@ export async function createAccount(name, email, password, accessCode) {
       return false;
     }
 
-    const { name: validatedName, email: validatedEmail, password: validatedPassword, accessCode: validatedAccessCode } = validationResult.data;
+    const {
+      name: validatedName,
+      email: validatedEmail,
+      password: validatedPassword,
+      accessCode: validatedAccessCode,
+    } = validationResult.data;
 
     if (
       validatedAccessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE &&

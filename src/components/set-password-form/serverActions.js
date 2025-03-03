@@ -12,12 +12,18 @@ import sanitizeHtml from 'sanitize-html';
 // Define Zod schemas for validation
 const passwordSchema = z
   .string()
-  .min(8, { message: "Password must be at least 8 characters long" })
-  .max(100, { message: "Password is too long" })
-  .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-  .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-  .regex(/[0-9]/, { message: "Password must contain at least one number" })
-  .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" });
+  .min(8, { message: 'Password must be at least 8 characters long' })
+  .max(100, { message: 'Password is too long' })
+  .regex(/[A-Z]/, {
+    message: 'Password must contain at least one uppercase letter',
+  })
+  .regex(/[a-z]/, {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+  .regex(/[^A-Za-z0-9]/, {
+    message: 'Password must contain at least one special character',
+  });
 
 const tokenSchema = z.string().min(10);
 
@@ -35,11 +41,11 @@ export async function setInitialPassword(newPassword, token) {
   try {
     passwordSchema.parse(newPassword);
     tokenSchema.parse(token);
-    
+
     // Sanitize inputs
     const sanitizedPassword = sanitizeInput(newPassword);
     const sanitizedToken = sanitizeInput(token);
-    
+
     let verifiedToken;
     try {
       verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET);
@@ -102,14 +108,15 @@ export async function setInitialPassword(newPassword, token) {
 
 export async function resetPassword(newPassword, token) {
   // Validate and sanitize inputs
+  let sanitizedPassword;
   try {
     passwordSchema.parse(newPassword);
     tokenSchema.parse(token);
-    
+
     // Sanitize inputs
-    const sanitizedPassword = sanitizeInput(newPassword);
+    sanitizedPassword = sanitizeInput(newPassword);
     const sanitizedToken = sanitizeInput(token);
-    
+
     let verifiedToken;
     try {
       verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET);

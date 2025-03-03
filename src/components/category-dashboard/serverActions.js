@@ -34,7 +34,7 @@ const categorySchema = z.object({
   name: z.string().min(1).max(100),
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
-  type: z.enum(['income', 'expense', 'savings']),
+  type: z.string().min(1).max(100),
 });
 
 const updateCategorySchema = z.object({
@@ -455,7 +455,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
       oldIndex: sanitizedData.oldIndex,
       newIndex: sanitizedData.newIndex,
     });
-    
+
     return true;
   } catch (error) {
     console.error(error);
@@ -507,7 +507,7 @@ const reorderSubcategories = async ({
       oldIndex: sanitizedData.oldIndex,
       newIndex: sanitizedData.newIndex,
     });
-    
+
     return true;
   } catch (error) {
     console.error(error);

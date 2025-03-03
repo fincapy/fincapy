@@ -4,12 +4,23 @@ import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { parse, isValid } from 'date-fns';
 import { cookies } from 'next/headers';
+import sanitizeHtml from 'sanitize-html';
+import { z } from 'zod';
 
-// Helper for validation
-const validateInput = (input, pattern) => {
-  if (!input) return false;
-  return pattern.test(input);
-};
+// Define validation schemas using zod
+const planIdSchema = z.string().regex(/^[a-zA-Z0-9-_]+$/, {
+  message: "Plan ID must only contain alphanumeric characters, hyphens, and underscores"
+});
+
+const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+  message: "Date must be in YYYY-MM-DD format"
+});
+
+const queryParamsSchema = z.object({
+  startDate: dateSchema,
+  endDate: dateSchema,
+  planId: planIdSchema
+});
 
 export const GET = async (req, res) => {
   const redisAdapter = new RedisAdapter({ redisClient });
@@ -29,37 +40,33 @@ export const GET = async (req, res) => {
     });
   }
   
-  // Get and validate query parameters
+  // Get query parameters
   const query = req.nextUrl.searchParams;
-  const startDate = query.get('startDate');
-  const endDate = query.get('endDate');
-  const planId = query.get('planId');
+  const params = {
+    startDate: query.get('startDate'),
+    endDate: query.get('endDate'),
+    planId: query.get('planId')
+  };
   
-  // Validate required parameters
-  if (!startDate || !endDate || !planId) {
+  // Validate parameters using zod
+  const validationResult = queryParamsSchema.safeParse(params);
+  if (!validationResult.success) {
     return new Response(
-      JSON.stringify({ error: 'Missing required parameters' }),
-      { status: 400 }
+      JSON.stringify({ 
+        error: 'Validation failed', 
+        details: validationResult.error.format() 
+      }),
+      { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff'
+        }
+      }
     );
   }
   
-  // Validate date format (YYYY-MM-DD)
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  if (!validateInput(startDate, datePattern) || !validateInput(endDate, datePattern)) {
-    return new Response(
-      JSON.stringify({ error: 'Invalid date format. Use YYYY-MM-DD' }),
-      { status: 400 }
-    );
-  }
-  
-  // Sanitize planId (alphanumeric values only plus hyphen and underscore)
-  const planIdPattern = /^[a-zA-Z0-9-_]+$/;
-  if (!validateInput(planId, planIdPattern)) {
-    return new Response(
-      JSON.stringify({ error: 'Invalid planId format' }),
-      { status: 400 }
-    );
-  }
+  const { startDate, endDate, planId } = validationResult.data;
   console.log('session', session);
   const tenantId = session.tenantId;
   console.log('tenantId', tenantId);
@@ -104,12 +111,35 @@ export const GET = async (req, res) => {
     plan.startDate = parsedStartDate;
     plan.endDate = parsedEndDate;
     
-    return new Response(JSON.stringify(plan.toView()), { status: 200 });
+    // Sanitize the output to prevent XSS attacks
+    const sanitizedPlanData = sanitizeHtml(JSON.stringify(plan.toView()), {
+      allowedTags: [],       // Don't allow any HTML tags
+      allowedAttributes: {}, // Don't allow any HTML attributes
+      textFilter: function(text) {
+        return text; // We're using this for JSON, so no additional text filtering
+      }
+    });
+    
+    return new Response(sanitizedPlanData, { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'",
+        'X-XSS-Protection': '1; mode=block'
+      }
+    });
   } catch (error) {
     console.error('Error processing plan request:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff'
+        }
+      }
     );
   }
 };

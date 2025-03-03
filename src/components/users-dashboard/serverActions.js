@@ -7,20 +7,64 @@ import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { CreateUserService } from '@/backend/services/createUserService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
+
+// Schema for validating user data
+const userSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  role: z.enum(['owner', 'editor', 'viewer']),
+  name: z.string().min(1).max(100),
+});
+
+// Sanitize function for text inputs
+const sanitizeText = (text) => {
+  if (!text) return text;
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'discard',
+  });
+};
 
 const inviteUser = async ({ userId, email, role, name }) => {
   try {
+    // Sanitize text inputs
+    const sanitizedUserId = sanitizeText(userId);
+    const sanitizedEmail = sanitizeText(email);
+    const sanitizedRole = sanitizeText(role);
+    const sanitizedName = sanitizeText(name);
+
+    // Validate the input data
+    const validationResult = userSchema.safeParse({
+      userId: sanitizedUserId,
+      email: sanitizedEmail,
+      role: sanitizedRole,
+      name: sanitizedName,
+    });
+
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error.format());
+      return { success: false, error: 'Invalid input data' };
+    }
+
+    // Use validated and sanitized data
+    const validData = validationResult.data;
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+
     if (!session) {
-      return false;
+      return { success: false, error: 'Authentication required' };
     }
+
     if (session.userRole !== 'owner') {
-      return false;
+      return { success: false, error: 'Insufficient permissions' };
     }
 
     const tenantId = session.tenantId;
@@ -30,18 +74,20 @@ const inviteUser = async ({ userId, email, role, name }) => {
       transactionManager,
       auth0Adapter,
     });
+
     await createUserService.execute({
       tenantId,
-      userId,
-      email,
-      role,
-      name,
+      userId: validData.userId,
+      email: validData.email,
+      role: validData.role,
+      name: validData.name,
     });
+
+    return { success: true };
   } catch (error) {
-    console.error(error);
-    return false;
+    console.error('Error inviting user:', error);
+    return { success: false, error: 'Server error' };
   }
-  return true;
 };
 
 export { inviteUser };

@@ -14,6 +14,77 @@ import { ReorderSubcategoriesService } from '@/backend/services/reorderSubcatego
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { cookies } from 'next/headers';
+import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
+
+// Sanitize function to strip HTML
+const sanitizeInput = (input) => {
+  if (typeof input === 'string') {
+    return sanitizeHtml(input, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+  }
+  return input;
+};
+
+// Validation schemas
+const categorySchema = z.object({
+  categoryId: z.string().min(1),
+  name: z.string().min(1).max(100),
+  monthlyGoal: z.number().nonnegative(),
+  planId: z.string().min(1),
+  type: z.enum(['income', 'expense', 'savings']),
+});
+
+const updateCategorySchema = z.object({
+  categoryId: z.string().min(1),
+  name: z.string().min(1).max(100),
+  monthlyGoal: z.number().nonnegative(),
+  planId: z.string().min(1),
+});
+
+const deleteCategorySchema = z.object({
+  categoryId: z.string().min(1),
+  planId: z.string().min(1),
+});
+
+const subcategorySchema = z.object({
+  categoryId: z.string().min(1),
+  name: z.string().min(1).max(100),
+  monthlyGoal: z.number().nonnegative(),
+  planId: z.string().min(1),
+  subcategoryId: z.string().min(1),
+});
+
+const updateSubcategorySchema = z.object({
+  subcategoryId: z.string().min(1),
+  categoryId: z.string().min(1),
+  name: z.string().min(1).max(100),
+  monthlyGoal: z.number().nonnegative(),
+  planId: z.string().min(1),
+});
+
+const deleteSubcategorySchema = z.object({
+  subcategoryId: z.string().min(1),
+  categoryId: z.string().min(1),
+  planId: z.string().min(1),
+  type: z.enum(['income', 'expense', 'savings']).optional(),
+});
+
+const reorderCategoriesSchema = z.object({
+  planId: z.string().min(1),
+  type: z.enum(['income', 'expense', 'savings']),
+  oldIndex: z.number().int().nonnegative(),
+  newIndex: z.number().int().nonnegative(),
+});
+
+const reorderSubcategoriesSchema = z.object({
+  planId: z.string().min(1),
+  categoryId: z.string().min(1),
+  oldIndex: z.number().int().nonnegative(),
+  newIndex: z.number().int().nonnegative(),
+});
 
 const createCategory = async ({
   categoryId,
@@ -23,6 +94,24 @@ const createCategory = async ({
   type,
 }) => {
   try {
+    // Validate inputs
+    const validatedData = categorySchema.parse({
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+      type,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      categoryId: sanitizeInput(validatedData.categoryId),
+      name: sanitizeInput(validatedData.name),
+      planId: sanitizeInput(validatedData.planId),
+      type: sanitizeInput(validatedData.type),
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -43,12 +132,12 @@ const createCategory = async ({
 
     await service.execute({
       tenantId,
-      categoryId,
-      name,
-      monthlyGoal: monthlyGoal,
-      type,
+      categoryId: sanitizedData.categoryId,
+      name: sanitizedData.name,
+      monthlyGoal: sanitizedData.monthlyGoal,
+      type: sanitizedData.type,
       isImmutable: false,
-      planId,
+      planId: sanitizedData.planId,
     });
   } catch (error) {
     console.error(error);
@@ -59,6 +148,22 @@ const createCategory = async ({
 
 const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
   try {
+    // Validate inputs
+    const validatedData = updateCategorySchema.parse({
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      categoryId: sanitizeInput(validatedData.categoryId),
+      name: sanitizeInput(validatedData.name),
+      planId: sanitizeInput(validatedData.planId),
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -79,10 +184,10 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
     await service.execute({
       tenantId,
-      categoryId,
-      name,
-      monthlyGoal,
-      planId,
+      categoryId: sanitizedData.categoryId,
+      name: sanitizedData.name,
+      monthlyGoal: sanitizedData.monthlyGoal,
+      planId: sanitizedData.planId,
     });
   } catch (error) {
     console.error(error);
@@ -93,6 +198,19 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
 const deleteCategory = async ({ categoryId, planId }) => {
   try {
+    // Validate inputs
+    const validatedData = deleteCategorySchema.parse({
+      categoryId,
+      planId,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      categoryId: sanitizeInput(validatedData.categoryId),
+      planId: sanitizeInput(validatedData.planId),
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -113,8 +231,8 @@ const deleteCategory = async ({ categoryId, planId }) => {
 
     await service.execute({
       tenantId,
-      categoryId,
-      planId,
+      categoryId: sanitizedData.categoryId,
+      planId: sanitizedData.planId,
     });
   } catch (error) {
     console.error(error);
@@ -131,6 +249,24 @@ const createSubcategory = async ({
   subcategoryId,
 }) => {
   try {
+    // Validate inputs
+    const validatedData = subcategorySchema.parse({
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+      subcategoryId,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      categoryId: sanitizeInput(validatedData.categoryId),
+      name: sanitizeInput(validatedData.name),
+      planId: sanitizeInput(validatedData.planId),
+      subcategoryId: sanitizeInput(validatedData.subcategoryId),
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -151,12 +287,12 @@ const createSubcategory = async ({
 
     await service.execute({
       tenantId,
-      categoryId,
-      name,
-      monthlyGoal,
+      categoryId: sanitizedData.categoryId,
+      name: sanitizedData.name,
+      monthlyGoal: sanitizedData.monthlyGoal,
       isImmutable: false,
-      planId,
-      subcategoryId,
+      planId: sanitizedData.planId,
+      subcategoryId: sanitizedData.subcategoryId,
     });
   } catch (error) {
     console.error(error);
@@ -173,6 +309,24 @@ const updateSubcategory = async ({
   planId,
 }) => {
   try {
+    // Validate inputs
+    const validatedData = updateSubcategorySchema.parse({
+      subcategoryId,
+      categoryId,
+      name,
+      monthlyGoal,
+      planId,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      subcategoryId: sanitizeInput(validatedData.subcategoryId),
+      categoryId: sanitizeInput(validatedData.categoryId),
+      name: sanitizeInput(validatedData.name),
+      planId: sanitizeInput(validatedData.planId),
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -193,11 +347,11 @@ const updateSubcategory = async ({
 
     await service.execute({
       tenantId,
-      subcategoryId,
-      categoryId,
-      name,
-      monthlyGoal,
-      planId,
+      subcategoryId: sanitizedData.subcategoryId,
+      categoryId: sanitizedData.categoryId,
+      name: sanitizedData.name,
+      monthlyGoal: sanitizedData.monthlyGoal,
+      planId: sanitizedData.planId,
     });
   } catch (error) {
     console.error(error);
@@ -213,6 +367,23 @@ const deleteSubcategory = async ({
   type,
 }) => {
   try {
+    // Validate inputs
+    const validatedData = deleteSubcategorySchema.parse({
+      subcategoryId,
+      categoryId,
+      planId,
+      type,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      subcategoryId: sanitizeInput(validatedData.subcategoryId),
+      categoryId: sanitizeInput(validatedData.categoryId),
+      planId: sanitizeInput(validatedData.planId),
+      type: validatedData.type ? sanitizeInput(validatedData.type) : undefined,
+    };
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
@@ -233,10 +404,10 @@ const deleteSubcategory = async ({
 
     await service.execute({
       tenantId,
-      subcategoryId,
-      categoryId,
-      planId,
-      type,
+      subcategoryId: sanitizedData.subcategoryId,
+      categoryId: sanitizedData.categoryId,
+      planId: sanitizedData.planId,
+      type: sanitizedData.type,
     });
   } catch (error) {
     console.error(error);
@@ -246,28 +417,50 @@ const deleteSubcategory = async ({
 };
 
 const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const sessionRepository = new SessionRepository({ redisAdapter });
-  const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({
-    cookies: await cookies(),
-  });
-  if (!session) {
+  try {
+    // Validate inputs
+    const validatedData = reorderCategoriesSchema.parse({
+      planId,
+      type,
+      oldIndex,
+      newIndex,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      planId: sanitizeInput(validatedData.planId),
+      type: sanitizeInput(validatedData.type),
+    };
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.tenantId;
+
+    const service = new ReorderCategoriesService({
+      transactionManager: new TransactionManager(),
+    });
+
+    await service.execute({
+      tenantId,
+      planId: sanitizedData.planId,
+      type: sanitizedData.type,
+      oldIndex: sanitizedData.oldIndex,
+      newIndex: sanitizedData.newIndex,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.tenantId;
-
-  const service = new ReorderCategoriesService({
-    transactionManager: new TransactionManager(),
-  });
-
-  await service.execute({
-    tenantId,
-    planId,
-    type,
-    oldIndex,
-    newIndex,
-  });
 };
 
 const reorderSubcategories = async ({
@@ -276,28 +469,50 @@ const reorderSubcategories = async ({
   oldIndex,
   newIndex,
 }) => {
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const sessionRepository = new SessionRepository({ redisAdapter });
-  const sessionManager = new SessionManager({ sessionRepository });
-  const session = await sessionManager.touchSession({
-    cookies: await cookies(),
-  });
-  if (!session) {
+  try {
+    // Validate inputs
+    const validatedData = reorderSubcategoriesSchema.parse({
+      planId,
+      categoryId,
+      oldIndex,
+      newIndex,
+    });
+
+    // Sanitize string inputs
+    const sanitizedData = {
+      ...validatedData,
+      planId: sanitizeInput(validatedData.planId),
+      categoryId: sanitizeInput(validatedData.categoryId),
+    };
+
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
+    if (!session) {
+      return false;
+    }
+    const tenantId = session.tenantId;
+
+    const service = new ReorderSubcategoriesService({
+      transactionManager: new TransactionManager(),
+    });
+
+    await service.execute({
+      tenantId,
+      planId: sanitizedData.planId,
+      categoryId: sanitizedData.categoryId,
+      oldIndex: sanitizedData.oldIndex,
+      newIndex: sanitizedData.newIndex,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-  const tenantId = session.tenantId;
-
-  const service = new ReorderSubcategoriesService({
-    transactionManager: new TransactionManager(),
-  });
-
-  await service.execute({
-    tenantId,
-    planId,
-    categoryId,
-    oldIndex,
-    newIndex,
-  });
 };
 
 export {

@@ -29,6 +29,7 @@ class CreatePlaidItemService {
         const { accessToken } = await this.plaidAdapter.exchangePublicToken({
           publicToken,
         });
+        console.log('access token', accessToken);
         const plaidItem = new PlaidItem({
           userId: userId,
           plaidItemId,

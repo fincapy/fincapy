@@ -81,12 +81,10 @@ const TOTPRegistrationForm = () => {
 
     setIsSubmitting(true);
     const result = await verifyAndSaveTOTP(otp, secret);
-    console.log('result', result);
     if (!result) {
       setError('Invalid verification code. Please try again.');
       setIsSubmitting(false);
     } else if (result.success && result.backupCodes) {
-      console.log('here?');
       setBackupCodes(result.backupCodes);
       setShowBackupCodes(true);
       setIsSubmitting(false);

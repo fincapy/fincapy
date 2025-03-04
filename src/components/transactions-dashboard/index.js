@@ -109,7 +109,6 @@ import SubmitButton from '@/components/SubmitButton';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
-  console.log('categoryNames', categoryNames);
 
   return (
     <Select onValueChange={field.onChange} defaultValue={field.value}>

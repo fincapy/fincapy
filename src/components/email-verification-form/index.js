@@ -23,7 +23,6 @@ const EmailVerificationForm = () => {
           (Date.now() - parseInt(timestamp, 10)) / 1000
         );
         const remaining = Math.max(0, 600 - elapsed);
-        console.log(remaining);
         return remaining;
       }
     }

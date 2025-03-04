@@ -207,8 +207,6 @@ const ExistingFinancialInstitutionCard = ({ link, name }) => {
     }
   };
 
-  console.log('link', link);
-
   return (
     <Card className="w-11/12 min-h-40 flex items-center justify-center relative">
       <CardHeader className="flex flex-row items-center justify-center gap-2">
@@ -370,8 +368,6 @@ export default function FinancialInstitutionsDashboard() {
     plaidItemDisplayNamesAtom
   );
   const [currentUserId, setCurrentUserId] = useAtom(currentUserIdAtom);
-  console.log('currentUserId', currentUserId);
-  console.log('plaidItemDisplayNames', plaidItemDisplayNames);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
     if (plaidItemsState) {

@@ -27,7 +27,6 @@ export const categoryNamesAtom = atom((get) => {
   };
 
   const plan = get(planAtom);
-  console.log('plan', plan);
   if (!plan) {
     return [];
   }

@@ -48,8 +48,6 @@ class TransactionManager {
       emailVerificationCodeRepository,
     });
     const { script, keys, args } = transactionBuilder.generateScript();
-    console.log('script', script);
-    console.log('args', args);
     await redisAdapter.executeLuaScript(script, keys, args);
   }
 }

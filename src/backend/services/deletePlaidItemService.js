@@ -5,7 +5,6 @@ class DeletePlaidItemService {
   }
 
   async execute({ tenantId, plaidItemId }) {
-    console.log('plaidItemId', plaidItemId);
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
         tenantId,

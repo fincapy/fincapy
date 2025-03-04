@@ -145,7 +145,6 @@ async function authenticateEmailPassword(rawInput) {
       }
       redirect('/verify-email');
     }
-    console.log('user', user);
     if (!user.totpEnabled) {
       redirect('/register-totp');
     }

@@ -1610,7 +1610,6 @@ export default function CategoryDashboard({ type, categories }) {
   const [categoryNames, setCategoryNames] = useState([]);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
-  console.log(currentUserRole);
   const { toast } = useToast();
   useEffect(() => {
     if (categories.length > 0) {

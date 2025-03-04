@@ -71,10 +71,10 @@ const inviteUserFormSchema = z.object({
     message: 'Invalid email address',
   }),
   role: z.string(),
-  name: z.string(),
+  name: z.string().min(1),
 });
 
-const InviteUserForm = () => {
+const InviteUserForm = ({ setDialogOpen }) => {
   const [usersState, setUsersState] = useAtom(usersAtom);
   const { toast } = useToast();
   const form = useForm({
@@ -153,6 +153,7 @@ const InviteUserForm = () => {
       }),
     ];
     setUsersState(newUsersState);
+    setDialogOpen(false);
     handleServerInviteUser({
       userId,
       name,
@@ -230,8 +231,10 @@ const InviteUserForm = () => {
 };
 
 const InviteUserDialogue = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon">
           <PlusIcon />
@@ -251,7 +254,7 @@ const InviteUserDialogue = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <InviteUserForm />
+          <InviteUserForm setDialogOpen={setDialogOpen} />
         </div>
       </DialogContent>
     </Dialog>

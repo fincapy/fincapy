@@ -151,6 +151,7 @@ const CreateCategoryForm = () => {
     setPlanState,
     values,
     onSubmit,
+    setDialogOpen,
   }) {
     setTimeout(async () => {
       try {
@@ -202,6 +203,7 @@ const CreateCategoryForm = () => {
       isImmutable: false,
     });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleCategoryCreation({
       name,
       categoryId,
@@ -227,7 +229,6 @@ const CreateCategoryForm = () => {
         className="flex flex-col gap-3"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
-        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <FormField
           control={form.control}
@@ -275,8 +276,9 @@ const CreateCategoryForm = () => {
 
 const CreateCategoryDialogue = () => {
   const type = useContext(TypeContext);
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -301,7 +303,7 @@ const CreateCategoryDialogue = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <CreateCategoryForm />
+          <CreateCategoryForm setDialogOpen={setDialogOpen} />
         </div>
       </DialogContent>
     </Dialog>
@@ -354,6 +356,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
     const newPlan = planState.clone();
     newPlan.deleteCategory({ categoryId });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleServerDeleteCategory({
       categoryId,
       planId: 'initial',
@@ -363,9 +366,10 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
     });
   };
   const type = useContext(TypeContext);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
           className="h-4 w-4 text-muted-foreground hover:text-foreground"
@@ -399,7 +403,12 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   );
 };
 
-const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
+const EditCategoryForm = ({
+  categoryName,
+  monthlyGoal,
+  categoryId,
+  setDialogOpen,
+}) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
   const form = useForm({
@@ -467,6 +476,7 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
     const newPlan = planState.clone();
     newPlan.updateCategory({ categoryId, name, monthlyGoal });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleServerUpdateCategory({
       name,
       categoryId,
@@ -548,8 +558,9 @@ const EditCategoryForm = ({ categoryName, monthlyGoal, categoryId }) => {
 
 const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   const type = useContext(TypeContext);
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
           className="text-muted-foreground hover:text-foreground"
@@ -573,6 +584,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <EditCategoryForm
+            setDialogOpen={setDialogOpen}
             categoryName={categoryName}
             monthlyGoal={monthlyGoal}
             categoryId={categoryId}
@@ -583,7 +595,11 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   );
 };
 
-const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
+const CreateSubcategoryForm = ({
+  categoryId,
+  setDropdownIsOpen,
+  setDialogOpen,
+}) => {
   const type = useContext(TypeContext);
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
@@ -669,6 +685,7 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
       subcategoryId,
     });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleServerSubcategoryCreation({
       name,
       categoryId,
@@ -735,9 +752,10 @@ const CreateSubcategoryForm = ({ categoryId, setDropdownIsOpen }) => {
 
 const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   const type = useContext(TypeContext);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
           variant="ghost"
@@ -765,6 +783,7 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
           <CreateSubcategoryForm
             categoryId={categoryId}
             setDropdownIsOpen={setDropdownIsOpen}
+            setDialogOpen={setDialogOpen}
           />
         </div>
       </DialogContent>
@@ -772,14 +791,19 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   );
 };
 
-const EditSubcategoryForm = ({ subcategoryId, categoryId, subcategory }) => {
+const EditSubcategoryForm = ({
+  subcategoryId,
+  categoryId,
+  subcategory,
+  setDialogOpen,
+}) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: subcategory.name,
-      monthlyGoal: subcategory.monthlyGoal,
+      monthlyGoal: subcategory.monthlyGoal.toString(),
     },
   });
 
@@ -861,6 +885,7 @@ const EditSubcategoryForm = ({ subcategoryId, categoryId, subcategory }) => {
       monthlyGoal,
     });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleServerUpdateSubcategory({
       name,
       monthlyGoal,
@@ -930,8 +955,10 @@ const EditSubcategoryDialogue = ({
   categoryId,
   subcategory,
 }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
           onPointerDown={(e) => e.stopPropagation()}
@@ -954,6 +981,7 @@ const EditSubcategoryDialogue = ({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <EditSubcategoryForm
+            setDialogOpen={setDialogOpen}
             subcategory={subcategory}
             subcategoryId={subcategoryId}
             categoryId={categoryId}
@@ -1020,6 +1048,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
     const newPlan = planState.clone();
     newPlan.deleteSubcategory({ subcategoryId, categoryId, type });
     setPlanState(newPlan);
+    setDialogOpen(false);
     handleServerDeleteSubcategory({
       subcategoryId,
       categoryId,
@@ -1030,9 +1059,10 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
       type,
     });
   };
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
           className="text-muted-foreground hover:text-foreground"

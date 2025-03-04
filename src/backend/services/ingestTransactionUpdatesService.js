@@ -67,12 +67,24 @@ class IngestTransactionUpdatesService {
       (category) => category.categoryId === aiTransactionCategories.categoryId
     );
     if (category) {
-      category.transactions.push(transaction);
+      const existingTransaction = category.transactions.find(
+        (existingTransaction) =>
+          existingTransaction.transactionId === transaction.transactionId
+      );
+      if (!existingTransaction) {
+        category.transactions.push(transaction);
+      }
     }
     plan.categories.forEach((category) => {
       category.subcategories.forEach((subcategory) => {
         if (subcategory.subcategoryId === aiTransactionCategories.categoryId) {
-          subcategory.transactions.push(transaction);
+          const existingTransaction = subcategory.transactions.find(
+            (existingTransaction) =>
+              existingTransaction.transactionId === transaction.transactionId
+          );
+          if (!existingTransaction) {
+            subcategory.transactions.push(transaction);
+          }
         }
       });
     });

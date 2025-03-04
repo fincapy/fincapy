@@ -43,6 +43,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { useAtom } from 'jotai';
 import { usersAtom } from '../state/atoms';
 import SubmitButton from '@/components/SubmitButton';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export function SelectDemo({ field }) {
   return (
@@ -65,7 +66,7 @@ export function SelectDemo({ field }) {
 }
 
 const changeRoleFormSchema = z.object({
-  role: z.string(),
+  role: z.string().min(1),
 });
 
 const ChangeRoleForm = ({
@@ -125,6 +126,8 @@ const ChangeRoleForm = ({
       return { ...user };
     });
     setUsersState(newUsersState);
+    setInnerDialogIsOpen(false);
+    setOuterDialogIsOpen(false);
     handleServerChangeRole({ oldUsersState, onSubmit, values });
   };
 
@@ -158,6 +161,9 @@ const ChangeRoleDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <VisuallyHidden>
+        <DialogTitle>Change Role Dialog</DialogTitle>
+      </VisuallyHidden>
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -231,6 +237,8 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
     const oldUsersState = usersState.map((user) => ({ ...user }));
     const newUsersState = usersState.filter((user) => user.id !== userId);
     setUsersState(newUsersState);
+    setOuterDialogIsOpen(false);
+    setIsOpen(false);
     handleServerRemoveUser({
       oldUsersState,
       handleRemoveUser,
@@ -272,7 +280,7 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
 };
 
 const changeNameFormSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
 });
 
 const ChangeNameForm = ({
@@ -332,6 +340,8 @@ const ChangeNameForm = ({
       return { ...user };
     });
     setUsersState(newUsersState);
+    setOuterDialogIsOpen(false);
+    setInnerDialogIsOpen(false);
     handleServerChangeName({
       oldUsersState,
       onSubmit,
@@ -373,6 +383,9 @@ const ChangeNameDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <VisuallyHidden>
+        <DialogTitle>Change Name Dialog</DialogTitle>
+      </VisuallyHidden>
       <DialogContent
         className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}

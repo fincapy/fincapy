@@ -53,102 +53,105 @@ function sanitizeInput(input) {
 }
 
 async function authenticateEmailPassword(rawInput) {
+  // Validate input
+  const sanitizedInput = {
+    email: sanitizeInput(rawInput.email),
+    password: rawInput.password, // Don't sanitize password as it may contain special characters
+  };
+
+  let email;
+  let password;
   try {
-    // Validate input
-    const sanitizedInput = {
-      email: sanitizeInput(rawInput.email),
-      password: rawInput.password, // Don't sanitize password as it may contain special characters
-    };
-
-    const { email, password } = emailPasswordSchema.parse(sanitizedInput);
-
-    const redisAdapter = new RedisAdapter({ redisClient });
-    const rateLimiter = new RateLimiter({ redisAdapter });
-
-    // Get IP address from headers
-    const headersList = await headers();
-    const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-    try {
-      await rateLimiter.checkRateLimit({
-        key: `ip:email-password:${hashIp(ip)}`,
-      });
-      await rateLimiter.checkRateLimit({
-        key: `email:email-password:${hashEmail(email)}`,
-      });
-    } catch (error) {
-      console.log('error', error);
-      return false;
-    }
-    const userRepository = new UserRepository({ redisAdapter });
-    const authenticator = new EmailPasswordAuthenticator({
-      userRepository,
-    });
-    const user = await userRepository.getByEmail({ email });
-    const result = await authenticator.authenticate({
-      unauthenticatedPassword: password,
-      password: user?.password,
-    });
-    const emailVerified = user.emails.find(
-      (emailInfo) => emailInfo.email === email
-    )?.verified;
-    if (result) {
-      const emailPasswordAuthenticatedToken = jwt.sign(
-        {
-          userId: user.id,
-          mfaMethod: user.mfa_method,
-          emailVerified: emailVerified,
-          tenantId: user.tenantId,
-          type: 'emailPasswordAuthenticated',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '10m' }
-      );
-      (await cookies()).set(
-        'emailPasswordAuthenticatedToken',
-        emailPasswordAuthenticatedToken,
-        {
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 60 * 10,
-        }
-      );
-
-      if (!emailVerified) {
-        const emailVerificationCode = crypto.randomInt(100000, 999999);
-        const emailVerificationCodeRepository =
-          new EmailVerificationCodeRepository({
-            redisAdapter,
-          });
-        await emailVerificationCodeRepository.set({
-          emailVerificationCode,
-          userId: user.id,
-          ttl: 60 * 10,
-        });
-        if (process.env.NODE_ENV === 'production') {
-          const sesAdapter = new SESAdapter();
-          await sesAdapter.sendEmail({
-            to: email,
-            subject: 'Verify your Fincapy account',
-            text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
-          });
-        } else {
-          console.log('emailVerificationCode', emailVerificationCode);
-        }
-        redirect('/verify-email');
-      }
-      console.log('user', user);
-      if (!user.totpEnabled) {
-        redirect('/register-totp');
-      }
-      redirect('/verify-totp');
-    }
-    return false;
+    const result = emailPasswordSchema.parse(sanitizedInput);
+    email = result.email;
+    password = result.password;
   } catch (error) {
-    console.error('Authentication validation error:', error);
     return false;
   }
+
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+
+  // Get IP address from headers
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:email-password:${hashIp(ip)}`,
+    });
+    await rateLimiter.checkRateLimit({
+      key: `email:email-password:${hashEmail(email)}`,
+    });
+  } catch (error) {
+    console.log('error', error);
+    return false;
+  }
+  const userRepository = new UserRepository({ redisAdapter });
+  const authenticator = new EmailPasswordAuthenticator({
+    userRepository,
+  });
+  const user = await userRepository.getByEmail({ email });
+  const result = await authenticator.authenticate({
+    unauthenticatedPassword: password,
+    password: user?.password,
+  });
+  const emailVerified = user.emails.find(
+    (emailInfo) => emailInfo.email === email
+  )?.verified;
+  if (result) {
+    const emailPasswordAuthenticatedToken = jwt.sign(
+      {
+        userId: user.id,
+        mfaMethod: user.mfa_method,
+        emailVerified: emailVerified,
+        tenantId: user.tenantId,
+        type: 'emailPasswordAuthenticated',
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+    (await cookies()).set(
+      'emailPasswordAuthenticatedToken',
+      emailPasswordAuthenticatedToken,
+      {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 10,
+      }
+    );
+
+    if (!emailVerified) {
+      const emailVerificationCode = crypto.randomInt(100000, 999999);
+      const emailVerificationCodeRepository =
+        new EmailVerificationCodeRepository({
+          redisAdapter,
+        });
+      await emailVerificationCodeRepository.set({
+        emailVerificationCode,
+        userId: user.id,
+        ttl: 60 * 10,
+      });
+      if (process.env.NODE_ENV === 'production') {
+        const sesAdapter = new SESAdapter();
+        await sesAdapter.sendEmail({
+          to: email,
+          subject: 'Verify your Fincapy account',
+          text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+        });
+      } else {
+        console.log('emailVerificationCode', emailVerificationCode);
+      }
+      redirect('/verify-email');
+    }
+    console.log('user', user);
+    if (!user.totpEnabled) {
+      redirect('/register-totp');
+    }
+    redirect('/verify-totp');
+  }
+  return false;
 }
 
 async function sendPasswordResetEmail(rawInput) {

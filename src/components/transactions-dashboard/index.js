@@ -157,7 +157,7 @@ const recategorizeFormSchema = z.object({
   ]),
 });
 
-const CreateTransactionForm = ({ transaction, transactionId }) => {
+const CreateTransactionForm = ({ setDialogOpen }) => {
   const { toast } = useToast();
   const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
@@ -237,6 +237,7 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
       transactionId,
     });
     setPlanState(newPlanState);
+    setDialogOpen(false);
     handleServerCreateTransaction({
       oldPlanState: oldPlanState,
       onSubmit,
@@ -352,8 +353,9 @@ const CreateTransactionForm = ({ transaction, transactionId }) => {
 
 const CreateTransactionDialogue = () => {
   const type = useContext(TypeContext);
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -376,7 +378,7 @@ const CreateTransactionDialogue = () => {
           <DialogDescription>Add a new custom transaction</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <CreateTransactionForm />
+          <CreateTransactionForm setDialogOpen={setDialogOpen} />
         </div>
       </DialogContent>
     </Dialog>

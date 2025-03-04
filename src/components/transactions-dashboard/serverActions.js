@@ -11,13 +11,13 @@ import sanitizeHtml from 'sanitize-html';
 
 // Schema for validating transaction data
 const transactionSchema = z.object({
-  planId: z.string().uuid(),
+  planId: z.string(),
   categoryId: z.string().uuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
   description: z.string().min(1).max(500),
   status: z.string().max(100),
   type: z.string().max(100),
-  amount: z.number().positive(),
+  amount: z.number().min(0),
   transactionId: z.string().uuid().optional(),
 });
 
@@ -65,7 +65,7 @@ const createTransaction = async ({
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
-      return { success: false, error: 'Invalid input data' };
+      return false;
     }
 
     // Use validated and sanitized data
@@ -77,21 +77,21 @@ const createTransaction = async ({
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    
+
     if (!session) {
-      return { success: false, error: 'Authentication required' };
+      return false;
     }
-    
+
     if (session.userRole === 'viewer') {
-      return { success: false, error: 'Insufficient permissions' };
+      return false;
     }
-    
+
     const transactionManager = new TransactionManager();
     const createTransactionService = new CreateTransactionService({
       transactionManager,
     });
     const tenantId = session.tenantId;
-    
+
     await createTransactionService.execute({
       tenantId,
       planId: validData.planId,
@@ -103,11 +103,11 @@ const createTransaction = async ({
       amount: validData.amount,
       transactionId: validData.transactionId,
     });
-    
-    return { success: true };
+
+    return true;
   } catch (error) {
     console.error('Error creating transaction:', error);
-    return { success: false, error: 'Server error' };
+    return false;
   }
 };
 

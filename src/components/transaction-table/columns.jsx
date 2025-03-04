@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DataTableColumnHeader } from './data-table-column-header';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { useState } from 'react';
 import {
   Form,
@@ -45,6 +45,7 @@ import { Input } from '@/components/ui/input';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { editTransaction } from '@/components/transaction-table/serverActions';
 import SubmitButton from '@/components/SubmitButton';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -208,12 +209,7 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Date</FormLabel>
-              <Input
-                type="text"
-                autoComplete="off"
-                {...field}
-                defaultValue={field.value}
-              />
+              <Input type="text" autoComplete="off" {...field} />
               <FormMessage />
             </FormItem>
           )}
@@ -224,12 +220,7 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input
-                type="text"
-                autoComplete="off"
-                {...field}
-                defaultValue={field.value}
-              />
+              <Input type="text" autoComplete="off" {...field} />
               <FormMessage />
             </FormItem>
           )}
@@ -296,12 +287,7 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <Input
-                type="text"
-                {...field}
-                autoComplete="off"
-                defaultValue={field.value}
-              />
+              <Input type="text" {...field} autoComplete="off" />
               <FormMessage />
             </FormItem>
           )}
@@ -319,6 +305,9 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <VisuallyHidden>
+        <DialogTitle>Edit Transaction Dialog</DialogTitle>
+      </VisuallyHidden>
       <DialogContent
         className="sm:max-w-11/12"
         onOpenAutoFocus={(e) => e.preventDefault()}

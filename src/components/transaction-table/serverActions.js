@@ -11,15 +11,15 @@ import sanitizeHtml from 'sanitize-html';
 
 // Schema for validating transaction data
 const transactionSchema = z.object({
-  planId: z.string().uuid(),
+  planId: z.string(),
   transactionId: z.string().uuid(),
   categoryId: z.string().uuid(),
-  subcategoryId: z.string().uuid().optional(),
+  subcategoryId: z.string().uuid().optional().nullable(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
   description: z.string().min(1).max(500),
   status: z.string().max(100),
   type: z.string().max(100),
-  amount: z.number().positive(),
+  amount: z.number().min(0),
   newCategoryId: z.string().uuid().optional(),
 });
 
@@ -73,7 +73,7 @@ const editTransaction = async ({
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
-      return { success: false, error: 'Invalid input data' };
+      return false;
     }
 
     // Use validated and sanitized data
@@ -85,10 +85,10 @@ const editTransaction = async ({
       cookies: await cookies(),
     });
     if (!session) {
-      return { success: false, error: 'Authentication required' };
+      return false;
     }
     if (session.userRole === 'viewer') {
-      return { success: false, error: 'Insufficient permissions' };
+      return false;
     }
     const tenantId = session.tenantId;
 
@@ -109,10 +109,10 @@ const editTransaction = async ({
       amount: validData.amount,
       newCategoryId: validData.newCategoryId,
     });
-    return { success: true };
+    return true;
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Server error' };
+    return false;
   }
 };
 

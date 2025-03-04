@@ -69,7 +69,7 @@ const deleteSubcategorySchema = z.object({
   subcategoryId: z.string().min(1),
   categoryId: z.string().min(1),
   planId: z.string().min(1),
-  type: z.enum(['income', 'expense', 'savings']).optional(),
+  type: z.string().optional(),
 });
 
 const reorderCategoriesSchema = z.object({

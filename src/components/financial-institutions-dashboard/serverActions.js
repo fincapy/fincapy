@@ -24,7 +24,7 @@ const sanitizeString = (input) => {
 
 // Validation schemas
 const LinkTokenSchema = z.object({
-  institutionId: z.string().trim().min(1),
+  institutionId: z.string().min(1).optional().nullable(),
 });
 
 const CreatePlaidItemSchema = z.object({
@@ -53,8 +53,10 @@ const fetchLinkToken = async (params) => {
     }
 
     // Sanitize inputs
-    const { institutionId } = validationResult.data;
-    const sanitizedInstitutionId = sanitizeString(institutionId);
+    let institutionId = null;
+    if (validationResult.data) {
+      institutionId = sanitizeString(validationResult.data);
+    }
 
     // Proceed with business logic
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -74,7 +76,7 @@ const fetchLinkToken = async (params) => {
     const tenantRepository = new TenantRepository({ redisAdapter });
     const tenant = await tenantRepository.get({ tenantId });
     const plaidItem = tenant.plaidItems.find(
-      (item) => item.institutionId === sanitizedInstitutionId
+      (item) => item.institutionId === institutionId
     );
     const plaidAdapter = new PlaidAdapter(client);
     const linkToken = await plaidAdapter.createLinkToken({

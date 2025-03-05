@@ -310,8 +310,6 @@ class RedisLuaTransactionBuilder {
       lines.push(`end`);
       argIndex++;
     }
-    console.log('versionMap', this.watchedVersions);
-    console.log('commands', this.commands);
 
     // Execute each queued command using ARGV placeholders.
     for (const command of this.commands) {

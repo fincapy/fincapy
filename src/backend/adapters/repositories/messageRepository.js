@@ -52,7 +52,6 @@ class MessageRepository {
     const encryptedMessage = encrypt(compressedMessage);
     const base64Message = encryptedMessage.toString('base64');
     if (this.transactionBuilder) {
-      console.log('Adding message to transaction');
       this.transactionBuilder.addXAdd(
         this.streamName,
         messageType,

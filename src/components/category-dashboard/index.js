@@ -131,7 +131,7 @@ const createCategoryFormSchema = z.object({
   }),
 });
 
-const CreateCategoryForm = () => {
+const CreateCategoryForm = ({ setDialogOpen }) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
   const type = useContext(TypeContext);

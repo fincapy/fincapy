@@ -18,29 +18,29 @@ const sanitizeString = (input) => {
   return sanitizeHtml(input, {
     allowedTags: [],
     allowedAttributes: {},
-    disallowedTagsMode: 'discard'
+    disallowedTagsMode: 'discard',
   });
 };
 
 // Validation schemas
 const LinkTokenSchema = z.object({
-  institutionId: z.string().trim().min(1)
+  institutionId: z.string().trim().min(1),
 });
 
 const CreatePlaidItemSchema = z.object({
   publicToken: z.string().trim().min(1),
   plaidItemId: z.string().trim().min(1),
   institutionId: z.string().trim().min(1),
-  institutionName: z.string().trim().min(1)
+  institutionName: z.string().trim().min(1),
 });
 
 const UpdatePlaidItemSchema = z.object({
   plaidItemId: z.string().trim().min(1),
-  publicToken: z.string().trim().min(1)
+  publicToken: z.string().trim().min(1),
 });
 
 const DeletePlaidItemSchema = z.object({
-  plaidItemId: z.string().trim().min(1)
+  plaidItemId: z.string().trim().min(1),
 });
 
 const fetchLinkToken = async (params) => {
@@ -49,7 +49,7 @@ const fetchLinkToken = async (params) => {
     const validationResult = LinkTokenSchema.safeParse(params);
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error);
-      return { error: 'Invalid input parameters' };
+      return false;
     }
 
     // Sanitize inputs
@@ -64,12 +64,12 @@ const fetchLinkToken = async (params) => {
       cookies: await cookies(),
     });
     if (!session) {
-      return { error: 'Unauthorized' };
+      return false;
     }
     if (session.userRole === 'viewer') {
-      return { error: 'Insufficient permissions' };
+      return false;
     }
-    
+
     const tenantId = session.tenantId;
     const tenantRepository = new TenantRepository({ redisAdapter });
     const tenant = await tenantRepository.get({ tenantId });
@@ -81,10 +81,10 @@ const fetchLinkToken = async (params) => {
       tenantId: tenantId,
       existingAccessToken: plaidItem?.accessToken,
     });
-    return { data: linkToken };
+    return linkToken;
   } catch (error) {
     console.error('Error in fetchLinkToken:', error);
-    return { error: 'Failed to fetch link token' };
+    return false;
   }
 };
 
@@ -98,13 +98,9 @@ const createPlaidItem = async (params) => {
     }
 
     // Sanitize inputs
-    const {
-      publicToken,
-      plaidItemId,
-      institutionId,
-      institutionName,
-    } = validationResult.data;
-    
+    const { publicToken, plaidItemId, institutionId, institutionName } =
+      validationResult.data;
+
     const sanitizedParams = {
       publicToken: sanitizeString(publicToken),
       plaidItemId: sanitizeString(plaidItemId),
@@ -120,12 +116,12 @@ const createPlaidItem = async (params) => {
       cookies: await cookies(),
     });
     if (!session) {
-      return { error: 'Unauthorized' };
+      return false;
     }
     if (session.userRole === 'viewer') {
-      return { error: 'Insufficient permissions' };
+      return false;
     }
-    
+
     const tenantId = session.tenantId;
     const userId = session.userId;
     const plaidAdapter = new PlaidAdapter(client);
@@ -143,11 +139,11 @@ const createPlaidItem = async (params) => {
       institutionName: sanitizedParams.institutionName,
       publicToken: sanitizedParams.publicToken,
     });
-    
-    return { success: true };
+
+    return true;
   } catch (error) {
     console.error('Error in createPlaidItem:', error);
-    return { error: 'Failed to create Plaid item' };
+    return false;
   }
 };
 
@@ -173,12 +169,12 @@ const updatePlaidItem = async (params) => {
       cookies: await cookies(),
     });
     if (!session) {
-      return { error: 'Unauthorized' };
+      return false;
     }
     if (session.userRole === 'viewer') {
-      return { error: 'Insufficient permissions' };
+      return false;
     }
-    
+
     const tenantId = session.tenantId;
     const transactionManager = new TransactionManager();
     const plaidAdapter = new PlaidAdapter(client);
@@ -186,17 +182,17 @@ const updatePlaidItem = async (params) => {
       transactionManager,
       plaidAdapter,
     });
-    
+
     await service.execute({
       tenantId,
       plaidItemId: sanitizedPlaidItemId,
       publicToken: sanitizedPublicToken,
     });
-    
-    return { success: true };
+
+    return true;
   } catch (error) {
     console.error('Error in updatePlaidItem:', error);
-    return { error: 'Failed to update Plaid item' };
+    return false;
   }
 };
 
@@ -206,7 +202,7 @@ const deletePlaidItem = async (params) => {
     const validationResult = DeletePlaidItemSchema.safeParse(params);
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error);
-      return { error: 'Invalid input parameters' };
+      return false;
     }
 
     // Sanitize inputs
@@ -221,12 +217,12 @@ const deletePlaidItem = async (params) => {
       cookies: await cookies(),
     });
     if (!session) {
-      return { error: 'Unauthorized' };
+      return false;
     }
     if (session.userRole === 'viewer') {
-      return { error: 'Insufficient permissions' };
+      return false;
     }
-    
+
     const tenantId = session.tenantId;
     const plaidAdapter = new PlaidAdapter(client);
     const transactionManager = new TransactionManager();
@@ -234,16 +230,16 @@ const deletePlaidItem = async (params) => {
       transactionManager,
       plaidAdapter,
     });
-    
-    await service.execute({ 
-      tenantId, 
-      plaidItemId: sanitizedPlaidItemId 
+
+    await service.execute({
+      tenantId,
+      plaidItemId: sanitizedPlaidItemId,
     });
-    
-    return { success: true };
+
+    return true;
   } catch (error) {
     console.error('Error in deletePlaidItem:', error);
-    return { error: 'Failed to delete Plaid item' };
+    return false;
   }
 };
 

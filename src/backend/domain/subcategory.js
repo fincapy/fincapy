@@ -55,6 +55,7 @@ class Subcategory {
         spendingTransactionTypes.includes(transaction.type)
       ) {
         currentSpending += transaction.amount;
+        category.currentNet += transaction.amount;
         transaction.categoryName = `${this.capitalize(category.type)} - ${category.name} - ${this.name}`;
         transaction.categoryId = this.subcategoryId;
         transactions.push(transaction);

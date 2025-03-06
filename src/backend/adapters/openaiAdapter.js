@@ -112,7 +112,7 @@ class OpenaiAdapter {
 
       // Format for Bedrock Converse API
       const requestBody = {
-        modelId: 'us.meta.llama3-3-70b-instruct-v1:0',
+        modelId: process.env.MODEL_ID,
         system: [
           {
             text: createSystemPrompt(attemptCount),

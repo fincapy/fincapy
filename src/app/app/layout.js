@@ -51,7 +51,6 @@ export default async function Layout({ children }) {
   }
 
   const plan = tenant.plans.find((plan) => plan.planId === planId);
-  console.log('plan', plan);
   const planView = plan.toView();
   let users = [];
   if (user.role === 'owner') {

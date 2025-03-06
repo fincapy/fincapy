@@ -302,6 +302,7 @@ export default function DashboardLayout({
   pageParam,
 }) {
   const firstRender = useRef(true);
+  console.log('plan', plan);
 
   const newPlan = new Plan({
     ...plan,

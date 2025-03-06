@@ -64,11 +64,20 @@ class OpenaiAdapter {
 
       return `
       Rules:
-      - Incoming (negative): refunds, interest, etc
-      - Outgoing (positive): purchases, withdrawals, etc
-      - Refunds must mirror their original purchase's category
-      - Reference edited transactions
-      - Valid values:
+      - Incoming (negative amounts) typically include refunds, interest, and income.
+      - Outgoing (positive amounts) typically include purchases, withdrawals, and transfers.
+      - Refunds must mirror their original purchase's category.
+      - Reference edited transactions for consistency.
+      - Determine the transaction type based on the following rules:
+        - "spending": Purchases, payments, and withdrawals.
+        - "transfer": Movement of money between accounts of the same owner.
+        - "credit_card_payment": Payments made to a credit card.
+        - "credit_card_refund": Refunds for purchases made with a credit card.
+        - "debit_card_refund": Refunds for purchases made with a debit card.
+        - "investment_transfer": Transfers to or from an investment account.
+        - "interest_income": Interest earned on an account.
+        - "income": Salary, deposits, or other sources of revenue.
+      - Only use these valid values:
         - Categories: ${JSON.stringify(Object.values(categoryIdToNameMap))}
         - Types: ${JSON.stringify(transactionTypes)}
 

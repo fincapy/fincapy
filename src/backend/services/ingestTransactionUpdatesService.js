@@ -198,14 +198,16 @@ class IngestTransactionUpdatesService {
         });
         for (const plan of tenant.plans) {
           const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-          for (const plaidTransaction of plaidTransactions.added) {
-            await this.addTransaction(
-              plaidTransactions,
-              plaidTransaction,
-              plan,
-              categoryIdToNameMap
-            );
-          }
+          await Promise.all(
+            plaidTransactions.added.map((plaidTransaction) =>
+              this.addTransaction(
+                plaidTransactions,
+                plaidTransaction,
+                plan,
+                categoryIdToNameMap
+              )
+            )
+          );
 
           for (const plaidTransaction of plaidTransactions.modified) {
             await this.updateTransaction(

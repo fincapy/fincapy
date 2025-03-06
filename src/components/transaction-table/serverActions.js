@@ -20,7 +20,7 @@ const transactionSchema = z.object({
   status: z.string().max(100),
   type: z.string().max(100),
   amount: z.number().min(0),
-  newCategoryId: z.string().uuid().optional(),
+  newCategoryId: z.string(),
 });
 
 // Sanitize function for text inputs

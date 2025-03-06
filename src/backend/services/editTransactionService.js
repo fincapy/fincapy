@@ -21,8 +21,6 @@ class EditTransactionService {
         tenantId,
       });
       const plan = tenant.plans.find((plan) => plan.planId === planId);
-      console.log('plan', plan);
-      console.log('transactionId', transactionId);
       plan.editTransaction({
         transactionId,
         description,

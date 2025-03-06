@@ -135,34 +135,54 @@ class Plan {
     newCategoryId,
     amount,
   }) {
+    let originalTransactionCategoryName;
     let transaction;
-    let oldTransactionCategory;
-    const category = this.categories.find(
+    const originalCategory = this.categories.find(
       (category) => category.categoryId === categoryId
     );
-    oldTransactionCategory = category.name;
-    if (subcategoryId) {
-      const subcategory = category.subcategories.find(
-        (subcategory) => subcategory.subcategoryId === subcategoryId
+    const originalSubcategory = originalCategory.subcategories.find(
+      (subcategory) => subcategory.subcategoryId === subcategoryId
+    );
+    if (originalSubcategory) {
+      originalTransactionCategoryName =
+        originalCategory.name + ' - ' + originalSubcategory.name;
+      transaction = originalSubcategory.transactions.find(
+        (transaction) => transaction.transactionId === transactionId
       );
-      oldTransactionCategory = category.name + ' - ' + subcategory.name;
-      transaction = subcategory.transactions.find(
-        (tran) => tran.transactionId === transactionId
-      );
+      originalSubcategory.transactions =
+        originalSubcategory.transactions.filter(
+          (existingTransaction) =>
+            existingTransaction.transactionId !== transaction.transactionId
+        );
     } else {
-      transaction = category.transactions.find(
-        (tran) => tran.transactionId === transactionId
+      originalTransactionCategoryName = originalCategory.name;
+      transaction = originalCategory.transactions.find(
+        (transaction) => transaction.transactionId === transactionId
       );
-    }
-    if (!transaction) {
-      throw new Error('Transaction not found');
+      originalCategory.transactions = originalCategory.transactions.filter(
+        (existingTransaction) =>
+          existingTransaction.transactionId !== transaction.transactionId
+      );
     }
 
-    let newTransactionCategory = oldTransactionCategory;
-    if (newCategoryId) {
-      newTransactionCategory = this.recategorizeTransaction({
-        transactionId,
-        newCategoryId,
+    let newCategoryOrSubcategory;
+    let newTransactionCategoryName;
+    newCategoryOrSubcategory = this.categories.find(
+      (category) => category.categoryId === newCategoryId
+    );
+    if (newCategoryOrSubcategory) {
+      newTransactionCategoryName = newCategoryOrSubcategory.name;
+      newCategoryOrSubcategory.transactions.push(transaction);
+    } else {
+      this.categories.forEach((category) => {
+        const subcategory = category.subcategories.find(
+          (subcategory) => subcategory.subcategoryId === newCategoryId
+        );
+        if (subcategory) {
+          subcategory.transactions.push(transaction);
+          newCategoryOrSubcategory = subcategory;
+          newTransactionCategoryName = category.name + ' - ' + subcategory.name;
+        }
       });
     }
 
@@ -183,8 +203,8 @@ class Plan {
         newTransactionDescription,
         oldTransactionType,
         newTransactionType,
-        oldTransactionCategory,
-        newTransactionCategory,
+        oldTransactionCategory: originalTransactionCategoryName,
+        newTransactionCategory: newTransactionCategoryName,
       });
       this.transactionEdits.push(transactionEdit);
     }
@@ -192,57 +212,6 @@ class Plan {
 
   capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  recategorizeTransaction({ transactionId, newCategoryId }) {
-    let oldCategory;
-    let oldSubcategory;
-    let transaction;
-    let newCategory;
-    let newSubcategory;
-    this.categories.forEach((category) => {
-      if (category.categoryId === newCategoryId) {
-        newCategory = category;
-      }
-      category.transactions.forEach((tran) => {
-        if (tran.transactionId === transactionId) {
-          oldCategory = category;
-          transaction = tran;
-        }
-      });
-      category.subcategories.forEach((subcat) => {
-        if (subcat.subcategoryId === newCategoryId) {
-          newCategory = category;
-          newSubcategory = subcat;
-        }
-        subcat.transactions.forEach((tran) => {
-          if (tran.transactionId === transactionId) {
-            oldCategory = category;
-            oldSubcategory = subcat;
-            transaction = tran;
-          }
-        });
-      });
-    });
-    if (oldCategory) {
-      oldCategory.deleteTransaction({ transactionId });
-    }
-    if (oldSubcategory) {
-      oldSubcategory.deleteTransaction({ transactionId });
-    }
-    if (newCategory) {
-      newCategory.transactions.push(transaction);
-    }
-    if (newSubcategory) {
-      newSubcategory.transactions.push(transaction);
-    }
-    const oldCategoryName = oldSubcategory
-      ? oldCategory.name + ' - ' + oldSubcategory.name
-      : oldCategory.name;
-    const newCategoryName = newSubcategory
-      ? newCategory.name + ' - ' + newSubcategory.name
-      : newCategory.name;
-    return newCategoryName;
   }
 
   toTransactionsView() {

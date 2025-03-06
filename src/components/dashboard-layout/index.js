@@ -285,14 +285,17 @@ const NavBar = ({
   );
 };
 
+function toLocalISO(date) {
+  const offsetMs = date.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
+  const localTime = new Date(date - offsetMs);
+  return localTime.toISOString().slice(0, 19); // Remove 'Z' to avoid UTC indication
+}
+
 export default function DashboardLayout({
   children,
   userEmail,
   userRole,
-  nonce,
   plan,
-  // startDate,
-  // endDate,
   userId,
   users,
   plaidItems,
@@ -325,10 +328,10 @@ export default function DashboardLayout({
   const setPlaidItemsState = useSetAtom(plaidItemsAtom);
   const setUsersState = useSetAtom(usersAtom);
   const [startDateState, setStartDateState] = useState(
-    startDate.toISOString().split('T')[0]
+    toLocalISO(startDate).split('T')[0]
   );
   const [endDateState, setEndDateState] = useState(
-    endDate.toISOString().split('T')[0]
+    toLocalISO(endDate).split('T')[0]
   );
   const setCurrentUserId = useSetAtom(currentUserIdAtom);
   const setCurrentUserRole = useSetAtom(currentUserRoleAtom);

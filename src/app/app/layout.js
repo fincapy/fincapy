@@ -12,9 +12,6 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 
 export default async function Layout({ children }) {
   const headersList = await headers();
-  const nonce = headersList.get('x-nonce');
-  let startDate;
-  let endDate;
   let planId;
   const page = headersList.get('x-page');
 
@@ -53,14 +50,6 @@ export default async function Layout({ children }) {
     planId = 'initial';
   }
 
-  if (startDate) {
-    startDate = parse(startDate, 'yyyy-MM-dd', new Date());
-  }
-
-  if (endDate) {
-    endDate = parse(endDate, 'yyyy-MM-dd', new Date());
-  }
-
   const plan = tenant.plans.find((plan) => plan.planId === planId);
   const planView = plan.toView();
   let users = [];
@@ -83,10 +72,7 @@ export default async function Layout({ children }) {
         userEmail={user.emails[0]}
         userRole={user.role}
         userId={user.id}
-        nonce={nonce}
         plan={planView}
-        startDate={startDate}
-        endDate={endDate}
         plaidItems={plaidItems}
         users={users}
         pageParam={page}

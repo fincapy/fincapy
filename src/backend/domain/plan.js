@@ -249,17 +249,37 @@ class Plan {
     let transactions = [];
     this.categories.forEach((category) => {
       category.transactions.forEach((transaction) => {
+        const transactionDate = parse(
+          transaction.date,
+          'yyyy-MM-dd',
+          new Date()
+        );
         transaction.categoryName = `${this.capitalize(category.type)} - ${category.name}`;
         transaction.categoryId = category.categoryId;
         transaction.subcategoryId = null;
-        transactions.push(transaction);
+        if (
+          this.startDate <= transactionDate &&
+          transactionDate <= this.endDate
+        ) {
+          transactions.push(transaction);
+        }
       });
       category.subcategories.forEach((subcategory) => {
         subcategory.transactions.forEach((transaction) => {
+          const transactionDate = parse(
+            transaction.date,
+            'yyyy-MM-dd',
+            new Date()
+          );
           transaction.categoryName = `${this.capitalize(category.type)} - ${category.name} - ${subcategory.name}`;
           transaction.categoryId = category.categoryId;
           transaction.subcategoryId = subcategory.subcategoryId;
-          transactions.push(transaction);
+          if (
+            this.startDate <= transactionDate &&
+            transactionDate <= this.endDate
+          ) {
+            transactions.push(transaction);
+          }
         });
       });
     });

@@ -129,7 +129,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" className="overscroll-none" suppressHydrationWarning>
-      <body className="touch-none overscroll-none pt-safe">
+      <body className="touch-none overscroll-none">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

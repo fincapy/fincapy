@@ -431,12 +431,12 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pb-safe pl-safe pr-safe"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
             <ScrollAreaWithPulldown
-              className={`${isStandalone ? 'h-[90%]' : 'h-[94%]'} w-screen fixed top-0`}
+              className={`${isStandalone ? 'h-[90%]' : 'h-[94%]'} w-screen`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {

@@ -345,21 +345,6 @@ export default function DashboardLayout({
   });
 
   useEffect(() => {
-    alert(
-      JSON.stringify({
-        top: getComputedStyle(document.body).getPropertyValue('padding-top'),
-        right: getComputedStyle(document.body).getPropertyValue(
-          'padding-right'
-        ),
-        bottom: getComputedStyle(document.body).getPropertyValue(
-          'padding-bottom'
-        ),
-        left: getComputedStyle(document.body).getPropertyValue('padding-left'),
-      })
-    );
-  }, []);
-
-  useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(
         `/api/plan?startDate=${startDateState}&endDate=${endDateState}&planId=initial`

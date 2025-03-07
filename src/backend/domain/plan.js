@@ -60,6 +60,20 @@ class Plan {
     });
   }
 
+  deleteTransaction({ transactionId }) {
+    this.categories.forEach((category) => {
+      category.transactions = category.transactions.filter(
+        (transaction) => transaction.transactionId !== transactionId
+      );
+
+      category.subcategories.forEach((subcategory) => {
+        subcategory.transactions = subcategory.transactions.filter(
+          (transaction) => transaction.transactionId !== transactionId
+        );
+      });
+    });
+  }
+
   deleteSubcategory({ subcategoryId, categoryId, type }) {
     const uncategorizedCategory = this.categories.find(
       (category) => category.type === type && category.name === 'Uncategorized'

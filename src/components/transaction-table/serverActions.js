@@ -4,6 +4,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { EditTransactionService } from '@/backend/services/editTransactionService';
+import { DeleteTransactionService } from '@/backend/services/deleteTransactionService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
@@ -116,4 +117,36 @@ const editTransaction = async ({
   }
 };
 
-export { editTransaction };
+const deleteTransaction = async ({ planId, transactionId }) => {
+  try {
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
+    if (!session) {
+      return false;
+    }
+    if (session.userRole === 'viewer') {
+      return false;
+    }
+    const tenantId = session.tenantId;
+
+    const transactionManager = new TransactionManager();
+    const service = new DeleteTransactionService({
+      transactionManager,
+    });
+    await service.execute({
+      tenantId,
+      planId,
+      transactionId,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export { editTransaction, deleteTransaction };

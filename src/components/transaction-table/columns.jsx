@@ -10,7 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DataTableColumnHeader } from './data-table-column-header';
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '../ui/dialog';
 import { useState } from 'react';
 import {
   Form,
@@ -43,7 +48,10 @@ import {
 } from '../state/atoms';
 import { Input } from '@/components/ui/input';
 import { transactionTypes } from '@/backend/domain/transaction';
-import { editTransaction } from '@/components/transaction-table/serverActions';
+import {
+  editTransaction,
+  deleteTransaction,
+} from '@/components/transaction-table/serverActions';
 import SubmitButton from '@/components/SubmitButton';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
@@ -335,6 +343,104 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
   );
 };
 
+const DeleteTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [planState, setPlanState] = useAtom(planAtom);
+  const transactionId = row.original.transactionId;
+
+  function handleServerDeleteTransaction({
+    oldPlanState,
+    handleDeleteTransaction,
+  }) {
+    setTimeout(async () => {
+      try {
+        const result = await deleteTransaction({
+          planId: 'initial',
+          transactionId,
+        });
+        if (!result) {
+          setPlanState(oldPlanState);
+          toast({
+            variant: 'outline',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={() => handleDeleteTransaction()}
+              >
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } catch (error) {
+        setPlanState(oldPlanState);
+        toast({
+          variant: 'outline',
+          title: 'Network Error',
+          description: 'There was an issue connecting to the server.',
+          action: (
+            <ToastAction
+              altText="Try again"
+              onClick={() => handleDeleteTransaction()}
+            >
+              Try again
+            </ToastAction>
+          ),
+        });
+      }
+    }, 0);
+  }
+
+  const handleDeleteTransaction = async () => {
+    const oldPlanState = planState.clone();
+    const newPlanState = planState.clone();
+    newPlanState.deleteTransaction({ transactionId });
+    setPlanState(newPlanState);
+    setOuterDialogIsOpen(false);
+    setIsOpen(false);
+    handleServerDeleteTransaction({
+      oldPlanState,
+      handleDeleteTransaction,
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <DialogTitle>Delete Transaction</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to delete this transaction?
+        </DialogDescription>
+        <Button
+          variant="destructive"
+          className="border-none outline-none ring-0"
+          onClick={handleDeleteTransaction}
+        >
+          Delete
+        </Button>
+      </DialogContent>
+      <DropdownMenuItem
+        className="cursor-pointer"
+        onSelect={(e) => {
+          e.preventDefault(); // Prevent dropdown from closing
+          setIsOpen(true);
+        }}
+      >
+        Delete
+      </DropdownMenuItem>
+    </Dialog>
+  );
+};
+
 const Actions = ({ row }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
@@ -353,6 +459,10 @@ const Actions = ({ row }) => {
           <>
             <DropdownMenuSeparator />
             <EditTransactionDialog row={row} setOuterDialogIsOpen={setIsOpen} />
+            <DeleteTransactionDialog
+              row={row}
+              setOuterDialogIsOpen={setIsOpen}
+            />
           </>
         )}
       </DropdownMenuContent>

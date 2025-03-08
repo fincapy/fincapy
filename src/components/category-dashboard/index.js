@@ -1548,7 +1548,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center',
+              'min-w-28 flex items-center bg-card',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1560,7 +1560,7 @@ const DatePickers = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-card" align="start">
           <Calendar
             mode="single"
             selected={startDate}
@@ -1578,7 +1578,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center',
+              'min-w-28 flex items-center bg-card',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -1586,7 +1586,7 @@ const DatePickers = () => {
             {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-card" align="start">
           <Calendar
             mode="single"
             selected={endDate}

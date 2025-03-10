@@ -1,101 +1,419 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{' '}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="min-h-screen bg-background">
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-10">
+        <div className="flex h-20 items-center justify-between w-full">
+          <Link href="/" className="flex items-center gap-2">
             <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/icons/android-chrome-192x192.png"
+              alt="Fincapy Logo"
+              width={60}
+              height={60}
+              className="h-[60px] w-[60px] ml-[9px]"
+              priority
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </Link>
+          <div className="flex items-center gap-3 px-7">
+            <Link href="/signin">
+              <Button variant="outline">Sign In</Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="bg-amber-500 text-white hover:bg-amber-600">
+                Sign Up
+              </Button>
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="px-4 py-12 md:py-24 lg:py-32 w-full">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <div className="space-y-6 max-w-3xl mx-auto">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-center">
+              Take Control of Your Finances with{' '}
+              <span className="text-amber-500">Fincapy</span>
+            </h1>
+            <p className="text-muted-foreground md:text-xl text-center">
+              A budgeting app designed for tech-savvy millennials, with
+              customizable categories and AI-powered transaction sorting.
+            </p>
+            <Link href="/signup">
+              <Button
+                size="lg"
+                className="w-96 mt-4 bg-amber-500 text-white hover:bg-amber-600 sm:w-auto"
+              >
+                Join the waitlist
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="bg-muted/50 py-12 md:py-24 lg:py-32">
+        <div className="px-4 md:px-6">
+          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Why Choose Fincapy?
+            </h2>
+            <p className="max-w-[700px] text-lg text-muted-foreground">
+              Our app is packed with features designed to make budgeting simple
+              and effective.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <FeatureCard
+              title="Customizable Categories"
+              description="Create your own spending categories that match your unique lifestyle and financial goals."
+              icon="📊"
+            />
+            <FeatureCard
+              title="AI Transaction Sorting"
+              description="Our AI automatically categorizes your transactions, saving you time and reducing manual work."
+              icon="🤖"
+            />
+            <FeatureCard
+              title="Full Control"
+              description="Manage your finances your way with complete control over your budgeting approach."
+              icon="🎛️"
+            />
+            <FeatureCard
+              title="Bank Connection"
+              description="Securely connect your bank accounts for automatic transaction importing (Premium)."
+              icon="🏦"
+            />
+            <FeatureCard
+              title="Insights & Analytics"
+              description="Get powerful insights into your spending habits with visual reports and trends."
+              icon="📈"
+            />
+            <FeatureCard
+              title="Mobile Friendly"
+              description="Access your budget anytime, anywhere with our responsive mobile design."
+              icon="📱"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col gap-8 md:flex-row">
+            <div className="md:w-1/2">
+              {/* <Image
+                src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070"
+                alt="Founder"
+                width={500}
+                height={500}
+                className="mx-auto h-auto w-full max-w-[400px] rounded-lg object-cover"
+              /> */}
+            </div>
+            <div className="space-y-4 md:w-1/2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Our Vision
+              </h2>
+              <p className="text-muted-foreground">
+                At Fincapy, we believe that financial management should be
+                accessible, customizable, and even fun. Our journey began when I
+                noticed how rigid most budgeting apps were, forcing users into
+                predefined categories that didn't reflect their actual spending
+                habits.
+              </p>
+              <p className="text-muted-foreground">
+                That's why we created Fincapy – a budgeting app that puts you in
+                control. With our cute capybara mascot leading the way, we're
+                making finance management less intimidating and more
+                approachable for tech-savvy millennials.
+              </p>
+              <p className="text-muted-foreground">
+                Our mission is to empower users with the tools they need to
+                understand their finances better and make informed decisions
+                about their spending and saving habits.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-muted/50 py-12 md:py-24 lg:py-32">
+        <div className="px-4 md:px-6">
+          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="max-w-[700px] text-lg text-muted-foreground">
+              Choose the plan that works best for your financial journey.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
+            <Card className="flex flex-col p-6">
+              <div className="mb-4 text-center">
+                <h3 className="text-2xl font-bold">Free</h3>
+                <p className="text-muted-foreground">Check it out</p>
+              </div>
+              <div className="mb-4 text-center">
+                <span className="text-4xl font-bold">$0</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <ul className="mb-6 space-y-2">
+                <PricingFeature text="Customizable categories" included />
+                <PricingFeature text="Manual transaction entry" included />
+                <PricingFeature text="Bank account linking" included={false} />
+                <PricingFeature
+                  text="AI transaction categorization"
+                  included={false}
+                />
+              </ul>
+              <Link href="/signup" className="mt-auto">
+                <Button className="w-full" variant="outline">
+                  Get Started
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="flex flex-col border-amber-500 p-6">
+              <div className="mb-4 text-center">
+                <div className="mb-2 inline-block rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">
+                  RECOMMENDED
+                </div>
+                <h3 className="text-2xl font-bold">Premium</h3>
+                <p className="text-muted-foreground">Automate everything</p>
+              </div>
+              <div className="mb-4 text-center">
+                <span className="text-4xl font-bold">$9.99</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <ul className="mb-6 space-y-2">
+                <PricingFeature text="Everything in Free" included />
+                <PricingFeature text="Bank account linking" included />
+                <PricingFeature text="Automatic transaction imports" included />
+                <PricingFeature text="AI transaction categorization" included />
+              </ul>
+              <Link href="/signup?plan=premium" className="mt-auto">
+                <Button className="w-full bg-amber-500 text-white hover:bg-amber-600">
+                  Get Premium
+                </Button>
+              </Link>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      {/* <section id="testimonials" className="py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6">
+          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              What Our Users Say
+            </h2>
+            <p className="max-w-[700px] text-lg text-muted-foreground">
+              Don't just take our word for it. Here's what people are saying
+              about Fincapy.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <TestimonialCard
+              quote="Fincapy changed how I think about budgeting. The customizable categories are perfect for my unique spending habits."
+              author="Alex P."
+              role="Software Developer"
+            />
+            <TestimonialCard
+              quote="The AI categorization is surprisingly accurate! It saves me hours every month that I used to spend manually sorting transactions."
+              author="Morgan T."
+              role="Marketing Specialist"
+            />
+            <TestimonialCard
+              quote="I've tried many budgeting apps, but Fincapy is the first one that actually fits my lifestyle. The capybara is cute too!"
+              author="Jamie K."
+              role="Freelance Designer"
+            />
+          </div>
+        </div>
+      </section> */}
+
+      {/* CTA Section */}
+      <section className="bg-amber-500 py-12 md:py-24">
+        <div className="px-4 md:px-6">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
+              Ready to Take Control of Your Finances?
+            </h2>
+            <p className="max-w-[700px] text-lg text-white/80">
+              Join thousands of users who are managing their money smarter with
+              Fincapy.
+            </p>
+            <Link href="/signup">
+              <Button
+                size="lg"
+                className="mt-4 bg-white text-amber-500 hover:bg-gray-100"
+              >
+                Get Started Now
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-background py-8 md:py-12">
+        <div className="container px-4 md:px-6">
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/capybara.png"
+                  alt="Fincapy Logo"
+                  width={30}
+                  height={30}
+                  className="h-8 w-8"
+                />
+                <span className="text-lg font-bold">Fincapy</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Making finance management simple and customizable for everyone.
+              </p>
+            </div>
+            <div>
+              <h3 className="mb-3 text-sm font-medium">Resources</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/guides"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Budgeting Guides
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/faq"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="mb-3 text-sm font-medium">Company</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/careers"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Careers
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="mb-3 text-sm font-medium">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/trust"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Why Trust Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 border-t pt-8">
+            <p className="text-center text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Fincapy. All rights reserved.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
+  );
+}
+
+// Helper components
+function FeatureCard({ title, description, icon }) {
+  return (
+    <Card className="flex flex-col items-center p-6 text-center">
+      <div className="mb-4 text-4xl">{icon}</div>
+      <h3 className="mb-2 text-xl font-bold">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </Card>
+  );
+}
+
+function TestimonialCard({ quote, author, role }) {
+  return (
+    <Card className="flex flex-col p-6">
+      <div className="mb-4 text-4xl">"</div>
+      <p className="mb-4 flex-grow text-muted-foreground">{quote}</p>
+      <div>
+        <p className="font-semibold">{author}</p>
+        <p className="text-sm text-muted-foreground">{role}</p>
+      </div>
+    </Card>
+  );
+}
+
+function PricingFeature({ text, included }) {
+  return (
+    <li className="flex items-center">
+      <span
+        className={`mr-2 text-lg ${included ? 'text-green-500' : 'text-muted-foreground'}`}
+      >
+        {included ? '✓' : '✕'}
+      </span>
+      <span className={included ? '' : 'text-muted-foreground'}>{text}</span>
+    </li>
   );
 }

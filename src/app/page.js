@@ -124,13 +124,13 @@ export default function Home() {
                 At Fincapy, we believe that financial management should be
                 accessible, customizable, and even fun. Our journey began when I
                 noticed how rigid most budgeting apps were, forcing users into
-                predefined categories that didn't reflect their actual spending
-                habits.
+                predefined categories that didn&apos;t reflect their actual
+                spending habits.
               </p>
               <p className="text-muted-foreground">
-                That's why we created Fincapy – a budgeting app that puts you in
-                control. With our cute capybara mascot leading the way, we're
-                making finance management less intimidating and more
+                That&apos;s why we created Fincapy – a budgeting app that puts
+                you in control. With our cute capybara mascot leading the way,
+                we&apos;re making finance management less intimidating and more
                 approachable for tech-savvy millennials.
               </p>
               <p className="text-muted-foreground">

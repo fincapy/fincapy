@@ -128,8 +128,8 @@ export default function Home() {
                 spending habits.
               </p>
               <p className="text-muted-foreground">
-                That&apos;s why we created Fincapy – a budgeting app that puts
-                you in control. With our cute capybara mascot leading the way,
+                That&apos;s why we created Fincapy,a budgeting app that puts you
+                in control. With our cute capybara mascot leading the way,
                 we&apos;re making finance management less intimidating and more
                 approachable for tech-savvy millennials.
               </p>
@@ -395,7 +395,7 @@ function FeatureCard({ title, description, icon }) {
 function TestimonialCard({ quote, author, role }) {
   return (
     <Card className="flex flex-col p-6">
-      <div className="mb-4 text-4xl">"</div>
+      <div className="mb-4 text-4xl">&quot;</div>
       <p className="mb-4 flex-grow text-muted-foreground">{quote}</p>
       <div>
         <p className="font-semibold">{author}</p>

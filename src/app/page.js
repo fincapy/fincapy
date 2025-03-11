@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-0 sm:mb-24">
+      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-24">
         <div className="flex h-20 items-center justify-between w-full">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -15,11 +15,11 @@ export default function Home() {
               alt="Fincapy Logo"
               width={60}
               height={60}
-              className="h-[60px] w-[60px] ml-[9px]"
+              className="h-[60px] w-[60px] sm:ml-[9px] ml-[1px]"
               priority
             />
           </Link>
-          <div className="flex items-center gap-3 px-7">
+          <div className="flex items-center gap-3 sm:px-7 px-3">
             <Link href="/signin">
               <Button variant="outline">Sign In</Button>
             </Link>
@@ -36,7 +36,7 @@ export default function Home() {
       <section className="px-4 py-8 w-full mb-48">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
-            <h1 className="text-6xl sm:text-6xl font-bold tracking-tighter md:text-6xl lg:text-6xl xl:text-6xl text-center">
+            <h1 className="text-6xl font-bold tracking-tighter text-center">
               Your Money
               <span className="text-amber-600"> Simplified</span>
             </h1>

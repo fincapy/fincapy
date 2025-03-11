@@ -125,7 +125,7 @@ export const viewport = {
 export default async function RootLayout({ children }) {
   return (
     <html lang="en" className="overscroll-none">
-      <body className="touch-none overscroll-none">{children}</body>
+      <body className="overscroll-none">{children}</body>
     </html>
   );
 }

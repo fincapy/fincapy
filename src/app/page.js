@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-10">
+      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-0 sm:mb-24">
         <div className="flex h-20 items-center justify-between w-full">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -24,7 +24,7 @@ export default function Home() {
               <Button variant="outline">Sign In</Button>
             </Link>
             <Link href="/signup">
-              <Button className="bg-amber-500 text-white hover:bg-amber-600">
+              <Button className="bg-amber-600 text-white hover:bg-amber-700">
                 Sign Up
               </Button>
             </Link>
@@ -33,21 +33,21 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="px-4 py-12 md:py-24 lg:py-32 w-full">
-        <div className="flex flex-col items-center gap-6 text-center">
-          <div className="space-y-6 max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-center">
-              Take Control of Your Finances with{' '}
-              <span className="text-amber-500">Fincapy</span>
+      <section className="px-4 py-8 w-full">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
+          <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
+            <h1 className="text-6xl sm:text-6xl font-bold tracking-tighter md:text-6xl lg:text-6xl xl:text-6xl text-center">
+              Your Money
+              <span className="text-amber-600"> Simplified</span>
             </h1>
-            <p className="text-muted-foreground md:text-xl text-center">
-              A budgeting app designed for tech-savvy millennials, with
-              customizable categories and AI-powered transaction sorting.
+            <p className="text-base sm:text-lg text-muted-foreground md:text-xl text-center">
+              Instant insights, zero hassle, capybara approved. A customizable
+              and automated budgeting solution that just works.
             </p>
-            <Link href="/signup">
+            <Link href="/signup" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-96 mt-4 bg-amber-500 text-white hover:bg-amber-600 sm:w-auto"
+                className="w-[200px] mt-4 bg-amber-600 text-white hover:bg-amber-700 font-bold text-md"
               >
                 Join the waitlist
               </Button>
@@ -86,12 +86,12 @@ export default function Home() {
             />
             <FeatureCard
               title="Bank Connection"
-              description="Securely connect your bank accounts for automatic transaction importing (Premium)."
+              description="Securely connect your bank accounts for automatic transaction importing."
               icon="🏦"
             />
             <FeatureCard
               title="Insights & Analytics"
-              description="Get powerful insights into your spending habits with visual reports and trends."
+              description="Get powerful insights into your spending habits."
               icon="📈"
             />
             <FeatureCard
@@ -180,9 +180,9 @@ export default function Home() {
               </Link>
             </Card>
 
-            <Card className="flex flex-col border-amber-500 p-6">
+            <Card className="flex flex-col border-amber-600 p-6">
               <div className="mb-4 text-center">
-                <div className="mb-2 inline-block rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">
+                <div className="mb-2 inline-block rounded-full bg-amber-600 px-3 py-1 text-xs font-semibold text-white">
                   RECOMMENDED
                 </div>
                 <h3 className="text-2xl font-bold">Premium</h3>
@@ -199,7 +199,7 @@ export default function Home() {
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
               <Link href="/signup?plan=premium" className="mt-auto">
-                <Button className="w-full bg-amber-500 text-white hover:bg-amber-600">
+                <Button className="w-full bg-amber-600 text-white hover:bg-amber-700">
                   Get Premium
                 </Button>
               </Link>
@@ -241,7 +241,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA Section */}
-      <section className="bg-amber-500 py-12 md:py-24">
+      <section className="bg-amber-600 py-12 md:py-24">
         <div className="px-4 md:px-6">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
@@ -254,7 +254,7 @@ export default function Home() {
             <Link href="/signup">
               <Button
                 size="lg"
-                className="mt-4 bg-white text-amber-500 hover:bg-gray-100"
+                className="mt-4 bg-white text-amber-600 hover:bg-gray-100"
               >
                 Get Started Now
               </Button>

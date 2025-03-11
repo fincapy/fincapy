@@ -7,8 +7,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm mb-24">
-        <div className="flex h-20 items-center justify-between w-full">
+      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
+        <div className="flex h-[10vh] items-center justify-between w-full">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/icons/android-chrome-192x192.png"
@@ -33,7 +33,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="px-4 py-8 w-full mb-48">
+      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-10">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
             <h1 className="text-6xl font-bold tracking-tighter text-center">

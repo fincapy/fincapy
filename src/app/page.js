@@ -33,7 +33,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="px-4 py-8 w-full">
+      <section className="px-4 py-8 w-full mb-48">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
             <h1 className="text-6xl sm:text-6xl font-bold tracking-tighter md:text-6xl lg:text-6xl xl:text-6xl text-center">

@@ -65,7 +65,7 @@ export default function Home() {
 
       <section id="about" className="py-12 md:py-24 lg:py-32 w-full">
         <div className="container px-4 mx-auto max-w-5xl">
-          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+          <div className="mb-8 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               About Us
             </h2>
@@ -110,7 +110,7 @@ export default function Home() {
       {/* Features Section */}
       <section id="features" className="bg-muted/50 py-12 md:py-24 lg:py-32">
         <div className="px-4 md:px-6">
-          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+          <div className="mb-8 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               Features
             </h2>

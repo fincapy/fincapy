@@ -33,25 +33,76 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-10">
-        <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
-          <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
+      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
+          <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
             <h1 className="text-6xl font-bold tracking-tighter text-center">
-              Your Money
-              <span className="text-amber-600"> Simplified</span>
+              Who Will <span className="text-amber-600">Your Money</span> Make
+              You?
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground md:text-xl text-center">
-              Instant insights, zero hassle, capybara approved. A customizable
-              and automated budgeting solution that just works.
+            <p className="text-base sm:text-lg text-muted-foreground md:text-xl text-center w-full">
+              Understand yourself and your finances. Instant insights, zero
+              hassle, capybara approved. A customizable and automated budgeting
+              solution that just works.
             </p>
-            <Link href="/signup" className="w-full sm:w-auto">
+            <Link
+              href="/signup"
+              className="w-full sm:w-auto flex justify-center"
+            >
               <Button
                 size="lg"
                 className="w-[200px] mt-4 bg-amber-600 text-white hover:bg-amber-700 font-bold text-md"
               >
-                Join the waitlist
+                Get Started Free
               </Button>
             </Link>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground text-center w-full pt-2">
+          No credit card required
+        </p>
+      </section>
+
+      <section id="about" className="py-12 md:py-24 lg:py-32 w-full">
+        <div className="container px-4 mx-auto max-w-5xl">
+          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              About Us
+            </h2>
+          </div>
+          <div className="flex flex-col md:flex-row gap-8 md:gap-6 items-center">
+            <div className="w-full md:w-1/2 space-y-4 order-2 md:order-none">
+              <p className="text-muted-foreground">
+                Hi! I&apos;m Ryan Wible, the founder of Fincapy, and these are
+                some goats that I found. Over the past few years, I&apos;ve been
+                on a journey to understand myself and my finances. I want to be
+                a truly integrated person and part of that is putting my money
+                where my mouth is, literally.
+              </p>
+              <p className="text-muted-foreground">
+                I created Fincapy to help me understand my spending in a simple
+                and intuitive way. Do I spend too much on groceries? Most
+                certainly. Is it because I love to cook? Also yes. Does that
+                make me a bad person? Absolutely not. But maybe I don&apos;t
+                care as much about travel (not true, but just go with it). With
+                Fincapy, I can see where my money is going, what I need to
+                budget for, and make adjustments.
+              </p>
+              <p className="text-muted-foreground">
+                I want to empower you with the tools you need to understand
+                yourself and your finances. I hope that Fincapy can be a part of
+                your journey in financial wellness.
+              </p>
+            </div>
+            <div className="w-full md:w-1/2 order-1 flex justify-center">
+              <Image
+                src="/goats.png"
+                alt="Founder on a trail in Greece looking up at goats on a wall"
+                width={500}
+                height={500}
+                className="h-auto w-full max-w-[400px] rounded-lg object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -61,17 +112,13 @@ export default function Home() {
         <div className="px-4 md:px-6">
           <div className="mb-12 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Why Choose Fincapy?
+              Features
             </h2>
-            <p className="max-w-[700px] text-lg text-muted-foreground">
-              Our app is packed with features designed to make budgeting simple
-              and effective.
-            </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <FeatureCard
               title="Customizable Categories"
-              description="Create your own spending categories that match your unique lifestyle and financial goals."
+              description="Create your own spending, income, and savings categories that match your unique lifestyle and financial goals."
               icon="📊"
             />
             <FeatureCard
@@ -95,50 +142,10 @@ export default function Home() {
               icon="📈"
             />
             <FeatureCard
-              title="Mobile Friendly"
+              title="Mobile First"
               description="Access your budget anytime, anywhere with our responsive mobile design."
               icon="📱"
             />
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col gap-8 md:flex-row">
-            <div className="md:w-1/2">
-              {/* <Image
-                src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070"
-                alt="Founder"
-                width={500}
-                height={500}
-                className="mx-auto h-auto w-full max-w-[400px] rounded-lg object-cover"
-              /> */}
-            </div>
-            <div className="space-y-4 md:w-1/2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Our Vision
-              </h2>
-              <p className="text-muted-foreground">
-                At Fincapy, we believe that financial management should be
-                accessible, customizable, and even fun. Our journey began when I
-                noticed how rigid most budgeting apps were, forcing users into
-                predefined categories that didn&apos;t reflect their actual
-                spending habits.
-              </p>
-              <p className="text-muted-foreground">
-                That&apos;s why we created Fincapy,a budgeting app that puts you
-                in control. With our cute capybara mascot leading the way,
-                we&apos;re making finance management less intimidating and more
-                approachable for tech-savvy millennials.
-              </p>
-              <p className="text-muted-foreground">
-                Our mission is to empower users with the tools they need to
-                understand their finances better and make informed decisions
-                about their spending and saving habits.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -174,7 +181,10 @@ export default function Home() {
                 />
               </ul>
               <Link href="/signup" className="mt-auto">
-                <Button className="w-full" variant="outline">
+                <Button
+                  className="w-full bg-card hover:bg-background"
+                  variant="outline"
+                >
                   Get Started
                 </Button>
               </Link>
@@ -247,14 +257,10 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
               Ready to Take Control of Your Finances?
             </h2>
-            <p className="max-w-[700px] text-lg text-white/80">
-              Join thousands of users who are managing their money smarter with
-              Fincapy.
-            </p>
             <Link href="/signup">
               <Button
                 size="lg"
-                className="mt-4 bg-white text-amber-600 hover:bg-gray-100"
+                className="mt-4 bg-white text-amber-600 hover:bg-background font-bold text-md"
               >
                 Get Started Now
               </Button>
@@ -264,115 +270,48 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-background py-8 md:py-12">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/capybara.png"
-                  alt="Fincapy Logo"
-                  width={30}
-                  height={30}
-                  className="h-8 w-8"
-                />
-                <span className="text-lg font-bold">Fincapy</span>
+      <footer className="bg-background py-8 md:py-10">
+        <div className="container px-4 md:px-6 mx-auto">
+          <div className="flex flex-col items-center text-center gap-6 max-w-xl mx-auto">
+            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+              <div>
+                <Link
+                  href="/blog"
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium"
+                >
+                  Blog
+                </Link>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Making finance management simple and customizable for everyone.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-3 text-sm font-medium">Resources</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    href="/blog"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/guides"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Budgeting Guides
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/faq"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    FAQ
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="mb-3 text-sm font-medium">Company</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/careers"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Careers
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="mb-3 text-sm font-medium">Legal</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/trust"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Why Trust Us
-                  </Link>
-                </li>
-              </ul>
+              <div>
+                <Link
+                  href="/privacy"
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium"
+                >
+                  Privacy Policy
+                </Link>
+              </div>
+              <div>
+                <Link
+                  href="/terms"
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium"
+                >
+                  Terms of Service
+                </Link>
+              </div>
+              <div>
+                <Link
+                  href="/trust"
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium"
+                >
+                  Why Trust Us
+                </Link>
+              </div>
             </div>
           </div>
-          <div className="mt-8 border-t pt-8">
-            <p className="text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Fincapy. All rights reserved.
+
+          <div className="mt-8 border-t pt-6">
+            <p className="text-sm text-muted-foreground text-center">
+              © {new Date().getFullYear()} Fincapy LLC. All rights reserved.
             </p>
           </div>
         </div>

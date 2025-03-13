@@ -132,12 +132,16 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
+  const headersList = headers();
+  const nonce = headersList.get('x-nonce');
+
   return (
     <html lang="en">
       <head>
         {/* JSON-LD structured data */}
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',

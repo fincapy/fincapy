@@ -132,7 +132,7 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  const headersList = headers();
+  const headersList = await headers();
   const nonce = headersList.get('x-nonce');
 
   return (

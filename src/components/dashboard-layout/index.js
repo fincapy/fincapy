@@ -51,6 +51,7 @@ import {
   usersAtom,
   currentUserIdAtom,
   currentUserRoleAtom,
+  nonceAtom,
 } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
@@ -343,6 +344,7 @@ export default function DashboardLayout({
     startDate: startDateState,
     endDate: endDateState,
   });
+  const setNonce = useSetAtom(nonceAtom);
 
   useEffect(() => {
     const getPlan = async () => {
@@ -374,6 +376,7 @@ export default function DashboardLayout({
         setUsersState(users.filter((user) => user.email !== userEmail));
         setCurrentUserId(userId);
         setCurrentUserRole(userRole);
+        setNonce(nonce);
       } else {
         if (
           startDateState === previousDates.current.startDate &&

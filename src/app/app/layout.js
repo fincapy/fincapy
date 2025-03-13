@@ -14,6 +14,7 @@ export default async function Layout({ children }) {
   const headersList = await headers();
   let planId;
   const page = headersList.get('x-page');
+  const nonce = headersList.get('x-nonce');
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionRepository = new SessionRepository({ redisAdapter });
@@ -76,6 +77,7 @@ export default async function Layout({ children }) {
         plaidItems={plaidItems}
         users={users}
         pageParam={page}
+        nonce={nonce}
       >
         {children}
       </DashboardLayout>

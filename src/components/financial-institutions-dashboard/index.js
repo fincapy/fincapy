@@ -40,6 +40,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   usersAtom,
+  nonceAtom,
   plaidItemDisplayNamesAtom,
   currentUserIdAtom,
 } from '../state/atoms';
@@ -369,6 +370,7 @@ export default function FinancialInstitutionsDashboard() {
   );
   const [currentUserId, setCurrentUserId] = useAtom(currentUserIdAtom);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
+  const nonce = useAtomValue(nonceAtom);
   useEffect(() => {
     if (plaidItemsState) {
       const timer = setTimeout(() => {
@@ -380,6 +382,7 @@ export default function FinancialInstitutionsDashboard() {
   return (
     <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8 justify-center items-center">
       <Script
+        nonce={nonce}
         src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
         strategy="afterInteractive"
         onLoad={() => {

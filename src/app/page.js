@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WaitlistModal } from '@/components/waitlist-modal';
+import Head from 'next/head';
 
 export default function Home() {
   const ctaText = 'Join the waitlist';
@@ -13,6 +14,101 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Head>
+        <title>Who will your money make you?</title>
+        <meta
+          name="description"
+          content="Understand yourself and your finances with Fincapy.Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works."
+          key="desc"
+        />
+        <meta property="og:title" content="Who will your money make you?" />
+        <meta
+          property="og:description"
+          content="Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works."
+        />
+        <meta property="og:image" content="https://fincapy.com/capybara.png" />
+
+        {/* JSON-LD structured data for SEO */}
+        <script
+          type="application/ld+json"
+          key="landing-jsonld"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': 'https://fincapy.com/#organization',
+                  name: 'Fincapy LLC',
+                  url: 'https://fincapy.com',
+                  logo: {
+                    '@type': 'ImageObject',
+                    url: 'https://fincapy.com/icons/android-chrome-192x192.png',
+                  },
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+                },
+                {
+                  '@type': 'WebSite',
+                  '@id': 'https://fincapy.com/#website',
+                  url: 'https://fincapy.com',
+                  name: 'Fincapy',
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved.',
+                  publisher: {
+                    '@id': 'https://fincapy.com/#organization',
+                  },
+                },
+                {
+                  '@type': 'WebPage',
+                  '@id': 'https://fincapy.com/#webpage',
+                  url: 'https://fincapy.com',
+                  name: 'Who will your money make you? | Fincapy',
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+                  isPartOf: {
+                    '@id': 'https://fincapy.com/#website',
+                  },
+                  about: {
+                    '@id': 'https://fincapy.com/#organization',
+                  },
+                },
+                {
+                  '@type': 'SoftwareApplication',
+                  name: 'Fincapy',
+                  operatingSystem: 'Web',
+                  applicationCategory: 'FinanceApplication',
+                  offers: [
+                    {
+                      '@type': 'Offer',
+                      name: 'Free Plan',
+                      price: '0',
+                      priceCurrency: 'USD',
+                      description:
+                        'Customizable categories and manual transaction entry',
+                      availability: 'https://schema.org/InStock',
+                    },
+                    {
+                      '@type': 'Offer',
+                      name: 'Premium Plan',
+                      price: '9.99',
+                      priceCurrency: 'USD',
+                      description:
+                        'Bank account linking, automatic transaction imports, and AI transaction categorization',
+                      availability: 'https://schema.org/InStock',
+                      priceValidUntil: new Date(
+                        new Date().setFullYear(new Date().getFullYear() + 1)
+                      )
+                        .toISOString()
+                        .split('T')[0],
+                    },
+                  ],
+                },
+              ],
+            }),
+          }}
+        />
+      </Head>
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
         <div className="flex h-[10vh] items-center justify-between w-full">

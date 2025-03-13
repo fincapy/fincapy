@@ -22,7 +22,7 @@
 
 @layer base {
   :root {
-    --background: 149.3 80.4% 90%;
+    --background: 79.6 89.1% 89.2%;
     --foreground: oklch(0.145 0 0);
     --card: 0 0% 96.1%;
     --card-foreground: oklch(0.145 0 0);

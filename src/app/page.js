@@ -1,9 +1,16 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { WaitlistModal } from '@/components/waitlist-modal';
 
 export default function Home() {
+  const ctaText = 'Join the waitlist';
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
@@ -23,11 +30,12 @@ export default function Home() {
             <Link href="/signin">
               <Button variant="outline">Sign In</Button>
             </Link>
-            <Link href="/signup">
-              <Button className="bg-amber-600 text-white hover:bg-amber-700">
-                Sign Up
-              </Button>
-            </Link>
+            <Button
+              className="bg-amber-600 text-white hover:bg-amber-700"
+              onClick={() => setModalOpen(true)}
+            >
+              {ctaText}
+            </Button>
           </div>
         </div>
       </nav>
@@ -45,22 +53,15 @@ export default function Home() {
               hassle, capybara approved. A customizable and automated budgeting
               solution that just works.
             </p>
-            <Link
-              href="/signup"
-              className="w-full sm:w-auto flex justify-center"
+            <Button
+              size="lg"
+              className="w-[200px] bg-amber-600 text-white hover:bg-amber-700 font-bold text-md"
+              onClick={() => setModalOpen(true)}
             >
-              <Button
-                size="lg"
-                className="w-[200px] mt-4 bg-amber-600 text-white hover:bg-amber-700 font-bold text-md"
-              >
-                Get Started Free
-              </Button>
-            </Link>
+              {ctaText}
+            </Button>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground text-center w-full pt-2">
-          No credit card required
-        </p>
       </section>
 
       <section id="about" className="py-12 md:py-24 lg:py-32 w-full">
@@ -180,14 +181,13 @@ export default function Home() {
                   included={false}
                 />
               </ul>
-              <Link href="/signup" className="mt-auto">
-                <Button
-                  className="w-full bg-card hover:bg-background"
-                  variant="outline"
-                >
-                  Get Started
-                </Button>
-              </Link>
+              <Button
+                className="w-full bg-card hover:bg-background mt-auto"
+                variant="outline"
+                onClick={() => setModalOpen(true)}
+              >
+                {ctaText}
+              </Button>
             </Card>
 
             <Card className="flex flex-col border-amber-600 p-6">
@@ -208,11 +208,12 @@ export default function Home() {
                 <PricingFeature text="Automatic transaction imports" included />
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
-              <Link href="/signup?plan=premium" className="mt-auto">
-                <Button className="w-full bg-amber-600 text-white hover:bg-amber-700">
-                  Get Premium
-                </Button>
-              </Link>
+              <Button
+                className="w-full bg-amber-600 text-white hover:bg-amber-700"
+                onClick={() => setModalOpen(true)}
+              >
+                {ctaText}
+              </Button>
             </Card>
           </div>
         </div>
@@ -257,14 +258,13 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
               Ready to Take Control of Your Finances?
             </h2>
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="mt-4 bg-white text-amber-600 hover:bg-background font-bold text-md"
-              >
-                Get Started Now
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              className="mt-4 bg-white text-amber-600 hover:bg-background font-bold text-md"
+              onClick={() => setModalOpen(true)}
+            >
+              {ctaText}
+            </Button>
           </div>
         </div>
       </section>
@@ -316,6 +316,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Waitlist Modal */}
+      <WaitlistModal open={modalOpen} onOpenChange={setModalOpen} />
     </div>
   );
 }

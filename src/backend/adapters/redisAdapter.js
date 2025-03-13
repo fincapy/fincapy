@@ -13,6 +13,14 @@ class RedisAdapter {
     this.client = redisClient;
   }
 
+  async lpush(key, value) {
+    await this.client.lpush(key, value);
+  }
+
+  async lrange(key, start, end) {
+    return await this.client.lrange(key, start, end);
+  }
+
   async multiNoPipeline() {
     await this.client.multi({ pipeline: false });
   }

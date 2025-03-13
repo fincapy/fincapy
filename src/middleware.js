@@ -32,6 +32,11 @@ export async function middleware(request) {
       'Content-Security-Policy',
       contentSecurityPolicyHeaderValue
     );
+    requestHeaders.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    );
+    requestHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
   }
 
   // if (session) {

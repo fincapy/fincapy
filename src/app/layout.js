@@ -136,7 +136,7 @@ export default async function RootLayout({ children }) {
   const nonce = headersList.get('x-nonce');
 
   return (
-    <html lang="en">
+    <html lang="en" className="overscroll-none">
       <head>
         {/* JSON-LD structured data */}
         <script

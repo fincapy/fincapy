@@ -1,6 +1,16 @@
 import './globals.css';
+import { headers } from 'next/headers';
 
 export const metadata = {
+  title: 'Who will your money make you?',
+  description:
+    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+  openGraph: {
+    title: 'Who will your money make you?',
+    description:
+      'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+    images: [{ url: 'https://fincapy.com/capybara.png' }],
+  },
   applicationName: 'Fincapy',
   appleWebApp: {
     capable: true,
@@ -75,7 +85,6 @@ export const metadata = {
       },
     ],
   },
-  description: 'Capybara spending plans',
   formatDetection: {
     telephone: false,
   },
@@ -124,8 +133,89 @@ export const viewport = {
 
 export default async function RootLayout({ children }) {
   return (
-    <html lang="en" className="overscroll-none">
-      <body className="overscroll-none">{children}</body>
+    <html lang="en">
+      <head>
+        {/* JSON-LD structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': 'https://fincapy.com/#organization',
+                  name: 'Fincapy LLC',
+                  url: 'https://fincapy.com',
+                  logo: {
+                    '@type': 'ImageObject',
+                    url: 'https://fincapy.com/icons/android-chrome-192x192.png',
+                  },
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+                },
+                {
+                  '@type': 'WebSite',
+                  '@id': 'https://fincapy.com/#website',
+                  url: 'https://fincapy.com',
+                  name: 'Fincapy',
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved.',
+                  publisher: {
+                    '@id': 'https://fincapy.com/#organization',
+                  },
+                },
+                {
+                  '@type': 'WebPage',
+                  '@id': 'https://fincapy.com/#webpage',
+                  url: 'https://fincapy.com',
+                  name: 'Who will your money make you? | Fincapy',
+                  description:
+                    'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+                  isPartOf: {
+                    '@id': 'https://fincapy.com/#website',
+                  },
+                  about: {
+                    '@id': 'https://fincapy.com/#organization',
+                  },
+                },
+                {
+                  '@type': 'SoftwareApplication',
+                  name: 'Fincapy',
+                  operatingSystem: 'Web',
+                  applicationCategory: 'FinanceApplication',
+                  offers: [
+                    {
+                      '@type': 'Offer',
+                      name: 'Free Plan',
+                      price: '0',
+                      priceCurrency: 'USD',
+                      description:
+                        'Customizable categories and manual transaction entry',
+                      availability: 'https://schema.org/InStock',
+                    },
+                    {
+                      '@type': 'Offer',
+                      name: 'Premium Plan',
+                      price: '9.99',
+                      priceCurrency: 'USD',
+                      description:
+                        'Bank account linking, automatic transaction imports, and AI transaction categorization',
+                      availability: 'https://schema.org/InStock',
+                      priceValidUntil: new Date(
+                        new Date().setFullYear(new Date().getFullYear() + 1)
+                      )
+                        .toISOString()
+                        .split('T')[0],
+                    },
+                  ],
+                },
+              ],
+            }),
+          }}
+        />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

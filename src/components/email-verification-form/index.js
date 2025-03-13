@@ -67,7 +67,7 @@ const EmailVerificationForm = () => {
     return <Skeleton className="w-[384px] h-[141.73px] rounded-xl bg-card" />;
 
   return (
-    <Card className="bg-background w-[384px] shadow-lg">
+    <Card className="w-[384px] shadow-lg">
       <CardContent className="pt-6">
         <div className="flex w-full flex-col items-center justify-center gap-4">
           <InputTOTP

@@ -260,7 +260,7 @@ const RemoveUserDialog = ({ row, setOuterDialogIsOpen }) => {
         </DialogDescription>
         <Button
           variant="destructive"
-          className="border-none outline-none ring-0"
+          className="border-none outline-none ring-0 bg-destructive hover:bg-destructive-foreground text-white"
           onClick={handleRemoveUser}
         >
           Remove user
@@ -424,7 +424,7 @@ const Actions = ({ row }) => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-card">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ChangeNameDialog row={row} setOuterDialogIsOpen={setIsOpen} />

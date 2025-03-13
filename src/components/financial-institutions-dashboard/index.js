@@ -115,7 +115,11 @@ const DeletePlaidItemDialogue = ({
             transactions will be automatically imported for this institution.
           </DialogDescription>
         </DialogHeader>
-        <Button variant="destructive" onClick={onClick}>
+        <Button
+          variant="destructive"
+          className="bg-destructive hover:bg-destructive-foreground text-white"
+          onClick={onClick}
+        >
           Delete
         </Button>
       </DialogContent>
@@ -209,7 +213,7 @@ const ExistingFinancialInstitutionCard = ({ link, name }) => {
   };
 
   return (
-    <Card className="w-11/12 min-h-40 flex items-center justify-center relative">
+    <Card className="w-11/12 min-h-40 flex items-center justify-center relative bg-card">
       <CardHeader className="flex flex-row items-center justify-center gap-2">
         <CardTitle>{name}</CardTitle>
         {link.status === 'active' ? (
@@ -347,12 +351,12 @@ const NewFinancialInstitutionCard = ({ currentUserId }) => {
   return (
     <React.Fragment>
       {isLinking ? (
-        <div className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background">
+        <div className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background">
           <RotateCwIcon size={18} className="animate-spin" />
         </div>
       ) : (
         <Button
-          className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 hover:bg-background"
+          className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
           variant="outline"
           onClick={handleLinkClick}
         >

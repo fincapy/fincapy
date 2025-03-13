@@ -236,7 +236,7 @@ const InviteUserDialogue = () => {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" className="bg-card" size="icon">
           <PlusIcon />
         </Button>
       </DialogTrigger>
@@ -295,7 +295,7 @@ export default function Dashboard() {
               <InviteUserDialogue />
             </div>
             <div
-              className="grid w-11/12 h-[70vh]"
+              className="grid w-11/12 h-[70vh] bg-card"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

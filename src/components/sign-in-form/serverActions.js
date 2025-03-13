@@ -95,10 +95,10 @@ async function authenticateEmailPassword(rawInput) {
     unauthenticatedPassword: password,
     password: user?.password,
   });
-  const emailVerified = user.emails.find(
-    (emailInfo) => emailInfo.email === email
-  )?.verified;
   if (result) {
+    const emailVerified = user.emails.find(
+      (emailInfo) => emailInfo.email === email
+    )?.verified;
     const emailPasswordAuthenticatedToken = jwt.sign(
       {
         userId: user.id,

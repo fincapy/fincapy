@@ -283,6 +283,7 @@ const CreateCategoryDialogue = () => {
         <Button
           variant="outline"
           size="icon"
+          className="bg-card"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />

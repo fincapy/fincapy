@@ -79,31 +79,29 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="bg-background">
+      <Card>
         <CardContent className="mt-8">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="grid gap-4">
-                <div className="grid gap-2 bg-background">
+                <div className="grid gap-2">
                   <Label htmlFor="name">First Name</Label>
                   <Input
                     id="name"
                     type="text"
                     placeholder="John"
                     required
-                    className="bg-background"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                <div className="grid gap-2 bg-background">
+                <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="john.doe@example.com"
                     required
-                    className="bg-background"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />

@@ -91,8 +91,8 @@ const AccountDropdown = ({
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-foreground'
-                : 'text-muted-foreground group-hover:text-foreground'
+                ? 'text-primary'
+                : 'text-muted-foreground group-hover:text-primary'
             }
           />
           <span
@@ -100,8 +100,8 @@ const AccountDropdown = ({
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-[11.5px] font-bold text-foreground'
-                : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
+                ? 'text-[11.5px] font-bold text-primary'
+                : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-primary'
             }
           >
             Account
@@ -109,7 +109,7 @@ const AccountDropdown = ({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-card"
         side="bottom"
         align="end"
         sideOffset={4}
@@ -118,20 +118,23 @@ const AccountDropdown = ({
           <Fragment>
             <DropdownMenuGroup>
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                className="cursor-pointer flex items-center gap-2 hover:bg-background"
                 onClick={() => changePage('manage-users')}
               >
                 <Users size={16} />
                 Users
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                className="cursor-pointer flex items-center gap-2 hover:bg-background"
                 onClick={() => changePage('financial-institutions')}
               >
                 <Landmark size={16} />
                 Financial Institutions
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center gap-2 hover:bg-background"
+                onClick={() => changePage('financial-institutions')}
+              >
                 <a
                   className="w-full flex items-center content-center gap-2"
                   href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
@@ -193,15 +196,15 @@ const NavBar = ({
               size={20}
               className={
                 page === 'spending'
-                  ? ''
-                  : 'text-muted-foreground group-hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'spending'
-                  ? 'text-[11.5px] font-bold'
-                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold text-primary'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-primary'
               }
             >
               Spending
@@ -215,15 +218,15 @@ const NavBar = ({
               size={20}
               className={
                 page === 'income'
-                  ? ''
-                  : 'text-muted-foreground group-hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'income'
-                  ? 'text-[11.5px] font-bold'
-                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold text-primary'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-primary'
               }
             >
               Income
@@ -237,15 +240,15 @@ const NavBar = ({
               size={20}
               className={
                 page === 'savings'
-                  ? ''
-                  : 'text-muted-foreground group-hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'savings'
-                  ? 'text-[11.5px] font-bold'
-                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold text-primary'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-primary'
               }
             >
               Savings
@@ -259,15 +262,15 @@ const NavBar = ({
               size={20}
               className={
                 page === 'transactions'
-                  ? ''
-                  : 'text-muted-foreground group-hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[11.5px] font-bold'
-                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-foreground'
+                  ? 'text-[11.5px] font-bold text-primary'
+                  : 'text-[11.5px] font-bold text-muted-foreground group-hover:text-primary'
               }
             >
               Transactions

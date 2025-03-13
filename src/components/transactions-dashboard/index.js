@@ -359,6 +359,7 @@ const CreateTransactionDialogue = () => {
         <Button
           variant="outline"
           size="icon"
+          className="bg-card"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
@@ -415,7 +416,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center',
+              'min-w-28 flex items-center bg-card',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -427,7 +428,7 @@ const DatePickers = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-card" align="start">
           <Calendar
             mode="single"
             selected={startDate}
@@ -445,7 +446,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center',
+              'min-w-28 flex items-center bg-card',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -453,7 +454,7 @@ const DatePickers = () => {
             {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-card" align="start">
           <Calendar
             mode="single"
             selected={endDate}
@@ -513,7 +514,7 @@ const TransactionsDashboard = () => {
               {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
             </div>
             <div
-              className="grid w-11/12 h-[70vh]"
+              className="grid w-11/12 h-[70vh] bg-card"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

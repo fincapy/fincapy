@@ -82,7 +82,7 @@ const TOTPVerificationForm = () => {
     return <Skeleton className="w-[384px] h-[160px] rounded-xl bg-card" />;
 
   return (
-    <Card className="bg-background w-[384px] shadow-lg">
+    <Card className="w-[384px] shadow-lg">
       <CardContent className="pt-6 flex flex-col items-center justify-center gap-1">
         <div className="flex w-full flex-col items-center justify-center">
           {!useBackupCode ? (

@@ -370,7 +370,7 @@ export default function FinancialInstitutionsDashboard() {
   );
   const [currentUserId, setCurrentUserId] = useAtom(currentUserIdAtom);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
-  const nonce = useAtomValue(nonceAtom);
+  const [nonce, setNonce] = useAtom(nonceAtom);
   useEffect(() => {
     if (plaidItemsState) {
       const timer = setTimeout(() => {

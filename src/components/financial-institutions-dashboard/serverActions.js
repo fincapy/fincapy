@@ -85,7 +85,7 @@ const fetchLinkToken = async (params) => {
     });
     return linkToken;
   } catch (error) {
-    console.error('Error in fetchLinkToken:', error);
+    console.error('Error in fetchLinkToken:');
     return false;
   }
 };
@@ -144,7 +144,7 @@ const createPlaidItem = async (params) => {
 
     return true;
   } catch (error) {
-    console.error('Error in createPlaidItem:', error);
+    console.error('Error in createPlaidItem:');
     return false;
   }
 };
@@ -193,7 +193,7 @@ const updatePlaidItem = async (params) => {
 
     return true;
   } catch (error) {
-    console.error('Error in updatePlaidItem:', error);
+    console.error('Error in updatePlaidItem:');
     return false;
   }
 };
@@ -240,7 +240,7 @@ const deletePlaidItem = async (params) => {
 
     return true;
   } catch (error) {
-    console.error('Error in deletePlaidItem:', error);
+    console.error('Error in deletePlaidItem:');
     return false;
   }
 };

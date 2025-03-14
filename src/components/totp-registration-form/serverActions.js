@@ -99,7 +99,8 @@ export async function verifyAndSaveTOTP(token, secret) {
     try {
       jwtToken = await jwt.verify(
         awaitingMFASetupAfterSignupCookie.value,
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { algorithms: ['HS256'] }
       );
     } catch (error) {
       console.log('JWT verification failed:', error);
@@ -145,14 +146,14 @@ export async function verifyAndSaveTOTP(token, secret) {
     const sessionToken = jwt.sign(
       { sessionId: session.sessionId, type: 'session' },
       process.env.JWT_SECRET,
-      { expiresIn: '3h' }
+      { expiresIn: '3h', algorithm: 'HS256' }
     );
     (await cookies()).set('session-id', sessionToken, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 3,
+      maxAge: 60 * 60 * 3 * 1000, // 3 hours
     });
     return { success: true, backupCodes: codes };
   } catch (error) {

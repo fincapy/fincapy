@@ -30,7 +30,7 @@ const tokenSchema = z.object({
 const verificationCodeSchema = z
   .string()
   .trim()
-  .regex(/^\d{6}$/, { message: "Verification code must be a 6-digit number" });
+  .regex(/^\d{6}$/, { message: 'Verification code must be a 6-digit number' });
 
 // Sanitize inputs to prevent XSS
 function sanitizeInput(input) {
@@ -38,7 +38,7 @@ function sanitizeInput(input) {
   return sanitizeHtml(input, {
     allowedTags: [],
     allowedAttributes: {},
-    disallowedTagsMode: 'discard'
+    disallowedTagsMode: 'discard',
   });
 }
 
@@ -59,20 +59,24 @@ export async function resendEmailVerificationCode() {
 
   let token;
   try {
-    const cookieValue = (await cookies()).get('emailPasswordAuthenticatedToken')?.value;
+    const cookieValue = (await cookies()).get(
+      'emailPasswordAuthenticatedToken'
+    )?.value;
     if (!cookieValue) {
       return false;
     }
 
-    token = await jwt.verify(cookieValue, process.env.JWT_SECRET);
-    
+    token = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
+
     // Validate token structure
     const tokenValidation = tokenSchema.safeParse(token);
     if (!tokenValidation.success) {
       console.log('Token validation failed:', tokenValidation.error);
       return false;
     }
-    
+
     token = tokenValidation.data;
   } catch (error) {
     console.log('Invalid token:', error);
@@ -135,14 +139,17 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   try {
     // First sanitize to prevent any HTML injection
     const sanitizedCode = sanitizeInput(unverifiedEmailVerificationCode);
-    
+
     // Then validate the format
     const validationResult = verificationCodeSchema.safeParse(sanitizedCode);
     if (!validationResult.success) {
-      console.log('Verification code validation failed:', validationResult.error);
+      console.log(
+        'Verification code validation failed:',
+        validationResult.error
+      );
       return false;
     }
-    
+
     // Use the validated and sanitized code
     unverifiedEmailVerificationCode = validationResult.data;
   } catch (error) {
@@ -164,20 +171,24 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   }
   let token;
   try {
-    const cookieValue = (await cookies()).get('emailPasswordAuthenticatedToken')?.value;
+    const cookieValue = (await cookies()).get(
+      'emailPasswordAuthenticatedToken'
+    )?.value;
     if (!cookieValue) {
       return false;
     }
-    
-    token = await jwt.verify(cookieValue, process.env.JWT_SECRET);
-    
+
+    token = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
+
     // Validate token structure
     const tokenValidation = tokenSchema.safeParse(token);
     if (!tokenValidation.success) {
       console.log('Token validation failed:', tokenValidation.error);
       return false;
     }
-    
+
     token = tokenValidation.data;
   } catch (error) {
     console.log('Invalid token:', error);
@@ -214,7 +225,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       type: 'emailPasswordAuthenticated',
     },
     process.env.JWT_SECRET,
-    { expiresIn: '10m' }
+    { expiresIn: '10m', algorithm: 'HS256' }
   );
   (await cookies()).set(
     'emailPasswordAuthenticatedToken',
@@ -224,7 +235,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 10,
+      maxAge: 60 * 10 * 1000, // 10 minutes
     }
   );
   if (user.totpEnabled) {

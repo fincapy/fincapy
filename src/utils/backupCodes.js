@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
  * @param {number} length Length of each backup code
  * @returns {Object} Object containing plaintext codes and their hashed versions
  */
-export async function generateBackupCodes(count = 10, length = 16) {
+export async function generateBackupCodes(count = 5, length = 16) {
   const codes = [];
   const hashedCodes = [];
 
@@ -34,13 +34,9 @@ export async function verifyBackupCode(code, hashedCodes) {
   for (let i = 0; i < hashedCodes.length; i++) {
     const { hashedCode, used } = hashedCodes[i];
 
-    // Skip already used codes
-    if (used) continue;
-
     const valid = await bcrypt.compare(code, hashedCode);
-    if (valid) {
+    if (valid && matchFoundIndex === -1 && !used) {
       matchFoundIndex = i;
-      break;
     }
   }
 

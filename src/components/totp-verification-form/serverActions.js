@@ -12,10 +12,10 @@ import speakeasy from 'speakeasy';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
 import { verifyBackupCode } from '@/utils/backupCodes';
-import { 
-  totpSchema, 
-  backupCodeSchema, 
-  validateAndSanitize 
+import {
+  totpSchema,
+  backupCodeSchema,
+  validateAndSanitize,
 } from '@/utils/validation';
 
 function hashIp(ip) {
@@ -28,16 +28,16 @@ function hashIp(ip) {
 export async function verifyTOTP(rawToken, isBackupCode = false) {
   // Validate input based on whether it's a TOTP or backup code
   const validation = validateAndSanitize(
-    rawToken, 
+    rawToken,
     isBackupCode ? backupCodeSchema : totpSchema
   );
-  
+
   if (!validation.success) {
     return { success: false, error: validation.error };
   }
-  
+
   const token = validation.data;
-  
+
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
 
@@ -51,21 +51,36 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       key: `ip:totp:${hashIp(ip)}`,
     });
   } catch (error) {
-    return { success: false, error: 'Too many attempts. Please try again later.' };
+    return {
+      success: false,
+      error: 'Too many attempts. Please try again later.',
+    };
   }
 
   let jwtToken;
   try {
-    const cookieValue = (await cookies()).get('emailPasswordAuthenticatedToken')?.value;
+    const cookieValue = (await cookies()).get(
+      'emailPasswordAuthenticatedToken'
+    )?.value;
     if (!cookieValue) {
       return { success: false, error: 'Authentication token missing' };
     }
-    
-    jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET);
+
+    jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
   } catch (error) {
     return { success: false, error: 'Invalid authentication token' };
   }
-  
+
+  (await cookies()).set('emailPasswordAuthenticatedToken', '', {
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 0,
+  });
+
   if (jwtToken.type !== 'emailPasswordAuthenticated') {
     return { success: false, error: 'Invalid token type' };
   }
@@ -84,7 +99,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   if (!user) {
     return { success: false, error: 'User not found' };
   }
-  
+
   if (!isBackupCode && !user.totpSecret) {
     return { success: false, error: 'TOTP not set up for this user' };
   }
@@ -95,7 +110,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
     if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
       return { success: false, error: 'No backup codes available' };
     }
-    
+
     const codeIndex = await verifyBackupCode(token, user.backupCodes);
     if (codeIndex >= 0) {
       user.backupCodes[codeIndex].used = true;
@@ -125,29 +140,29 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       userRole: user.role,
       cookies: await cookies(),
     });
-    
+
     const sessionToken = jwt.sign(
       { sessionId: session.sessionId, type: 'session' },
       process.env.JWT_SECRET,
-      { expiresIn: '3h' }
+      { expiresIn: '3h', algorithm: 'HS256' }
     );
-    
+
     (await cookies()).set('session-id', sessionToken, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 3,
+      maxAge: 60 * 60 * 3 * 1000, // 3 hours
     });
-    
+
     redirect('/app');
     // This return is for TypeScript and won't execute after redirect
     return { success: true };
   } catch (error) {
     console.error('Session creation error:', error);
-    return { 
-      success: false, 
-      error: 'Failed to create session. Please try again.' 
+    return {
+      success: false,
+      error: 'Failed to create session. Please try again.',
     };
   }
 }

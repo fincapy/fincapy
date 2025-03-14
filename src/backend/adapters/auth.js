@@ -4,7 +4,7 @@ import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const SESSION_TTL = 60 * 60; // 1 hour
+const SESSION_TTL = 60 * 60 * 3; // 3 hours
 const ROTATION_PERIOD = 15 * 60; // 15 minutes
 
 class SessionManager {
@@ -38,6 +38,7 @@ class SessionManager {
       process.env.JWT_SECRET,
       {
         expiresIn: '3h',
+        algorithm: 'HS256',
       }
     );
     if (cookies) {
@@ -74,7 +75,8 @@ class SessionManager {
     try {
       providedSessionId = jwt.verify(
         providedSessionToken,
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { algorithms: ['HS256'] }
       );
     } catch (error) {
       return false;
@@ -117,9 +119,9 @@ class SessionManager {
         ttl: SESSION_TTL,
       });
       this.setCookie({ res, cookies, sessionId: newSession.sessionId });
-      return session;
+      return newSession;
     }
-    return session;
+    return newSession;
   }
 
   async deleteSession({ sessionId, cookies }) {
@@ -140,7 +142,8 @@ class SessionManager {
     try {
       providedSessionId = jwt.verify(
         providedSessionToken,
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { algorithms: ['HS256'] }
       );
     } catch (error) {
       return false;
@@ -164,6 +167,15 @@ class SessionManager {
   }
 
   async createSession({ userId, userRole, tenantId, cookies, res }) {
+    // Check if user already has 3 active sessions
+    const sessionCount =
+      await this.sessionRepository.getUserSessionCount(userId);
+
+    // If user already has 3 or more sessions, remove the oldest one
+    if (sessionCount >= 3) {
+      await this.sessionRepository.deleteOldestSession(userId);
+    }
+
     const session = new Session({
       sessionId: crypto.randomUUID(),
       userId,
@@ -175,6 +187,10 @@ class SessionManager {
     await this.sessionRepository.set({ session, ttl: SESSION_TTL });
     this.setCookie({ res, cookies, sessionId: session.sessionId });
     return session;
+  }
+
+  async getUserSessions(userId) {
+    return await this.sessionRepository.getUserSessions(userId);
   }
 }
 

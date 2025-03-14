@@ -12,7 +12,9 @@ export default async function JoinPage(props) {
   const { token } = searchParams;
   let verifiedToken;
   try {
-    verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+    verifiedToken = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
   } catch (error) {
     return 'Invalid or expired invitation link';
   }

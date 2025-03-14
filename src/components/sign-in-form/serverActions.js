@@ -108,7 +108,7 @@ async function authenticateEmailPassword(rawInput) {
         type: 'emailPasswordAuthenticated',
       },
       process.env.JWT_SECRET,
-      { expiresIn: '10m' }
+      { expiresIn: '10m', algorithm: 'HS256' }
     );
     (await cookies()).set(
       'emailPasswordAuthenticatedToken',
@@ -118,7 +118,7 @@ async function authenticateEmailPassword(rawInput) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 10,
+        maxAge: 60 * 10 * 1000, // 10 minutes
       }
     );
 
@@ -192,6 +192,7 @@ async function sendPasswordResetEmail(rawInput) {
       process.env.JWT_SECRET,
       {
         expiresIn: '1h',
+        algorithm: 'HS256',
       }
     );
     const resetUrl = `${process.env.SITE_URL}/reset-password?token=${token}`;

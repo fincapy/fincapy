@@ -11,6 +11,7 @@ class SendUserInviteEmailService {
       process.env.JWT_SECRET,
       {
         expiresIn: '24h',
+        algorithm: 'HS256',
       }
     );
     const inviteUrl = `${process.env.SITE_URL}/join?token=${token}`;

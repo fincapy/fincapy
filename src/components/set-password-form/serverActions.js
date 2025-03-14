@@ -48,7 +48,9 @@ export async function setInitialPassword(newPassword, token) {
 
     let verifiedToken;
     try {
-      verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET);
+      verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET, {
+        algorithms: ['HS256'],
+      });
     } catch (error) {
       return false;
     }
@@ -85,7 +87,7 @@ export async function setInitialPassword(newPassword, token) {
       type: 'emailPasswordAuthenticated',
     },
     process.env.JWT_SECRET,
-    { expiresIn: '10m' }
+    { expiresIn: '10m', algorithm: 'HS256' }
   );
   (await cookies()).set(
     'emailPasswordAuthenticatedToken',
@@ -95,7 +97,7 @@ export async function setInitialPassword(newPassword, token) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 10,
+      maxAge: 60 * 10 * 1000, // 10 minutes
     }
   );
 
@@ -119,7 +121,9 @@ export async function resetPassword(newPassword, token) {
 
     let verifiedToken;
     try {
-      verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET);
+      verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET, {
+        algorithms: ['HS256'],
+      });
     } catch (error) {
       return false;
     }
@@ -156,7 +160,7 @@ export async function resetPassword(newPassword, token) {
       type: 'emailPasswordAuthenticated',
     },
     process.env.JWT_SECRET,
-    { expiresIn: '10m' }
+    { expiresIn: '10m', algorithm: 'HS256' }
   );
   (await cookies()).set(
     'emailPasswordAuthenticatedToken',
@@ -166,7 +170,7 @@ export async function resetPassword(newPassword, token) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 10,
+      maxAge: 60 * 10 * 1000, // 10 minutes
     }
   );
   await userRepository.set({

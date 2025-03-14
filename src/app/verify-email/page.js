@@ -27,7 +27,8 @@ export default async function VerifyEmailPage() {
   try {
     token = jwt.verify(
       emailPasswordAuthenticatedToken.value,
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { algorithms: ['HS256'] }
     );
   } catch (error) {
     redirect('/signin');

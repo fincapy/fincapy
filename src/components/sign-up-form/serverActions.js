@@ -115,7 +115,7 @@ export async function createAccount(name, email, password, accessCode) {
     const emailPasswordAuthenticatedToken = jwt.sign(
       { userId, tenantId, type: 'emailPasswordAuthenticated' },
       process.env.JWT_SECRET,
-      { expiresIn: '10m' }
+      { expiresIn: '10m', algorithm: 'HS256' }
     );
     (await cookies()).set(
       'emailPasswordAuthenticatedToken',
@@ -125,7 +125,7 @@ export async function createAccount(name, email, password, accessCode) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 10,
+        maxAge: 60 * 10 * 1000, // 10 minutes
       }
     );
     const emailVerificationCode = crypto.randomInt(100000, 999999);

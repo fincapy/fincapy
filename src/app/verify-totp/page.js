@@ -29,7 +29,8 @@ export default async function VerifyTOTPPage() {
   try {
     token = jwt.verify(
       emailPasswordAuthenticatedToken.value,
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { algorithms: ['HS256'] }
     );
   } catch (error) {
     redirect('/signin');

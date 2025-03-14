@@ -212,6 +212,38 @@ class RedisAdapter {
     console.timeEnd(`xreadgroup - ${operationId}`);
     return result;
   }
+
+  async sadd(key, ...members) {
+    const operationId = crypto.randomUUID();
+    console.time(`sadd - ${operationId}`);
+    const result = await this.client.sadd(key, ...members);
+    console.timeEnd(`sadd - ${operationId}`);
+    return result;
+  }
+
+  async smembers(key) {
+    const operationId = crypto.randomUUID();
+    console.time(`smembers - ${operationId}`);
+    const result = await this.client.smembers(key);
+    console.timeEnd(`smembers - ${operationId}`);
+    return result;
+  }
+
+  async scard(key) {
+    const operationId = crypto.randomUUID();
+    console.time(`scard - ${operationId}`);
+    const result = await this.client.scard(key);
+    console.timeEnd(`scard - ${operationId}`);
+    return result;
+  }
+
+  async srem(key, ...members) {
+    const operationId = crypto.randomUUID();
+    console.time(`srem - ${operationId}`);
+    const result = await this.client.srem(key, ...members);
+    console.timeEnd(`srem - ${operationId}`);
+    return result;
+  }
 }
 
 class RedisLuaTransactionBuilder {
@@ -283,6 +315,14 @@ class RedisLuaTransactionBuilder {
 
   watchVersion(versionKey, version) {
     this.watchedVersions.set(versionKey, version);
+  }
+
+  addSadd(key, ...members) {
+    this.addCommand('SADD', [key, ...members]);
+  }
+
+  addSrem(key, ...members) {
+    this.addCommand('SREM', [key, ...members]);
   }
 
   /**

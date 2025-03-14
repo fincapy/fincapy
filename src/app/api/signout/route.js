@@ -19,9 +19,16 @@ export const GET = async (req, res) => {
       status: 401,
     });
   }
-  sessionManager.deleteSession({
+  await sessionManager.deleteSession({
     sessionId: session.sessionId,
     cookies: await cookies(),
   });
-  redirect('/');
+
+  // Return a proper response instead of using redirect
+  return new Response(JSON.stringify({ success: true, redirectTo: '/' }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 };

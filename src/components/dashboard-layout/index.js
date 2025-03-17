@@ -304,6 +304,7 @@ export default function DashboardLayout({
   users,
   plaidItems,
   pageParam,
+  nonce,
 }) {
   const firstRender = useRef(true);
   console.log('plan', plan);

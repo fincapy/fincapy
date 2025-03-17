@@ -119,9 +119,9 @@ class SessionManager {
         ttl: SESSION_TTL,
       });
       this.setCookie({ res, cookies, sessionId: newSession.sessionId });
-      return true;
+      return newSession;
     }
-    return true;
+    return session;
   }
 
   async deleteSession({ sessionId, cookies }) {

@@ -9,7 +9,12 @@
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true npm run build",
-    "consume": "node ./src/backend/consumer.js"
+    "consume": "node ./src/backend/consumer.js",
+    "test:e2e": "docker compose up playwright",
+    "test:e2e:dev": "npx playwright test",
+    "test:e2e:fast": "docker compose run --rm playwright npx playwright test --project=chromium --workers=1",
+    "test:e2e:debug": "npx playwright test --debug",
+    "test:e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -69,6 +74,7 @@
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.9",
+    "@playwright/test": "^1.51.0",
     "@types/node": "^22.9.0",
     "@types/pg": "^8.11.10",
     "@types/react": "19.0.10",

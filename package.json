@@ -10,11 +10,9 @@
     "lint": "next lint",
     "analyze": "ANALYZE=true npm run build",
     "consume": "node ./src/backend/consumer.js",
+    "vitest": "vitest",
     "test:e2e": "docker compose up playwright",
-    "test:e2e:dev": "npx playwright test",
-    "test:e2e:fast": "docker compose run --rm playwright npx playwright test --project=chromium --workers=1",
-    "test:e2e:debug": "npx playwright test --debug",
-    "test:e2e:ui": "npx playwright test --ui"
+    "test:e2e:fast": "docker compose run --rm playwright npx playwright test --project=chromium --workers=1"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -73,19 +71,28 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/register": "^7.25.9",
     "@flydotio/dockerfile": "^0.5.9",
     "@playwright/test": "^1.51.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^22.9.0",
     "@types/pg": "^8.11.10",
     "@types/react": "19.0.10",
+    "@vitejs/plugin-react": "^4.3.4",
+    "babel-jest": "^29.7.0",
     "depcheck": "^1.4.7",
     "eslint": "^8",
     "eslint-config-next": "15.1.7",
     "jest": "^29.7.0",
+    "jsdom": "^26.0.0",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^3.0.9"
   },
   "overrides": {
     "@types/react": "19.0.10"

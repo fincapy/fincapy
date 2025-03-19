@@ -118,6 +118,7 @@ const createCategory = async ({
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+    console.log('session', session);
     if (!session) {
       return false;
     }

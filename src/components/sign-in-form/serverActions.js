@@ -55,7 +55,7 @@ function sanitizeInput(input) {
 async function authenticateEmailPassword(rawInput) {
   // Validate input
   const sanitizedInput = {
-    email: sanitizeInput(rawInput.email),
+    email: rawInput.email,
     password: rawInput.password, // Don't sanitize password as it may contain special characters
   };
 

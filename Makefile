@@ -3,3 +3,6 @@ test-integration:
 
 test-integration-agent:
 	docker compose run --rm nextjs npm run vitest:agent
+
+test-system:
+	docker compose run --rm playwright npm run test:system

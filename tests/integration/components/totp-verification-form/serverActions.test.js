@@ -48,14 +48,11 @@ const backupCodes = await generateBackupCodes();
 const hashedBackupCode = backupCodes.hashedCodes[0];
 const backupCode = backupCodes.codes[0];
 
-const mockHeaders = new Map();
-mockHeaders.set('fly-client-ip', '127.0.0.1');
-
 describe('TOTP Verification Form Server Actions', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     cookies.mockReturnValue(validCookieResolution);
-    headers.mockReturnValue(mockHeaders);
+    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
 
     // Setup test user with TOTP secret
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -140,6 +137,21 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP(token);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid token type');
+    });
+
+    it('should fail with rate limit', async () => {
+      cookies.mockReturnValue(validCookieResolution);
+      // Set a consistent IP for rate limit testing
+      headers.mockReturnValue({ get: vi.fn(() => '127.0.0.1') });
+      const token = '123456';
+
+      for (let i = 0; i < 10; i++) {
+        await verifyTOTP(token);
+      }
+
+      const result = await verifyTOTP(token);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Too many attempts. Please try again later.');
     });
   });
 });

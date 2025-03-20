@@ -53,7 +53,7 @@ export async function resendEmailVerificationCode() {
       key: `ip:email-verification-resend:${hashIp(ip)}`,
     });
   } catch (error) {
-    console.log('Rate limit exceeded for resend:', error);
+    console.log('Rate limit exceeded for resend email');
     return false;
   }
 
@@ -135,6 +135,19 @@ export async function resendEmailVerificationCode() {
 }
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+  const headersList = await headers();
+  const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:email-verification:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    console.log('Rate limit exceeded for verifyEmail');
+    return false;
+  }
+
   // Validate and sanitize the verification code
   try {
     // First sanitize to prevent any HTML injection
@@ -157,18 +170,6 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
     return false;
   }
 
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
-  const headersList = await headers();
-  const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `ip:email-verification:${hashIp(ip)}`,
-    });
-  } catch (error) {
-    console.log('error', error);
-    return false;
-  }
   let token;
   try {
     const cookieValue = (await cookies()).get(

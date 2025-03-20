@@ -63,7 +63,7 @@ const missingEmailPasswordToken = {
 };
 
 describe('Email Verification Form Server Actions', () => {
-  const mockIp = '127.0.0.1';
+  let consoleLogSpy;
 
   beforeAll(async () => {
     // Set up test user
@@ -89,8 +89,9 @@ describe('Email Verification Form Server Actions', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     headers.mockReturnValue({
-      get: vi.fn(() => mockIp),
+      get: vi.fn(() => crypto.randomUUID()),
     });
+    consoleLogSpy = vi.spyOn(console, 'log');
   });
 
   afterEach(async () => {
@@ -101,6 +102,7 @@ describe('Email Verification Form Server Actions', () => {
       }
     );
     await emailVerificationCodeRepository.delete({ userId });
+    consoleLogSpy.mockRestore();
   });
 
   describe('resendEmailVerificationCode', () => {
@@ -134,6 +136,21 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await resendEmailVerificationCode();
       expect(result).toBe(false);
+    });
+
+    it('should fail with rate limit', async () => {
+      headers.mockReturnValue({
+        get: vi.fn(() => '127.0.0.1'),
+      });
+      for (let i = 0; i < 10; i++) {
+        await resendEmailVerificationCode();
+      }
+
+      const result = await resendEmailVerificationCode();
+      expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Rate limit exceeded for resend email'
+      );
     });
   });
 
@@ -199,6 +216,21 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await verifyEmail('<script>alert("xss")</script>');
       expect(result).toBe(false);
+    });
+
+    it('should fail with rate limit', async () => {
+      headers.mockReturnValue({
+        get: vi.fn(() => '127.0.0.1'),
+      });
+      for (let i = 0; i < 10; i++) {
+        await verifyEmail(crypto.randomUUID());
+      }
+
+      const result = await verifyEmail(crypto.randomUUID());
+      expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Rate limit exceeded for verifyEmail'
+      );
     });
   });
 });

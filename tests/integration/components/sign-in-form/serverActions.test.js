@@ -55,8 +55,8 @@ describe('Sign In Form Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    headers.mockReturnValue({
-      get: vi.fn().mockReturnValue('127.0.0.1'),
+    headers.mockResolvedValue({
+      get: vi.fn().mockReturnValue(crypto.randomUUID()),
     });
     cookies.mockReturnValue({
       set: vi.fn(),
@@ -151,47 +151,47 @@ describe('Sign In Form Server Actions', () => {
       expect(redirect).not.toHaveBeenCalled();
     });
 
-    // it('should respect rate limiting for IP address', async () => {
-    //   // Make multiple rapid requests
-    //   for (let i = 0; i < 10; i++) {
-    //     await authenticateEmailPassword({
-    //       email: testEmail,
-    //       password: 'wrongPassword',
-    //     });
-    //   }
+    it('should respect rate limiting for IP address', async () => {
+      // Make multiple rapid requests
+      for (let i = 0; i < 10; i++) {
+        await authenticateEmailPassword({
+          email: testEmail,
+          password: 'wrongPassword',
+        });
+      }
 
-    //   const result = await authenticateEmailPassword({
-    //     email: testEmail,
-    //     password: testPassword,
-    //   });
+      const result = await authenticateEmailPassword({
+        email: testEmail,
+        password: testPassword,
+      });
 
-    //   expect(result).toBe(false);
-    //   expect(cookies().set).not.toHaveBeenCalled();
-    //   expect(redirect).not.toHaveBeenCalled();
-    // });
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+    });
 
-    // it('should respect rate limiting for email address', async () => {
-    //   headers.mockReturnValue({
-    //     get: vi.fn().mockReturnValue('different-ip'),
-    //   });
+    it('should respect rate limiting for email address', async () => {
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValue('different-ip'),
+      });
 
-    //   // Make multiple rapid requests
-    //   for (let i = 0; i < 10; i++) {
-    //     await authenticateEmailPassword({
-    //       email: testEmail,
-    //       password: 'wrongPassword',
-    //     });
-    //   }
+      // Make multiple rapid requests
+      for (let i = 0; i < 10; i++) {
+        await authenticateEmailPassword({
+          email: testEmail,
+          password: 'wrongPassword',
+        });
+      }
 
-    //   const result = await authenticateEmailPassword({
-    //     email: testEmail,
-    //     password: testPassword,
-    //   });
+      const result = await authenticateEmailPassword({
+        email: testEmail,
+        password: testPassword,
+      });
 
-    //   expect(result).toBe(false);
-    //   expect(cookies().set).not.toHaveBeenCalled();
-    //   expect(redirect).not.toHaveBeenCalled();
-    // });
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+    });
   });
 
   describe('sendPasswordResetEmail', () => {
@@ -227,19 +227,19 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
     });
 
-    // it('should respect rate limiting for IP address', async () => {
-    //   // Make multiple rapid requests
-    //   for (let i = 0; i < 10; i++) {
-    //     await sendPasswordResetEmail({
-    //       email: testEmail,
-    //     });
-    //   }
+    it('should respect rate limiting for IP address', async () => {
+      // Make multiple rapid requests
+      for (let i = 0; i < 10; i++) {
+        await sendPasswordResetEmail({
+          email: testEmail,
+        });
+      }
 
-    //   const result = await sendPasswordResetEmail({
-    //     email: testEmail,
-    //   });
+      const result = await sendPasswordResetEmail({
+        email: testEmail,
+      });
 
-    //   expect(result).toBe(false);
-    // });
+      expect(result).toBe(false);
+    });
   });
 });

@@ -200,11 +200,10 @@ class EmailPasswordAuthenticator {
   }
 
   async authenticate({ unauthenticatedPassword, password }) {
-    const dummyPassword = crypto.randomUUID();
-    const dummySavedPassword = crypto.randomUUID();
+    const dummyHash = await bcrypt.hash(crypto.randomUUID(), 12);
     const valid = await bcrypt.compare(
-      unauthenticatedPassword || dummyPassword,
-      password || dummySavedPassword
+      unauthenticatedPassword || crypto.randomUUID(),
+      password || dummyHash
     );
     if (!valid) {
       return false;

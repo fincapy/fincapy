@@ -51,19 +51,10 @@ const invalidCookieResolution = {
   delete: vi.fn(),
 };
 
-const validHeadersResolution = {
-  get: vi.fn((key) => {
-    if (key === 'fly-client-ip') {
-      return '127.0.0.1';
-    }
-    return undefined;
-  }),
-};
-
 describe('TOTP Registration Form Server Actions', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    headers.mockReturnValue(validHeadersResolution);
+    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
   });
 
   describe('generateTOTPSecret', () => {
@@ -152,6 +143,25 @@ describe('TOTP Registration Form Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Invalid input');
+    });
+
+    it('should fail with rate limit', async () => {
+      cookies.mockResolvedValue(validCookieResolution);
+      // Set a consistent IP for rate limit testing
+      headers.mockReturnValue({ get: vi.fn(() => '127.0.0.1') });
+
+      const secret = speakeasy.generateSecret().base32;
+      const token = speakeasy.totp({
+        secret: secret,
+        encoding: 'base32',
+      });
+      for (let i = 0; i < 10; i++) {
+        await verifyAndSaveTOTP('123456', '123456789101212131415');
+      }
+
+      const result = await verifyAndSaveTOTP(token, secret);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Too many attempts, please try again later');
     });
   });
 });

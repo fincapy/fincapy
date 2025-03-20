@@ -53,6 +53,24 @@ export async function generateTOTPSecret() {
 }
 
 export async function verifyAndSaveTOTP(token, secret) {
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
+  console.log('ip', ip);
+  try {
+    await rateLimiter.checkRateLimit({
+      key: `ip:totp-registration:${hashIp(ip)}`,
+    });
+  } catch (error) {
+    console.log('IP', ip);
+    console.log('Rate limit exceeded for IP');
+    return {
+      success: false,
+      error: 'Too many attempts, please try again later',
+    };
+  }
+
   try {
     // Validate and sanitize inputs
     const validatedToken = tokenSchema.parse(token);
@@ -60,23 +78,6 @@ export async function verifyAndSaveTOTP(token, secret) {
 
     const validatedSecret = secretSchema.parse(secret);
     const sanitizedSecret = sanitizeHtml(validatedSecret, sanitizeOptions);
-
-    const redisAdapter = new RedisAdapter({ redisClient });
-    const rateLimiter = new RateLimiter({ redisAdapter });
-    const headersList = await headers();
-    const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-
-    try {
-      await rateLimiter.checkRateLimit({
-        key: `ip:totp-registration:${hashIp(ip)}`,
-      });
-    } catch (error) {
-      console.log('Rate limit exceeded for IP');
-      return {
-        success: false,
-        error: 'Too many attempts, please try again later',
-      };
-    }
 
     const isValid = speakeasy.totp.verify({
       secret: sanitizedSecret,

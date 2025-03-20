@@ -44,7 +44,7 @@ describe('Sign Up Form Server Actions', () => {
 
     // Mock headers to return test IP
     headers.mockReturnValue({
-      get: vi.fn().mockReturnValue('127.0.0.1'),
+      get: vi.fn().mockReturnValue(crypto.randomUUID()),
     });
 
     // Mock cookies to return empty initially
@@ -117,6 +117,25 @@ describe('Sign Up Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it('should fail with rate limit', async () => {
+      for (let i = 0; i < 10; i++) {
+        await createAccount(
+          testName,
+          `${uuidv4()}@test.com`,
+          testPassword,
+          testAccessCode
+        );
+      }
+
+      const result = await createAccount(
+        testName,
+        `${uuidv4()}@test.com`,
+        testPassword,
+        testAccessCode
+      );
+      expect(result).toBe(false);
     });
   });
 });

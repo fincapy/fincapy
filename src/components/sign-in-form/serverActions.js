@@ -160,7 +160,13 @@ async function sendPasswordResetEmail(rawInput) {
       email: sanitizeInput(rawInput.email),
     };
 
-    const { email } = passwordResetSchema.parse(sanitizedInput);
+    let email;
+    try {
+      const result = passwordResetSchema.parse(sanitizedInput);
+      email = result.email;
+    } catch (error) {
+      return false;
+    }
 
     const redisAdapter = new RedisAdapter({ redisClient });
     const rateLimiter = new RateLimiter({ redisAdapter });

@@ -38,15 +38,17 @@ function sanitizeInput(input) {
 
 export async function setInitialPassword(newPassword, token) {
   // Validate and sanitize inputs
+  let verifiedToken;
+  let sanitizedPassword;
+  let sanitizedToken;
   try {
     passwordSchema.parse(newPassword);
     tokenSchema.parse(token);
 
     // Sanitize inputs
-    const sanitizedPassword = sanitizeInput(newPassword);
-    const sanitizedToken = sanitizeInput(token);
+    sanitizedPassword = sanitizeInput(newPassword);
+    sanitizedToken = sanitizeInput(token);
 
-    let verifiedToken;
     try {
       verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET, {
         algorithms: ['HS256'],
@@ -111,6 +113,7 @@ export async function setInitialPassword(newPassword, token) {
 export async function resetPassword(newPassword, token) {
   // Validate and sanitize inputs
   let sanitizedPassword;
+  let verifiedToken;
   try {
     passwordSchema.parse(newPassword);
     tokenSchema.parse(token);
@@ -119,7 +122,6 @@ export async function resetPassword(newPassword, token) {
     sanitizedPassword = sanitizeInput(newPassword);
     const sanitizedToken = sanitizeInput(token);
 
-    let verifiedToken;
     try {
       verifiedToken = await jwt.verify(sanitizedToken, process.env.JWT_SECRET, {
         algorithms: ['HS256'],

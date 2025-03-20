@@ -156,8 +156,6 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
     });
 
     redirect('/app');
-    // This return is for TypeScript and won't execute after redirect
-    return { success: true };
   } catch (error) {
     console.error('Session creation error:', error);
     return {

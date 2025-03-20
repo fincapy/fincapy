@@ -11,6 +11,7 @@
     "analyze": "ANALYZE=true npm run build",
     "consume": "node ./src/backend/consumer.js",
     "vitest": "vitest",
+    "vitest:agent": "vitest --run --silent",
     "test:e2e": "docker compose up playwright",
     "test:e2e:fast": "docker compose run --rm playwright npx playwright test --project=chromium --workers=1"
   },

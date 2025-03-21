@@ -78,6 +78,8 @@ const invalidCookieResolution = {
 };
 
 describe('Transaction Table Server Actions', () => {
+  let consoleLogSpy;
+
   beforeAll(async () => {
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
@@ -123,6 +125,11 @@ describe('Transaction Table Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    consoleLogSpy = vi.spyOn(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
   });
 
   describe('editTransaction', () => {
@@ -181,6 +188,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await editTransaction(editData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction edit failed: Insufficient permissions - viewer role'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -201,6 +211,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await editTransaction(editData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction edit failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -221,6 +234,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await editTransaction(editData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction edit failed: No valid session found'
+      );
     });
 
     it('should return false with invalid data', async () => {
@@ -241,6 +257,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await editTransaction(editData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction edit failed: Invalid input data'
+      );
     });
   });
 
@@ -286,6 +305,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await deleteTransaction(deleteData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction delete failed: Insufficient permissions - viewer role'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -299,6 +321,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await deleteTransaction(deleteData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction delete failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -312,6 +337,9 @@ describe('Transaction Table Server Actions', () => {
       const result = await deleteTransaction(deleteData);
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Transaction delete failed: No valid session found'
+      );
     });
   });
 });

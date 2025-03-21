@@ -53,6 +53,7 @@ describe('TOTP Verification Form Server Actions', () => {
     vi.clearAllMocks();
     cookies.mockReturnValue(validCookieResolution);
     headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
+    vi.spyOn(console, 'log');
 
     // Setup test user with TOTP secret
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -90,12 +91,20 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP('123456');
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP invalid verification code for user:',
+        userId
+      );
     });
 
     it('should fail with invalid backup code', async () => {
       const result = await verifyTOTP('INVALID123456', true);
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP invalid verification code for user:',
+        userId
+      );
     });
 
     it('should fail with missing authentication token', async () => {
@@ -112,6 +121,9 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP(token);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication token missing');
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP authentication token missing'
+      );
     });
 
     it('should fail with invalid token type', async () => {
@@ -137,12 +149,17 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP(token);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid token type');
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP invalid token type:',
+        'wrongType'
+      );
     });
 
     it('should fail with rate limit', async () => {
       cookies.mockReturnValue(validCookieResolution);
       // Set a consistent IP for rate limit testing
-      headers.mockReturnValue({ get: vi.fn(() => '127.0.0.1') });
+      const testIp = '127.0.0.1';
+      headers.mockReturnValue({ get: vi.fn(() => testIp) });
       const token = '123456';
 
       for (let i = 0; i < 10; i++) {
@@ -152,6 +169,10 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP(token);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Too many attempts. Please try again later.');
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP rate limit exceeded for IP:',
+        testIp
+      );
     });
   });
 });

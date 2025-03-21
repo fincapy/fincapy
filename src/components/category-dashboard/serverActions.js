@@ -118,11 +118,12 @@ const createCategory = async ({
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    console.log('session', session);
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('Authorization failed: Viewer role cannot create categories');
       return false;
     }
 
@@ -141,7 +142,7 @@ const createCategory = async ({
       planId: sanitizedData.planId,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in createCategory:', error);
     return false;
   }
   return true;
@@ -172,9 +173,11 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('Authorization failed: Viewer role cannot update categories');
       return false;
     }
     const tenantId = session.tenantId;
@@ -191,7 +194,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
       planId: sanitizedData.planId,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in updateCategory:', error);
     return false;
   }
   return true;
@@ -219,9 +222,11 @@ const deleteCategory = async ({ categoryId, planId }) => {
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('Authorization failed: Viewer role cannot delete categories');
       return false;
     }
     const tenantId = session.tenantId;
@@ -236,7 +241,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
       planId: sanitizedData.planId,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in deleteCategory:', error);
     return false;
   }
   return true;
@@ -275,9 +280,13 @@ const createSubcategory = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log(
+        'Authorization failed: Viewer role cannot create subcategories'
+      );
       return false;
     }
     const tenantId = session.tenantId;
@@ -296,7 +305,7 @@ const createSubcategory = async ({
       subcategoryId: sanitizedData.subcategoryId,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in createSubcategory:', error);
     return false;
   }
   return true;
@@ -335,9 +344,13 @@ const updateSubcategory = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log(
+        'Authorization failed: Viewer role cannot update subcategories'
+      );
       return false;
     }
     const tenantId = session.tenantId;
@@ -355,7 +368,7 @@ const updateSubcategory = async ({
       planId: sanitizedData.planId,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in updateSubcategory:', error);
     return false;
   }
   return true;
@@ -392,9 +405,13 @@ const deleteSubcategory = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log(
+        'Authorization failed: Viewer role cannot delete subcategories'
+      );
       return false;
     }
     const tenantId = session.tenantId;
@@ -411,7 +428,7 @@ const deleteSubcategory = async ({
       type: sanitizedData.type,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error in deleteSubcategory:', error);
     return false;
   }
   return true;
@@ -440,7 +457,9 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+    console.log('reorder categories session', session);
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     const tenantId = session.tenantId;
@@ -459,7 +478,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
 
     return true;
   } catch (error) {
-    console.error(error);
+    console.error('Error in reorderCategories:', error);
     return false;
   }
 };
@@ -493,6 +512,7 @@ const reorderSubcategories = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Authentication failed: No valid session found');
       return false;
     }
     const tenantId = session.tenantId;
@@ -511,7 +531,7 @@ const reorderSubcategories = async ({
 
     return true;
   } catch (error) {
-    console.error(error);
+    console.error('Error in reorderSubcategories:', error);
     return false;
   }
 };

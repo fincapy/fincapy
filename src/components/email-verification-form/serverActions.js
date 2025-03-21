@@ -63,6 +63,7 @@ export async function resendEmailVerificationCode() {
       'emailPasswordAuthenticatedToken'
     )?.value;
     if (!cookieValue) {
+      console.log('No email password authentication token found');
       return false;
     }
 
@@ -83,15 +84,6 @@ export async function resendEmailVerificationCode() {
     return false;
   }
 
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `user:email-verification-resend:${token.userId}`,
-    });
-  } catch (error) {
-    console.log('User rate limit exceeded for resend:', error);
-    return false;
-  }
-
   // Generate a new verification code
   const emailVerificationCode = crypto.randomInt(100000, 999999);
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
@@ -109,6 +101,7 @@ export async function resendEmailVerificationCode() {
   const userRepository = new UserRepository({ redisAdapter });
   const user = await userRepository.get({ userId: token.userId });
   if (!user) {
+    console.log('User not found');
     return false;
   }
 
@@ -116,6 +109,7 @@ export async function resendEmailVerificationCode() {
     (email) => email.primary === true
   )?.email;
   if (!primaryEmail) {
+    console.log('No primary email found for user');
     return false;
   }
 
@@ -176,6 +170,9 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       'emailPasswordAuthenticatedToken'
     )?.value;
     if (!cookieValue) {
+      console.log(
+        'No email password authentication token found for verification'
+      );
       return false;
     }
 
@@ -200,6 +197,7 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       key: `user:email-verification:${token.userId}`,
     });
   } catch (error) {
+    console.log('User rate limit exceeded for verification');
     return false;
   }
   const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
@@ -209,9 +207,11 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
     userId: token.userId,
   });
   if (!emailVerificationCode) {
+    console.log('No verification code found');
     return false;
   }
   if (emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)) {
+    console.log('Invalid verification code provided');
     return false;
   }
   await emailVerificationCodeRepository.delete({ userId: token.userId });

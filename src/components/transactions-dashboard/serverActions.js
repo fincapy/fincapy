@@ -65,6 +65,7 @@ const createTransaction = async ({
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
+      console.log('Transaction creation failed: Invalid input data');
       return false;
     }
 
@@ -79,10 +80,14 @@ const createTransaction = async ({
     });
 
     if (!session) {
+      console.log('Transaction creation failed: No valid session found');
       return false;
     }
 
     if (session.userRole === 'viewer') {
+      console.log(
+        'Transaction creation failed: Insufficient permissions - viewer role'
+      );
       return false;
     }
 
@@ -107,6 +112,7 @@ const createTransaction = async ({
     return true;
   } catch (error) {
     console.error('Error creating transaction:', error);
+    console.log('Transaction creation failed: Unexpected error occurred');
     return false;
   }
 };

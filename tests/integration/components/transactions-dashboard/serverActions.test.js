@@ -119,6 +119,12 @@ describe('Transaction Dashboard Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, 'log');
+    vi.spyOn(console, 'error');
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('createTransaction', () => {
@@ -157,6 +163,9 @@ describe('Transaction Dashboard Server Actions', () => {
       const result = await createTransaction(transactionData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Transaction creation failed: Insufficient permissions - viewer role'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -176,6 +185,9 @@ describe('Transaction Dashboard Server Actions', () => {
       const result = await createTransaction(transactionData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Transaction creation failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -195,6 +207,9 @@ describe('Transaction Dashboard Server Actions', () => {
       const result = await createTransaction(transactionData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Transaction creation failed: No valid session found'
+      );
     });
 
     it('should return false when validation fails', async () => {
@@ -214,6 +229,9 @@ describe('Transaction Dashboard Server Actions', () => {
       const result = await createTransaction(invalidTransactionData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Transaction creation failed: Invalid input data'
+      );
     });
 
     it('should handle sanitized input correctly', async () => {

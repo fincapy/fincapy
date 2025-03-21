@@ -44,6 +44,22 @@ const validEmailPasswordToken = {
   delete: vi.fn(),
 };
 
+const validEmailPasswordTokenMissingUser = {
+  get: vi.fn(() => ({
+    value: jwt.sign(
+      {
+        userId: crypto.randomUUID(),
+        tenantId,
+        type: 'emailPasswordAuthenticated',
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m', algorithm: 'HS256' }
+    ),
+  })),
+  set: vi.fn(),
+  delete: vi.fn(),
+};
+
 const invalidEmailPasswordToken = {
   get: vi.fn(() => ({
     value: jwt.sign(
@@ -129,13 +145,17 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await resendEmailVerificationCode();
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'No email password authentication token found'
+      );
     });
 
     it('should return false for invalid token', async () => {
-      cookies.mockResolvedValue(invalidEmailPasswordToken);
+      cookies.mockResolvedValue(validEmailPasswordTokenMissingUser);
 
       const result = await resendEmailVerificationCode();
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith('User not found');
     });
 
     it('should fail with rate limit', async () => {
@@ -192,9 +212,13 @@ describe('Email Verification Form Server Actions', () => {
 
     it('should return false for incorrect verification code', async () => {
       cookies.mockResolvedValue(validEmailPasswordToken);
+      await resendEmailVerificationCode();
 
       const result = await verifyEmail('123456');
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Invalid verification code provided'
+      );
     });
 
     it('should return false for invalid code format', async () => {
@@ -202,6 +226,10 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await verifyEmail('12345'); // 5 digits instead of 6
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Verification code validation failed:',
+        expect.any(Object)
+      );
     });
 
     it('should return false when no token exists', async () => {
@@ -209,6 +237,9 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await verifyEmail('123456');
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'No email password authentication token found for verification'
+      );
     });
 
     it('should sanitize input to prevent XSS', async () => {
@@ -216,6 +247,10 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await verifyEmail('<script>alert("xss")</script>');
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'Verification code validation failed:',
+        expect.any(Object)
+      );
     });
 
     it('should fail with rate limit', async () => {

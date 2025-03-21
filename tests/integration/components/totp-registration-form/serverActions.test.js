@@ -55,6 +55,7 @@ describe('TOTP Registration Form Server Actions', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
+    vi.spyOn(console, 'log');
   });
 
   describe('generateTOTPSecret', () => {
@@ -119,6 +120,9 @@ describe('TOTP Registration Form Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid verification code');
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid TOTP verification code provided'
+      );
     });
 
     it('should fail with missing authentication', async () => {
@@ -134,6 +138,9 @@ describe('TOTP Registration Form Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Missing email password authentication token'
+      );
     });
 
     it('should fail with invalid input', async () => {
@@ -143,6 +150,9 @@ describe('TOTP Registration Form Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Invalid input');
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid input provided for TOTP registration'
+      );
     });
 
     it('should fail with rate limit', async () => {
@@ -162,6 +172,9 @@ describe('TOTP Registration Form Server Actions', () => {
       const result = await verifyAndSaveTOTP(token, secret);
       expect(result.success).toBe(false);
       expect(result.error).toBe('Too many attempts, please try again later');
+      expect(console.log).toHaveBeenCalledWith(
+        'IP rate limit exceeded for TOTP registration'
+      );
     });
   });
 });

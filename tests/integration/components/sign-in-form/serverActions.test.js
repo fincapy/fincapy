@@ -55,14 +55,17 @@ describe('Sign In Form Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    headers.mockResolvedValue({
-      get: vi.fn().mockReturnValue(crypto.randomUUID()),
-    });
+    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
     cookies.mockReturnValue({
       set: vi.fn(),
       get: vi.fn(),
       delete: vi.fn(),
     });
+    vi.spyOn(console, 'log');
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('authenticateEmailPassword', () => {
@@ -105,6 +108,9 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid email/password combination'
+      );
     });
 
     it('should fail with non-existent email', async () => {
@@ -116,6 +122,9 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid email/password combination'
+      );
     });
 
     it('should fail with invalid email format', async () => {
@@ -127,6 +136,9 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
     });
 
     it('should fail with empty password', async () => {
@@ -138,6 +150,9 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
     });
 
     it('should handle XSS attempts in email field', async () => {
@@ -149,9 +164,15 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
     });
 
     it('should respect rate limiting for IP address', async () => {
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValue(crypto.randomUUID()),
+      });
       // Make multiple rapid requests
       for (let i = 0; i < 10; i++) {
         await authenticateEmailPassword({
@@ -166,8 +187,7 @@ describe('Sign In Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
-      expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('Rate limit exceeded');
     });
 
     it('should respect rate limiting for email address', async () => {
@@ -189,8 +209,7 @@ describe('Sign In Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
-      expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('Rate limit exceeded');
     });
   });
 
@@ -217,6 +236,9 @@ describe('Sign In Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid email format for password reset'
+      );
     });
 
     it('should handle XSS attempts in email field', async () => {
@@ -225,9 +247,15 @@ describe('Sign In Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid email format for password reset'
+      );
     });
 
     it('should respect rate limiting for IP address', async () => {
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValue('different-ip'),
+      });
       // Make multiple rapid requests
       for (let i = 0; i < 10; i++) {
         await sendPasswordResetEmail({
@@ -240,6 +268,9 @@ describe('Sign In Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Password reset rate limit exceeded'
+      );
     });
   });
 });

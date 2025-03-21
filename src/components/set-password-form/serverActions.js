@@ -54,15 +54,20 @@ export async function setInitialPassword(newPassword, token) {
         algorithms: ['HS256'],
       });
     } catch (error) {
+      console.log('Invalid or expired token in setInitialPassword');
       return false;
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, message: error.errors[0].message };
     }
+    console.log('Validation error in setInitialPassword');
     return false;
   }
   if (verifiedToken.type !== 'inviteUser') {
+    console.log(
+      'Invalid token type in setInitialPassword - expected inviteUser'
+    );
     return false;
   }
   const userId = verifiedToken.userId;
@@ -72,6 +77,7 @@ export async function setInitialPassword(newPassword, token) {
   const user = await userRepository.get({ userId });
 
   if (!user) {
+    console.log('User not found in setInitialPassword');
     return false;
   }
 
@@ -127,15 +133,19 @@ export async function resetPassword(newPassword, token) {
         algorithms: ['HS256'],
       });
     } catch (error) {
+      console.log('Invalid or expired token in resetPassword');
       return false;
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, message: error.errors[0].message };
+      console.log('Validation error in resetPassword');
+      return false;
     }
+    console.log('Validation error in resetPassword');
     return false;
   }
   if (verifiedToken.type !== 'resetPassword') {
+    console.log('Invalid token type in resetPassword - expected resetPassword');
     return false;
   }
   const userId = verifiedToken.userId;
@@ -145,6 +155,7 @@ export async function resetPassword(newPassword, token) {
   const user = await userRepository.get({ userId });
 
   if (!user) {
+    console.log('User not found in resetPassword');
     return false;
   }
 

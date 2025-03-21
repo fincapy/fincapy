@@ -123,6 +123,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, 'log');
   });
 
   describe('fetchLinkToken', () => {
@@ -135,6 +136,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await fetchLinkToken(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'fetchLinkToken: User role viewer is not authorized'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -146,6 +150,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await fetchLinkToken(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'fetchLinkToken: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -157,6 +164,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await fetchLinkToken(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'fetchLinkToken: No valid session found'
+      );
     });
   });
 
@@ -173,6 +183,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await createPlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'createPlaidItem: User role viewer is not authorized'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -187,6 +200,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await createPlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'createPlaidItem: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -201,6 +217,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await createPlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'createPlaidItem: No valid session found'
+      );
     });
   });
 
@@ -215,6 +234,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await updatePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'updatePlaidItem: User role viewer is not authorized'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -227,6 +249,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await updatePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'updatePlaidItem: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -239,6 +264,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await updatePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'updatePlaidItem: No valid session found'
+      );
     });
   });
 
@@ -252,6 +280,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await deletePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'deletePlaidItem: User role viewer is not authorized'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -263,6 +294,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await deletePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'deletePlaidItem: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -274,6 +308,9 @@ describe('Financial Institutions Dashboard Server Actions', () => {
       const result = await deletePlaidItem(params);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'deletePlaidItem: No valid session found'
+      );
     });
   });
 });

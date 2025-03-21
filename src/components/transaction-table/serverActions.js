@@ -74,6 +74,7 @@ const editTransaction = async ({
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
+      console.log('Transaction edit failed: Invalid input data');
       return false;
     }
 
@@ -86,9 +87,13 @@ const editTransaction = async ({
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Transaction edit failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log(
+        'Transaction edit failed: Insufficient permissions - viewer role'
+      );
       return false;
     }
     const tenantId = session.tenantId;
@@ -113,6 +118,7 @@ const editTransaction = async ({
     return true;
   } catch (error) {
     console.error(error);
+    console.log('Transaction edit failed: Unexpected error occurred');
     return false;
   }
 };
@@ -126,9 +132,13 @@ const deleteTransaction = async ({ planId, transactionId }) => {
       cookies: await cookies(),
     });
     if (!session) {
+      console.log('Transaction delete failed: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log(
+        'Transaction delete failed: Insufficient permissions - viewer role'
+      );
       return false;
     }
     const tenantId = session.tenantId;
@@ -145,6 +155,7 @@ const deleteTransaction = async ({ planId, transactionId }) => {
     return true;
   } catch (error) {
     console.error(error);
+    console.log('Transaction delete failed: Unexpected error occurred');
     return false;
   }
 };

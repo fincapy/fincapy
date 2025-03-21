@@ -66,6 +66,7 @@ async function authenticateEmailPassword(rawInput) {
     email = result.email;
     password = result.password;
   } catch (error) {
+    console.log('Email/password validation failed');
     return false;
   }
 
@@ -83,7 +84,7 @@ async function authenticateEmailPassword(rawInput) {
       key: `email:email-password:${hashEmail(email)}`,
     });
   } catch (error) {
-    console.log('error', error);
+    console.log('Rate limit exceeded');
     return false;
   }
   const userRepository = new UserRepository({ redisAdapter });
@@ -150,6 +151,7 @@ async function authenticateEmailPassword(rawInput) {
     }
     redirect('/verify-totp');
   }
+  console.log('Invalid email/password combination');
   return false;
 }
 
@@ -165,6 +167,7 @@ async function sendPasswordResetEmail(rawInput) {
       const result = passwordResetSchema.parse(sanitizedInput);
       email = result.email;
     } catch (error) {
+      console.log('Invalid email format for password reset');
       return false;
     }
 
@@ -179,7 +182,7 @@ async function sendPasswordResetEmail(rawInput) {
         key: `ip:password-reset:${hashIp(ip)}`,
       });
     } catch (error) {
-      console.log('error', error);
+      console.log('Password reset rate limit exceeded');
       return false;
     }
 
@@ -217,7 +220,7 @@ async function sendPasswordResetEmail(rawInput) {
 
     return true;
   } catch (error) {
-    console.error('Password reset validation error:', error);
+    console.log('Password reset request failed');
     return false;
   }
 }

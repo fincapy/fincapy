@@ -36,16 +36,16 @@ describe('Sign Up Form Server Actions', () => {
   const testName = 'Test User';
   const testPassword = 'TestPassword123!';
   const testAccessCode = 'test-access-code';
+  let consoleLogSpy;
 
   beforeEach(() => {
     vi.resetAllMocks();
     process.env.NEXT_PUBLIC_SITE_ACCESS_CODE = testAccessCode;
     process.env.NODE_ENV = 'development';
+    consoleLogSpy = vi.spyOn(console, 'log');
 
     // Mock headers to return test IP
-    headers.mockReturnValue({
-      get: vi.fn().mockReturnValue(crypto.randomUUID()),
-    });
+    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
 
     // Mock cookies to return empty initially
     cookies.mockReturnValue({
@@ -89,6 +89,9 @@ describe('Sign Up Form Server Actions', () => {
       );
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'ACCESS_CODE_ERROR: Invalid access code provided'
+      );
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
@@ -102,6 +105,9 @@ describe('Sign Up Form Server Actions', () => {
       );
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'VALIDATION_ERROR: Invalid input data'
+      );
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
@@ -115,11 +121,17 @@ describe('Sign Up Form Server Actions', () => {
       );
 
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'VALIDATION_ERROR: Invalid input data'
+      );
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
 
     it('should fail with rate limit', async () => {
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValue(crypto.randomUUID()),
+      });
       for (let i = 0; i < 10; i++) {
         await createAccount(
           testName,
@@ -136,6 +148,9 @@ describe('Sign Up Form Server Actions', () => {
         testAccessCode
       );
       expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        'RATE_LIMIT_ERROR: Too many attempts'
+      );
     });
   });
 });

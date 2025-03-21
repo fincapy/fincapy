@@ -43,6 +43,7 @@ describe('Set Password Form Server Actions', () => {
   let userRepository;
   let redisAdapter;
   let user;
+  let consoleSpy;
 
   beforeAll(async () => {
     redisAdapter = new RedisAdapter({ redisClient });
@@ -62,6 +63,7 @@ describe('Set Password Form Server Actions', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockCookiesSet.set.mockClear();
+    consoleSpy = vi.spyOn(console, 'log');
   });
 
   describe('setInitialPassword', () => {
@@ -129,6 +131,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid token type in setInitialPassword - expected inviteUser'
+      );
     });
 
     it('should return false with expired token', async () => {
@@ -142,6 +147,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid or expired token in setInitialPassword'
+      );
     });
 
     it('should return false with non-existent user', async () => {
@@ -155,6 +163,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'User not found in setInitialPassword'
+      );
     });
   });
 
@@ -202,12 +213,10 @@ describe('Set Password Form Server Actions', () => {
 
       const result = await resetPassword(invalidPassword, token);
 
-      expect(result).toEqual({
-        success: false,
-        message: expect.stringContaining(
-          'Password must be at least 8 characters long'
-        ),
-      });
+      expect(result).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Validation error in resetPassword'
+      );
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
     });
 
@@ -222,6 +231,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid token type in resetPassword - expected resetPassword'
+      );
     });
 
     it('should return false with expired token', async () => {
@@ -235,6 +247,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid or expired token in resetPassword'
+      );
     });
 
     it('should return false with non-existent user', async () => {
@@ -248,6 +263,9 @@ describe('Set Password Form Server Actions', () => {
 
       expect(result).toBe(false);
       expect(mockCookiesSet.set).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'User not found in resetPassword'
+      );
     });
   });
 });

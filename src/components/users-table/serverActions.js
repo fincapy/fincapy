@@ -44,32 +44,35 @@ const removeUser = async ({ userId }) => {
   try {
     // Sanitize input
     const sanitizedUserId = sanitizeText(userId);
-    
+
     // Validate input
     const validationResult = userIdSchema.safeParse({
       userId: sanitizedUserId,
     });
-    
+
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
-      return { success: false, error: 'Invalid input data' };
+      console.log('Role changed validation failed');
+      return false;
     }
-    
+
     // Use validated data
     const validData = validationResult.data;
-    
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    
+
     if (!session) {
+      console.log('Remove user failed: No valid session found');
       return { success: false, error: 'Authentication required' };
     }
-    
+
     if (session.userRole !== 'owner') {
+      console.log('Remove user failed: User does not have owner permissions');
       return { success: false, error: 'Insufficient permissions' };
     }
 
@@ -81,12 +84,12 @@ const removeUser = async ({ userId }) => {
       transactionManager,
       auth0Adapter,
     });
-    
-    await removeUserService.execute({ 
-      tenantId, 
-      userId: validData.userId 
+
+    await removeUserService.execute({
+      tenantId,
+      userId: validData.userId,
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error removing user:', error);
@@ -99,33 +102,35 @@ const changeUserRole = async ({ userId, role }) => {
     // Sanitize inputs
     const sanitizedUserId = sanitizeText(userId);
     const sanitizedRole = sanitizeText(role);
-    
+
     // Validate inputs
     const validationResult = roleChangeSchema.safeParse({
       userId: sanitizedUserId,
       role: sanitizedRole,
     });
-    
+
     if (!validationResult.success) {
-      console.error('Validation error:', validationResult.error.format());
-      return { success: false, error: 'Invalid input data' };
+      console.log('Role change validation failed');
+      return false;
     }
-    
+
     // Use validated data
     const validData = validationResult.data;
-    
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    
+
     if (!session) {
+      console.log('Change role failed: No valid session found');
       return { success: false, error: 'Authentication required' };
     }
-    
+
     if (session.userRole !== 'owner') {
+      console.log('Change role failed: User does not have owner permissions');
       return { success: false, error: 'Insufficient permissions' };
     }
 
@@ -134,13 +139,13 @@ const changeUserRole = async ({ userId, role }) => {
     const changeUserRoleService = new ChangeUserRoleService({
       transactionManager,
     });
-    
-    await changeUserRoleService.execute({ 
-      tenantId, 
-      userId: validData.userId, 
-      role: validData.role 
+
+    await changeUserRoleService.execute({
+      tenantId,
+      userId: validData.userId,
+      role: validData.role,
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error changing user role:', error);
@@ -153,33 +158,35 @@ const changeUserName = async ({ userId, name }) => {
     // Sanitize inputs
     const sanitizedUserId = sanitizeText(userId);
     const sanitizedName = sanitizeText(name);
-    
+
     // Validate inputs
     const validationResult = nameChangeSchema.safeParse({
       userId: sanitizedUserId,
       name: sanitizedName,
     });
-    
+
     if (!validationResult.success) {
-      console.error('Validation error:', validationResult.error.format());
-      return { success: false, error: 'Invalid input data' };
+      console.log('Name change validation failed');
+      return false;
     }
-    
+
     // Use validated data
     const validData = validationResult.data;
-    
+
     const redisAdapter = new RedisAdapter({ redisClient });
     const sessionRepository = new SessionRepository({ redisAdapter });
     const sessionManager = new SessionManager({ sessionRepository });
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    
+
     if (!session) {
+      console.log('Change name failed: No valid session found');
       return { success: false, error: 'Authentication required' };
     }
-    
+
     if (session.userRole !== 'owner') {
+      console.log('Change name failed: User does not have owner permissions');
       return { success: false, error: 'Insufficient permissions' };
     }
 
@@ -188,13 +195,13 @@ const changeUserName = async ({ userId, name }) => {
     const changeUserNameService = new ChangeUserNameService({
       transactionManager,
     });
-    
-    await changeUserNameService.execute({ 
-      tenantId, 
-      userId: validData.userId, 
-      name: validData.name 
+
+    await changeUserNameService.execute({
+      tenantId,
+      userId: validData.userId,
+      name: validData.name,
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error changing user name:', error);

@@ -33,6 +33,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   );
 
   if (!validation.success) {
+    console.log('TOTP validation error:', validation.error);
     return { success: false, error: validation.error };
   }
 
@@ -51,6 +52,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       key: `ip:totp:${hashIp(ip)}`,
     });
   } catch (error) {
+    console.log('TOTP rate limit exceeded for IP:', ip);
     return {
       success: false,
       error: 'Too many attempts. Please try again later.',
@@ -63,6 +65,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       'emailPasswordAuthenticatedToken'
     )?.value;
     if (!cookieValue) {
+      console.log('TOTP authentication token missing');
       return { success: false, error: 'Authentication token missing' };
     }
 
@@ -70,6 +73,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       algorithms: ['HS256'],
     });
   } catch (error) {
+    console.log('TOTP invalid authentication token');
     return { success: false, error: 'Invalid authentication token' };
   }
 
@@ -82,6 +86,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   });
 
   if (jwtToken.type !== 'emailPasswordAuthenticated') {
+    console.log('TOTP invalid token type:', jwtToken.type);
     return { success: false, error: 'Invalid token type' };
   }
 
@@ -90,6 +95,10 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       key: `user:totp:${jwtToken.userId}`,
     });
   } catch (error) {
+    console.log(
+      'TOTP too many authentication attempts for user:',
+      jwtToken.userId
+    );
     return { success: false, error: 'Too many authentication attempts' };
   }
 
@@ -97,10 +106,12 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   const user = await userRepository.get({ userId: jwtToken.userId });
 
   if (!user) {
+    console.log('TOTP user not found:', jwtToken.userId);
     return { success: false, error: 'User not found' };
   }
 
   if (!isBackupCode && !user.totpSecret) {
+    console.log('TOTP not set up for user:', user.id);
     return { success: false, error: 'TOTP not set up for this user' };
   }
 
@@ -108,6 +119,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
 
   if (isBackupCode) {
     if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
+      console.log('TOTP no backup codes available for user:', user.id);
       return { success: false, error: 'No backup codes available' };
     }
 
@@ -128,6 +140,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   }
 
   if (!isValid) {
+    console.log('TOTP invalid verification code for user:', user.id);
     return { success: false, error: 'Invalid verification code' };
   }
 
@@ -157,7 +170,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
 
     redirect('/app');
   } catch (error) {
-    console.error('Session creation error:', error);
+    console.log('TOTP session creation error:', error);
     return {
       success: false,
       error: 'Failed to create session. Please try again.',

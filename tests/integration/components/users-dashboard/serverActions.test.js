@@ -143,6 +143,11 @@ describe('Users Dashboard Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, 'log');
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('inviteUser', () => {
@@ -177,6 +182,9 @@ describe('Users Dashboard Server Actions', () => {
         success: false,
         error: 'Insufficient permissions',
       });
+      expect(console.log).toHaveBeenCalledWith(
+        'User invitation failed: User does not have owner role'
+      );
     });
 
     it('should fail when user role is editor', async () => {
@@ -195,6 +203,9 @@ describe('Users Dashboard Server Actions', () => {
         success: false,
         error: 'Insufficient permissions',
       });
+      expect(console.log).toHaveBeenCalledWith(
+        'User invitation failed: User does not have owner role'
+      );
     });
 
     it('should fail when no cookie exists', async () => {
@@ -213,6 +224,9 @@ describe('Users Dashboard Server Actions', () => {
         success: false,
         error: 'Authentication required',
       });
+      expect(console.log).toHaveBeenCalledWith(
+        'User invitation failed: No valid session found'
+      );
     });
 
     it('should fail when no session exists', async () => {
@@ -231,6 +245,9 @@ describe('Users Dashboard Server Actions', () => {
         success: false,
         error: 'Authentication required',
       });
+      expect(console.log).toHaveBeenCalledWith(
+        'User invitation failed: No valid session found'
+      );
     });
 
     it('should fail with invalid input data', async () => {
@@ -249,6 +266,9 @@ describe('Users Dashboard Server Actions', () => {
         success: false,
         error: 'Invalid input data',
       });
+      expect(console.log).toHaveBeenCalledWith(
+        'User invitation failed: Invalid input data'
+      );
     });
 
     it('should sanitize input data', async () => {

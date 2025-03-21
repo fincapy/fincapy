@@ -46,6 +46,7 @@ const inviteUser = async ({ userId, email, role, name }) => {
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
+      console.log('User invitation failed: Invalid input data');
       return { success: false, error: 'Invalid input data' };
     }
 
@@ -60,10 +61,12 @@ const inviteUser = async ({ userId, email, role, name }) => {
     });
 
     if (!session) {
+      console.log('User invitation failed: No valid session found');
       return { success: false, error: 'Authentication required' };
     }
 
     if (session.userRole !== 'owner') {
+      console.log('User invitation failed: User does not have owner role');
       return { success: false, error: 'Insufficient permissions' };
     }
 
@@ -86,6 +89,7 @@ const inviteUser = async ({ userId, email, role, name }) => {
     return { success: true };
   } catch (error) {
     console.error('Error inviting user:', error);
+    console.log('User invitation failed: Internal server error');
     return { success: false, error: 'Server error' };
   }
 };

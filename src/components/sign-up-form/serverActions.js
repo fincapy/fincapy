@@ -67,6 +67,7 @@ export async function createAccount(name, email, password, accessCode) {
 
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error.format());
+      console.log('VALIDATION_ERROR: Invalid input data');
       return false;
     }
 
@@ -81,6 +82,7 @@ export async function createAccount(name, email, password, accessCode) {
       validatedAccessCode !== process.env.NEXT_PUBLIC_SITE_ACCESS_CODE &&
       process.env.NODE_ENV === 'production'
     ) {
+      console.log('ACCESS_CODE_ERROR: Invalid access code provided');
       return false;
     }
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -96,6 +98,7 @@ export async function createAccount(name, email, password, accessCode) {
       });
     } catch (error) {
       console.log('error', error);
+      console.log('RATE_LIMIT_ERROR: Too many attempts');
       return false;
     }
     const transactionManager = new TransactionManager();
@@ -151,6 +154,7 @@ export async function createAccount(name, email, password, accessCode) {
     }
   } catch (error) {
     console.error('Account creation error:', error);
+    console.log('ACCOUNT_CREATION_ERROR: Failed to create account');
     return false;
   }
   redirect('/verify-email');

@@ -45,6 +45,7 @@ export async function generateTOTPSecret() {
     };
   } catch (error) {
     console.error('Error generating TOTP secret:', error);
+    console.log('TOTP secret generation failed');
     return {
       success: false,
       error: 'Failed to generate authentication secret',
@@ -63,8 +64,7 @@ export async function verifyAndSaveTOTP(token, secret) {
       key: `ip:totp-registration:${hashIp(ip)}`,
     });
   } catch (error) {
-    console.log('IP', ip);
-    console.log('Rate limit exceeded for IP');
+    console.log('IP rate limit exceeded for TOTP registration');
     return {
       success: false,
       error: 'Too many attempts, please try again later',
@@ -87,6 +87,7 @@ export async function verifyAndSaveTOTP(token, secret) {
     });
 
     if (!isValid) {
+      console.log('Invalid TOTP verification code provided');
       return { success: false, error: 'Invalid verification code' };
     }
 
@@ -95,6 +96,7 @@ export async function verifyAndSaveTOTP(token, secret) {
       'emailPasswordAuthenticatedToken'
     );
     if (!awaitingMFASetupAfterSignupCookie) {
+      console.log('Missing email password authentication token');
       return { success: false, error: 'Authentication required' };
     }
     try {
@@ -104,10 +106,11 @@ export async function verifyAndSaveTOTP(token, secret) {
         { algorithms: ['HS256'] }
       );
     } catch (error) {
-      console.log('JWT verification failed:', error);
+      console.log('JWT verification failed for TOTP registration');
       return { success: false, error: 'Invalid authentication token' };
     }
     if (jwtToken.type !== 'emailPasswordAuthenticated') {
+      console.log('Invalid token type for TOTP registration');
       return { success: false, error: 'Invalid token type' };
     }
 
@@ -116,6 +119,7 @@ export async function verifyAndSaveTOTP(token, secret) {
         key: `user:totp-registration:${jwtToken.userId}`,
       });
     } catch (error) {
+      console.log('User rate limit exceeded for TOTP registration');
       return {
         success: false,
         error: 'Too many attempts, please try again later',
@@ -126,6 +130,7 @@ export async function verifyAndSaveTOTP(token, secret) {
     const user = await userRepository.get({ userId: jwtToken.userId });
 
     if (!user) {
+      console.log('User not found during TOTP registration');
       return { success: false, error: 'User not found' };
     }
 
@@ -160,12 +165,14 @@ export async function verifyAndSaveTOTP(token, secret) {
   } catch (error) {
     console.error('Error in verifyAndSaveTOTP:', error);
     if (error instanceof z.ZodError) {
+      console.log('Invalid input provided for TOTP registration');
       return {
         success: false,
         error:
           'Invalid input: ' + error.errors.map((e) => e.message).join(', '),
       };
     }
+    console.log('Unexpected error during TOTP registration');
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

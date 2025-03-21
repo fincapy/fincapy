@@ -149,6 +149,11 @@ describe('Users Table Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, 'log');
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('removeUser', () => {
@@ -180,6 +185,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Remove user failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when user role is editor', async () => {
@@ -191,6 +199,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Remove user failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -202,6 +213,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Remove user failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -213,6 +227,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Remove user failed: No valid session found'
+      );
     });
 
     it('should return false with invalid user ID', async () => {
@@ -222,8 +239,10 @@ describe('Users Table Server Actions', () => {
         userId: 'invalid-uuid',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid input data');
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Role changed validation failed'
+      );
     });
   });
 
@@ -258,6 +277,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change role failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when user role is editor', async () => {
@@ -270,6 +292,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change role failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -282,6 +307,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change role failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -294,6 +322,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change role failed: No valid session found'
+      );
     });
 
     it('should return false with invalid role', async () => {
@@ -304,8 +335,8 @@ describe('Users Table Server Actions', () => {
         role: 'invalid-role',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid input data');
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('Role change validation failed');
     });
   });
 
@@ -340,6 +371,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change name failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when user role is editor', async () => {
@@ -352,6 +386,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Insufficient permissions');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change name failed: User does not have owner permissions'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -364,6 +401,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change name failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -376,6 +416,9 @@ describe('Users Table Server Actions', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Authentication required');
+      expect(console.log).toHaveBeenCalledWith(
+        'Change name failed: No valid session found'
+      );
     });
 
     it('should return false with empty name', async () => {
@@ -386,8 +429,8 @@ describe('Users Table Server Actions', () => {
         name: '',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid input data');
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('Name change validation failed');
     });
   });
 });

@@ -142,6 +142,12 @@ describe('Category Dashboard Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, 'log');
+    vi.spyOn(console, 'error');
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   describe('createCategory', () => {
@@ -174,6 +180,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createCategory(categoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot create categories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -189,6 +198,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createCategory(categoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -205,6 +217,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createCategory(categoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -250,6 +265,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateCategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot update categories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -265,6 +283,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateCategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -280,6 +301,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateCategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -321,6 +345,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteCategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot delete categories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -334,6 +361,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteCategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -347,6 +377,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteCategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -394,6 +427,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createSubcategory(subcategoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot create subcategories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -410,6 +446,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createSubcategory(subcategoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -426,6 +465,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await createSubcategory(subcategoryData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -485,6 +527,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateSubcategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot update subcategories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -501,6 +546,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateSubcategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -517,6 +565,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await updateSubcategory(updateData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -574,6 +625,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteSubcategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authorization failed: Viewer role cannot delete subcategories'
+      );
     });
 
     it('should return false when no cookie exists', async () => {
@@ -589,6 +643,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteSubcategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -604,6 +661,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await deleteSubcategory(deleteData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -685,7 +745,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const reorderData = {
         planId,
-        type: 'spending',
+        type: 'expense',
         oldIndex: 0,
         newIndex: 1,
       };
@@ -693,6 +753,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await reorderCategories(reorderData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -708,6 +771,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await reorderCategories(reorderData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 
@@ -821,6 +887,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await reorderSubcategories(reorderData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
 
     it('should return false when no session exists', async () => {
@@ -836,6 +905,9 @@ describe('Category Dashboard Server Actions', () => {
       const result = await reorderSubcategories(reorderData);
 
       expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Authentication failed: No valid session found'
+      );
     });
   });
 });

@@ -65,10 +65,13 @@ const fetchLinkToken = async (params) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+
     if (!session) {
+      console.log('fetchLinkToken: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('fetchLinkToken: User role viewer is not authorized');
       return false;
     }
 
@@ -117,10 +120,13 @@ const createPlaidItem = async (params) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+
     if (!session) {
+      console.log('createPlaidItem: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('createPlaidItem: User role viewer is not authorized');
       return false;
     }
 
@@ -170,10 +176,13 @@ const updatePlaidItem = async (params) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+
     if (!session) {
+      console.log('updatePlaidItem: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('updatePlaidItem: User role viewer is not authorized');
       return false;
     }
 
@@ -218,10 +227,13 @@ const deletePlaidItem = async (params) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
+
     if (!session) {
+      console.log('deletePlaidItem: No valid session found');
       return false;
     }
     if (session.userRole === 'viewer') {
+      console.log('deletePlaidItem: User role viewer is not authorized');
       return false;
     }
 

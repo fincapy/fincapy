@@ -7,7 +7,6 @@ import { SessionManager } from '@/backend/adapters/auth';
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import speakeasy from 'speakeasy';
-import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
 import { generateBackupCodes } from '@/utils/backupCodes';
@@ -55,21 +54,6 @@ export async function generateTOTPSecret() {
 
 export async function verifyAndSaveTOTP(token, secret) {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
-  const headersList = await headers();
-  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-  console.log('ip', ip);
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `ip:totp-registration:${hashIp(ip)}`,
-    });
-  } catch (error) {
-    console.log('IP rate limit exceeded for TOTP registration');
-    return {
-      success: false,
-      error: 'Too many attempts, please try again later',
-    };
-  }
 
   try {
     // Validate and sanitize inputs

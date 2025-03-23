@@ -154,27 +154,5 @@ describe('TOTP Registration Form Server Actions', () => {
         'Invalid input provided for TOTP registration'
       );
     });
-
-    it('should fail with rate limit', async () => {
-      cookies.mockResolvedValue(validCookieResolution);
-      // Set a consistent IP for rate limit testing
-      headers.mockReturnValue({ get: vi.fn(() => '127.0.0.1') });
-
-      const secret = speakeasy.generateSecret().base32;
-      const token = speakeasy.totp({
-        secret: secret,
-        encoding: 'base32',
-      });
-      for (let i = 0; i < 10; i++) {
-        await verifyAndSaveTOTP('123456', '123456789101212131415');
-      }
-
-      const result = await verifyAndSaveTOTP(token, secret);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Too many attempts, please try again later');
-      expect(console.log).toHaveBeenCalledWith(
-        'IP rate limit exceeded for TOTP registration'
-      );
-    });
   });
 });

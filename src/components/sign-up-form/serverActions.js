@@ -8,7 +8,6 @@ import { TenantRepository } from '@/backend/adapters/repositories/TenantReposito
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
-import { RateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import crypto from 'crypto';
@@ -86,21 +85,8 @@ export async function createAccount(name, email, password, accessCode) {
       return false;
     }
     const redisAdapter = new RedisAdapter({ redisClient });
-    const rateLimiter = new RateLimiter({ redisAdapter });
     const headersList = await headers();
-    const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-    try {
-      await rateLimiter.checkRateLimit({
-        key: `ip:sign-up:${hashIp(ip)}`,
-      });
-      await rateLimiter.checkRateLimit({
-        key: `email:sign-up:${hashEmail(validatedEmail)}`,
-      });
-    } catch (error) {
-      console.log('error', error);
-      console.log('RATE_LIMIT_ERROR: Too many attempts');
-      return false;
-    }
+
     const transactionManager = new TransactionManager();
     const setupNewTenantService = new SetupNewTenantService({
       transactionManager,

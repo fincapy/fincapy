@@ -8,7 +8,7 @@ import {
   EmailPasswordAuthenticator,
   SessionManager,
 } from '@/backend/adapters/auth';
-import { RateLimiter } from '@/backend/adapters/rateLimiter';
+import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
@@ -54,7 +54,7 @@ function sanitizeInput(input) {
 
 async function authenticateEmailPassword(rawInput) {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+  const rateLimiter = new AuthRateLimiter({ redisAdapter });
 
   // Get IP address from headers
   const headersList = await headers();
@@ -151,7 +151,7 @@ async function authenticateEmailPassword(rawInput) {
 
 async function sendPasswordResetEmail(rawInput) {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+  const rateLimiter = new AuthRateLimiter({ redisAdapter });
 
   // Get IP address from headers
   const headersList = await headers();

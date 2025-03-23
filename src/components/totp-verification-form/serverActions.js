@@ -4,7 +4,7 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { SessionManager } from '@/backend/adapters/auth';
-import { RateLimiter } from '@/backend/adapters/rateLimiter';
+import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { headers } from 'next/headers';
@@ -20,7 +20,7 @@ import {
 
 export async function verifyTOTP(rawToken, isBackupCode = false) {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+  const rateLimiter = new AuthRateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 

@@ -127,30 +127,5 @@ describe('Sign Up Form Server Actions', () => {
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
     });
-
-    it('should fail with rate limit', async () => {
-      headers.mockReturnValue({
-        get: vi.fn().mockReturnValue(crypto.randomUUID()),
-      });
-      for (let i = 0; i < 10; i++) {
-        await createAccount(
-          testName,
-          `${uuidv4()}@test.com`,
-          testPassword,
-          testAccessCode
-        );
-      }
-
-      const result = await createAccount(
-        testName,
-        `${uuidv4()}@test.com`,
-        testPassword,
-        testAccessCode
-      );
-      expect(result).toBe(false);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'RATE_LIMIT_ERROR: Too many attempts'
-      );
-    });
   });
 });

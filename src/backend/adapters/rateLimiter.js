@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-class RateLimiter {
+class AuthRateLimiter {
   constructor({ redisAdapter }) {
     this.redisAdapter = redisAdapter;
     this.MAX_ATTEMPTS = 6;
@@ -139,8 +139,12 @@ class RateLimiter {
     }
 
     // Calculate exponential backoff: initial_backoff * 2^(attempts - max_attempts)
+    if (attempts - this.MAX_ATTEMPTS === 1) {
+      return this.INITIAL_BACKOFF;
+    }
+
     const backoff =
-      this.INITIAL_BACKOFF * Math.pow(2, attempts - this.MAX_ATTEMPTS);
+      this.INITIAL_BACKOFF * Math.pow(2, attempts - this.MAX_ATTEMPTS - 1);
     return Math.min(backoff, this.MAX_BACKOFF);
   }
 
@@ -151,4 +155,4 @@ class RateLimiter {
   }
 }
 
-export { RateLimiter };
+export { AuthRateLimiter };

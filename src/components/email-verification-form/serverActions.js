@@ -3,7 +3,7 @@
 import { EmailVerificationCodeRepository } from '@/backend/adapters/repositories/emailVerificationCodeRepository';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { RateLimiter } from '@/backend/adapters/rateLimiter';
+import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import { SESAdapter } from '@/backend/adapters/sesAdapter';
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
@@ -44,7 +44,7 @@ function sanitizeInput(input) {
 
 export async function resendEmailVerificationCode() {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+  const rateLimiter = new AuthRateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
   let token;
@@ -117,7 +117,7 @@ export async function resendEmailVerificationCode() {
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
   const redisAdapter = new RedisAdapter({ redisClient });
-  const rateLimiter = new RateLimiter({ redisAdapter });
+  const rateLimiter = new AuthRateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
 

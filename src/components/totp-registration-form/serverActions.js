@@ -98,18 +98,6 @@ export async function verifyAndSaveTOTP(token, secret) {
       return { success: false, error: 'Invalid token type' };
     }
 
-    try {
-      await rateLimiter.checkRateLimit({
-        key: `user:totp-registration:${jwtToken.userId}`,
-      });
-    } catch (error) {
-      console.log('User rate limit exceeded for TOTP registration');
-      return {
-        success: false,
-        error: 'Too many attempts, please try again later',
-      };
-    }
-
     const userRepository = new UserRepository({ redisAdapter });
     const user = await userRepository.get({ userId: jwtToken.userId });
 

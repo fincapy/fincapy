@@ -53,176 +53,168 @@ function sanitizeInput(input) {
 }
 
 async function authenticateEmailPassword(rawInput) {
-  // Validate input
-  const sanitizedInput = {
-    email: rawInput.email,
-    password: rawInput.password, // Don't sanitize password as it may contain special characters
-  };
-
-  let email;
-  let password;
-  try {
-    const result = emailPasswordSchema.parse(sanitizedInput);
-    email = result.email;
-    password = result.password;
-  } catch (error) {
-    console.log('Email/password validation failed');
-    return false;
-  }
-
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new RateLimiter({ redisAdapter });
 
   // Get IP address from headers
   const headersList = await headers();
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `ip:email-password:${hashIp(ip)}`,
-    });
-    await rateLimiter.checkRateLimit({
-      key: `email:email-password:${hashEmail(email)}`,
-    });
-  } catch (error) {
-    console.log('Rate limit exceeded');
-    return false;
-  }
-  const userRepository = new UserRepository({ redisAdapter });
-  const authenticator = new EmailPasswordAuthenticator({
-    userRepository,
-  });
-  const user = await userRepository.getByEmail({ email });
-  const result = await authenticator.authenticate({
-    unauthenticatedPassword: password,
-    password: user?.password,
-  });
-  if (result) {
-    const emailVerified = user.emails.find(
-      (emailInfo) => emailInfo.email === email
-    )?.verified;
-    const emailPasswordAuthenticatedToken = jwt.sign(
-      {
-        userId: user.id,
-        mfaMethod: user.mfa_method,
-        emailVerified: emailVerified,
-        tenantId: user.tenantId,
-        type: 'emailPasswordAuthenticated',
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '10m', algorithm: 'HS256' }
-    );
-    (await cookies()).set(
-      'emailPasswordAuthenticatedToken',
-      emailPasswordAuthenticatedToken,
-      {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 10 * 1000, // 10 minutes
-      }
-    );
 
-    if (!emailVerified) {
-      const emailVerificationCode = crypto.randomInt(100000, 999999);
-      const emailVerificationCodeRepository =
-        new EmailVerificationCodeRepository({
-          redisAdapter,
-        });
-      await emailVerificationCodeRepository.set({
-        emailVerificationCode,
-        userId: user.id,
-        ttl: 60 * 10,
-      });
-      if (process.env.NODE_ENV === 'production') {
-        const sesAdapter = new SESAdapter();
-        await sesAdapter.sendEmail({
-          to: email,
-          subject: 'Verify your Fincapy account',
-          text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
-        });
-      } else {
-        console.log('emailVerificationCode', emailVerificationCode);
+  return await rateLimiter.withRateLimit(
+    { ip, processId: 'authenticateEmailPassword', userId: rawInput.email },
+    async () => {
+      const sanitizedInput = {
+        email: rawInput.email,
+        password: rawInput.password, // Don't sanitize password as it may contain special characters
+      };
+
+      let email;
+      let password;
+      try {
+        const result = emailPasswordSchema.parse(sanitizedInput);
+        email = result.email;
+        password = result.password;
+      } catch (error) {
+        console.log('Email/password validation failed');
+        return false;
       }
-      redirect('/verify-email');
+
+      const userRepository = new UserRepository({ redisAdapter });
+      const authenticator = new EmailPasswordAuthenticator({
+        userRepository,
+      });
+      const user = await userRepository.getByEmail({ email });
+      const result = await authenticator.authenticate({
+        unauthenticatedPassword: password,
+        password: user?.password,
+      });
+      if (result) {
+        const emailVerified = user.emails.find(
+          (emailInfo) => emailInfo.email === email
+        )?.verified;
+        const emailPasswordAuthenticatedToken = jwt.sign(
+          {
+            userId: user.id,
+            mfaMethod: user.mfa_method,
+            emailVerified: emailVerified,
+            tenantId: user.tenantId,
+            type: 'emailPasswordAuthenticated',
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '10m', algorithm: 'HS256' }
+        );
+        (await cookies()).set(
+          'emailPasswordAuthenticatedToken',
+          emailPasswordAuthenticatedToken,
+          {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 10 * 1000, // 10 minutes
+          }
+        );
+
+        if (!emailVerified) {
+          const emailVerificationCode = crypto.randomInt(100000, 999999);
+          const emailVerificationCodeRepository =
+            new EmailVerificationCodeRepository({
+              redisAdapter,
+            });
+          await emailVerificationCodeRepository.set({
+            emailVerificationCode,
+            userId: user.id,
+            ttl: 60 * 10,
+          });
+          if (process.env.NODE_ENV === 'production') {
+            const sesAdapter = new SESAdapter();
+            await sesAdapter.sendEmail({
+              to: email,
+              subject: 'Verify your Fincapy account',
+              text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+            });
+          } else {
+            console.log('emailVerificationCode', emailVerificationCode);
+          }
+          return () => redirect('/verify-email');
+        }
+        if (!user.totpEnabled) {
+          return () => redirect('/register-totp');
+        }
+        return () => redirect('/verify-totp');
+      }
+      console.log('Invalid email/password combination');
+      return false;
     }
-    if (!user.totpEnabled) {
-      redirect('/register-totp');
-    }
-    redirect('/verify-totp');
-  }
-  console.log('Invalid email/password combination');
-  return false;
+  );
 }
 
 async function sendPasswordResetEmail(rawInput) {
-  try {
-    // Validate input
-    const sanitizedInput = {
-      email: sanitizeInput(rawInput.email),
-    };
+  const redisAdapter = new RedisAdapter({ redisClient });
+  const rateLimiter = new RateLimiter({ redisAdapter });
 
-    let email;
-    try {
-      const result = passwordResetSchema.parse(sanitizedInput);
-      email = result.email;
-    } catch (error) {
-      console.log('Invalid email format for password reset');
-      return false;
-    }
+  // Get IP address from headers
+  const headersList = await headers();
+  const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
-    const redisAdapter = new RedisAdapter({ redisClient });
-    const rateLimiter = new RateLimiter({ redisAdapter });
+  return await rateLimiter.withRateLimit(
+    { ip, processId: 'sendPasswordResetEmail', userId: rawInput.email },
+    async () => {
+      try {
+        // Validate input
+        const sanitizedInput = {
+          email: sanitizeInput(rawInput.email),
+        };
 
-    // Get IP address from headers
-    const headersList = await headers();
-    const ip = headersList.get('fly-client-ip') || 'unknown-ip';
-    try {
-      await rateLimiter.checkRateLimit({
-        key: `ip:password-reset:${hashIp(ip)}`,
-      });
-    } catch (error) {
-      console.log('Password reset rate limit exceeded');
-      return false;
-    }
+        let email;
+        try {
+          const result = passwordResetSchema.parse(sanitizedInput);
+          email = result.email;
+        } catch (error) {
+          console.log('Invalid email format for password reset');
+          return false;
+        }
 
-    // Check if user exists
-    const userRepository = new UserRepository({ redisAdapter });
-    const user = await userRepository.getByEmail({ email });
+        // Check if user exists
+        const userRepository = new UserRepository({ redisAdapter });
+        const user = await userRepository.getByEmail({ email });
 
-    // Even if user doesn't exist, pretend we sent something for security
-    if (!user) {
-      return true;
-    }
+        // Even if user doesn't exist, pretend we sent something for security
+        if (!user) {
+          console.log('User not found');
+          return true;
+        }
 
-    // Generate a reset token
-    const token = jwt.sign(
-      { userId: user.id, type: 'resetPassword' },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: '1h',
-        algorithm: 'HS256',
+        // Generate a reset token
+        const token = jwt.sign(
+          { userId: user.id, type: 'resetPassword' },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: '1h',
+            algorithm: 'HS256',
+          }
+        );
+        const resetUrl = `${process.env.SITE_URL}/reset-password?token=${token}`;
+
+        // Send email with the reset link
+        if (process.env.NODE_ENV === 'production') {
+          const sesAdapter = new SESAdapter();
+          await sesAdapter.sendEmail({
+            to: email,
+            subject: 'Reset your Fincapy password',
+            text: `Click the link below to reset your password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.`,
+          });
+        } else {
+          console.log('Password reset URL:', resetUrl);
+        }
+
+        return true;
+      } catch (error) {
+        console.log('Password reset request failed');
+        return false;
       }
-    );
-    const resetUrl = `${process.env.SITE_URL}/reset-password?token=${token}`;
-
-    // Send email with the reset link
-    if (process.env.NODE_ENV === 'production') {
-      const sesAdapter = new SESAdapter();
-      await sesAdapter.sendEmail({
-        to: email,
-        subject: 'Reset your Fincapy password',
-        text: `Click the link below to reset your password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.`,
-      });
-    } else {
-      console.log('Password reset URL:', resetUrl);
     }
-
-    return true;
-  } catch (error) {
-    console.log('Password reset request failed');
-    return false;
-  }
+  );
 }
 
 export { authenticateEmailPassword, sendPasswordResetEmail };

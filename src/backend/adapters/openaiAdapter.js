@@ -117,7 +117,6 @@ class OpenaiAdapter {
 
     while (attemptCount <= MAX_RETRIES) {
       const prompt = createPrompt(attemptCount);
-      console.log(`Attempt ${attemptCount + 1} prompt:`, prompt);
 
       // Format for Bedrock Converse API
       const requestBody = {
@@ -170,7 +169,6 @@ class OpenaiAdapter {
 
         // Parse the JSON
         categories = JSON.parse(rawOutput);
-        console.log('categories', categories);
 
         // If we got here, parsing succeeded
         break;

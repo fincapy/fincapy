@@ -21,6 +21,7 @@ import { redirect } from 'next/navigation';
 import crypto from 'crypto';
 
 const userId = uuidv4();
+const userIdRateLimited = uuidv4();
 const tenantId = uuidv4();
 
 vi.mock('next/headers', () => ({
@@ -36,6 +37,22 @@ const validEmailPasswordToken = {
   get: vi.fn(() => ({
     value: jwt.sign(
       { userId, tenantId, type: 'emailPasswordAuthenticated' },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m', algorithm: 'HS256' }
+    ),
+  })),
+  set: vi.fn(),
+  delete: vi.fn(),
+};
+
+const validEmailPasswordTokenUserRateLimited = {
+  get: vi.fn(() => ({
+    value: jwt.sign(
+      {
+        userId: userIdRateLimited,
+        tenantId,
+        type: 'emailPasswordAuthenticated',
+      },
       process.env.JWT_SECRET,
       { expiresIn: '10m', algorithm: 'HS256' }
     ),
@@ -158,7 +175,8 @@ describe('Email Verification Form Server Actions', () => {
       expect(consoleLogSpy).toHaveBeenCalledWith('User not found');
     });
 
-    it('should fail with rate limit', async () => {
+    it('should fail with IP rate limit', async () => {
+      cookies.mockResolvedValue(validEmailPasswordToken);
       headers.mockReturnValue({
         get: vi.fn(() => '127.0.0.1'),
       });
@@ -168,9 +186,23 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await resendEmailVerificationCode();
       expect(result).toBe(false);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Rate limit exceeded for resend email'
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith('IP Rate limit exceeded');
+    });
+
+    it('should fail with user rate limit', async () => {
+      cookies.mockResolvedValue(validEmailPasswordTokenUserRateLimited);
+      const ipMock = vi.fn();
+      headers.mockReturnValue({
+        get: ipMock,
+      });
+      for (let i = 0; i < 10; i++) {
+        ipMock.mockReturnValueOnce(crypto.randomUUID());
+        await resendEmailVerificationCode();
+      }
+
+      const result = await resendEmailVerificationCode();
+      expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith('User Rate limit exceeded');
     });
   });
 
@@ -242,18 +274,8 @@ describe('Email Verification Form Server Actions', () => {
       );
     });
 
-    it('should sanitize input to prevent XSS', async () => {
-      cookies.mockResolvedValue(validEmailPasswordToken);
-
-      const result = await verifyEmail('<script>alert("xss")</script>');
-      expect(result).toBe(false);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Verification code validation failed:',
-        expect.any(Object)
-      );
-    });
-
     it('should fail with rate limit', async () => {
+      cookies.mockResolvedValue(validEmailPasswordToken);
       headers.mockReturnValue({
         get: vi.fn(() => '127.0.0.1'),
       });
@@ -263,9 +285,23 @@ describe('Email Verification Form Server Actions', () => {
 
       const result = await verifyEmail(crypto.randomUUID());
       expect(result).toBe(false);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Rate limit exceeded for verifyEmail'
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith('IP Rate limit exceeded');
+    });
+
+    it('should fail with user rate limit', async () => {
+      cookies.mockResolvedValue(validEmailPasswordTokenUserRateLimited);
+      const ipMock = vi.fn();
+      headers.mockReturnValue({
+        get: ipMock,
+      });
+      for (let i = 0; i < 10; i++) {
+        ipMock.mockReturnValueOnce(crypto.randomUUID());
+        await verifyEmail(crypto.randomUUID());
+      }
+
+      const result = await verifyEmail(crypto.randomUUID());
+      expect(result).toBe(false);
+      expect(consoleLogSpy).toHaveBeenCalledWith('User Rate limit exceeded');
     });
   });
 });

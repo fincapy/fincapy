@@ -19,6 +19,7 @@ import {
 } from 'vitest';
 
 const userId = uuidv4();
+const userIdRateLimited = uuidv4();
 const secret = speakeasy.generateSecret();
 
 vi.mock('next/headers', () => ({
@@ -30,6 +31,20 @@ const validCookieResolution = {
   get: vi.fn(() => ({
     value: jwt.sign(
       { userId, type: 'emailPasswordAuthenticated' },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '5m',
+        algorithm: 'HS256',
+      }
+    ),
+  })),
+  set: vi.fn(),
+};
+
+const validCookieResolutionUserRateLimited = {
+  get: vi.fn(() => ({
+    value: jwt.sign(
+      { userId: userIdRateLimited, type: 'emailPasswordAuthenticated' },
       process.env.JWT_SECRET,
       {
         expiresIn: '5m',
@@ -69,6 +84,16 @@ describe('TOTP Verification Form Server Actions', () => {
         backupCodes: [hashedBackupCode],
       },
     });
+    await userRepository.set({
+      userId: userIdRateLimited,
+      user: {
+        id: userIdRateLimited,
+        role: 'owner',
+        totpEnabled: true,
+        totpSecret: secret.base32,
+        backupCodes: [hashedBackupCode],
+      },
+    });
   });
 
   describe('verifyTOTP', () => {
@@ -89,8 +114,7 @@ describe('TOTP Verification Form Server Actions', () => {
 
     it('should fail with invalid TOTP token', async () => {
       const result = await verifyTOTP('123456');
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
         'TOTP invalid verification code for user:',
         userId
@@ -99,8 +123,7 @@ describe('TOTP Verification Form Server Actions', () => {
 
     it('should fail with invalid backup code', async () => {
       const result = await verifyTOTP('INVALID123456', true);
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
         'TOTP invalid verification code for user:',
         userId
@@ -119,8 +142,7 @@ describe('TOTP Verification Form Server Actions', () => {
       });
 
       const result = await verifyTOTP(token);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication token missing');
+      expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
         'TOTP authentication token missing'
       );
@@ -147,15 +169,14 @@ describe('TOTP Verification Form Server Actions', () => {
       });
 
       const result = await verifyTOTP(token);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid token type');
+      expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
         'TOTP invalid token type:',
         'wrongType'
       );
     });
 
-    it('should fail with rate limit', async () => {
+    it('should fail with IP rate limit', async () => {
       cookies.mockReturnValue(validCookieResolution);
       // Set a consistent IP for rate limit testing
       const testIp = '127.0.0.1';
@@ -167,12 +188,26 @@ describe('TOTP Verification Form Server Actions', () => {
       }
 
       const result = await verifyTOTP(token);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Too many attempts. Please try again later.');
-      expect(console.log).toHaveBeenCalledWith(
-        'TOTP rate limit exceeded for IP:',
-        testIp
-      );
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('IP Rate limit exceeded');
+    });
+
+    it('should fail with user rate limit', async () => {
+      const ipMock = vi.fn();
+      cookies.mockReturnValue(validCookieResolutionUserRateLimited);
+      headers.mockReturnValue({
+        get: ipMock,
+      });
+      const token = '123456';
+
+      for (let i = 0; i < 10; i++) {
+        ipMock.mockReturnValueOnce(crypto.randomUUID());
+        await verifyTOTP(token);
+      }
+
+      const result = await verifyTOTP(token);
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('User Rate limit exceeded');
     });
   });
 });

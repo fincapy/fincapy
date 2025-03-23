@@ -47,16 +47,6 @@ export async function resendEmailVerificationCode() {
   const rateLimiter = new RateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
-
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `ip:email-verification-resend:${hashIp(ip)}`,
-    });
-  } catch (error) {
-    console.log('Rate limit exceeded for resend email');
-    return false;
-  }
-
   let token;
   try {
     const cookieValue = (await cookies()).get(
@@ -70,62 +60,59 @@ export async function resendEmailVerificationCode() {
     token = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
       algorithms: ['HS256'],
     });
-
-    // Validate token structure
-    const tokenValidation = tokenSchema.safeParse(token);
-    if (!tokenValidation.success) {
-      console.log('Token validation failed:', tokenValidation.error);
-      return false;
-    }
-
-    token = tokenValidation.data;
   } catch (error) {
     console.log('Invalid token:', error);
     return false;
   }
 
-  // Generate a new verification code
-  const emailVerificationCode = crypto.randomInt(100000, 999999);
-  const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
-    redisAdapter,
-  });
+  return await rateLimiter.withRateLimit(
+    { ip, processId: 'resendEmailVerificationCode', userId: token.userId },
+    async () => {
+      // Generate a new verification code
+      const emailVerificationCode = crypto.randomInt(100000, 999999);
+      const emailVerificationCodeRepository =
+        new EmailVerificationCodeRepository({
+          redisAdapter,
+        });
 
-  // Save the new code
-  await emailVerificationCodeRepository.set({
-    emailVerificationCode,
-    userId: token.userId,
-    ttl: 60 * 10, // 10 minutes
-  });
+      // Save the new code
+      await emailVerificationCodeRepository.set({
+        emailVerificationCode,
+        userId: token.userId,
+        ttl: 60 * 10, // 10 minutes
+      });
 
-  // Get the user to find their email
-  const userRepository = new UserRepository({ redisAdapter });
-  const user = await userRepository.get({ userId: token.userId });
-  if (!user) {
-    console.log('User not found');
-    return false;
-  }
+      // Get the user to find their email
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId: token.userId });
+      if (!user) {
+        console.log('User not found');
+        return false;
+      }
 
-  const primaryEmail = user.emails.find(
-    (email) => email.primary === true
-  )?.email;
-  if (!primaryEmail) {
-    console.log('No primary email found for user');
-    return false;
-  }
+      const primaryEmail = user.emails.find(
+        (email) => email.primary === true
+      )?.email;
+      if (!primaryEmail) {
+        console.log('No primary email found for user');
+        return false;
+      }
 
-  // Send the email with the new code
-  if (process.env.NODE_ENV === 'production') {
-    const sesAdapter = new SESAdapter();
-    await sesAdapter.sendEmail({
-      to: primaryEmail,
-      subject: 'Verify your Fincapy account',
-      text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
-    });
-  } else {
-    console.log('Resent emailVerificationCode', emailVerificationCode);
-  }
+      // Send the email with the new code
+      if (process.env.NODE_ENV === 'production') {
+        const sesAdapter = new SESAdapter();
+        await sesAdapter.sendEmail({
+          to: primaryEmail,
+          subject: 'Verify your Fincapy account',
+          text: `Your verification code is: ${emailVerificationCode}\n\nThis code will expire in 10 minutes.`,
+        });
+      } else {
+        console.log('Resent emailVerificationCode', emailVerificationCode);
+      }
 
-  return true;
+      return true;
+    }
+  );
 }
 
 export async function verifyEmail(unverifiedEmailVerificationCode) {
@@ -133,36 +120,6 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
   const rateLimiter = new RateLimiter({ redisAdapter });
   const headersList = await headers();
   const ip = sanitizeInput(headersList.get('fly-client-ip') || 'unknown-ip');
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `ip:email-verification:${hashIp(ip)}`,
-    });
-  } catch (error) {
-    console.log('Rate limit exceeded for verifyEmail');
-    return false;
-  }
-
-  // Validate and sanitize the verification code
-  try {
-    // First sanitize to prevent any HTML injection
-    const sanitizedCode = sanitizeInput(unverifiedEmailVerificationCode);
-
-    // Then validate the format
-    const validationResult = verificationCodeSchema.safeParse(sanitizedCode);
-    if (!validationResult.success) {
-      console.log(
-        'Verification code validation failed:',
-        validationResult.error
-      );
-      return false;
-    }
-
-    // Use the validated and sanitized code
-    unverifiedEmailVerificationCode = validationResult.data;
-  } catch (error) {
-    console.log('Verification code processing error:', error);
-    return false;
-  }
 
   let token;
   try {
@@ -175,73 +132,88 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       );
       return false;
     }
-
     token = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
       algorithms: ['HS256'],
     });
-
-    // Validate token structure
-    const tokenValidation = tokenSchema.safeParse(token);
-    if (!tokenValidation.success) {
-      console.log('Token validation failed:', tokenValidation.error);
-      return false;
-    }
-
-    token = tokenValidation.data;
   } catch (error) {
     console.log('Invalid token:', error);
     return false;
   }
-  try {
-    await rateLimiter.checkRateLimit({
-      key: `user:email-verification:${token.userId}`,
-    });
-  } catch (error) {
-    console.log('User rate limit exceeded for verification');
-    return false;
-  }
-  const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
-    redisAdapter,
-  });
-  const emailVerificationCode = await emailVerificationCodeRepository.get({
-    userId: token.userId,
-  });
-  if (!emailVerificationCode) {
-    console.log('No verification code found');
-    return false;
-  }
-  if (emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)) {
-    console.log('Invalid verification code provided');
-    return false;
-  }
-  await emailVerificationCodeRepository.delete({ userId: token.userId });
-  const userRepository = new UserRepository({ redisAdapter });
-  const user = await userRepository.get({ userId: token.userId });
-  user.emails.find((emailInfo) => emailInfo.primary === true).verified = true;
-  await userRepository.set({ userId: token.userId, user });
-  const emailPasswordAuthenticatedToken = jwt.sign(
-    {
-      userId: user.id,
-      tenantId: user.tenantId,
-      type: 'emailPasswordAuthenticated',
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '10m', algorithm: 'HS256' }
-  );
-  (await cookies()).set(
-    'emailPasswordAuthenticatedToken',
-    emailPasswordAuthenticatedToken,
-    {
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 10 * 1000, // 10 minutes
+
+  return await rateLimiter.withRateLimit(
+    { ip, processId: 'verifyEmail', userId: token.userId },
+    async () => {
+      // Validate and sanitize the verification code
+      try {
+        // First sanitize to prevent any HTML injection
+        const sanitizedCode = sanitizeInput(unverifiedEmailVerificationCode);
+
+        // Then validate the format
+        const validationResult =
+          verificationCodeSchema.safeParse(sanitizedCode);
+        if (!validationResult.success) {
+          console.log(
+            'Verification code validation failed:',
+            validationResult.error
+          );
+          return false;
+        }
+
+        // Use the validated and sanitized code
+        unverifiedEmailVerificationCode = validationResult.data;
+      } catch (error) {
+        console.log('Verification code processing error:', error);
+        return false;
+      }
+
+      const emailVerificationCodeRepository =
+        new EmailVerificationCodeRepository({
+          redisAdapter,
+        });
+      const emailVerificationCode = await emailVerificationCodeRepository.get({
+        userId: token.userId,
+      });
+      if (!emailVerificationCode) {
+        console.log('No verification code found');
+        return false;
+      }
+      if (
+        emailVerificationCode !== parseInt(unverifiedEmailVerificationCode, 10)
+      ) {
+        console.log('Invalid verification code provided');
+        return false;
+      }
+      await emailVerificationCodeRepository.delete({ userId: token.userId });
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId: token.userId });
+      user.emails.find((emailInfo) => emailInfo.primary === true).verified =
+        true;
+      await userRepository.set({ userId: token.userId, user });
+      const emailPasswordAuthenticatedToken = jwt.sign(
+        {
+          userId: user.id,
+          tenantId: user.tenantId,
+          type: 'emailPasswordAuthenticated',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '10m', algorithm: 'HS256' }
+      );
+      (await cookies()).set(
+        'emailPasswordAuthenticatedToken',
+        emailPasswordAuthenticatedToken,
+        {
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 60 * 10 * 1000, // 10 minutes
+        }
+      );
+      if (user.totpEnabled) {
+        return () => redirect('/verify-totp');
+      } else {
+        return () => redirect('/register-totp');
+      }
     }
   );
-  if (user.totpEnabled) {
-    redirect('/verify-totp');
-  } else {
-    redirect('/register-totp');
-  }
 }

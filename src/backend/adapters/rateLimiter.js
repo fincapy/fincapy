@@ -1,82 +1,154 @@
-export class RateLimiter {
+import crypto from 'crypto';
+
+class RateLimiter {
   constructor({ redisAdapter }) {
     this.redisAdapter = redisAdapter;
+    this.MAX_ATTEMPTS = 6;
+    this.INITIAL_BACKOFF = 5 * 60; // 5 minutes in seconds
+    this.MAX_BACKOFF = 24 * 60 * 60; // 24 hours in seconds
+  }
+
+  hashIp(ip) {
+    return crypto.createHash('sha256').update(ip).digest('hex');
+  }
+
+  hashEmail(email) {
+    return crypto.createHash('sha256').update(email).digest('hex');
+  }
+
+  async withRateLimit({ ip, processId, userId = null }, authFn) {
+    if (!ip) {
+      throw new Error('IP address is required for rate limiting');
+    }
+
+    const hashedIp = this.hashIp(ip);
+    const hashedEmail = userId ? this.hashEmail(userId) : null;
+
+    try {
+      await this.checkRateLimit(`rate-limit:${processId}:ip:${hashedIp}`);
+    } catch (error) {
+      console.log('IP Rate limit exceeded');
+      return false;
+    }
+
+    // If userId is provided, also check user-based rate limit
+    if (userId) {
+      try {
+        await this.checkRateLimit(
+          `rate-limit:${processId}:user:${hashedEmail}`
+        );
+      } catch (error) {
+        console.log('User Rate limit exceeded');
+        return false;
+      }
+    }
+
+    try {
+      const result = await authFn();
+      if (typeof result === 'function') {
+        await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+        if (userId) {
+          await this.resetAttempts(
+            `rate-limit:${processId}:user:${hashedEmail}`
+          );
+        }
+        return result();
+      } else if (result) {
+        // Reset attempts on successful authentication for all identifiers
+        await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+        if (userId) {
+          await this.resetAttempts(
+            `rate-limit:${processId}:user:${hashedEmail}`
+          );
+        }
+      } else {
+        await this.incrementAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+        if (userId) {
+          await this.incrementAttempts(
+            `rate-limit:${processId}:user:${hashedEmail}`
+          );
+        }
+        console.log('result', result);
+      }
+      console.log('result', result);
+      return result;
+    } catch (error) {
+      // Increment attempts on failure for all identifiers
+      await this.incrementAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+      if (userId) {
+        await this.incrementAttempts(
+          `rate-limit:${processId}:user:${hashedEmail}`
+        );
+      }
+      console.log('error', error);
+      return false;
+    }
+  }
+
+  async checkRateLimit(key) {
+    const attempts = await this.getAttempts(key);
+    const lastAttemptTime = await this.getLastAttemptTime(key);
+    const backoffTime = this.calculateBackoffTime(attempts);
+
+    if (backoffTime > 0) {
+      const timeRemaining = this.calculateTimeRemaining(
+        lastAttemptTime,
+        backoffTime
+      );
+      if (timeRemaining > 0) {
+        throw new Error(
+          `Too many attempts. Please try again in ${Math.ceil(timeRemaining / 60)} minutes`
+        );
+      }
+    }
   }
 
   async getAttempts(key) {
-    const count = await this.redisAdapter.get(`ratelimit:${key}`);
-    return count ? parseInt(count, 10) : 0;
+    const attempts = await this.redisAdapter.get(`${key}:attempts`);
+    return parseInt(attempts) || 0;
   }
 
-  async isRateLimited({ key, limit, windowInSeconds, backoffThreshold = 10 }) {
-    const currentCount = await this.redisAdapter.incr(`ratelimit:${key}`);
-    console.log('currentCount', currentCount);
-
-    // Set expiry on first hit
-    if (currentCount === 1) {
-      await this.redisAdapter.setWithExpiry(
-        `ratelimit:${key}`,
-        '1',
-        windowInSeconds
-      );
-    }
-
-    // If under backoffThreshold, use normal rate limiting
-    if (currentCount <= backoffThreshold) {
-      return currentCount > limit;
-    }
-
-    // Calculate exponential backoff window after exceeding threshold
-    const attemptsOverThreshold = currentCount - backoffThreshold;
-    const backoffWindowSeconds = Math.min(
-      windowInSeconds * Math.pow(2, Math.floor(attemptsOverThreshold / limit)),
-      60 * 60 * 24 // Max 24 hours
-    );
-
-    // Update expiry with new backoff window
-    await this.redisAdapter.setWithExpiry(
-      `ratelimit:${key}`,
-      currentCount.toString(),
-      backoffWindowSeconds
-    );
-
-    return true;
+  async getLastAttemptTime(key) {
+    const time = await this.redisAdapter.get(`${key}:lastAttempt`);
+    return parseInt(time) || 0;
   }
 
-  async checkRateLimit({
-    key,
-    limit = 10,
-    windowInSeconds = 60,
-    backoffThreshold = 10,
-  }) {
-    try {
-      const isLimited = await this.isRateLimited({
-        key,
-        limit,
-        windowInSeconds,
-        backoffThreshold,
-      });
-      console.log('isLimited', isLimited);
+  async incrementAttempts(key) {
+    const attempts = await this.getAttempts(key);
+    const newAttempts = attempts + 1;
+    await this.redisAdapter.set(`${key}:attempts`, newAttempts);
+    await this.redisAdapter.set(
+      `${key}:lastAttempt`,
+      Math.floor(Date.now() / 1000)
+    );
 
-      if (isLimited) {
-        const attempts = await this.getAttempts(key);
+    // Set expiry for cleanup (48 hours)
+    const CLEANUP_TIME = 48 * 60 * 60;
+    await this.redisAdapter.expire(`${key}:attempts`, CLEANUP_TIME);
+    await this.redisAdapter.expire(`${key}:lastAttempt`, CLEANUP_TIME);
+  }
 
-        if (attempts <= backoffThreshold) {
-          throw new Error(`Too many attempts. Please try again in 1 minute.`);
-        } else {
-          const attemptsOverThreshold = attempts - backoffThreshold;
-          const backoffMinutes = Math.min(
-            Math.pow(2, Math.floor(attemptsOverThreshold / limit)),
-            1440 // Max 24 hours
-          );
-          throw new Error(
-            `Too many attempts. Please try again in ${backoffMinutes} minutes.`
-          );
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+  async resetAttempts(key) {
+    await this.redisAdapter.delete(`${key}:attempts`);
+    await this.redisAdapter.delete(`${key}:lastAttempt`);
+  }
+
+  calculateBackoffTime(attempts) {
+    if (attempts <= this.MAX_ATTEMPTS) {
+      return 0;
     }
+
+    // Calculate exponential backoff: initial_backoff * 2^(attempts - max_attempts)
+    const backoff =
+      this.INITIAL_BACKOFF * Math.pow(2, attempts - this.MAX_ATTEMPTS);
+    return Math.min(backoff, this.MAX_BACKOFF);
+  }
+
+  calculateTimeRemaining(lastAttemptTime, backoffTime) {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeElapsed = currentTime - lastAttemptTime;
+    return backoffTime - timeElapsed;
   }
 }
+
+export { RateLimiter };

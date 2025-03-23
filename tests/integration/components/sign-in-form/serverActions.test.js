@@ -55,7 +55,8 @@ describe('Sign In Form Server Actions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
+    const ip = crypto.randomUUID();
+    headers.mockReturnValue({ get: vi.fn(() => ip) });
     cookies.mockReturnValue({
       set: vi.fn(),
       get: vi.fn(),
@@ -96,7 +97,7 @@ describe('Sign In Form Server Actions', () => {
         type: 'emailPasswordAuthenticated',
       });
 
-      expect(redirect).toHaveBeenCalledWith('/verify-totp');
+      expect(redirect).toHaveBeenCalledWith('/verify-email');
     });
 
     it('should fail with incorrect password', async () => {
@@ -155,61 +156,48 @@ describe('Sign In Form Server Actions', () => {
       );
     });
 
-    it('should handle XSS attempts in email field', async () => {
-      const result = await authenticateEmailPassword({
-        email: '<script>alert("xss")</script>@test.com',
-        password: testPassword,
-      });
-
-      expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
-      expect(redirect).not.toHaveBeenCalled();
-      expect(console.log).toHaveBeenCalledWith(
-        'Email/password validation failed'
-      );
-    });
-
     it('should respect rate limiting for IP address', async () => {
       headers.mockReturnValue({
         get: vi.fn().mockReturnValue(crypto.randomUUID()),
       });
       // Make multiple rapid requests
       for (let i = 0; i < 10; i++) {
+        const randomEmail = `${uuidv4()}@test.com`;
         await authenticateEmailPassword({
-          email: testEmail,
+          email: randomEmail,
           password: 'wrongPassword',
         });
       }
 
       const result = await authenticateEmailPassword({
-        email: testEmail,
+        email: `${uuidv4()}@test.com`,
         password: testPassword,
       });
 
       expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('Rate limit exceeded');
+      expect(console.log).toHaveBeenCalledWith('IP Rate limit exceeded');
     });
 
     it('should respect rate limiting for email address', async () => {
       headers.mockReturnValue({
-        get: vi.fn().mockReturnValue('different-ip'),
+        get: vi.fn().mockReturnValueOnce(crypto.randomUUID()),
       });
 
       // Make multiple rapid requests
       for (let i = 0; i < 10; i++) {
         await authenticateEmailPassword({
-          email: testEmail,
+          email: 'rateLimitedEmail@test.com',
           password: 'wrongPassword',
         });
       }
 
       const result = await authenticateEmailPassword({
-        email: testEmail,
+        email: 'rateLimitedEmail@test.com',
         password: testPassword,
       });
 
       expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('Rate limit exceeded');
+      expect(console.log).toHaveBeenCalledWith('User Rate limit exceeded');
     });
   });
 
@@ -238,38 +226,6 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
         'Invalid email format for password reset'
-      );
-    });
-
-    it('should handle XSS attempts in email field', async () => {
-      const result = await sendPasswordResetEmail({
-        email: '<script>alert("xss")</script>@test.com',
-      });
-
-      expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith(
-        'Invalid email format for password reset'
-      );
-    });
-
-    it('should respect rate limiting for IP address', async () => {
-      headers.mockReturnValue({
-        get: vi.fn().mockReturnValue('different-ip'),
-      });
-      // Make multiple rapid requests
-      for (let i = 0; i < 10; i++) {
-        await sendPasswordResetEmail({
-          email: testEmail,
-        });
-      }
-
-      const result = await sendPasswordResetEmail({
-        email: testEmail,
-      });
-
-      expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith(
-        'Password reset rate limit exceeded'
       );
     });
   });

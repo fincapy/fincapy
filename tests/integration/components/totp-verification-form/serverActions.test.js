@@ -55,6 +55,20 @@ const validCookieResolutionUserRateLimited = {
   set: vi.fn(),
 };
 
+const validCookieResolutionIPRateLimited = {
+  get: vi.fn(() => ({
+    value: jwt.sign(
+      { userId: crypto.randomUUID(), type: 'emailPasswordAuthenticated' },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '5m',
+        algorithm: 'HS256',
+      }
+    ),
+  })),
+  set: vi.fn(),
+};
+
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }));
@@ -177,7 +191,7 @@ describe('TOTP Verification Form Server Actions', () => {
     });
 
     it('should fail with IP rate limit', async () => {
-      cookies.mockReturnValue(validCookieResolution);
+      cookies.mockReturnValue(validCookieResolutionIPRateLimited);
       // Set a consistent IP for rate limit testing
       const testIp = '127.0.0.1';
       headers.mockReturnValue({ get: vi.fn(() => testIp) });

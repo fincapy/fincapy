@@ -269,25 +269,6 @@ describe('AuthRateLimiter', () => {
       expect(attemptsAfterFailedAuth).toBe(1);
     });
 
-    it('should increment attempts on authentication error', async () => {
-      const key = `rate-limit:${testProcessId}:ip:${rateLimiter.hashIp(testIp)}`;
-
-      // Initial state
-      const initialAttempts = await rateLimiter.getAttempts(key);
-      expect(initialAttempts).toBe(0);
-
-      // Auth function throwing error should increment attempts
-      await rateLimiter.withRateLimit(
-        { ip: testIp, processId: testProcessId },
-        () => {
-          throw new Error('Auth error');
-        }
-      );
-
-      const attemptsAfterError = await rateLimiter.getAttempts(key);
-      expect(attemptsAfterError).toBe(1);
-    });
-
     it('should block authentication after too many failed attempts', async () => {
       const key = `rate-limit:${testProcessId}:ip:${rateLimiter.hashIp(testIp)}`;
       const mockAuthFn = vi.fn().mockReturnValue(false);

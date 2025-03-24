@@ -179,15 +179,11 @@ async function sendPasswordResetEmail(rawInput) {
         const userRepository = new UserRepository({ redisAdapter });
         const user = await userRepository.getByEmail({ email });
 
-        // Even if user doesn't exist, pretend we sent something for security
-        if (!user) {
-          console.log('User not found');
-          return true;
-        }
-
-        // Generate a reset token
+        // Generate a reset token whether user exists or not
+        // This ensures consistent timing to prevent timing attacks
+        const userId = user ? user.id : 'nonexistent-user';
         const token = jwt.sign(
-          { userId: user.id, type: 'resetPassword' },
+          { userId: userId, type: 'resetPassword' },
           process.env.JWT_SECRET,
           {
             expiresIn: '1h',
@@ -196,16 +192,21 @@ async function sendPasswordResetEmail(rawInput) {
         );
         const resetUrl = `${process.env.SITE_URL}/reset-password?token=${token}`;
 
-        // Send email with the reset link
-        if (process.env.NODE_ENV === 'production') {
+        // Only proceed with actual email sending if user exists
+        if (user && process.env.NODE_ENV === 'production') {
           const sesAdapter = new SESAdapter();
           await sesAdapter.sendEmail({
             to: email,
             subject: 'Reset your Fincapy password',
             text: `Click the link below to reset your password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.`,
           });
-        } else {
-          console.log('Password reset URL:', resetUrl);
+        } else if (process.env.NODE_ENV !== 'production') {
+          // In development, log the URL (or a message that we would have sent one)
+          if (user) {
+            console.log('Password reset URL:', resetUrl);
+          } else {
+            console.log('Would have sent password reset URL if user existed');
+          }
         }
 
         return true;

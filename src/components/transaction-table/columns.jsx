@@ -65,7 +65,7 @@ export function SelectDemo({ field }) {
           <SelectValue placeholder="Category" />
         </SelectTrigger>
       </FormControl>
-      <SelectContent>
+      <SelectContent className="bg-card">
         {categoryNames.map((category) => (
           <SelectItem key={category.id} value={category.id}>
             {category.name}

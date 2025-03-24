@@ -1,3 +1,5 @@
+'use server';
+
 import crypto from 'crypto';
 
 class AuthRateLimiter {
@@ -43,46 +45,28 @@ class AuthRateLimiter {
       }
     }
 
-    try {
-      const result = await authFn();
-      if (typeof result === 'function') {
-        await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
-        if (userId) {
-          await this.resetAttempts(
-            `rate-limit:${processId}:user:${hashedEmail}`
-          );
-        }
-        return result();
-      } else if (result) {
-        // Reset attempts on successful authentication for all identifiers
-        await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
-        if (userId) {
-          await this.resetAttempts(
-            `rate-limit:${processId}:user:${hashedEmail}`
-          );
-        }
-      } else {
-        await this.incrementAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
-        if (userId) {
-          await this.incrementAttempts(
-            `rate-limit:${processId}:user:${hashedEmail}`
-          );
-        }
-        console.log('result', result);
+    const result = await authFn();
+    if (typeof result === 'function') {
+      await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+      if (userId) {
+        await this.resetAttempts(`rate-limit:${processId}:user:${hashedEmail}`);
       }
-      console.log('result', result);
-      return result;
-    } catch (error) {
-      // Increment attempts on failure for all identifiers
+      return result();
+    } else if (result) {
+      // Reset attempts on successful authentication for all identifiers
+      await this.resetAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
+      if (userId) {
+        await this.resetAttempts(`rate-limit:${processId}:user:${hashedEmail}`);
+      }
+    } else {
       await this.incrementAttempts(`rate-limit:${processId}:ip:${hashedIp}`);
       if (userId) {
         await this.incrementAttempts(
           `rate-limit:${processId}:user:${hashedEmail}`
         );
       }
-      console.log('error', error);
-      return false;
     }
+    return result;
   }
 
   async checkRateLimit(key) {

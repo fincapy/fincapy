@@ -115,7 +115,8 @@ class TenantRepository {
   }
 
   async getAllTenantIds() {
-    const tenantIds = await this.redisAdapter.scanStream('tenant:*');
+    const keys = await this.redisAdapter.scanStream('tenant:*');
+    const tenantIds = keys.map((key) => key.split(':')[1]);
     return tenantIds;
   }
 

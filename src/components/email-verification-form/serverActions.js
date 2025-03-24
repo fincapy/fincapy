@@ -210,9 +210,13 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
         }
       );
       if (user.totpEnabled) {
-        return () => redirect('/verify-totp');
+        return () => {
+          redirect('/verify-totp');
+        };
       } else {
-        return () => redirect('/register-totp');
+        return () => {
+          redirect('/register-totp');
+        };
       }
     }
   );

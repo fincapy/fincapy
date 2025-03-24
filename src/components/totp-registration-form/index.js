@@ -173,7 +173,7 @@ const TOTPRegistrationForm = () => {
                 Save these backup codes in a secure location. Each code can be
                 used once if you lose access to your authenticator app.
               </p>
-              <div className="bg-muted rounded p-3 w-full mb-4">
+              <div className="bg-background rounded p-3 w-full mb-4">
                 <pre className="text-xs font-mono">
                   {backupCodes.map((code) => (
                     <div key={code} className="mb-1">
@@ -184,14 +184,14 @@ const TOTPRegistrationForm = () => {
               </div>
               <Button
                 variant="outline"
-                className="w-full mb-2"
+                className="w-full mb-2 hover:bg-background"
                 onClick={downloadBackupCodes}
               >
                 <DownloadIcon className="h-4 w-4 mr-2" />
                 Download Backup Codes
               </Button>
               <Button
-                className="w-full"
+                className="w-full text-white hover:bg-primary-dark"
                 onClick={() => (window.location.href = '/app')}
               >
                 Continue to Dashboard

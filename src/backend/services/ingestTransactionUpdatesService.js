@@ -169,6 +169,7 @@ class IngestTransactionUpdatesService {
   }
 
   async execute({ tenantId, plaidItemId }) {
+    console.log('ingest update service executing');
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
         tenantId,

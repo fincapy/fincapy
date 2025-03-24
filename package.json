@@ -11,7 +11,7 @@
     "analyze": "ANALYZE=true npm run build",
     "consume": "node ./src/backend/consumer.js",
     "vitest": "vitest --exclude=tests/system",
-    "vitest:agent": "vitest --run --silent --exclude=tests/system",
+    "vitest:agent": "npx vitest --run --silent --exclude=tests/system",
     "test:system": "npx playwright test --project=chromium --workers=6"
   },
   "dependencies": {

@@ -366,7 +366,7 @@ const CreateTransactionDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] bg-card"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}

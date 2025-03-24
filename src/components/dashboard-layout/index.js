@@ -377,7 +377,11 @@ export default function DashboardLayout({
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
-        setUsersState(users.filter((user) => user.email !== userEmail));
+        console.log('users', users);
+        console.log('userEmail', userEmail);
+        setUsersState(
+          users.filter((user) => user.emails[0].email !== userEmail.email)
+        );
         setCurrentUserId(userId);
         setCurrentUserRole(userRole);
         setNonce(nonce);

@@ -45,6 +45,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import SubmitButton from '@/components/SubmitButton';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '@/backend/domain/user';
+import { Separator } from '../ui/separator';
 
 export function SelectDemo({ field }) {
   return (
@@ -54,11 +55,20 @@ export function SelectDemo({ field }) {
           <SelectValue placeholder="Role" />
         </SelectTrigger>
       </FormControl>
-      <SelectContent>
-        <SelectItem key="editor" value="editor">
+      <SelectContent className="bg-card">
+        <SelectItem
+          key="editor"
+          value="editor"
+          className="cursor-pointer hover:bg-background"
+        >
           Editor
         </SelectItem>
-        <SelectItem key="viewer" value="viewer">
+        <Separator className="bg-neutral-500" />
+        <SelectItem
+          key="viewer"
+          value="viewer"
+          className="cursor-pointer hover:bg-background"
+        >
           Viewer
         </SelectItem>
       </SelectContent>
@@ -241,7 +251,7 @@ const InviteUserDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12"
+        className="sm:max-w-11/12 bg-card"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

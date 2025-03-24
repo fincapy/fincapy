@@ -275,7 +275,7 @@ describe('Email Verification Form Server Actions', () => {
     });
 
     it('should fail with rate limit', async () => {
-      cookies.mockResolvedValue(validEmailPasswordToken);
+      cookies.mockResolvedValue(validEmailPasswordTokenMissingUser);
       headers.mockReturnValue({
         get: vi.fn(() => '127.0.0.1'),
       });

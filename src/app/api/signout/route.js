@@ -23,12 +23,5 @@ export const GET = async (req, res) => {
     sessionId: session.sessionId,
     cookies: await cookies(),
   });
-
-  // Return a proper response instead of using redirect
-  return new Response(JSON.stringify({ success: true, redirectTo: '/' }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  redirect('/');
 };

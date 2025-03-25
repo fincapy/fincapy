@@ -5,6 +5,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { Session } from '@/backend/domain/session';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import {
   vi,
   describe,
@@ -22,6 +23,12 @@ const userId = uuidv4();
 vi.mock('next/headers', () => {
   return {
     cookies: vi.fn(),
+  };
+});
+
+vi.mock('next/navigation', () => {
+  return {
+    redirect: vi.fn(),
   };
 });
 
@@ -68,15 +75,8 @@ describe('Signout Route API', () => {
     it('should successfully sign out with valid session', async () => {
       cookies.mockResolvedValue(validCookieResolution);
 
-      const response = await GET({});
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data).toEqual({
-        success: true,
-        redirectTo: '/',
-      });
-      expect(response.headers.get('Content-Type')).toBe('application/json');
+      await GET({});
+      expect(redirect).toHaveBeenCalledWith('/');
     });
 
     it('should return 401 when no session exists', async () => {

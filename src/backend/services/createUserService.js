@@ -43,6 +43,10 @@ class CreateUserService {
         });
         tenant.users.push(newUser);
         await userRepository.set({ userId: newUser.id, user: newUser });
+        await userRepository.setEmailLookup({
+          email: newUser.emails[0].email,
+          userId: newUser.id,
+        });
         await userRepository.incrementVersion({ userId: newUser.id });
         await tenantRepository.set({ tenantId, tenant });
         const userCreatedMessage = new UserCreatedMessage({

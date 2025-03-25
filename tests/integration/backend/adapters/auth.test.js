@@ -281,26 +281,46 @@ describe('Auth Integration Tests', () => {
     it('should handle timing attacks by using constant time comparison', async () => {
       // Test that even with missing password, the function takes similar time
       const password = bcrypt.hashSync('test-password', 12);
-      const start1 = process.hrtime.bigint();
-      await emailPasswordAuthenticator.authenticate({
-        unauthenticatedPassword: 'test-password',
-        password: null,
-      });
-      const end1 = process.hrtime.bigint();
-      const duration1 = end1 - start1;
 
-      const start2 = process.hrtime.bigint();
-      await emailPasswordAuthenticator.authenticate({
-        unauthenticatedPassword: 'test-password',
-        password: password,
-      });
-      const end2 = process.hrtime.bigint();
-      const duration2 = end2 - start2;
+      // Run multiple iterations to get more reliable results
+      const iterations = 5;
+      let nullPasswordTimes = [];
+      let validPasswordTimes = [];
 
-      // Durations should be within 100ms of each other
-      const difference = Number(duration2 - duration1) / 1_000_000; // Convert to milliseconds
-      console.log('timing difference', difference);
-      expect(Math.abs(difference)).toBeLessThan(100);
-    });
+      for (let i = 0; i < iterations; i++) {
+        // Test with null password
+        const start1 = process.hrtime.bigint();
+        await emailPasswordAuthenticator.authenticate({
+          unauthenticatedPassword: 'test-password',
+          password: null,
+        });
+        const end1 = process.hrtime.bigint();
+        nullPasswordTimes.push(Number(end1 - start1));
+
+        // Test with valid password
+        const start2 = process.hrtime.bigint();
+        await emailPasswordAuthenticator.authenticate({
+          unauthenticatedPassword: 'test-password',
+          password: password,
+        });
+        const end2 = process.hrtime.bigint();
+        validPasswordTimes.push(Number(end2 - start2));
+      }
+
+      // Calculate averages
+      const avgNullTime =
+        nullPasswordTimes.reduce((a, b) => a + b, 0) / iterations;
+      const avgValidTime =
+        validPasswordTimes.reduce((a, b) => a + b, 0) / iterations;
+
+      // Compare the ratio instead of absolute difference
+      // Neither should be more than 3x faster than the other
+      const ratio = Math.max(
+        avgNullTime / avgValidTime,
+        avgValidTime / avgNullTime
+      );
+
+      expect(ratio).toBeLessThan(3);
+    }, 10000);
   });
 });

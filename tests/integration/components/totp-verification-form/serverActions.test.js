@@ -130,8 +130,7 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP('123456');
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
-        'TOTP invalid verification code for user:',
-        userId
+        'TOTP invalid verification code for user'
       );
     });
 
@@ -139,8 +138,7 @@ describe('TOTP Verification Form Server Actions', () => {
       const result = await verifyTOTP('INVALID123456', true);
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith(
-        'TOTP invalid verification code for user:',
-        userId
+        'TOTP invalid verification code for user'
       );
     });
 
@@ -184,10 +182,7 @@ describe('TOTP Verification Form Server Actions', () => {
 
       const result = await verifyTOTP(token);
       expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith(
-        'TOTP invalid token type:',
-        'wrongType'
-      );
+      expect(console.log).toHaveBeenCalledWith('TOTP invalid token type');
     });
 
     it('should fail with IP rate limit', async () => {

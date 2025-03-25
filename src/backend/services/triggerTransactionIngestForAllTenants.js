@@ -18,7 +18,6 @@ class TriggerTransactionIngestForAllTenants {
             message,
             messageType: 'TRANSACTION_INGEST_REQUESTED',
           });
-          console.log('message added');
         }
       }
     );

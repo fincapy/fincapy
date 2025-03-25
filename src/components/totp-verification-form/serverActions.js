@@ -43,7 +43,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   }
 
   if (jwtToken.type !== 'emailPasswordAuthenticated') {
-    console.log('TOTP invalid token type:', jwtToken.type);
+    console.log('TOTP invalid token type');
     return false;
   }
 
@@ -57,7 +57,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       const token = validation.data;
 
       if (!validation.success) {
-        console.log('TOTP validation error:', validation.error);
+        console.log('TOTP validation error');
         return false;
       }
 
@@ -65,21 +65,20 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       const user = await userRepository.get({ userId: jwtToken.userId });
 
       if (!user) {
-        console.log('TOTP user not found:', jwtToken.userId);
+        console.log('TOTP user not found');
         return false;
       }
 
       if (!isBackupCode && !user.totpSecret) {
-        console.log('TOTP not set up for user:', user.id);
+        console.log('TOTP not set up for user');
         return false;
       }
 
       let isValid = false;
 
       if (isBackupCode) {
-        console.log('here?');
         if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
-          console.log('TOTP no backup codes available for user:', user.id);
+          console.log('TOTP no backup codes available for user');
           return false;
         }
 
@@ -100,7 +99,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       }
 
       if (!isValid) {
-        console.log('TOTP invalid verification code for user:', user.id);
+        console.log('TOTP invalid verification code for user');
         return false;
       }
 

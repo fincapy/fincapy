@@ -286,8 +286,13 @@ class Plan {
     const fractionOfMonths = this.getFractionOfMonths();
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
-        category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
-        categories.push(category);
+        const newCategory = category.clone();
+        newCategory.toSpendingView(
+          this.startDate,
+          this.endDate,
+          fractionOfMonths
+        );
+        categories.push(newCategory);
       }
     });
     categories.sort((a, b) => a.rank - b.rank);
@@ -299,8 +304,13 @@ class Plan {
     const fractionOfMonths = this.getFractionOfMonths();
     this.categories.forEach((category) => {
       if (category.type === 'income') {
-        category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
-        categories.push(category);
+        const newCategory = category.clone();
+        newCategory.toIncomeView(
+          this.startDate,
+          this.endDate,
+          fractionOfMonths
+        );
+        categories.push(newCategory);
       }
     });
     categories.sort((a, b) => a.rank - b.rank);
@@ -313,11 +323,21 @@ class Plan {
     const fractionOfMonths = this.getFractionOfMonths();
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
-        category.toSpendingView(this.startDate, this.endDate, fractionOfMonths);
-        net -= category.currentNet;
+        const newCategory = category.clone();
+        newCategory.toSpendingView(
+          this.startDate,
+          this.endDate,
+          fractionOfMonths
+        );
+        net -= newCategory.currentNet;
       } else if (category.type === 'income') {
-        category.toIncomeView(this.startDate, this.endDate, fractionOfMonths);
-        net += category.currentNet;
+        const newCategory = category.clone();
+        newCategory.toIncomeView(
+          this.startDate,
+          this.endDate,
+          fractionOfMonths
+        );
+        net += newCategory.currentNet;
       }
     });
     const savingsCategory = this.categories.find(

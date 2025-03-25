@@ -101,8 +101,6 @@ class Consumer {
               'TRANSACTION_INGEST_REQUESTED' ||
             envelope.message.payload.eventType === 'PLAID_ITEM_CREATED'
           ) {
-            console.log('Processing pending message:', envelope);
-            console.log('envelope.message.payload', envelope.message.payload);
             await this.ingestService.execute(envelope.message.payload);
             await this.messageRepository.acknowledge({
               messageId: envelope.messageId,
@@ -122,7 +120,6 @@ class Consumer {
           count: 10,
           readPending: false,
         });
-        console.log('New messages:', newMessages);
 
         for (const envelope of newMessages) {
           if (

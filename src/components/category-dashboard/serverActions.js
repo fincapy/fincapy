@@ -457,7 +457,6 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    console.log('reorder categories session', session);
     if (!session) {
       console.log('Authentication failed: No valid session found');
       return false;

@@ -307,7 +307,6 @@ export default function DashboardLayout({
   nonce,
 }) {
   const firstRender = useRef(true);
-  console.log('plan', plan);
 
   const newPlan = new Plan({
     ...plan,
@@ -377,8 +376,6 @@ export default function DashboardLayout({
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
-        console.log('users', users);
-        console.log('userEmail', userEmail);
         setUsersState(
           users.filter((user) => user.emails[0].email !== userEmail.email)
         );

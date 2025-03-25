@@ -11,6 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t web:${{ github.sha }} -f Dockerfile.web .
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: web:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results-web.sarif'
+          severity: 'CRITICAL,HIGH'
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy -c fly.web.toml --remote-only
         env:
@@ -20,6 +29,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t consumer:${{ github.sha }} -f Dockerfile.consumer .
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: consumer:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results-consumer.sarif'
+          severity: 'CRITICAL,HIGH'
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy -c fly.consumer.toml --remote-only
         env:

@@ -20,6 +20,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-web.sarif'
           severity: 'CRITICAL,HIGH'
+          exit-code: '1'
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy -c fly.web.toml --remote-only
         env:
@@ -38,6 +39,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-consumer.sarif'
           severity: 'CRITICAL,HIGH'
+          exit-code: '1'
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy -c fly.consumer.toml --remote-only
         env:

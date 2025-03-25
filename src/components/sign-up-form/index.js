@@ -20,6 +20,7 @@ import { EmailVerificationForm } from '../email-verification-form';
 import { TOTPRegistrationForm } from '../totp-registration-form';
 import { AccessCodeContext } from '../access-gate';
 import { useContext } from 'react';
+import Link from 'next/link';
 
 const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [email, setEmail] = useState('');
@@ -147,9 +148,9 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
               </div>
               <div className="text-center text-sm">
                 Already have an account?{' '}
-                <a href="#" className="underline underline-offset-4">
+                <Link href="/signin" className="underline underline-offset-4">
                   Sign in
-                </a>
+                </Link>
               </div>
             </div>
           </form>

@@ -9,3 +9,7 @@ test-system:
 
 test-system-agent:
 	docker compose run -T --rm playwright npm run test:system
+
+test-all:
+	make test-integration-agent;
+	make test-system-agent;

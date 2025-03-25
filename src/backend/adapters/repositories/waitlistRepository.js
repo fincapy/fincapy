@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY || 'key', 'base64');
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'base64');
 const IV_LENGTH = 12;
 
 function encrypt(data) {

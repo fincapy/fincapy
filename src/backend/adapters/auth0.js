@@ -18,7 +18,7 @@ class Auth0Adapter {
     await this.client.users.create({
       email: email,
       name: name,
-      password: 'ThisIsA!Strong!Password!75663',
+      password: crypto.randomBytes(16).toString('hex'),
       connection: 'Username-Password-Authentication',
       email_verified: false,
       verify_email: false,

@@ -117,7 +117,7 @@ export function SelectDemo({ field }) {
           <SelectValue placeholder="Category" />
         </SelectTrigger>
       </FormControl>
-      <SelectContent>
+      <SelectContent className="bg-card">
         {categoryNames.map((category) => (
           <SelectItem key={category.id} value={category.id}>
             {category.name}
@@ -287,7 +287,7 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-card">
                   <SelectItem value="PENDING">PENDING</SelectItem>
                   <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                 </SelectContent>
@@ -308,7 +308,7 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-card">
                   {transactionTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}

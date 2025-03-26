@@ -424,10 +424,11 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
+            <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[calc(-1 * env(safe-area-inset-bottom))]" />
             <ScrollAreaWithPulldown
               className={`h-[94%] w-screen fixed top-0`}
               ref={scrollAreaRef}

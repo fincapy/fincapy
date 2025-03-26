@@ -183,7 +183,7 @@ const NavBar = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%] pb-safe`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%]`}
     >
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
@@ -423,14 +423,15 @@ export default function DashboardLayout({
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
+          <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-primarys z-50" />
           <main
-            className="w-full h-[calc(100vh+env(safe-area-inset-bottom))] touch-none pt-safe pl-safe pr-safe"
+            className="w-full h-[100vh] overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
             {/* <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[env(safe-area-inset-bottom)]" /> */}
             <ScrollAreaWithPulldown
-              className={`h-[calc(94% - env(safe-area-inset-bottom))] w-screen fixed top-0`}
+              className={`h-[94%] w-screen fixed top-0`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {

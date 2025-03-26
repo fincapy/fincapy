@@ -428,7 +428,7 @@ export default function DashboardLayout({
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
-            <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[calc(-1 * env(safe-area-inset-bottom))]" />
+            <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[env(safe-area-inset-bottom)]" />
             <ScrollAreaWithPulldown
               className={`h-[94%] w-screen fixed top-0`}
               ref={scrollAreaRef}

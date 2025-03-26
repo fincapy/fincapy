@@ -183,7 +183,7 @@ const NavBar = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%]`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%] pb-safe`}
     >
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
@@ -430,7 +430,7 @@ export default function DashboardLayout({
           >
             {/* <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[env(safe-area-inset-bottom)]" /> */}
             <ScrollAreaWithPulldown
-              className={`h-[94%] w-screen fixed top-0`}
+              className={`h-[calc(94% - env(safe-area-inset-bottom))] w-screen fixed top-0`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {

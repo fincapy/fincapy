@@ -423,7 +423,7 @@ export default function DashboardLayout({
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
-          <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-screen bg-primary z-50 -m-[env(safe-area-inset-bottom)]" />
+          <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-screen bg-primary z-50 -mt-[env(safe-area-inset-bottom)]" />
           <main
             className="w-full h-[100vh] overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe"
             onTouchStart={handleScrollAreaFocus}

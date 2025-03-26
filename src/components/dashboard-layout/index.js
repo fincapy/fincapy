@@ -183,7 +183,7 @@ const NavBar = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 -m-[env(safe-area-inset-bottom)] touch-none h-[6%]`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%]`}
     >
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
@@ -424,7 +424,7 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >

@@ -79,10 +79,12 @@ const TOTPVerificationForm = () => {
   };
 
   if (!mounted)
-    return <Skeleton className="w-[384px] h-[160px] rounded-xl bg-card" />;
+    return (
+      <Skeleton className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-11/12 h-[160px] rounded-xl bg-card" />
+    );
 
   return (
-    <Card className="w-[384px] shadow-lg">
+    <Card className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-11/12 shadow-lg">
       <CardContent className="pt-6 flex flex-col items-center justify-center gap-1">
         <div className="flex w-full flex-col items-center justify-center">
           {!useBackupCode ? (
@@ -95,7 +97,7 @@ const TOTPVerificationForm = () => {
 
               <Button
                 variant="link"
-                className="text-xs"
+                className="text-xs text-wrap"
                 onClick={() => setUseBackupCode(true)}
                 type="button"
               >

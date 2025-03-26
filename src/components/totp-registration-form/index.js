@@ -122,7 +122,7 @@ const TOTPRegistrationForm = () => {
                 manually:
               </p>
               <div className="relative mb-6 w-[314.5px]">
-                <div className="flex items-center gap-2 bg-muted rounded">
+                <div className="flex items-center gap-2 bg-background rounded">
                   <code className="flex-1 text-sm text-center break-all">
                     {showSecret ? secret : '••••••••••••••••••••••••••••'}
                   </code>

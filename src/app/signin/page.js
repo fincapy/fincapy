@@ -5,6 +5,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { redirect } from 'next/navigation';
 import { GalleryVerticalEnd } from 'lucide-react';
+import { LockKeyhole } from 'lucide-react';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -24,7 +25,7 @@ export default async function SignInPage() {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GalleryVerticalEnd className="size-4" />
+            <LockKeyhole className="size-4 text-white" />
           </div>
           Fincapy
         </a>

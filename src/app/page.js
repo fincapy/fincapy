@@ -29,10 +29,15 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-3 sm:px-7 px-3">
             <Link href="/signin">
-              <Button variant="outline">Sign In</Button>
+              <Button
+                variant="outline"
+                className="border-secondary text-secondary hover:border-primary hover:text-primary"
+              >
+                Sign In
+              </Button>
             </Link>
             <Button
-              className="bg-primary text-white hover:bg-primary-dark"
+              className="bg-primary text-white hover:bg-secondary"
               onClick={() => setModalOpen(true)}
             >
               {ctaText}
@@ -46,7 +51,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
             <h1 className="text-6xl font-bold tracking-tighter text-center">
-              Who Will <span className="text-primary">Your Money</span> Make
+              Who Will <span className="text-secondary">Your Money</span> Make
               You?
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground md:text-xl text-center w-full">
@@ -56,7 +61,7 @@ export default function Home() {
             </p>
             <Button
               size="lg"
-              className="w-[200px] bg-primary text-white hover:bg-primary-dark font-bold text-md"
+              className="w-[200px] bg-primary text-white hover:bg-secondary font-bold text-md"
               onClick={() => setModalOpen(true)}
             >
               {ctaText}
@@ -110,7 +115,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="bg-muted/50 py-12 md:py-24 lg:py-32">
+      <section id="features" className="py-12 md:py-24 lg:py-32 bg-background">
         <div className="px-4 md:px-6">
           <div className="mb-8 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -153,7 +158,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="bg-muted/50 py-12 md:py-24 lg:py-32">
+      <section id="pricing" className="py-12 md:py-24 lg:py-32">
         <div className="px-4 md:px-6">
           <div className="mb-12 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -193,7 +198,7 @@ export default function Home() {
 
             <Card className="flex flex-col border-primary p-6">
               <div className="mb-4 text-center">
-                <div className="mb-2 inline-block rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
+                <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">
                   RECOMMENDED
                 </div>
                 <h3 className="text-2xl font-bold">Premium</h3>
@@ -210,7 +215,7 @@ export default function Home() {
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
               <Button
-                className="w-full bg-primary text-white hover:bg-primary-dark"
+                className="w-full bg-primary text-white hover:bg-secondary"
                 onClick={() => setModalOpen(true)}
               >
                 {ctaText}
@@ -253,7 +258,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA Section */}
-      <section className="bg-primary py-12 md:py-24">
+      <section className="bg-secondary py-12 md:py-24">
         <div className="px-4 md:px-6">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
@@ -261,7 +266,7 @@ export default function Home() {
             </h2>
             <Button
               size="lg"
-              className="mt-4 bg-white text-primary hover:bg-background font-bold text-md"
+              className="bg-primary text-white hover:bg-primary-dark"
               onClick={() => setModalOpen(true)}
             >
               {ctaText}

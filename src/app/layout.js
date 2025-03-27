@@ -219,7 +219,7 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

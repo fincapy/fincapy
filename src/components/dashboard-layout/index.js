@@ -424,7 +424,7 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-[100vh] overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-background"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none mt-safe mb-safe ml-safe mr-safe bg-background"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >

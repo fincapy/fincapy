@@ -183,7 +183,7 @@ const NavBar = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%]`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6vh] select-none`}
     >
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
@@ -423,32 +423,25 @@ export default function DashboardLayout({
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
-          <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none mt-safe mb-safe ml-safe mr-safe bg-background"
+          <ScrollAreaWithPulldown
+            className={`h-[94vh] w-screen fixed top-0 select-none`}
+            ref={scrollAreaRef}
             onTouchStart={handleScrollAreaFocus}
-            onMouseDown={handleScrollAreaFocus}
+            triggerRefresh={() => {
+              setTriggerRefresh(!triggerRefresh);
+            }}
+            isRefreshing={isRefreshing}
           >
-            {/* <div className="absolute bottom-0 h-[env(safe-area-inset-bottom)] w-full bg-card z-10 -m-[env(safe-area-inset-bottom)]" /> */}
-            <ScrollAreaWithPulldown
-              className={`h-[94%] w-screen fixed top-0`}
-              ref={scrollAreaRef}
-              onTouchStart={handleScrollAreaFocus}
-              triggerRefresh={() => {
-                setTriggerRefresh(!triggerRefresh);
-              }}
-              isRefreshing={isRefreshing}
-            >
-              {children}
-            </ScrollAreaWithPulldown>
-            <NavBar
-              page={page}
-              setPage={setPage}
-              userRole={userRole}
-              accountDropdownOpen={accountDropdownOpen}
-              setAccountDropdownOpen={setAccountDropdownOpen}
-            />
-            {/* <ChatWidget /> */}
-          </main>
+            {children}
+          </ScrollAreaWithPulldown>
+          <NavBar
+            page={page}
+            setPage={setPage}
+            userRole={userRole}
+            accountDropdownOpen={accountDropdownOpen}
+            setAccountDropdownOpen={setAccountDropdownOpen}
+          />
+          {/* <ChatWidget /> */}
         </PageContext.Provider>
       </EndDateContext.Provider>
     </StartDateContext.Provider>

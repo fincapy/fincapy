@@ -144,7 +144,7 @@ const AccountDropdown = ({
                 </a>
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-border" />
           </Fragment>
         )}
         <DropdownMenuItem className="cursor-pointer">

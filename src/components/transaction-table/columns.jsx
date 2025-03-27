@@ -457,7 +457,7 @@ const Actions = ({ row }) => {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         {currentUserRole !== 'viewer' && (
           <>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-border" />
             <EditTransactionDialog row={row} setOuterDialogIsOpen={setIsOpen} />
             <DeleteTransactionDialog
               row={row}
@@ -523,7 +523,7 @@ export const columns = [
         currency: 'USD',
       }).format(amount);
 
-      return <div className="font-medium">{formatted}</div>;
+      return <div>{formatted}</div>;
     },
   },
   {

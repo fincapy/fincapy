@@ -95,14 +95,25 @@ const TOTPVerificationForm = () => {
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
 
-              <Button
-                variant="link"
-                className="text-xs text-wrap"
-                onClick={() => setUseBackupCode(true)}
-                type="button"
-              >
-                Lost access to your authenticator app? Use a backup code
-              </Button>
+              <div className="flex w-full flex-col items-center justify-center mt-2">
+                {timeLeft > 0 && (
+                  <div className="flex items-center space-x-1 text-xs">
+                    <span className="text-xs text-muted-foreground">
+                      {Math.floor(timeLeft / 60)}:
+                      {(timeLeft % 60).toString().padStart(2, '0')}
+                    </span>
+                    <span className="text-muted-foreground">remaining</span>
+                  </div>
+                )}
+                <Button
+                  variant="link"
+                  className="text-xs text-muted-foreground hover:text-primary text-wrap -mt-1"
+                  onClick={() => setUseBackupCode(true)}
+                  type="button"
+                >
+                  Lost access to your authenticator app? Use a backup code
+                </Button>
+              </div>
             </>
           ) : (
             <form
@@ -126,31 +137,30 @@ const TOTPVerificationForm = () => {
                 Verify
               </Button>
 
-              <Button
-                variant="link"
-                className="text-xs w-full"
-                onClick={() => {
-                  setUseBackupCode(false);
-                  setError('');
-                }}
-                type="button"
-              >
-                Return to verification code
-              </Button>
+              <div className="flex w-full flex-col items-center justify-center gap-1">
+                {timeLeft > 0 && (
+                  <div className="flex items-center space-x-1 text-xs -mb-4">
+                    <span className="text-xs text-muted-foreground">
+                      {Math.floor(timeLeft / 60)}:
+                      {(timeLeft % 60).toString().padStart(2, '0')}
+                    </span>
+                    <span className="text-muted-foreground">remaining</span>
+                  </div>
+                )}
+                <Button
+                  variant="link"
+                  className="text-xs text-muted-foreground hover:text-primary"
+                  onClick={() => {
+                    setUseBackupCode(false);
+                    setError('');
+                  }}
+                  type="button"
+                >
+                  Return to verification code
+                </Button>
+              </div>
             </form>
           )}
-
-          <div className="flex w-full flex-col items-center justify-center gap-1">
-            {timeLeft > 0 && (
-              <div className="flex items-center space-x-1 text-xs">
-                <span className="text-xs text-muted-foreground">
-                  {Math.floor(timeLeft / 60)}:
-                  {(timeLeft % 60).toString().padStart(2, '0')}
-                </span>
-                <span className="text-muted-foreground">remaining</span>
-              </div>
-            )}
-          </div>
         </div>
       </CardContent>
     </Card>

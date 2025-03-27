@@ -219,7 +219,9 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body className="relative after:content-[''] after:fixed after:bottom-0 after:left-0 after:right-0 after:h-[env(safe-area-inset-bottom)] after:w-screen after:bg-primary after:z-50s">
+        {children}
+      </body>
     </html>
   );
 }

@@ -1111,7 +1111,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[95vw] max-h-[80vh]"
+        className="max-w-[95vw] max-h-[80vh] bg-card"
         id="transaction-modal"
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -1300,7 +1300,7 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card/35 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative`}
+        className={`shadow-none bg-card/35 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
         style={style}
       >
         <CardHeader className="p-0"></CardHeader>
@@ -1566,12 +1566,14 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={startDate}
+            defaultMonth={startDate}
             onSelect={(date) => {
               if (date) {
                 setStartDate(date.toISOString().split('T')[0]);
               }
             }}
             initialFocus
+            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-white"
           />
         </PopoverContent>
       </Popover>
@@ -1592,12 +1594,14 @@ const DatePickers = () => {
           <Calendar
             mode="single"
             selected={endDate}
+            defaultMonth={endDate}
             onSelect={(date) => {
               if (date) {
                 setEndDate(date.toISOString().split('T')[0]);
               }
             }}
             initialFocus
+            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-white"
           />
         </PopoverContent>
       </Popover>

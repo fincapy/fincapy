@@ -139,7 +139,10 @@ export function SignInForm() {
       </div>
 
       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent
+          className="sm:max-w-md sm:w-md w-11/12 rounded-lg bg-card"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Reset Password</DialogTitle>
             <DialogDescription>
@@ -179,12 +182,11 @@ export function SignInForm() {
               </div>
 
               <DialogFooter className="sm:justify-between">
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="submit" disabled={resetLoading || !resetEmail}>
+                <Button
+                  type="submit"
+                  className="text-white hover:bg-primary-dark w-full"
+                  disabled={resetLoading || !resetEmail}
+                >
                   {resetLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

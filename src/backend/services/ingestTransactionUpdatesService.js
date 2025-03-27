@@ -187,11 +187,11 @@ class IngestTransactionUpdatesService {
         return null;
       }
       for (const plaidItem of plaidItems) {
-        try {
-          await this.plaidAdapter.refreshTransactions({
-            accessToken: plaidItem.accessToken,
-          });
-        } catch (error) {}
+        // try {
+        //   await this.plaidAdapter.refreshTransactions({
+        //     accessToken: plaidItem.accessToken,
+        //   });
+        // } catch (error) {}
 
         const plaidTransactions = await this.plaidAdapter.getTransactions({
           accessToken: plaidItem.accessToken,

@@ -167,7 +167,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
                         width: '2px',
                         height: '6px', // Smaller, crisper petal
                         backgroundColor:
-                          isVisible || isRefreshing ? 'green' : 'gray',
+                          isVisible || isRefreshing ? '#134e4a' : 'gray',
                         borderRadius: '1px',
                         transform: `rotate(${angle}deg) translateY(-8px)`,
                         transition: 'background-color 0.2s',

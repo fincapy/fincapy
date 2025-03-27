@@ -394,6 +394,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
         </DialogHeader>
         <Button
           variant="destructive"
+          className="bg-destructive hover:bg-destructive-foreground text-white"
           onClick={onClick}
           onPointerDown={(e) => e.stopPropagation()}
         >

@@ -107,7 +107,7 @@ const TOTPRegistrationForm = () => {
   };
 
   return (
-    <Card className="w-[384px] shadow-lg">
+    <Card className="w-[384px] border">
       <CardContent className="pt-6">
         <div className="flex w-full flex-col items-center justify-center gap-1">
           {!showBackupCodes ? (

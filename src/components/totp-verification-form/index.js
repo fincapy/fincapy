@@ -84,7 +84,7 @@ const TOTPVerificationForm = () => {
     );
 
   return (
-    <Card className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-11/12 shadow-lg">
+    <Card className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-11/12 border">
       <CardContent className="pt-6 flex flex-col items-center justify-center gap-1">
         <div className="flex w-full flex-col items-center justify-center">
           {!useBackupCode ? (

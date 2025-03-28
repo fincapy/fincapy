@@ -49,7 +49,7 @@ const SetPasswordForm = ({ token, isReset }) => {
   };
 
   return (
-    <Card className="w-[384px] bg-background shadow-lg">
+    <Card className="w-[384px] bg-background border">
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

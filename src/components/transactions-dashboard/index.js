@@ -359,14 +359,14 @@ const CreateTransactionDialogue = () => {
         <Button
           variant="outline"
           size="icon"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary rounded-xl"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] bg-card"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}

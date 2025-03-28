@@ -6,6 +6,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { redirect } from 'next/navigation';
 import { GalleryVerticalEnd } from 'lucide-react';
 import jwt from 'jsonwebtoken';
+import Image from 'next/image';
 
 export default async function JoinPage(props) {
   const searchParams = await props.searchParams;
@@ -25,12 +26,15 @@ export default async function JoinPage(props) {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          Fincapy
-        </a>
+        <div className="flex items-center justify-center">
+          <Image
+            src="/capybara.png"
+            alt="Fincapy"
+            width={64}
+            height={64}
+            className="rounded-full"
+          />
+        </div>
         <SetPasswordForm token={token} />
       </div>
     </div>

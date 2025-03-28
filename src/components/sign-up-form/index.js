@@ -80,7 +80,7 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
+      <Card className="border">
         <CardContent className="mt-8">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">

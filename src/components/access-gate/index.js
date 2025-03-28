@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LockKeyhole, Loader2 } from 'lucide-react';
 import { createContext, useContext } from 'react';
 import { verifyAccessCode } from './serverActions';
+import Image from 'next/image';
 
 export const AccessCodeContext = createContext();
 
@@ -38,15 +39,18 @@ export function AccessGate({ children }) {
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <LockKeyhole className="size-4" />
-          </div>
-          Fincapy
-        </a>
-        <Card className="bg-background">
+        <div className="flex items-center justify-center">
+          <Image
+            src="/capybara.png"
+            alt="Fincapy"
+            width={64}
+            height={64}
+            className="rounded-full"
+          />
+        </div>
+        <Card className="bg-card border">
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Site Access Required</CardTitle>
           </CardHeader>
@@ -65,7 +69,11 @@ export function AccessGate({ children }) {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full text-white hover:bg-primary-dark"
+                  disabled={loading}
+                >
                   {loading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (

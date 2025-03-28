@@ -68,7 +68,7 @@ export function SignInForm() {
         </h2>
       </div>
       <div className="flex flex-col gap-6 w-full items-center">
-        <Card className="bg-card w-11/12 sm:w-96 flex flex-col items-center">
+        <Card className="bg-card w-11/12 sm:w-96 flex flex-col items-center border">
           <CardContent className="pt-6 w-full">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-6">

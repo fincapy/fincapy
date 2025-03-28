@@ -200,8 +200,8 @@ class IngestTransactionUpdatesService {
         for (const plan of tenant.plans) {
           const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
 
-          // Process added transactions in batches of 20
-          const batchSize = 10;
+          // Process added transactions in batches of 5
+          const batchSize = 5;
           const addedTransactions = plaidTransactions.added;
 
           for (let i = 0; i < addedTransactions.length; i += batchSize) {

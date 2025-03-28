@@ -376,7 +376,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
           className="h-4 w-4 text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={14} />
+          <Trash2 size={15} className="hover:text-primary-dark" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -568,7 +568,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Pencil size={14} />
+          <Pencil size={15} className="hover:text-primary-dark" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -966,7 +966,7 @@ const EditSubcategoryDialogue = ({
           onPointerDown={(e) => e.stopPropagation()}
           className="text-muted-foreground hover:text-foreground"
         >
-          <Pencil size={14} />
+          <Pencil size={15} className="hover:text-primary-dark" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1070,7 +1070,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={14} />
+          <Trash2 size={15} className="hover:text-primary-dark" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1108,7 +1108,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Eye size={14} />
+          <Eye size={15} className="hover:text-primary-dark" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1467,7 +1467,7 @@ const CategoryCardCollapsible = ({
       onOpenChange={setAreSubcategoriesOpen}
       ref={setNodeRef}
       style={style}
-      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none relative`}
+      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none relative border border-border rounded-xl`}
     >
       <CategoryCard
         category={category}
@@ -1701,21 +1701,18 @@ export default function CategoryDashboard({ type, categories }) {
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Skeleton className="h-9 w-[138.62px] bg-card" />
-                <Skeleton className="h-9 w-[138.62px] bg-card" />
+                <Skeleton className="h-9 w-[138.62px] bg-neutral-300" />
+                <Skeleton className="h-9 w-[138.62px] bg-neutral-300" />
               </div>
               {(type === 'spending' || type === 'income') && (
-                <Skeleton className="h-9 w-9 bg-card" />
+                <Skeleton className="h-9 w-9 bg-neutral-300" />
               )}
             </div>
 
             {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
               (_, index) => (
-                <div
-                  className="flex flex-col w-11/12 shadow-lg rounded-xl"
-                  key={index}
-                >
-                  <Skeleton className="h-[100.23px] w-full rounded-xl bg-card" />
+                <div className="flex flex-col w-11/12" key={index}>
+                  <Skeleton className="h-[100.23px] w-full rounded-xl bg-neutral-300" />
                 </div>
               )
             )}
@@ -1750,7 +1747,7 @@ export default function CategoryDashboard({ type, categories }) {
                   >
                     {categoriesState.map((category, index) => (
                       <div
-                        className="flex flex-col w-11/12 shadow-lg rounded-xl"
+                        className="flex flex-col w-11/12 rounded-xl"
                         key={category.categoryId}
                       >
                         <CategoryCardCollapsible

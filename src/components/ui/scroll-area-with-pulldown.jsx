@@ -13,13 +13,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
   ({ className, children, triggerRefresh, isRefreshing, ...props }, ref) => {
     const scrollRef = useRef(null);
     const contentRef = useRef(null);
-    const pullRef = useRef({
-      startY: 0,
-      lastY: 0,
-      rafId: null,
-      isPulling: false, // Track if we're in a pull-down state
-      wasAtTop: false, // Track if we started at the top
-    });
+    const pullRef = useRef({ startY: 0, lastY: 0, rafId: null });
     const [pullDistance, setPullDistance] = useState(0);
 
     const THRESHOLD = 70;
@@ -35,15 +29,12 @@ const ScrollAreaWithPulldown = React.forwardRef(
       }
 
       pullRef.current.rafId = requestAnimationFrame(() => {
-        // Only calculate pull distance if we're in a proper pull-down state
-        if (pullRef.current.isPulling) {
-          const delta = clientY - pullRef.current.startY;
-          if (delta > 0) {
-            const resistance = calculateProgressiveResistance(delta);
-            setPullDistance(resistance);
-          } else {
-            setPullDistance(0);
-          }
+        const delta = clientY - pullRef.current.startY;
+        if (delta > 0) {
+          const resistance = calculateProgressiveResistance(delta);
+          setPullDistance(resistance);
+        } else {
+          setPullDistance(0);
         }
         pullRef.current.lastY = clientY;
       });
@@ -51,13 +42,9 @@ const ScrollAreaWithPulldown = React.forwardRef(
 
     const handleTouchStart = useCallback(
       (e) => {
-        // Record if we're at the top when touch starts
-        pullRef.current.wasAtTop = scrollRef.current.scrollTop === 0;
-
-        if (pullRef.current.wasAtTop && !isRefreshing) {
+        if (scrollRef.current.scrollTop === 0 && !isRefreshing) {
           pullRef.current.startY = e.touches[0].clientY;
           pullRef.current.lastY = e.touches[0].clientY;
-          pullRef.current.isPulling = false; // Reset pulling state
 
           // Reset any ongoing transitions
           if (contentRef.current) {
@@ -70,23 +57,10 @@ const ScrollAreaWithPulldown = React.forwardRef(
 
     const handleTouchMove = useCallback(
       (e) => {
-        if (!pullRef.current.wasAtTop) return;
-
-        // We're at the top - determine if this is a pull-down or just regular scrolling
         if (scrollRef.current?.scrollTop <= 0) {
           const touch = e.touches[0];
-          const deltaY = touch.clientY - pullRef.current.startY;
 
-          // If moving downward and we started at the top, activate pull behavior
-          if (deltaY > 0) {
-            pullRef.current.isPulling = true;
-            // Don't call preventDefault here - will do that in our passive: false handler
-            updatePull(touch.clientY);
-          }
-        } else {
-          // If we've scrolled down even a bit, we're no longer at the top
-          pullRef.current.isPulling = false;
-          setPullDistance(0);
+          updatePull(touch.clientY);
         }
       },
       [updatePull]
@@ -103,43 +77,35 @@ const ScrollAreaWithPulldown = React.forwardRef(
           'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
       }
 
-      if (pullDistance >= THRESHOLD && pullRef.current.isPulling) {
+      if (pullDistance >= THRESHOLD) {
         triggerRefresh();
       }
 
-      // Reset pulling state
-      pullRef.current.isPulling = false;
       setPullDistance(0);
     }, [pullDistance, triggerRefresh]);
 
-    // Properly manage passive: false for preventDefault to work
-    useEffect(() => {
-      if (!scrollRef.current) return;
-
-      const handleTouchMovePassive = (e) => {
-        // Only if we're in pulling mode and at the top of the content
-        if (pullRef.current.isPulling && scrollRef.current.scrollTop <= 0) {
-          // This is where we call preventDefault, in a non-passive listener
-          e.preventDefault();
-        }
-      };
-
-      const options = { passive: false };
-      const element = scrollRef.current;
-
-      element.addEventListener('touchmove', handleTouchMovePassive, options);
-
-      return () => {
-        element.removeEventListener(
-          'touchmove',
-          handleTouchMovePassive,
-          options
-        );
-        if (pullRef.current.rafId) {
-          cancelAnimationFrame(pullRef.current.rafId);
-        }
-      };
-    }, []);
+    // useEffect(() => {
+    //   const options = { passive: false };
+    //   if (scrollRef.current) {
+    //     scrollRef.current.addEventListener(
+    //       'touchmove',
+    //       handleTouchMove,
+    //       options
+    //     );
+    //   }
+    //   return () => {
+    //     if (scrollRef.current) {
+    //       scrollRef.current.removeEventListener(
+    //         'touchmove',
+    //         handleTouchMove,
+    //         options
+    //       );
+    //       if (pullRef.current.rafId) {
+    //         cancelAnimationFrame(pullRef.current.rafId);
+    //       }
+    //     }
+    //   };
+    // }, [handleTouchMove]);
 
     return (
       <ScrollAreaPrimitive.Root

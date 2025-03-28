@@ -1088,6 +1088,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
         <DialogClose asChild>
           <Button
             variant="destructive"
+            className="bg-destructive hover:bg-destructive-foreground text-white"
             onClick={onClick}
             onPointerDown={(e) => e.stopPropagation()}
           >

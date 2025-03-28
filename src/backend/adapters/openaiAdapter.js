@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(800); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(20); // Limit for requests per minute
   }
 
   async categorizeTransaction({
@@ -63,8 +63,10 @@ class OpenaiAdapter {
       }
 
       return `
+      You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.
+
       Rules:
-      - Incoming (negative amounts) typically include refunds, interest, and income.
+      - Incoming (negative amounts) typically include refunds, interest, credit card payments, credit card refunds, and income.
       - Outgoing (positive amounts) typically include purchases, withdrawals, and transfers.
       - Refunds must mirror their original purchase's category.
       - Reference edited transactions for consistency.
@@ -81,7 +83,7 @@ class OpenaiAdapter {
         - Categories: ${JSON.stringify(Object.values(categoryIdToNameMap))}
         - Types: ${JSON.stringify(transactionTypes)}
 
-      Edited: ${JSON.stringify(transactionEdits)}
+      Edited by user: ${JSON.stringify(transactionEdits)}
 
       Transaction:
       - Amount: ${transactionAmount}
@@ -94,23 +96,6 @@ class OpenaiAdapter {
       `;
     };
 
-    const createSystemPrompt = (attemptCount) => {
-      let basePrompt =
-        'You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.';
-
-      if (attemptCount > 0) {
-        basePrompt +=
-          ' RESPOND WITH VALID JSON ONLY. NO MARKDOWN DELIMITERS, NO EXPLANATIONS, JUST THE RAW JSON OBJECT.';
-      }
-
-      if (attemptCount >= 3) {
-        basePrompt +=
-          ' THIS IS CRITICAL: YOUR ENTIRE RESPONSE MUST BE PARSEABLE AS JSON.';
-      }
-
-      return basePrompt;
-    };
-
     const MAX_RETRIES = 5;
     let attemptCount = 0;
     let categories;
@@ -121,11 +106,6 @@ class OpenaiAdapter {
       // Format for Bedrock Converse API
       const requestBody = {
         modelId: process.env.MODEL_ID,
-        system: [
-          {
-            text: createSystemPrompt(attemptCount),
-          },
-        ],
         messages: [
           {
             role: 'user',

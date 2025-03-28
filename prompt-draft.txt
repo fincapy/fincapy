@@ -1,7 +1,5 @@
-You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.
-
 Rules:
-- Incoming (negative amounts) typically include refunds, interest, credit card payments, credit card refunds, and income.
+- Incoming (negative amounts) typically include refunds, interest, and income.
 - Outgoing (positive amounts) typically include purchases, withdrawals, and transfers.
 - Refunds must mirror their original purchase's category.
 - Reference edited transactions for consistency.
@@ -35,7 +33,7 @@ Rules:
     "spending.guilt_free_spending.fun_budget",
     "income.uncategorized",
     "income.uplight_paycheck",
-    "income.habitat_paycheck",
+    "income.habitat_paycheck"
   ]
   - Types: [
     "spending",
@@ -45,8 +43,61 @@ Rules:
     "debit_card_refund",
     "investment_transfer",
     "interest_income",
-    "income",
+    "income"
   ]
+
+Examples:
+Example 1 – Grocery Purchase:
+Input:
+Transaction:
+- Amount: 45.67
+- Merchant: "Whole Foods"
+- Description: "Whole Foods"
+- Acct: "checking"
+- Sub-Acct: "debit"
+Output:
+{"category": "spending.fixed_costs.groceries", "type": "spending"}
+
+Example 2 – Subscription Payment:
+Transaction:
+- Amount: 12.99
+- Merchant: "Netflix"
+- Description: "Netflix"
+- Acct: "credit"
+- Sub-Acct: "credit_card"
+Output:
+{"category": "spending.fixed_costs.subscriptions", "type": "spending"}
+
+Example 3 – Debit Card Refund:
+Transaction:
+- Amount: -20.00
+- Merchant: "Retailer XYZ"
+- Description: "Cheyenne's Boutique"
+- Acct: "credit"
+- Sub-Acct: "debit_card"
+Output:
+{"category": "spending.uncategorized", "type": "debit_card_refund"}
+(Note: Assume the original purchase was uncategorized.)
+
+Example 4 – Interest Income:
+Transaction:
+- Amount: -15.50
+- Merchant: "Bank of America"
+- Description: "Bank of America"
+- Acct: "savings"
+- Sub-Acct: "bank"
+Output:
+{"category": "income.uncategorized", "type": "interest_income"}
+
+Example 5 – Credit Card Payment:
+Transaction:
+- Amount: -300.00
+- Merchant: "unknown"
+- Description: "ONLINE ACH PAYMENT THANK YOU"
+- Acct: "credit"
+- Sub-Acct: "credit_card"
+Output:
+{"category": "spending.uncategorized", "type": "credit_card_payment"}
 
 Edited by user:
 [

@@ -199,16 +199,24 @@ class IngestTransactionUpdatesService {
         });
         for (const plan of tenant.plans) {
           const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-          await Promise.all(
-            plaidTransactions.added.map((plaidTransaction) =>
-              this.addTransaction(
-                plaidTransactions,
-                plaidTransaction,
-                plan,
-                categoryIdToNameMap
+
+          // Process added transactions in batches of 20
+          const batchSize = 20;
+          const addedTransactions = plaidTransactions.added;
+
+          for (let i = 0; i < addedTransactions.length; i += batchSize) {
+            const batch = addedTransactions.slice(i, i + batchSize);
+            await Promise.all(
+              batch.map((plaidTransaction) =>
+                this.addTransaction(
+                  plaidTransactions,
+                  plaidTransaction,
+                  plan,
+                  categoryIdToNameMap
+                )
               )
-            )
-          );
+            );
+          }
 
           for (const plaidTransaction of plaidTransactions.modified) {
             await this.updateTransaction(

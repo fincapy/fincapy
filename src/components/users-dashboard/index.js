@@ -248,7 +248,7 @@ const InviteUserDialogue = () => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary rounded-xl"
           size="icon"
         >
           <PlusIcon />

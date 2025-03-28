@@ -290,7 +290,7 @@ const CreateCategoryDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
@@ -380,7 +380,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
@@ -572,7 +572,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -769,7 +769,7 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -970,7 +970,7 @@ const EditSubcategoryDialogue = ({
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onPointerDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
@@ -1074,7 +1074,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%]"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
@@ -1102,7 +1102,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
 
 const OpenTransactionTableDialogue = ({ transactions }) => {
   return (
-    <Dialog className="max-w-full max-h-full">
+    <Dialog className="max-w-full max-h-full rounded-xl bg-card">
       <DialogTrigger asChild>
         <button
           className="text-muted-foreground hover:text-foreground"
@@ -1112,7 +1112,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[95vw] max-h-[80vh] bg-card"
+        className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl"
         id="transaction-modal"
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

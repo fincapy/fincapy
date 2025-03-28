@@ -359,7 +359,7 @@ const CreateTransactionDialogue = () => {
         <Button
           variant="outline"
           size="icon"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary rounded-xl"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />

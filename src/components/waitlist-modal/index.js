@@ -62,7 +62,7 @@ export function WaitlistModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-w-11/12rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             Join our waitlist
@@ -97,7 +97,7 @@ export function WaitlistModal({ open, onOpenChange }) {
               <DialogFooter>
                 <Button
                   type="submit"
-                  className="w-full bg-amber-600 text-white hover:bg-amber-700"
+                  className="w-full bg-primary text-white hover:bg-primary-dark"
                   disabled={isPending}
                 >
                   {isPending ? 'Submitting...' : 'Join Waitlist'}
@@ -107,7 +107,7 @@ export function WaitlistModal({ open, onOpenChange }) {
           </Form>
         ) : (
           <div className="flex items-center justify-center py-2">
-            <div className="text-amber-600 text-xl">✓ Thanks for joining!</div>
+            <div className="text-primary text-xl">✓ Thanks for joining!</div>
           </div>
         )}
       </DialogContent>

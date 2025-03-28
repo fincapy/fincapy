@@ -92,7 +92,7 @@ const AccountDropdown = ({
               page === 'manage-users' ||
               page === 'financial-institutions'
                 ? 'text-primary'
-                : 'text-muted group-hover:text-primary'
+                : 'text-muted/80 group-hover:text-primary'
             }
           />
           <span
@@ -101,7 +101,7 @@ const AccountDropdown = ({
               page === 'manage-users' ||
               page === 'financial-institutions'
                 ? 'text-[11.5px] font-bold text-primary'
-                : 'text-[11.5px] font-bold text-muted group-hover:text-primary'
+                : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
             }
           >
             Account
@@ -185,7 +185,7 @@ const NavBar = ({
     <div
       className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%] select-none`}
     >
-      <Separator className="w-full h-[1px] bg-border" />
+      <Separator className="w-full h-[0.6px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
         <div className="flex flex-row justify-between items-center flex-1">
           <button
@@ -197,14 +197,14 @@ const NavBar = ({
               className={
                 page === 'spending'
                   ? 'text-primary'
-                  : 'text-muted group-hover:text-primary'
+                  : 'text-muted/80 group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'spending'
                   ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted group-hover:text-primary'
+                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Spending
@@ -219,14 +219,14 @@ const NavBar = ({
               className={
                 page === 'income'
                   ? 'text-primary'
-                  : 'text-muted group-hover:text-primary'
+                  : 'text-muted/80 group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'income'
                   ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted group-hover:text-primary'
+                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Income
@@ -241,14 +241,14 @@ const NavBar = ({
               className={
                 page === 'savings'
                   ? 'text-primary'
-                  : 'text-muted group-hover:text-primary'
+                  : 'text-muted/80 group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'savings'
                   ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted group-hover:text-primary'
+                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Savings
@@ -263,14 +263,14 @@ const NavBar = ({
               className={
                 page === 'transactions'
                   ? 'text-primary'
-                  : 'text-muted group-hover:text-primary'
+                  : 'text-muted/80 group-hover:text-primary'
               }
             />
             <span
               className={
                 page === 'transactions'
                   ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted group-hover:text-primary'
+                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Transactions

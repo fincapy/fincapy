@@ -359,7 +359,7 @@ const CreateTransactionDialogue = () => {
         <Button
           variant="outline"
           size="icon"
-          className="bg-card"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
@@ -416,7 +416,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card',
+              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -446,7 +446,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card',
+              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >

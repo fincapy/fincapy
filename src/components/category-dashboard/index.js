@@ -283,7 +283,7 @@ const CreateCategoryDialogue = () => {
         <Button
           variant="outline"
           size="icon"
-          className="bg-card"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
@@ -376,7 +376,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
           className="h-4 w-4 text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={15} className="hover:text-primary-dark" />
+          <Trash2 size={15} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -568,7 +568,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Pencil size={15} className="hover:text-primary-dark" />
+          <Pencil size={15} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -966,7 +966,7 @@ const EditSubcategoryDialogue = ({
           onPointerDown={(e) => e.stopPropagation()}
           className="text-muted-foreground hover:text-foreground"
         >
-          <Pencil size={15} className="hover:text-primary-dark" />
+          <Pencil size={15} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1070,7 +1070,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={15} className="hover:text-primary-dark" />
+          <Trash2 size={15} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1108,7 +1108,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Eye size={15} className="hover:text-primary-dark" />
+          <Eye size={15} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1551,7 +1551,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card',
+              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1583,7 +1583,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card',
+              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >

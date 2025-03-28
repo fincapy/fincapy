@@ -73,7 +73,7 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         <div
-          className="absolute top-[11px] left-0 text-sm font-bold text-primary-dark transition-opacity duration-200"
+          className="absolute top-[11px] left-0 text-sm font-bold text-primary transition-opacity duration-200"
           style={{
             left: `${calculateRawValuePosition()}px`,
             // opacity: isHovered ? 1 : 0,

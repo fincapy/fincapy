@@ -34,17 +34,26 @@ export function DataTableColumnHeader({ column, title, className }) {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+        <DropdownMenuContent align="start" className="bg-card">
+          <DropdownMenuItem
+            className="cursor-pointer hover:bg-background"
+            onClick={() => column.toggleSorting(false)}
+          >
             <ArrowUp className="h-3.5 w-3.5 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+          <DropdownMenuItem
+            className="cursor-pointer hover:bg-background"
+            onClick={() => column.toggleSorting(true)}
+          >
             <ArrowDown className="h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
+          <DropdownMenuSeparator className="bg-border" />
+          <DropdownMenuItem
+            className="cursor-pointer hover:bg-background"
+            onClick={() => column.toggleVisibility(false)}
+          >
             <EyeOff className="h-3.5 w-3.5 text-muted-foreground/70" />
             Hide
           </DropdownMenuItem>

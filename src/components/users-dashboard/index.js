@@ -248,14 +248,14 @@ const InviteUserDialogue = () => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary rounded-xl"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
           size="icon"
         >
           <PlusIcon />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12 bg-card"
+        className="sm:max-w-11/12 bg-card rounded-xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

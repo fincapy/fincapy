@@ -426,7 +426,7 @@ const Actions = ({ row }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-card">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-border" />
         <ChangeNameDialog row={row} setOuterDialogIsOpen={setIsOpen} />
         <ChangeRoleDialog row={row} setOuterDialogIsOpen={setIsOpen} />
         <RemoveUserDialog row={row} setOuterDialogIsOpen={setIsOpen} />

@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(20); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(10); // Limit for requests per minute
   }
 
   async categorizeTransaction({

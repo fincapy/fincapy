@@ -127,8 +127,9 @@ class OpenaiAdapter {
       await this.rateLimiter.waitForPermission();
 
       try {
-        const client = new BedrockRuntimeClient({ region: 'us-west-2' });
+        const client = new BedrockRuntimeClient({ region: 'us-east-1' });
         const command = new ConverseCommand(requestBody);
+        console.log('modelId', requestBody.modelId);
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;

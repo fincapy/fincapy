@@ -38,8 +38,10 @@ class PlaidAdapter {
       products: ['transactions'],
       country_codes: ['US'],
       language: 'en',
-      redirect_uri: process.env.PLAID_REDIRECT_URI,
     };
+    if (process.env.NODE_ENV === 'production') {
+      payload.redirect_uri = process.env.PLAID_REDIRECT_URI;
+    }
     if (existingAccessToken) {
       payload.access_token = existingAccessToken;
     }

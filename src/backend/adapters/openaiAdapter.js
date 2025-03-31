@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(5); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(3); // Limit for requests per minute
   }
 
   async categorizeTransaction({
@@ -129,7 +129,6 @@ class OpenaiAdapter {
       try {
         const client = new BedrockRuntimeClient({ region: 'us-east-1' });
         const command = new ConverseCommand(requestBody);
-        console.log('modelId', requestBody.modelId);
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;

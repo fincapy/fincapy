@@ -30,15 +30,12 @@ function findLatestEncryptionKey() {
     const numB = parseInt(b.split('_').pop(), 10);
     return numB - numA; // Higher number comes first
   });
-  console.log('encryptionKeys', encryptionKeys);
 
   const latestKeyName = encryptionKeys[0];
-  console.log('latestKeyName', latestKeyName);
   return Buffer.from(process.env[latestKeyName], 'base64');
 }
 
 const KEY = findLatestEncryptionKey();
-console.log('KEY', KEY);
 
 /**
  * Encrypts data using AES-256-GCM

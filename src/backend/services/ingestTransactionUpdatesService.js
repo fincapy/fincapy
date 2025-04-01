@@ -170,7 +170,6 @@ class IngestTransactionUpdatesService {
 
   async execute({ tenantId, plaidItemId }) {
     console.log('ingest update service executing');
-    console.log('tenantId', tenantId);
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
         tenantId,
@@ -198,6 +197,7 @@ class IngestTransactionUpdatesService {
           accessToken: plaidItem.accessToken,
           cursor: plaidItem.cursor,
         });
+        console.log('plaidTransactions Length', plaidTransactions.added.length);
         for (const plan of tenant.plans) {
           const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
 

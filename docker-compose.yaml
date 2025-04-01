@@ -37,6 +37,7 @@ services:
       - AI_URL=${AI_URL}
       - MODEL_ID=${MODEL_ID}
       - SITE_URL=${SITE_URL}
+      - ENCRYPTION_KEY_1=${ENCRYPTION_KEY_1}
   consumer:
     build:
       context: .
@@ -72,6 +73,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - MODEL_ID=${MODEL_ID}
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
+      - ENCRYPTION_KEY_1=${ENCRYPTION_KEY_1}
   redis:
     image: redis:latest
     ports:
@@ -120,3 +122,4 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - MODEL_ID=${MODEL_ID}
       - NEXT_PUBLIC_SITE_ACCESS_CODE=${NEXT_PUBLIC_SITE_ACCESS_CODE}
+      - ENCRYPTION_KEY_1=${ENCRYPTION_KEY_1}

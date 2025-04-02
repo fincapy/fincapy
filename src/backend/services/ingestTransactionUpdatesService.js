@@ -237,7 +237,7 @@ class IngestTransactionUpdatesService {
           plaidItem.cursor = plaidTransactions.next_cursor;
           plaidItem.lastIngestedAt = new Date();
         } catch (error) {
-          console.error('error ingesting transactions for plaidItem');
+          console.error('error ingesting transactions for plaidItem: ', error);
         }
       }
       await tenantRepository.set({ tenantId, tenant });

@@ -37,6 +37,7 @@ class CreatePlaidItemService {
           accessToken,
           cursor: null,
           status: 'active',
+          lastIngestedAt: null,
         });
         tenant.plaidItems.push(plaidItem);
         await tenantRepository.set({ tenantId, tenant });

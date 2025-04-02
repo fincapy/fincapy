@@ -7,6 +7,7 @@ class PlaidItem {
     accessToken,
     cursor,
     status,
+    lastIngestedAt,
   }) {
     this.userId = userId;
     this.plaidItemId = plaidItemId;
@@ -15,6 +16,7 @@ class PlaidItem {
     this.accessToken = accessToken;
     this.cursor = cursor;
     this.status = status;
+    this.lastIngestedAt = lastIngestedAt;
   }
 }
 

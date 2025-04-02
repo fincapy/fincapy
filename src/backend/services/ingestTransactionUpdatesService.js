@@ -193,46 +193,52 @@ class IngestTransactionUpdatesService {
         //   });
         // } catch (error) {}
 
-        const plaidTransactions = await this.plaidAdapter.getTransactions({
-          accessToken: plaidItem.accessToken,
-          cursor: plaidItem.cursor,
-        });
-        console.log('plaidTransactions Length', plaidTransactions.added.length);
-        for (const plan of tenant.plans) {
-          const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
+        try {
+          const plaidTransactions = await this.plaidAdapter.getTransactions({
+            accessToken: plaidItem.accessToken,
+            cursor: plaidItem.cursor,
+          });
+          for (const plan of tenant.plans) {
+            const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
 
-          // Process added transactions in batches of 5
-          const batchSize = 1;
-          const addedTransactions = plaidTransactions.added;
+            // Process added transactions in batches of 5
+            const batchSize = 1;
+            const addedTransactions = plaidTransactions.added;
+            console.log('addedTransactions length', addedTransactions.length);
+            console.log('plaidItem.cursor', plaidItem.cursor);
 
-          for (let i = 0; i < addedTransactions.length; i += batchSize) {
-            const batch = addedTransactions.slice(i, i + batchSize);
-            await Promise.all(
-              batch.map((plaidTransaction) =>
-                this.addTransaction(
-                  plaidTransactions,
-                  plaidTransaction,
-                  plan,
-                  categoryIdToNameMap
+            for (let i = 0; i < addedTransactions.length; i += batchSize) {
+              const batch = addedTransactions.slice(i, i + batchSize);
+              await Promise.all(
+                batch.map((plaidTransaction) =>
+                  this.addTransaction(
+                    plaidTransactions,
+                    plaidTransaction,
+                    plan,
+                    categoryIdToNameMap
+                  )
                 )
-              )
-            );
-          }
+              );
+            }
 
-          for (const plaidTransaction of plaidTransactions.modified) {
-            await this.updateTransaction(
-              plaidTransactions,
-              plaidTransaction,
-              plan,
-              categoryIdToNameMap
-            );
-          }
+            for (const plaidTransaction of plaidTransactions.modified) {
+              await this.updateTransaction(
+                plaidTransactions,
+                plaidTransaction,
+                plan,
+                categoryIdToNameMap
+              );
+            }
 
-          for (const plaidTransaction of plaidTransactions.removed) {
-            await this.removeTransaction(plaidTransaction, plan);
+            for (const plaidTransaction of plaidTransactions.removed) {
+              await this.removeTransaction(plaidTransaction, plan);
+            }
           }
+          plaidItem.cursor = plaidTransactions.next_cursor;
+          plaidItem.lastIngestedAt = new Date();
+        } catch (error) {
+          console.error('error ingesting transactions for plaidItem');
         }
-        plaidItem.cursor = plaidTransactions.next_cursor;
       }
       await tenantRepository.set({ tenantId, tenant });
       return true;

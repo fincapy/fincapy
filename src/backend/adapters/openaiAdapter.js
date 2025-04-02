@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(3); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(1); // Limit for requests per minute
   }
 
   async categorizeTransaction({
@@ -53,15 +53,7 @@ class OpenaiAdapter {
     transactionAccountType,
     transactionSubAccountType,
   }) {
-    const createPrompt = (attemptCount) => {
-      let emphasisLevel = '';
-      if (attemptCount > 0) {
-        emphasisLevel =
-          attemptCount >= 3
-            ? 'CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE. '
-            : 'IMPORTANT: Your response must be valid JSON. ';
-      }
-
+    const createPrompt = () => {
       return `
       You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.
 
@@ -92,7 +84,7 @@ class OpenaiAdapter {
       - Acct: ${transactionAccountType}
       - Sub-Acct: ${transactionSubAccountType}
       
-      ${emphasisLevel}
+      CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE.
       `;
     };
 
@@ -101,7 +93,7 @@ class OpenaiAdapter {
     let categories;
 
     while (attemptCount <= MAX_RETRIES) {
-      const prompt = createPrompt(attemptCount);
+      const prompt = createPrompt();
 
       // Format for Bedrock Converse API
       const requestBody = {
@@ -132,6 +124,7 @@ class OpenaiAdapter {
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;
+        console.log('rawOutput', rawOutput);
 
         // Clean up the output to handle potential markdown or other formatting
         rawOutput = rawOutput

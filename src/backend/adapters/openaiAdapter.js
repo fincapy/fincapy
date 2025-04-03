@@ -124,11 +124,10 @@ class OpenaiAdapter {
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;
-        console.log('Token Usage:', {
-          inputTokenCount: response.metrics?.inputTokenCount,
-          outputTokenCount: response.metrics?.outputTokenCount,
-          totalTokenCount: response.metrics?.totalTokenCount,
-        });
+        const { inputTokens, outputTokens, totalTokens } = response.usage;
+        console.log(`Input Tokens: ${inputTokens}`);
+        console.log(`Output Tokens: ${outputTokens}`);
+        console.log(`Total Tokens: ${totalTokens}`);
 
         // Clean up the output to handle potential markdown or other formatting
         rawOutput = rawOutput

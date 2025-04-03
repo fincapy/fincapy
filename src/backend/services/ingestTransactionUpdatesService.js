@@ -248,7 +248,7 @@ class IngestTransactionUpdatesService {
             await this.sesAdapter.sendEmail({
               to: primaryEmail,
               subject: 'Fincapy Financial Institution Connection Expired',
-              body: `Your connection to ${plaidItem.institutionName} has expired. Please relink on the Financial Institutions page to continue ingesting transactions.`,
+              text: `Your connection to ${plaidItem.institutionName} has expired. Please relink on the Financial Institutions page to continue ingesting transactions.`,
             });
           }
         }

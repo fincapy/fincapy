@@ -43,19 +43,13 @@ const DeletePlaidItemSchema = z.object({
   plaidItemId: z.string().trim().min(1),
 });
 
-const fetchLinkToken = async (params) => {
+const fetchLinkToken = async ({ institutionId }) => {
   try {
     // Validate inputs
-    const validationResult = LinkTokenSchema.safeParse(params);
+    const validationResult = LinkTokenSchema.safeParse({ institutionId });
     if (!validationResult.success) {
       console.error('Validation error:', validationResult.error);
       return false;
-    }
-
-    // Sanitize inputs
-    let institutionId = null;
-    if (validationResult.data) {
-      institutionId = sanitizeString(validationResult.data);
     }
 
     // Proceed with business logic

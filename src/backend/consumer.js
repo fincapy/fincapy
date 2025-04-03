@@ -188,12 +188,13 @@ process.on('SIGTERM', () => {
   const plaidAdapter = new PlaidAdapter(client);
   const openaiAdapter = new OpenaiAdapter();
   const transactionManager = new TransactionManager();
+  const sesAdapter = new SESAdapter();
   const ingestService = new IngestTransactionUpdatesService({
     plaidAdapter,
     transactionManager,
     openaiAdapter,
+    sesAdapter,
   });
-  const sesAdapter = new SESAdapter();
   const emailService = new SendUserInviteEmailService({ sesAdapter });
   const consumer = new Consumer({
     ingestService,

@@ -5,10 +5,11 @@ import {
 } from '../domain/transaction.js';
 
 class IngestTransactionUpdatesService {
-  constructor({ plaidAdapter, transactionManager, openaiAdapter }) {
+  constructor({ plaidAdapter, transactionManager, openaiAdapter, sesAdapter }) {
     this.plaidAdapter = plaidAdapter;
     this.transactionManager = transactionManager;
     this.openaiAdapter = openaiAdapter;
+    this.sesAdapter = sesAdapter;
   }
 
   getCategoryNameToIdMap(plan) {
@@ -241,6 +242,14 @@ class IngestTransactionUpdatesService {
           if (error.response?.data?.error_code === 'ITEM_LOGIN_REQUIRED') {
             console.log('User needs to log in again.');
             plaidItem.status = 'item_login_required';
+            const primaryEmail = tenant.users.find(
+              (user) => user.role === 'owner'
+            ).emails[0].email;
+            await this.sesAdapter.sendEmail({
+              to: primaryEmail,
+              subject: 'Fincapy Financial Institution Connection Expired',
+              body: `Your connection to ${plaidItem.institutionName} has expired. Please relink on the Financial Institutions page to continue ingesting transactions.`,
+            });
           }
         }
       }

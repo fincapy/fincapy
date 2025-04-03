@@ -64,7 +64,7 @@ class CronProducer {
   async produce() {
     await this.scheduleTaskInMountainTime(
       async () => await this.service.execute(),
-      8
+      2
     );
   }
 }

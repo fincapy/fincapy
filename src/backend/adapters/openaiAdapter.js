@@ -109,9 +109,9 @@ class OpenaiAdapter {
           },
         ],
         inferenceConfig: {
-          maxTokens: 1000,
+          maxTokens: 3000,
           temperature: 0,
-          topP: 0.3,
+          topP: 0.6,
         },
       };
 
@@ -124,7 +124,11 @@ class OpenaiAdapter {
 
         const response = await client.send(command);
         let rawOutput = response.output.message.content[0].text;
-        console.log('rawOutput', rawOutput);
+        console.log('Token Usage:', {
+          inputTokenCount: response.metrics?.inputTokenCount,
+          outputTokenCount: response.metrics?.outputTokenCount,
+          totalTokenCount: response.metrics?.totalTokenCount,
+        });
 
         // Clean up the output to handle potential markdown or other formatting
         rawOutput = rawOutput

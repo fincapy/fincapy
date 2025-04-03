@@ -205,8 +205,6 @@ class IngestTransactionUpdatesService {
             // Process added transactions in batches of 5
             const batchSize = 1;
             const addedTransactions = plaidTransactions.added;
-            console.log('addedTransactions length', addedTransactions.length);
-            console.log('plaidItem.cursor', plaidItem.cursor);
 
             for (let i = 0; i < addedTransactions.length; i += batchSize) {
               const batch = addedTransactions.slice(i, i + batchSize);
@@ -240,7 +238,6 @@ class IngestTransactionUpdatesService {
         } catch (error) {
           console.error('error ingesting transactions for plaidItem');
           if (error.response?.data?.error_code === 'ITEM_LOGIN_REQUIRED') {
-            console.log('User needs to log in again.');
             plaidItem.status = 'item_login_required';
             const primaryEmail = tenant.users.find(
               (user) => user.role === 'owner'

@@ -31,6 +31,7 @@ const sanitizeInput = (input) => {
 // Validation schemas
 const categorySchema = z.object({
   categoryId: z.string().min(1),
+  otherSubcategoryId: z.string().min(1),
   name: z.string().min(1).max(100),
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
@@ -88,6 +89,7 @@ const reorderSubcategoriesSchema = z.object({
 
 const createCategory = async ({
   categoryId,
+  otherSubcategoryId,
   name,
   monthlyGoal,
   planId,
@@ -97,6 +99,7 @@ const createCategory = async ({
     // Validate inputs
     const validatedData = categorySchema.parse({
       categoryId,
+      otherSubcategoryId,
       name,
       monthlyGoal,
       planId,
@@ -134,6 +137,7 @@ const createCategory = async ({
 
     await service.execute({
       tenantId,
+      otherSubcategoryId: sanitizedData.otherSubcategoryId,
       categoryId: sanitizedData.categoryId,
       name: sanitizedData.name,
       monthlyGoal: sanitizedData.monthlyGoal,

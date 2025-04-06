@@ -146,6 +146,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
   function handleCategoryCreation({
     name,
     categoryId,
+    otherSubcategoryId,
     monthlyGoal,
     oldPlan,
     setPlanState,
@@ -158,6 +159,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
         const result = await createCategory({
           name,
           categoryId,
+          otherSubcategoryId,
           monthlyGoal,
           planId: 'initial',
           type,
@@ -193,6 +195,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     );
     const name = values.name;
     const categoryId = uuidv4();
+    const otherSubcategoryId = categoryId + '_other';
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
     newPlan.addCategory({
@@ -201,12 +204,14 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       monthlyGoal,
       type,
       isImmutable: false,
+      otherSubcategoryId,
     });
     setPlanState(newPlan);
     setDialogOpen(false);
     handleCategoryCreation({
       name,
       categoryId,
+      otherSubcategoryId,
       monthlyGoal,
       oldPlan,
       setPlanState,
@@ -511,27 +516,25 @@ const EditCategoryForm = ({
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        {categoryId !== 'uncategorizedIncome' &&
-          categoryId !== 'uncategorizedSavings' &&
-          categoryId !== 'uncategorizedSpending' && (
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      placeholder="Category Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+        {categoryName !== 'Other' && (
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="Category Name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="monthlyGoal"
@@ -909,23 +912,25 @@ const EditSubcategoryForm = ({
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="Subcategory Name"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!subcategoryId.includes('other') && (
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="Subcategory Name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="monthlyGoal"
@@ -1205,9 +1210,10 @@ const CategoryCard = ({
                   />
                 )}
               </div>
-              {!category.isImmutable && currentUserRole !== 'viewer' && (
-                <DeleteCategoryDialogue categoryId={category.categoryId} />
-              )}
+              {!category.categoryId.includes('other') &&
+                currentUserRole !== 'viewer' && (
+                  <DeleteCategoryDialogue categoryId={category.categoryId} />
+                )}
               {category.type === 'savings' ? (
                 <div className="" />
               ) : (
@@ -1297,6 +1303,7 @@ const SubcategoryCard = forwardRef(
       transition,
       height: 'auto',
     };
+    console.log(subcategory.subcategoryId);
 
     return (
       <Card
@@ -1315,10 +1322,12 @@ const SubcategoryCard = forwardRef(
                   subcategoryId={subcategory.subcategoryId}
                   categoryId={category.categoryId}
                 />
-                <DeleteSubcategoryDialogue
-                  subcategoryId={subcategory.subcategoryId}
-                  categoryId={category.categoryId}
-                />
+                {!subcategory.subcategoryId.includes('other') && (
+                  <DeleteSubcategoryDialogue
+                    subcategoryId={subcategory.subcategoryId}
+                    categoryId={category.categoryId}
+                  />
+                )}
                 <OpenTransactionTableDialogue
                   transactions={subcategory.transactions}
                 />

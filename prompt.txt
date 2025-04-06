@@ -68,3 +68,5 @@ Transaction:
 - Description: Whole Foods
 - Acct: checking
 - Sub-Acct: debit
+
+CRITICAL: RESPOND WITH ONLY THE JSON OBJECT, NOTHING ELSE.

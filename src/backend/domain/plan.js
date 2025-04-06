@@ -98,7 +98,14 @@ class Plan {
     category.monthlyGoal = monthlyGoal;
   }
 
-  addCategory({ categoryId, name, monthlyGoal, type, isImmutable }) {
+  addCategory({
+    categoryId,
+    otherSubcategoryId,
+    name,
+    monthlyGoal,
+    type,
+    isImmutable,
+  }) {
     if (
       this.categories.find((category) => category.categoryId === categoryId)
     ) {
@@ -113,6 +120,12 @@ class Plan {
       transactions: [],
       subcategories: [],
       rank: 100000,
+    });
+    category.createSubcategory({
+      subcategoryId: otherSubcategoryId,
+      name: 'General',
+      monthlyGoal: monthlyGoal,
+      isImmutable: true,
     });
     this.categories.push(category);
   }

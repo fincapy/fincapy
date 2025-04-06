@@ -9,6 +9,7 @@ class CreateCategoryService {
     tenantId,
     planId,
     categoryId,
+    otherSubcategoryId,
     name,
     monthlyGoal,
     type,
@@ -20,7 +21,14 @@ class CreateCategoryService {
         return;
       }
       const plan = tenant.plans.find((plan) => plan.planId === planId);
-      plan.addCategory({ categoryId, name, monthlyGoal, type, isImmutable });
+      plan.addCategory({
+        categoryId,
+        otherSubcategoryId,
+        name,
+        monthlyGoal,
+        type,
+        isImmutable,
+      });
       await tenantRepository.set({ tenantId, tenant });
     });
   }

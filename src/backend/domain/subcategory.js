@@ -78,6 +78,7 @@ class Subcategory {
         incomeTransactionTypes.includes(transaction.type)
       ) {
         currentIncome += transaction.amount;
+        category.currentNet += transaction.amount;
         transaction.categoryName = category.name + ' - ' + this.name;
         transactions.push(transaction);
         category.transactions.push(transaction);

@@ -69,7 +69,6 @@ const Progress = React.forwardRef(
         ref.current = node;
       }
     };
-    console.log(barHeight);
 
     return (
       <div className="relative w-full">

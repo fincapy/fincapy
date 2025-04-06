@@ -86,13 +86,13 @@ const AccountDropdown = ({
       <DropdownMenuTrigger asChild>
         <button className="flex flex-col items-center gap-[0px] group outline-none">
           <UserRound
-            size={20}
+            size={25}
             className={
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-primary'
-                : 'text-muted/80 group-hover:text-primary'
+                ? 'text-primary -mb-[2px]'
+                : 'text-muted/80 group-hover:text-primary -mb-[2px]'
             }
           />
           <span
@@ -100,8 +100,8 @@ const AccountDropdown = ({
               accountDropdownOpen ||
               page === 'manage-users' ||
               page === 'financial-institutions'
-                ? 'text-[11.5px] font-bold text-primary'
-                : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
+                ? 'text-[13px] font-bold text-primary'
+                : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
             }
           >
             Account
@@ -183,7 +183,7 @@ const NavBar = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[6%] select-none`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[7%] select-none`}
     >
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
@@ -193,18 +193,18 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <HandCoins
-              size={20}
+              size={25}
               className={
                 page === 'spending'
-                  ? 'text-primary'
-                  : 'text-muted/80 group-hover:text-primary'
+                  ? 'text-primary -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'spending'
-                  ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-primary'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Spending
@@ -215,18 +215,18 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <CircleDollarSign
-              size={20}
+              size={25}
               className={
                 page === 'income'
-                  ? 'text-primary'
-                  : 'text-muted/80 group-hover:text-primary'
+                  ? 'text-primary -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'income'
-                  ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-primary'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Income
@@ -237,18 +237,18 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <PiggyBank
-              size={20}
+              size={25}
               className={
                 page === 'savings'
-                  ? 'text-primary'
-                  : 'text-muted/80 group-hover:text-primary'
+                  ? 'text-primary -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'savings'
-                  ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-primary'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Savings
@@ -259,18 +259,18 @@ const NavBar = ({
             className="flex flex-col items-center gap-[0px] group"
           >
             <Table
-              size={20}
+              size={25}
               className={
                 page === 'transactions'
-                  ? 'text-primary'
-                  : 'text-muted/80 group-hover:text-primary'
+                  ? 'text-primary -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[11.5px] font-bold text-primary'
-                  : 'text-[11.5px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-primary'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
               }
             >
               Transactions
@@ -429,7 +429,7 @@ export default function DashboardLayout({
             onMouseDown={handleScrollAreaFocus}
           >
             <ScrollAreaWithPulldown
-              className={`h-[94%] w-screen fixed top-0`}
+              className={`h-[93%] w-screen fixed top-0`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {

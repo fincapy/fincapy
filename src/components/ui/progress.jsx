@@ -9,7 +9,17 @@ import { cn } from '@/lib/utils';
 
 const Progress = React.forwardRef(
   (
-    { className, progressPercent, rawValue, goal, color, mutedColor, ...props },
+    {
+      className,
+      progressPercent,
+      rawValue,
+      goal,
+      color,
+      mutedColor,
+      barHeight,
+      rawValueSize,
+      ...props
+    },
     ref // ref is an object, not a function
   ) => {
     const [progressBarWidth, setProgressBarWidth] = React.useState(0);
@@ -59,12 +69,13 @@ const Progress = React.forwardRef(
         ref.current = node;
       }
     };
+    console.log(barHeight);
 
     return (
       <div className="relative w-full">
         <ProgressPrimitive.Root
           ref={mergedRef} // Use the mergedRef
-          className={`relative h-2 w-full overflow-hidden rounded-full ${mutedColor}`}
+          className={`relative ${barHeight} w-full overflow-hidden rounded-full ${mutedColor}`}
           {...props}
         >
           <ProgressPrimitive.Indicator
@@ -73,7 +84,7 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         <div
-          className="absolute top-[11px] left-0 text-sm font-bold text-primary transition-opacity duration-200"
+          className={`absolute top-[11px] left-0 ${rawValueSize} font-bold text-primary transition-opacity duration-200`}
           style={{
             left: `${calculateRawValuePosition()}px`,
             // opacity: isHovered ? 1 : 0,

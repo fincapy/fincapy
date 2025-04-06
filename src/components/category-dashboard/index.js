@@ -102,6 +102,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import SubmitButton from '@/components/SubmitButton';
+import { ProgressSubcategory } from '@/components/ui/progress-subcategory';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -291,7 +292,7 @@ const CreateCategoryDialogue = () => {
           className="bg-card hover:bg-card hover:border-primary hover:text-primary"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon />
+          <PlusIcon size={20} />
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -378,10 +379,10 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
-          className="h-4 w-4 text-muted-foreground hover:text-foreground"
+          className="h-4 w-4 text-muted-foreground hover:text-foreground mb-[2px] mr-[1px]"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={15} className="hover:text-primary" />
+          <Trash2 size={18} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -571,7 +572,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Pencil size={15} className="hover:text-primary" />
+          <Pencil size={18} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -768,7 +769,7 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
           className="rounded-lg"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon size={16} />
+          <PlusIcon size={20} />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -971,7 +972,7 @@ const EditSubcategoryDialogue = ({
           onPointerDown={(e) => e.stopPropagation()}
           className="text-muted-foreground hover:text-foreground"
         >
-          <Pencil size={15} className="hover:text-primary" />
+          <Pencil size={17} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1075,7 +1076,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Trash2 size={15} className="hover:text-primary" />
+          <Trash2 size={17} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1105,7 +1106,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   );
 };
 
-const OpenTransactionTableDialogue = ({ transactions }) => {
+const OpenTransactionTableDialogue = ({ transactions, eyeSize }) => {
   return (
     <Dialog className="max-w-full max-h-full rounded-xl bg-card">
       <DialogTrigger asChild>
@@ -1113,7 +1114,7 @@ const OpenTransactionTableDialogue = ({ transactions }) => {
           className="text-muted-foreground hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Eye size={15} className="hover:text-primary" />
+          <Eye size={eyeSize} className="hover:text-primary" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1198,9 +1199,9 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[3.5px]">
-            <span className="text-sm font-bold">{category.name}</span>
-            <div className="flex flex-row gap-1 items-center">
+          <div className="flex flex-row items-center gap-[5px] ml-[9px] -mb-[9px]">
+            <span className="text-lg font-bold">{category.name}</span>
+            <div className="flex flex-row gap-[5px] items-center">
               <div className="flex flex-col items-center justify-center">
                 {currentUserRole !== 'viewer' && (
                   <EditCategoryDialogue
@@ -1219,21 +1220,24 @@ const CategoryCard = ({
               ) : (
                 <OpenTransactionTableDialogue
                   transactions={category.transactions}
+                  eyeSize={18}
                   categoryId={category.categoryId}
                 />
               )}
             </div>
           </div>
           <div className="flex flex-row gap-1 items-center">
-            <span className="text-sm">$0</span>
+            <span className="text-lg">$0</span>
             <Progress
+              barHeight={'h-[9px]'}
+              rawValueSize={'text-lg'}
               progressPercent={progress}
               rawValue={category.currentNet}
               goal={category.proratedGoal}
               color={color}
               mutedColor={mutedColor}
             />
-            <span className="text-sm">{`$${category.proratedGoal}`}</span>
+            <span className="text-lg">{`$${category.proratedGoal}`}</span>
           </div>
         </div>
       </CardContent>
@@ -1255,18 +1259,18 @@ const CategoryCard = ({
             {...listeners}
             {...attributes}
           >
-            <Grip size={20} />
+            <Grip size={26} />
           </div>
           <CollapsibleTrigger asChild>
             <button
               onPointerDown={(e) => e.stopPropagation()}
-              className={`transition-transform duration-200 mb-1 mr-1 ${
+              className={`transition-transform duration-200 mr-1 ${
                 areSubcategoriesOpen ? 'rotate-180' : ''
               } hover:bg-inherit`}
             >
               <ChevronDown
                 className={`transition-transform duration-300 rotate-180`}
-                size={17}
+                size={22}
               />
             </button>
           </CollapsibleTrigger>
@@ -1308,14 +1312,14 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card/35 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
+        className={`shadow-none bg-card-subcategory/60 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
         style={style}
       >
         <CardHeader className="p-0"></CardHeader>
         <CardContent className="pb-6 pt-4">
           <div className="flex flex-col">
-            <div className="flex flex-row items-center gap-1 ml-[7px] -mb-[3.5px]">
-              <span className="text-sm font-bold">{subcategory.name}</span>
+            <div className="flex flex-row items-center gap-[5px] ml-[8px] -mb-[7px]">
+              <span className="text-md font-bold">{subcategory.name}</span>
               <div className="flex flex-row gap-1 items-center">
                 <EditSubcategoryDialogue
                   subcategory={subcategory}
@@ -1330,19 +1334,22 @@ const SubcategoryCard = forwardRef(
                 )}
                 <OpenTransactionTableDialogue
                   transactions={subcategory.transactions}
+                  eyeSize={17}
                 />
               </div>
             </div>
             <div className="flex flex-row gap-1 items-center">
-              <span className="text-sm">$0</span>
+              <span className="text-md">$0</span>
               <Progress
+                barHeight={'h-[8px]'}
+                rawValueSize={'text-md'}
                 progressPercent={progress}
                 rawValue={subcategory.currentNet}
                 goal={subcategory.proratedGoal}
                 color={color}
                 mutedColor={mutedColor}
               />
-              <span className="text-sm">{`$${subcategory.proratedGoal}`}</span>
+              <span className="text-md">{`$${subcategory.proratedGoal}`}</span>
             </div>
           </div>
         </CardContent>
@@ -1364,7 +1371,7 @@ const SubcategoryCard = forwardRef(
               {...listeners}
               {...attributes}
             >
-              <Grip size={20} />
+              <Grip size={24} />
             </div>
           </div>
         </CardFooter>
@@ -1560,7 +1567,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[130px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1572,7 +1579,10 @@ const DatePickers = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-card" align="start">
+        <PopoverContent
+          className="w-auto p-0 bg-card z-50 text-card-foreground"
+          align="start"
+        >
           <Calendar
             mode="single"
             selected={startDate}
@@ -1592,7 +1602,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[130px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -1600,7 +1610,10 @@ const DatePickers = () => {
             {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-card" align="start">
+        <PopoverContent
+          className="w-auto p-0 bg-card z-50 text-card-foreground"
+          align="start"
+        >
           <Calendar
             mode="single"
             selected={endDate}

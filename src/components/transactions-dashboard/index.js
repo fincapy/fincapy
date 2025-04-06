@@ -416,7 +416,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[130px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -446,7 +446,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'min-w-28 flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[130px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >

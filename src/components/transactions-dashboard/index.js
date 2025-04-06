@@ -416,7 +416,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[130px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[135px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -446,7 +446,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[130px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[135px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -495,8 +495,8 @@ const TransactionsDashboard = () => {
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Skeleton className="h-9 w-[138.62px] bg-card" />
-                <Skeleton className="h-9 w-[138.62px] bg-card" />
+                <Skeleton className="h-9 w-[135px] bg-card" />
+                <Skeleton className="h-9 w-[135px] bg-card" />
               </div>
               <Skeleton className="h-9 w-9 bg-card" />
             </div>

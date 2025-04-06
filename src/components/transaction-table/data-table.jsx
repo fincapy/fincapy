@@ -53,12 +53,12 @@ export function DataTable({ columns, data }) {
   return (
     <TransactionContext.Provider value={data}>
       <ScrollArea className="border rounded-md w-full h-full">
-        <Table>
+        <Table className="text-md">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-md">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

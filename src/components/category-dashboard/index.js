@@ -1567,7 +1567,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[130px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
+              'w-[135px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1602,7 +1602,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[130px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
+              'w-[135px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >
@@ -1723,8 +1723,8 @@ export default function CategoryDashboard({ type, categories }) {
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Skeleton className="h-9 w-[138.62px] bg-neutral-300" />
-                <Skeleton className="h-9 w-[138.62px] bg-neutral-300" />
+                <Skeleton className="h-9 w-[135px] bg-neutral-300" />
+                <Skeleton className="h-9 w-[135px] bg-neutral-300" />
               </div>
               {(type === 'spending' || type === 'income') && (
                 <Skeleton className="h-9 w-9 bg-neutral-300" />
@@ -1734,7 +1734,7 @@ export default function CategoryDashboard({ type, categories }) {
             {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
               (_, index) => (
                 <div className="flex flex-col w-11/12" key={index}>
-                  <Skeleton className="h-[100.23px] w-full rounded-xl bg-neutral-300" />
+                  <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
                 </div>
               )
             )}

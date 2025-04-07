@@ -75,6 +75,8 @@ export const plaidItemDisplayNamesAtom = atom((get) => {
 
 export const currentUserIdAtom = atom(null);
 
+export const currentUserAtom = atom(null);
+
 export const currentUserRoleAtom = atom(null);
 
 export const nonceAtom = atom(null);

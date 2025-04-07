@@ -43,7 +43,7 @@ export function DataTable({ columns, data }) {
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea className="border rounded-md grid">
+      <ScrollArea className="border rounded-md grid overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -92,9 +92,7 @@ export function DataTable({ columns, data }) {
             )}
           </TableBody>
         </Table>
-        <VisuallyHidden>
-          <ScrollBar orientation="horizontal" />
-        </VisuallyHidden>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </TransactionContext.Provider>
   );

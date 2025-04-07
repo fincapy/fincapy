@@ -295,7 +295,7 @@ export default function Dashboard() {
           <div className="w-11/12 flex flex-row justify-end">
             <Skeleton className="h-9 w-9 bg-card" />
           </div>
-          <div className="w-11/12">
+          <div className="w-full">
             <Skeleton className="h-[70vh] bg-card" />
           </div>
         </div>
@@ -303,13 +303,13 @@ export default function Dashboard() {
         <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
           <div className="flex flex-col justify-end items-center gap-2 w-full">
             <div
-              className="flex flex-row justify-end w-11/12"
+              className="flex flex-row justify-end w-full"
               key="create-transaction-dialogue"
             >
               <InviteUserDialogue />
             </div>
             <div
-              className="grid w-11/12 h-[70vh] lg:h-[85vh] bg-card rounded-lg"
+              className="grid w-full h-[50vh] lg:h-[60vh] bg-card rounded-lg overflow-hidden"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

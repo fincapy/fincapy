@@ -213,7 +213,7 @@ const ExistingFinancialInstitutionCard = ({ link, name }) => {
   };
 
   return (
-    <Card className="w-11/12 min-h-40 flex items-center justify-center relative bg-card">
+    <Card className="w-full min-h-40 flex items-center justify-center relative bg-card">
       <CardHeader className="flex flex-row items-center justify-center gap-2">
         <CardTitle>{name}</CardTitle>
         {link.status === 'active' ? (
@@ -351,12 +351,12 @@ const NewFinancialInstitutionCard = ({ currentUserId }) => {
   return (
     <React.Fragment>
       {isLinking ? (
-        <div className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background">
+        <div className="w-full min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background">
           <RotateCwIcon size={18} className="animate-spin" />
         </div>
       ) : (
         <Button
-          className="w-11/12 min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
+          className="w-full min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
           variant="outline"
           onClick={handleLinkClick}
         >
@@ -399,7 +399,7 @@ export default function FinancialInstitutionsDashboard() {
       {isLoading ? (
         <>
           {Array.from({ length: 7 }).map((_, index) => (
-            <Skeleton className="h-40 w-11/12 bg-card" key={index} />
+            <Skeleton className="h-40 w-full bg-card" key={index} />
           ))}
         </>
       ) : (

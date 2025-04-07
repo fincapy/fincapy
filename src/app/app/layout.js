@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { SessionManager } from '@/backend/adapters/auth';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
-
+import { User } from '@/backend/domain/user';
 export default async function Layout({ children }) {
   const headersList = await headers();
   let planId;
@@ -55,8 +55,12 @@ export default async function Layout({ children }) {
   const planView = plan.toView();
   let users = [];
   if (user.role === 'owner') {
-    users = tenant.users;
+    users = tenant.users.map((user) => {
+      const userClass = new User(user);
+      return userClass.toView();
+    });
   }
+  const currentUser = user.toView();
   const plaidItems = tenant.plaidItems.map((plaidItem) => {
     return {
       institutionId: plaidItem.institutionId,
@@ -73,6 +77,7 @@ export default async function Layout({ children }) {
         userEmail={user.emails[0]}
         userRole={user.role}
         userId={user.id}
+        currentUser={currentUser}
         plan={planView}
         plaidItems={plaidItems}
         users={users}

@@ -52,6 +52,7 @@ import {
   currentUserIdAtom,
   currentUserRoleAtom,
   nonceAtom,
+  currentUserAtom,
 } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
@@ -60,13 +61,7 @@ import { useStandalone } from '@/hooks/use-standalone';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 
-const AccountDropdown = ({
-  accountDropdownOpen,
-  setAccountDropdownOpen,
-  userRole,
-  setPage,
-  page,
-}) => {
+const AccountDropdown = ({ userRole, setPage, page }) => {
   const setPageCookie = (page) => {
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
@@ -79,95 +74,36 @@ const AccountDropdown = ({
   };
 
   return (
-    <DropdownMenu
-      open={accountDropdownOpen}
-      onOpenChange={setAccountDropdownOpen}
+    <button
+      onClick={() => changePage('account')}
+      className="flex flex-col items-center gap-[0px] group outline-none"
     >
-      <DropdownMenuTrigger asChild>
-        <button className="flex flex-col items-center gap-[0px] group outline-none">
-          <UserRound
-            size={25}
-            className={
-              accountDropdownOpen ||
-              page === 'manage-users' ||
-              page === 'financial-institutions'
-                ? 'text-primary -mb-[2px]'
-                : 'text-muted/80 group-hover:text-primary -mb-[2px]'
-            }
-          />
-          <span
-            className={
-              accountDropdownOpen ||
-              page === 'manage-users' ||
-              page === 'financial-institutions'
-                ? 'text-[13px] font-bold text-primary'
-                : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
-            }
-          >
-            Account
-          </span>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-card"
-        side="bottom"
-        align="end"
-        sideOffset={4}
+      <UserRound
+        size={25}
+        className={
+          page === 'account' ||
+          page === 'manage-users' ||
+          page === 'financial-institutions'
+            ? 'text-primary -mb-[2px]'
+            : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+        }
+      />
+      <span
+        className={
+          page === 'account' ||
+          page === 'manage-users' ||
+          page === 'financial-institutions'
+            ? 'text-[13px] font-bold text-primary'
+            : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+        }
       >
-        {userRole === 'owner' && (
-          <Fragment>
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2 hover:bg-background"
-                onClick={() => changePage('manage-users')}
-              >
-                <Users size={16} />
-                Users
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2 hover:bg-background"
-                onClick={() => changePage('financial-institutions')}
-              >
-                <Landmark size={16} />
-                Financial Institutions
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2 hover:bg-background"
-                onClick={() => changePage('financial-institutions')}
-              >
-                <a
-                  className="w-full flex items-center content-center gap-2"
-                  href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
-                >
-                  <CreditCard size={16} />
-                  Billing
-                </a>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator className="bg-border" />
-          </Fragment>
-        )}
-        <DropdownMenuItem className="cursor-pointer">
-          <a
-            className="w-full flex items-center content-center gap-2"
-            href="/api/signout"
-          >
-            <LogOut size={16} />
-            Sign out
-          </a>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        Account
+      </span>
+    </button>
   );
 };
 
-const NavBar = ({
-  page,
-  setPage,
-  userRole,
-  accountDropdownOpen,
-  setAccountDropdownOpen,
-}) => {
+const NavBar = ({ page, setPage, userRole }) => {
   const setPageCookie = (page) => {
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
@@ -276,13 +212,7 @@ const NavBar = ({
               Transactions
             </span>
           </button>
-          <AccountDropdown
-            userRole={userRole}
-            setPage={setPage}
-            accountDropdownOpen={accountDropdownOpen}
-            setAccountDropdownOpen={setAccountDropdownOpen}
-            page={page}
-          />
+          <AccountDropdown userRole={userRole} setPage={setPage} page={page} />
         </div>
       </div>
     </div>
@@ -301,6 +231,7 @@ export default function DashboardLayout({
   userRole,
   plan,
   userId,
+  currentUser,
   users,
   plaidItems,
   pageParam,
@@ -332,6 +263,7 @@ export default function DashboardLayout({
   const setPlanState = useSetAtom(planAtom);
   const setPlaidItemsState = useSetAtom(plaidItemsAtom);
   const setUsersState = useSetAtom(usersAtom);
+  const setCurrentUser = useSetAtom(currentUserAtom);
   const [startDateState, setStartDateState] = useState(
     toLocalISO(startDate).split('T')[0]
   );
@@ -379,6 +311,7 @@ export default function DashboardLayout({
         setUsersState(
           users.filter((user) => user.emails[0].email !== userEmail.email)
         );
+        setCurrentUser(currentUser);
         setCurrentUserId(userId);
         setCurrentUserRole(userRole);
         setNonce(nonce);
@@ -408,7 +341,6 @@ export default function DashboardLayout({
     execute();
   }, [startDateState, endDateState, triggerRefresh]);
 
-  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const scrollAreaRef = useRef(null);
 
   const handleScrollAreaFocus = () => {
@@ -416,8 +348,6 @@ export default function DashboardLayout({
       scrollAreaRef.current.focus();
     }
   };
-
-  const isStandalone = useStandalone();
 
   return (
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
@@ -439,13 +369,7 @@ export default function DashboardLayout({
             >
               {children}
             </ScrollAreaWithPulldown>
-            <NavBar
-              page={page}
-              setPage={setPage}
-              userRole={userRole}
-              accountDropdownOpen={accountDropdownOpen}
-              setAccountDropdownOpen={setAccountDropdownOpen}
-            />
+            <NavBar page={page} setPage={setPage} userRole={userRole} />
           </main>
         </PageContext.Provider>
       </EndDateContext.Provider>

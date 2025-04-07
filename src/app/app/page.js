@@ -14,6 +14,7 @@ import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useState, useMemo } from 'react';
 import { TransactionsDashboard } from '@/components/transactions-dashboard';
+import { AccountPage } from '@/components/account-dashboard';
 
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
@@ -28,6 +29,10 @@ const IncomeCategoryDashboard = () => {
 const SavingsCategoryDashboard = () => {
   const savingsView = useAtomValue(savingsViewAtom);
   return <CategoryDashboard type="savings" categories={savingsView} />;
+};
+
+const AccountDashboard = () => {
+  return <AccountPage />;
 };
 
 export default function Home({ searchParams }) {
@@ -45,5 +50,7 @@ export default function Home({ searchParams }) {
     return <Dashboard />;
   } else if (page === 'transactions') {
     return <TransactionsDashboard />;
+  } else if (page === 'account') {
+    return <AccountDashboard />;
   }
 }

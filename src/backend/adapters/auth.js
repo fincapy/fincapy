@@ -4,7 +4,7 @@ import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const SESSION_TTL = 60 * 60 * 3; // 3 hours
+const SESSION_TTL = 60 * 60 * 12; // 12 hours
 const ROTATION_PERIOD = 15 * 60; // 15 minutes
 
 class SessionManager {
@@ -37,7 +37,7 @@ class SessionManager {
       { sessionId, type: 'session' },
       process.env.JWT_SECRET,
       {
-        expiresIn: '3h',
+        expiresIn: '12h',
         algorithm: 'HS256',
       }
     );
@@ -111,7 +111,7 @@ class SessionManager {
         userRole: session.userRole,
         userId: session.userId,
         tenantId: session.tenantId,
-        createdAt: Date.now(),
+        createdAt: session.createdAt,
         lastRotated: Date.now(),
       });
       await this.sessionRepository.set({

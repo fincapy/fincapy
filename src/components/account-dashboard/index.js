@@ -54,6 +54,27 @@ import { ToastAction } from '@/components/ui/toast';
 import Dashboard from '@/components/users-dashboard';
 import FinancialInstitutionsDashboard from '../financial-institutions-dashboard';
 import { useAtomValue } from 'jotai';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
+import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import { SignInReauthForm } from '@/components/sign-in-reauth-form';
+import { TOTPVerificationReauthForm } from '@/components/totp-verification-reauth-form';
+import { AccountSetPasswordForm } from '@/components/account-set-password-form';
+import { Card, CardContent } from '../ui/card';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
@@ -61,6 +82,12 @@ const AccountPage = ({ setPage, userEmail }) => {
   const currentUser = useAtomValue(currentUserAtom);
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(false);
+
+  // Reauthentication state
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
+    useState(false);
+  const [isReset2FAModalOpen, setIsReset2FAModalOpen] = useState(false);
+  const [authStep, setAuthStep] = useState('emailPassword'); // emailPassword, totp, action
 
   const setPageCookie = (page) => {
     const expires = new Date();
@@ -84,6 +111,58 @@ const AccountPage = ({ setPage, userEmail }) => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setIsNavOpen(false);
+  };
+
+  // Handlers for opening password change modal
+  const openChangePasswordModal = () => {
+    setIsChangePasswordModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
+  // Handlers for opening reset 2FA modal
+  const openReset2FAModal = () => {
+    setIsReset2FAModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
+  // Handle successful email/password authentication for any modal
+  const handleEmailPasswordSuccess = () => {
+    setAuthStep('totp');
+  };
+
+  // Handle successful TOTP verification for password change
+  const handleTOTPSuccessForPassword = () => {
+    setAuthStep('action');
+  };
+
+  // Handle successful TOTP verification for 2FA reset
+  const handleTOTPSuccessFor2FA = () => {
+    setAuthStep('action');
+  };
+
+  // Handle the 2FA reset
+  const handleReset2FA = async () => {
+    // TODO: Implement actual 2FA reset API call here
+
+    // Show success toast and close modal
+    toast({
+      title: '2FA reset successful',
+      description:
+        "Your 2FA device has been reset. You'll be logged out and asked to set up 2FA on your next login.",
+      duration: 5000,
+    });
+
+    setIsReset2FAModalOpen(false);
+
+    // In a real implementation, we might redirect to logout after a short delay
+    // setTimeout(() => window.location.href = '/api/signout', 3000);
+  };
+
+  // Handle modal close for either modal
+  const handleCloseModal = () => {
+    setIsChangePasswordModalOpen(false);
+    setIsReset2FAModalOpen(false);
+    setAuthStep('emailPassword');
   };
 
   return (
@@ -268,36 +347,98 @@ const AccountPage = ({ setPage, userEmail }) => {
           {activeTab === 'profile' && (
             <div className="space-y-4">
               <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg md:text-xl font-semibold mb-4">
+                <h2 className="text-lg font-semibold mb-4">
                   Personal Information
                 </h2>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Email
+                    <label className="block text-md font-medium text-muted-foreground mb-2">
+                      Email Addresses
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-                      <span className="text-sm break-all">
-                        {userEmail?.email || 'Not available'}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={showNotImplemented}
-                        className="w-full md:w-auto"
-                      >
-                        Change
-                      </Button>
+                    <div className="space-y-4">
+                      {currentUser.emails.map((email) => (
+                        <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md">
+                          <div className="flex flex-row items-center gap-1 justify-center">
+                            <span className="text-md break-all">
+                              {email.email}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              Default
+                            </span>
+                          </div>
+                          <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={true}
+                                      className="w-full md:w-auto"
+                                    >
+                                      Set Default
+                                    </Button>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="text-sm text-white">
+                                  <p>This is already your default email</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={true}
+                                      className="w-full md:w-auto"
+                                    >
+                                      Remove
+                                    </Button>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="text-sm text-white">
+                                  <p>Cannot remove default email address</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Add new email section */}
+                      <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md border-dashed">
+                        <div className="flex flex-col">
+                          <span className="text-md break-all">
+                            Add another email address
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            You can add additional email addresses to your
+                            account
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={showNotImplemented}
+                          className="w-full md:w-auto"
+                        >
+                          Add Email
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-md font-medium text-muted-foreground mb-2">
                       Full Name
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-                      <span className="text-sm break-all">
-                        {userEmail?.name || 'Not set'}
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md">
+                      <span className="text-md break-all">
+                        {currentUser.name}
                       </span>
                       <Button
                         variant="outline"
@@ -329,10 +470,8 @@ const AccountPage = ({ setPage, userEmail }) => {
           {activeTab === 'billing' && currentUser.role === 'owner' && (
             <div className="space-y-4">
               <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg md:text-xl font-semibold mb-4">
-                  Billing
-                </h2>
-                <p className="text-muted-foreground mb-6">
+                <h2 className="text-lg font-semibold mb-4">Billing</h2>
+                <p className="text-md text-muted-foreground mb-6">
                   Upgrade your subscription, change payment methods, or cancel
                   with Stripe.
                 </p>
@@ -356,20 +495,20 @@ const AccountPage = ({ setPage, userEmail }) => {
           {activeTab === 'security' && (
             <div className="space-y-4">
               <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg md:text-xl font-semibold mb-4">
+                <h2 className="text-lg font-semibold mb-4">
                   Security Settings
                 </h2>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-md font-medium text-muted-foreground mb-2">
                       Password
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-                      <span className="text-sm">••••••••</span>
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-md p-3">
+                      <span className="text-md">••••••••</span>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={showNotImplemented}
+                        onClick={openChangePasswordModal}
                         className="w-full md:w-auto"
                       >
                         Change Password
@@ -378,34 +517,17 @@ const AccountPage = ({ setPage, userEmail }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Two-Factor Authentication
-                    </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-                      <span className="text-sm">Not enabled</span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={showNotImplemented}
-                        className="w-full md:w-auto"
-                      >
-                        Set Up 2FA
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-md font-medium text-muted-foreground mb-2">
                       Reset 2FA Device
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-                      <span className="text-sm text-muted-foreground">
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-md p-3">
+                      <span className="text-md text-muted-foreground">
                         If you lost access to your 2FA device
                       </span>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={showNotImplemented}
+                        onClick={openReset2FAModal}
                         className="w-full md:w-auto"
                       >
                         Reset Device
@@ -415,23 +537,170 @@ const AccountPage = ({ setPage, userEmail }) => {
                 </div>
               </div>
 
-              <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg md:text-xl font-semibold mb-4">
+              <Link href="/api/signout" className="w-full">
+                <Button
+                  variant="destructive"
+                  className="w-full text-white mt-4 font-bold hover:bg-destructive-foreground"
+                >
+                  <LogOut className="mr-2 h-4 w-4 text-white" />
                   Sign Out
-                </h2>
-                <div className="flex">
-                  <a href="/api/signout" className="w-full">
-                    <Button variant="destructive" className="w-full">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </Button>
-                  </a>
-                </div>
-              </div>
+                </Button>
+              </Link>
             </div>
           )}
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      <Dialog
+        open={isChangePasswordModalOpen}
+        onOpenChange={setIsChangePasswordModalOpen}
+      >
+        <DialogContent className="sm:max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              {authStep === 'emailPassword' &&
+                'Confirm your identity to change your password.'}
+              {authStep === 'totp' &&
+                'Enter your 2FA verification code to continue.'}
+              {authStep === 'action' && 'Enter your new password.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {authStep === 'emailPassword' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <SignInReauthForm
+                email={currentUser.emails[0]?.email || ''}
+                onSuccess={handleEmailPasswordSuccess}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'totp' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <TOTPVerificationReauthForm
+                onSuccess={handleTOTPSuccessForPassword}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'action' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <AccountSetPasswordForm
+                onSuccess={() => {
+                  // Show success toast
+                  toast({
+                    title: 'Password updated',
+                    description: 'Your password has been successfully changed.',
+                    duration: 3000,
+                  });
+
+                  // Close modal
+                  setIsChangePasswordModalOpen(false);
+                }}
+                onCancel={handleCloseModal}
+                onTokenInvalid={() => {
+                  // Return to email/password step with notification
+                  setAuthStep('emailPassword');
+                  toast({
+                    title: 'Authentication expired',
+                    description:
+                      'Your authentication has expired. Please re-authenticate to continue.',
+                    variant: 'destructive',
+                    duration: 5000,
+                  });
+                }}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset 2FA Modal */}
+      <Dialog open={isReset2FAModalOpen} onOpenChange={setIsReset2FAModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>Reset 2FA Device</DialogTitle>
+            <DialogDescription>
+              {authStep === 'emailPassword' &&
+                'Confirm your identity to reset your 2FA device.'}
+              {authStep === 'totp' &&
+                'Enter your current 2FA verification code to continue.'}
+              {authStep === 'action' &&
+                'Are you sure you want to reset your 2FA device?'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {authStep === 'emailPassword' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <SignInReauthForm
+                email={currentUser.emails[0]?.email || ''}
+                onSuccess={handleEmailPasswordSuccess}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'totp' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <TOTPVerificationReauthForm
+                onSuccess={handleTOTPSuccessFor2FA}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'action' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <div className="flex flex-col items-center justify-center gap-1 w-full">
+                <div className="flex flex-col gap-6 w-full items-center mt-6">
+                  <Card className="bg-card w-full flex flex-col items-center border">
+                    <CardContent className="pt-6 w-full">
+                      <div className="grid gap-6">
+                        <div className="grid gap-4">
+                          <p className="text-sm text-muted-foreground">
+                            Resetting your 2FA device will remove the current
+                            device and require you to set up a new one. You'll
+                            be asked to configure a new device when you sign in
+                            again.
+                          </p>
+
+                          <p className="text-sm text-destructive font-semibold">
+                            Warning: You will be signed out after resetting your
+                            2FA device.
+                          </p>
+
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={handleCloseModal}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              className="w-full"
+                              onClick={handleReset2FA}
+                            >
+                              Reset 2FA Device
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

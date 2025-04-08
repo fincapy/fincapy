@@ -35,6 +35,9 @@ import {
   LogOut,
   ChevronDown,
   Shield,
+  CheckCircle2,
+  Mail,
+  AlertCircle,
 } from 'lucide-react';
 import { parse } from 'date-fns';
 import {
@@ -73,8 +76,15 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { SignInReauthForm } from '@/components/sign-in-reauth-form';
 import { TOTPVerificationReauthForm } from '@/components/totp-verification-reauth-form';
+import { TOTPRegistrationReauthForm } from '../totp-registration-reauth-form';
 import { AccountSetPasswordForm } from '@/components/account-set-password-form';
 import { Card, CardContent } from '../ui/card';
+import {
+  addEmailAddress,
+  verifyEmailAddress,
+  resendEmailVerification,
+} from './serverActions';
+import { InputTOTP } from '../input-totp';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
@@ -88,6 +98,15 @@ const AccountPage = ({ setPage, userEmail }) => {
     useState(false);
   const [isReset2FAModalOpen, setIsReset2FAModalOpen] = useState(false);
   const [authStep, setAuthStep] = useState('emailPassword'); // emailPassword, totp, action
+
+  // Email management state
+  const [isAddEmailModalOpen, setIsAddEmailModalOpen] = useState(false);
+  const [isVerifyEmailModalOpen, setIsVerifyEmailModalOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailToVerify, setEmailToVerify] = useState('');
+  const [emailVerificationCode, setEmailVerificationCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const setPageCookie = (page) => {
     const expires = new Date();
@@ -138,6 +157,91 @@ const AccountPage = ({ setPage, userEmail }) => {
   // Handle successful TOTP verification for 2FA reset
   const handleTOTPSuccessFor2FA = () => {
     setAuthStep('action');
+  };
+
+  // Handle email actions
+  const handleAddEmail = async () => {
+    setIsSubmitting(true);
+    setEmailError('');
+
+    try {
+      const result = await addEmailAddress(newEmail);
+
+      if (result.success) {
+        toast({
+          title: 'Email added',
+          description: 'A verification code has been sent to your email.',
+          duration: 3000,
+        });
+        setIsAddEmailModalOpen(false);
+        setEmailToVerify(newEmail);
+        setIsVerifyEmailModalOpen(true);
+      } else {
+        setEmailError(result.error || 'Failed to add email address');
+      }
+    } catch (error) {
+      setEmailError('An unexpected error occurred');
+      console.error('Add email error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyEmail = async (code) => {
+    setIsSubmitting(true);
+    setEmailError('');
+
+    try {
+      const result = await verifyEmailAddress(emailToVerify, code);
+
+      if (result.success) {
+        toast({
+          title: 'Email verified',
+          description: 'Your email address has been verified successfully.',
+          duration: 3000,
+        });
+        setIsVerifyEmailModalOpen(false);
+
+        // Force refresh of user data
+        window.location.reload();
+      } else {
+        setEmailError(result.error || 'Failed to verify email address');
+      }
+    } catch (error) {
+      setEmailError('An unexpected error occurred');
+      console.error('Verify email error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async (email) => {
+    setIsSubmitting(true);
+    setEmailError('');
+
+    try {
+      const result = await resendEmailVerification(email);
+
+      if (result.success) {
+        toast({
+          title: 'Verification code sent',
+          description: 'A new verification code has been sent to your email.',
+          duration: 3000,
+        });
+
+        if (!isVerifyEmailModalOpen) {
+          setEmailToVerify(email);
+          setIsVerifyEmailModalOpen(true);
+        }
+      } else {
+        setEmailError(result.error || 'Failed to resend verification code');
+      }
+    } catch (error) {
+      setEmailError('An unexpected error occurred');
+      console.error('Resend verification error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle the 2FA reset
@@ -357,16 +461,75 @@ const AccountPage = ({ setPage, userEmail }) => {
                     </label>
                     <div className="space-y-4">
                       {currentUser.emails.map((email) => (
-                        <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md">
-                          <div className="flex flex-row items-center gap-1 justify-center">
-                            <span className="text-md break-all">
-                              {email.email}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              Default
-                            </span>
+                        <div
+                          key={email.email}
+                          className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md"
+                        >
+                          <div className="flex flex-col">
+                            <div className="flex flex-row items-center gap-2">
+                              <span className="text-md break-all">
+                                {email.email}
+                              </span>
+                              {email.verified ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="text-xs text-white">
+                                      Verified
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <AlertCircle className="h-4 w-4 text-amber-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="text-xs text-white">
+                                      Not verified
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                              {email.primary && (
+                                <span className="text-sm text-muted-foreground">
+                                  primary
+                                </span>
+                              )}
+                            </div>
+                            {!email.verified && (
+                              <span className="text-xs text-amber-500 mt-1">
+                                Please verify this email address
+                              </span>
+                            )}
                           </div>
                           <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
+                            {!email.primary && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={showNotImplemented}
+                                className="w-full md:w-auto"
+                              >
+                                Set Primary
+                              </Button>
+                            )}
+                            {!email.verified && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleResendVerification(email.email)
+                                }
+                                className="w-full md:w-auto"
+                                disabled={isSubmitting}
+                              >
+                                <Mail className="h-4 w-4 mr-2" />
+                                Verify
+                              </Button>
+                            )}
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -374,35 +537,19 @@ const AccountPage = ({ setPage, userEmail }) => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      disabled={true}
+                                      onClick={showNotImplemented}
                                       className="w-full md:w-auto"
-                                    >
-                                      Set Default
-                                    </Button>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent className="text-sm text-white">
-                                  <p>This is already your default email</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      disabled={true}
-                                      className="w-full md:w-auto"
+                                      disabled={email.primary}
                                     >
                                       Remove
                                     </Button>
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="text-sm text-white">
-                                  <p>Cannot remove default email address</p>
-                                </TooltipContent>
+                                {email.primary && (
+                                  <TooltipContent className="text-xs text-white">
+                                    Cannot remove primary email address
+                                  </TooltipContent>
+                                )}
                               </Tooltip>
                             </TooltipProvider>
                           </div>
@@ -423,7 +570,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={showNotImplemented}
+                          onClick={() => setIsAddEmailModalOpen(true)}
                           className="w-full md:w-auto"
                         >
                           Add Email
@@ -657,48 +804,151 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <div className="flex flex-col items-center justify-center gap-1 w-full">
                 <div className="flex flex-col gap-6 w-full items-center mt-6">
-                  <Card className="bg-card w-full flex flex-col items-center border">
-                    <CardContent className="pt-6 w-full">
-                      <div className="grid gap-6">
-                        <div className="grid gap-4">
-                          <p className="text-sm text-muted-foreground">
-                            Resetting your 2FA device will remove the current
-                            device and require you to set up a new one. You'll
-                            be asked to configure a new device when you sign in
-                            again.
-                          </p>
-
-                          <p className="text-sm text-destructive font-semibold">
-                            Warning: You will be signed out after resetting your
-                            2FA device.
-                          </p>
-
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="w-full"
-                              onClick={handleCloseModal}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              className="w-full"
-                              onClick={handleReset2FA}
-                            >
-                              Reset 2FA Device
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <TOTPRegistrationReauthForm
+                    onSuccess={() => {
+                      toast({
+                        title: '2FA device reset',
+                        description:
+                          'Your 2FA device has been reset! Please use your new device on next sign in.',
+                        duration: 5000,
+                      });
+                      setIsReset2FAModalOpen(false);
+                    }}
+                    onCancel={handleCloseModal}
+                  />
                 </div>
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Email Modal */}
+      <Dialog open={isAddEmailModalOpen} onOpenChange={setIsAddEmailModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>Add Email Address</DialogTitle>
+            <DialogDescription>
+              Enter a new email address to add to your account. We'll send a
+              verification code to this address.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={newEmail}
+                onChange={(e) => {
+                  setNewEmail(e.target.value);
+                  setEmailError('');
+                }}
+                placeholder="your.email@example.com"
+                className="w-full"
+                disabled={isSubmitting}
+              />
+              {emailError && (
+                <span className="text-xs text-destructive">{emailError}</span>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddEmailModalOpen(false);
+                setNewEmail('');
+                setEmailError('');
+              }}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddEmail}
+              disabled={isSubmitting || !newEmail.trim()}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="mr-2">Adding</span>
+                  <span className="animate-spin">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </svg>
+                  </span>
+                </>
+              ) : (
+                'Add Email'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verify Email Modal */}
+      <Dialog
+        open={isVerifyEmailModalOpen}
+        onOpenChange={setIsVerifyEmailModalOpen}
+      >
+        <DialogContent className="sm:max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>Verify Email Address</DialogTitle>
+            <DialogDescription>
+              Enter the 6-digit verification code sent to {emailToVerify}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="flex flex-col items-center justify-center">
+              <InputTOTP
+                onComplete={async (code) => await handleVerifyEmail(code)}
+                disabled={isSubmitting}
+              />
+              {emailError && (
+                <span className="text-xs text-destructive mt-2">
+                  {emailError}
+                </span>
+              )}
+            </div>
+
+            <div className="flex w-full flex-col items-center justify-center">
+              <Button
+                variant="link"
+                className="text-xs text-muted-foreground hover:text-primary"
+                onClick={() => handleResendVerification(emailToVerify)}
+                disabled={isSubmitting}
+              >
+                Didn&apos;t receive the code? Resend
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsVerifyEmailModalOpen(false);
+                setEmailToVerify('');
+                setEmailError('');
+              }}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

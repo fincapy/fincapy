@@ -83,6 +83,8 @@ import {
   addEmailAddress,
   verifyEmailAddress,
   resendEmailVerification,
+  setPrimaryEmail,
+  removeEmail,
 } from './serverActions';
 import { InputTOTP } from '../input-totp';
 
@@ -100,13 +102,17 @@ const AccountPage = ({ setPage, userEmail }) => {
   const [authStep, setAuthStep] = useState('emailPassword'); // emailPassword, totp, action
 
   // Email management state
-  const [isAddEmailModalOpen, setIsAddEmailModalOpen] = useState(false);
   const [isVerifyEmailModalOpen, setIsVerifyEmailModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [emailToVerify, setEmailToVerify] = useState('');
   const [emailVerificationCode, setEmailVerificationCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState('');
+
+  // High-risk action state
+  const [isHighRiskActionModalOpen, setIsHighRiskActionModalOpen] =
+    useState(false);
+  const [pendingHighRiskAction, setPendingHighRiskAction] = useState(null);
 
   const setPageCookie = (page) => {
     const expires = new Date();
@@ -173,9 +179,11 @@ const AccountPage = ({ setPage, userEmail }) => {
           description: 'A verification code has been sent to your email.',
           duration: 3000,
         });
-        setIsAddEmailModalOpen(false);
+        setIsHighRiskActionModalOpen(false);
+        setPendingHighRiskAction(null);
         setEmailToVerify(newEmail);
         setIsVerifyEmailModalOpen(true);
+        setNewEmail('');
       } else {
         setEmailError(result.error || 'Failed to add email address');
       }
@@ -266,7 +274,99 @@ const AccountPage = ({ setPage, userEmail }) => {
   const handleCloseModal = () => {
     setIsChangePasswordModalOpen(false);
     setIsReset2FAModalOpen(false);
+    setIsHighRiskActionModalOpen(false);
+    setPendingHighRiskAction(null);
     setAuthStep('emailPassword');
+  };
+
+  // Update the handleSetPrimaryEmail function
+  const handleSetPrimaryEmail = async (email) => {
+    // Instead of calling the server, open the authentication modal directly
+    setPendingHighRiskAction({
+      type: 'setPrimary',
+      email: email,
+    });
+    setIsHighRiskActionModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
+  // Update the handleRemoveEmail function
+  const handleRemoveEmail = async (email) => {
+    // Instead of calling the server, open the authentication modal directly
+    setPendingHighRiskAction({
+      type: 'removeEmail',
+      email: email,
+    });
+    setIsHighRiskActionModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
+  // Update the handleCompleteHighRiskAction function to always make the server call
+  const handleCompleteHighRiskAction = async () => {
+    if (!pendingHighRiskAction) return;
+
+    setIsSubmitting(true);
+
+    try {
+      let result;
+      if (pendingHighRiskAction.type === 'setPrimary') {
+        result = await setPrimaryEmail(pendingHighRiskAction.email);
+      } else if (pendingHighRiskAction.type === 'removeEmail') {
+        result = await removeEmail(pendingHighRiskAction.email);
+      }
+
+      if (result.success) {
+        toast({
+          title:
+            pendingHighRiskAction.type === 'setPrimary'
+              ? 'Primary email updated'
+              : 'Email removed',
+          description:
+            pendingHighRiskAction.type === 'setPrimary'
+              ? 'Your primary email address has been updated successfully.'
+              : 'The email address has been removed from your account.',
+          duration: 3000,
+        });
+
+        setIsHighRiskActionModalOpen(false);
+        setPendingHighRiskAction(null);
+
+        // Force refresh of user data
+        window.location.reload();
+      } else if (result.requiresAuth) {
+        // Authentication expired, restart the flow
+        setAuthStep('emailPassword');
+        toast({
+          title: 'Authentication expired',
+          description:
+            'Your authentication has expired. Please re-authenticate to continue.',
+          variant: 'destructive',
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to complete the action',
+          variant: 'destructive',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      console.error('High risk action error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Add a function for TOTP Success for high risk actions
+  const handleTOTPSuccessForHighRiskAction = () => {
+    handleCompleteHighRiskAction();
   };
 
   return (
@@ -510,8 +610,11 @@ const AccountPage = ({ setPage, userEmail }) => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={showNotImplemented}
+                                onClick={() =>
+                                  handleSetPrimaryEmail(email.email)
+                                }
                                 className="w-full md:w-auto"
+                                disabled={isSubmitting || !email.verified}
                               >
                                 Set Primary
                               </Button>
@@ -537,9 +640,11 @@ const AccountPage = ({ setPage, userEmail }) => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={showNotImplemented}
+                                      onClick={() =>
+                                        handleRemoveEmail(email.email)
+                                      }
                                       className="w-full md:w-auto"
-                                      disabled={email.primary}
+                                      disabled={email.primary || isSubmitting}
                                     >
                                       Remove
                                     </Button>
@@ -570,7 +675,13 @@ const AccountPage = ({ setPage, userEmail }) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setIsAddEmailModalOpen(true)}
+                          onClick={() => {
+                            setPendingHighRiskAction({
+                              type: 'addEmail',
+                            });
+                            setIsHighRiskActionModalOpen(true);
+                            setAuthStep('emailPassword');
+                          }}
                           className="w-full md:w-auto"
                         >
                           Add Email
@@ -823,81 +934,6 @@ const AccountPage = ({ setPage, userEmail }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Add Email Modal */}
-      <Dialog open={isAddEmailModalOpen} onOpenChange={setIsAddEmailModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card">
-          <DialogHeader>
-            <DialogTitle>Add Email Address</DialogTitle>
-            <DialogDescription>
-              Enter a new email address to add to your account. We'll send a
-              verification code to this address.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={newEmail}
-                onChange={(e) => {
-                  setNewEmail(e.target.value);
-                  setEmailError('');
-                }}
-                placeholder="your.email@example.com"
-                className="w-full"
-                disabled={isSubmitting}
-              />
-              {emailError && (
-                <span className="text-xs text-destructive">{emailError}</span>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsAddEmailModalOpen(false);
-                setNewEmail('');
-                setEmailError('');
-              }}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddEmail}
-              disabled={isSubmitting || !newEmail.trim()}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="mr-2">Adding</span>
-                  <span className="animate-spin">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                    </svg>
-                  </span>
-                </>
-              ) : (
-                'Add Email'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Verify Email Modal */}
       <Dialog
         open={isVerifyEmailModalOpen}
@@ -949,6 +985,132 @@ const AccountPage = ({ setPage, userEmail }) => {
               Cancel
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* High-risk action modal */}
+      <Dialog
+        open={isHighRiskActionModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            // First close the modal, then reset the state
+            setTimeout(() => {
+              setPendingHighRiskAction(null);
+              setAuthStep('emailPassword');
+              setNewEmail('');
+              setEmailError('');
+            }, 300); // Wait until the close animation is complete
+            setIsHighRiskActionModalOpen(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>
+              {pendingHighRiskAction?.type === 'setPrimary'
+                ? 'Set Primary Email'
+                : pendingHighRiskAction?.type === 'removeEmail'
+                  ? 'Remove Email Address'
+                  : 'Add Email Address'}
+            </DialogTitle>
+            <DialogDescription>
+              {authStep === 'emailPassword' &&
+                'Confirm your identity to continue with this action.'}
+              {authStep === 'totp' &&
+                'Enter your 2FA verification code to continue.'}
+              {authStep === 'action' &&
+                pendingHighRiskAction?.type === 'addEmail' &&
+                'Enter a new email address to add to your account.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {authStep === 'emailPassword' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <SignInReauthForm
+                email={currentUser.emails[0]?.email || ''}
+                onSuccess={handleEmailPasswordSuccess}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'totp' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <TOTPVerificationReauthForm
+                onSuccess={
+                  pendingHighRiskAction?.type === 'addEmail'
+                    ? () => setAuthStep('action')
+                    : handleTOTPSuccessForHighRiskAction
+                }
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'action' &&
+            pendingHighRiskAction?.type === 'addEmail' && (
+              <div className="w-full px-2">
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => {
+                        setNewEmail(e.target.value);
+                        setEmailError('');
+                      }}
+                      placeholder="your.email@example.com"
+                      className="w-full"
+                      disabled={isSubmitting}
+                    />
+                    {emailError && (
+                      <span className="text-xs text-destructive">
+                        {emailError}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleCloseModal}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddEmail}
+                    disabled={isSubmitting || !newEmail.trim()}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Adding</span>
+                        <span className="animate-spin">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                          </svg>
+                        </span>
+                      </>
+                    ) : (
+                      'Add Email'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
         </DialogContent>
       </Dialog>
     </div>

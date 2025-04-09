@@ -6,13 +6,15 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SESAdapter } from '@/backend/adapters/sesAdapter';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
-import { headers, cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { SetPrimaryEmailService } from '@/backend/services/setPrimaryEmailService';
+import { RemoveEmailService } from '@/backend/services/removeEmailService';
+import { verifyHighRiskActionToken } from '@/utils/auth';
 
 // Create validation schema for email
 const emailSchema = z
@@ -36,6 +38,10 @@ function sanitizeInput(input) {
   });
 }
 
+function hashEmail(email) {
+  return crypto.createHash('sha256').update(email).digest('hex');
+}
+
 /**
  * Add a new email address to the user's account and send verification code
  * @param {string} email - The email address to add
@@ -56,12 +62,25 @@ export async function addEmailAddress(email) {
     });
 
     if (!session) {
-      return { success: false, error: 'Not authenticated' };
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
     }
 
     const userId = session.userId;
     if (!userId) {
-      return { success: false, error: 'Invalid session data' };
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Verify high-risk action token
+    const authToken = await verifyHighRiskActionToken();
+    if (!authToken || authToken.userId !== userId) {
+      console.log('Invalid auth token');
+      return {
+        success: false,
+        error: 'Unauthenticated',
+        requiresAuth: true,
+      };
     }
 
     // Validate and sanitize email
@@ -69,6 +88,7 @@ export async function addEmailAddress(email) {
       const sanitizedEmail = sanitizeInput(email);
       const validationResult = emailSchema.safeParse(sanitizedEmail);
       if (!validationResult.success) {
+        console.log('Invalid email address');
         return {
           success: false,
           error:
@@ -78,6 +98,7 @@ export async function addEmailAddress(email) {
       }
       email = validationResult.data;
     } catch (error) {
+      console.log('Email validation failed');
       return { success: false, error: 'Email validation failed' };
     }
 
@@ -94,7 +115,8 @@ export async function addEmailAddress(email) {
         isPrimary: false,
       });
     } catch (error) {
-      return { success: false, error: error.message };
+      console.log('Add email error:', error);
+      return { success: false, error: 'Failed to add email address' };
     }
 
     // Generate and store verification code
@@ -107,7 +129,7 @@ export async function addEmailAddress(email) {
 
     // Create a special verification key that includes the email
     // This allows multiple email verifications at once
-    const verificationKey = `${userId}:${email}`;
+    const verificationKey = `${userId}:${hashEmail(email)}`;
 
     await emailVerificationCodeRepository.set({
       emailVerificationCode,
@@ -132,7 +154,7 @@ export async function addEmailAddress(email) {
 
     return { success: true };
   } catch (error) {
-    console.error('Add email error:', error);
+    console.error('Add email error:');
     return { success: false, error: 'Failed to add email address' };
   }
 }
@@ -158,12 +180,14 @@ export async function verifyEmailAddress(email, verificationCode) {
     });
 
     if (!session) {
-      return { success: false, error: 'Not authenticated' };
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
     }
 
     const userId = session.userId;
     if (!userId) {
-      return { success: false, error: 'Invalid session data' };
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
     }
 
     // Validate and sanitize input data
@@ -171,6 +195,7 @@ export async function verifyEmailAddress(email, verificationCode) {
       const sanitizedEmail = sanitizeInput(email);
       const emailValidation = emailSchema.safeParse(sanitizedEmail);
       if (!emailValidation.success) {
+        console.log('Invalid email address');
         return {
           success: false,
           error:
@@ -182,20 +207,20 @@ export async function verifyEmailAddress(email, verificationCode) {
       const sanitizedCode = sanitizeInput(verificationCode);
       const codeValidation = verificationCodeSchema.safeParse(sanitizedCode);
       if (!codeValidation.success) {
+        console.log('Invalid verification code');
         return {
           success: false,
-          error:
-            codeValidation.error.errors[0]?.message ||
-            'Invalid verification code',
+          error: 'Invalid verification code',
         };
       }
       verificationCode = codeValidation.data;
     } catch (error) {
+      console.log('Input validation failed');
       return { success: false, error: 'Input validation failed' };
     }
 
     // Create the verification key that includes the email
-    const verificationKey = `${userId}:${email}`;
+    const verificationKey = `${userId}:${hashEmail(email)}`;
 
     // Retrieve and validate verification code
     const emailVerificationCodeRepository = new EmailVerificationCodeRepository(
@@ -209,14 +234,19 @@ export async function verifyEmailAddress(email, verificationCode) {
     });
 
     if (!storedCode) {
+      console.log('No stored code found');
       return {
         success: false,
-        error: 'Verification code not found or expired',
+        error: 'Invalid verification code',
       };
     }
 
     if (storedCode !== parseInt(verificationCode, 10)) {
-      return { success: false, error: 'Invalid verification code' };
+      console.log('Invalid verification code');
+      return {
+        success: false,
+        error: 'Invalid verification code',
+      };
     }
 
     // Delete the verification code since it's been used
@@ -230,7 +260,11 @@ export async function verifyEmailAddress(email, verificationCode) {
 
     const emailToVerify = user.emails.find((e) => e.email === email);
     if (!emailToVerify) {
-      return { success: false, error: 'Email address not found on account' };
+      console.log('Email address not found on account');
+      return {
+        success: false,
+        error: 'Unexpected error',
+      };
     }
 
     emailToVerify.verified = true;
@@ -264,12 +298,14 @@ export async function resendEmailVerification(email) {
     });
 
     if (!session) {
-      return { success: false, error: 'Not authenticated' };
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
     }
 
     const userId = session.userId;
     if (!userId) {
-      return { success: false, error: 'Invalid session data' };
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
     }
 
     // Validate and sanitize email
@@ -277,6 +313,7 @@ export async function resendEmailVerification(email) {
       const sanitizedEmail = sanitizeInput(email);
       const validationResult = emailSchema.safeParse(sanitizedEmail);
       if (!validationResult.success) {
+        console.log('Invalid email address');
         return {
           success: false,
           error:
@@ -286,6 +323,7 @@ export async function resendEmailVerification(email) {
       }
       email = validationResult.data;
     } catch (error) {
+      console.log('Email validation failed');
       return { success: false, error: 'Email validation failed' };
     }
 
@@ -295,11 +333,19 @@ export async function resendEmailVerification(email) {
 
     const emailEntry = user.emails.find((e) => e.email === email);
     if (!emailEntry) {
-      return { success: false, error: 'Email address not found on account' };
+      console.log('Email address not found on account');
+      return {
+        success: false,
+        error: 'Unexpected error',
+      };
     }
 
     if (emailEntry.verified) {
-      return { success: false, error: 'Email address is already verified' };
+      console.log('Email address is already verified');
+      return {
+        success: false,
+        error: 'Email address is already verified',
+      };
     }
 
     // Generate and store verification code
@@ -311,7 +357,7 @@ export async function resendEmailVerification(email) {
     );
 
     // Create a special verification key that includes the email
-    const verificationKey = `${userId}:${email}`;
+    const verificationKey = `${userId}:${hashEmail(email)}`;
 
     await emailVerificationCodeRepository.set({
       emailVerificationCode,
@@ -335,5 +381,168 @@ export async function resendEmailVerification(email) {
   } catch (error) {
     console.error('Resend verification error:', error);
     return { success: false, error: 'Failed to resend verification code' };
+  }
+}
+
+/**
+ * Set an email address as the primary email for the user's account
+ * @param {string} email - The email address to set as primary
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export async function setPrimaryEmail(email) {
+  try {
+    // Get current user token
+    const cookiesList = await cookies();
+
+    // Set up session manager
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+
+    const session = await sessionManager.getSession({
+      cookies: cookiesList,
+    });
+
+    if (!session) {
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    const userId = session.userId;
+    if (!userId) {
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Verify high-risk action token
+    const authToken = await verifyHighRiskActionToken();
+    if (!authToken || authToken.userId !== userId) {
+      console.log('Invalid auth token');
+      return {
+        success: false,
+        error: 'Unauthenticated',
+        requiresAuth: true,
+      };
+    }
+
+    // Validate and sanitize email
+    try {
+      const sanitizedEmail = sanitizeInput(email);
+      const validationResult = emailSchema.safeParse(sanitizedEmail);
+      if (!validationResult.success) {
+        return {
+          success: false,
+          error:
+            validationResult.error.errors[0]?.message ||
+            'Invalid email address',
+        };
+      }
+      email = validationResult.data;
+    } catch (error) {
+      return { success: false, error: 'Email validation failed' };
+    }
+
+    // Set email as primary
+    const transactionManager = new TransactionManager();
+    const setPrimaryEmailService = new SetPrimaryEmailService({
+      transactionManager,
+    });
+
+    try {
+      await setPrimaryEmailService.execute({
+        userId,
+        email,
+      });
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Set primary email error:', error);
+    return { success: false, error: 'Failed to set primary email address' };
+  }
+}
+
+/**
+ * Remove an email address from the user's account
+ * @param {string} email - The email address to remove
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export async function removeEmail(email) {
+  try {
+    // Get current user token
+    const cookiesList = await cookies();
+
+    // Set up session manager
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+
+    const session = await sessionManager.getSession({
+      cookies: cookiesList,
+    });
+
+    if (!session) {
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    const userId = session.userId;
+    if (!userId) {
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Verify high-risk action token
+    const authToken = await verifyHighRiskActionToken();
+    if (!authToken || authToken.userId !== userId) {
+      console.log('Invalid auth token');
+      return {
+        success: false,
+        error: 'Unauthenticated',
+        requiresAuth: true,
+      };
+    }
+
+    // Validate and sanitize email
+    try {
+      const sanitizedEmail = sanitizeInput(email);
+      const validationResult = emailSchema.safeParse(sanitizedEmail);
+      if (!validationResult.success) {
+        console.log('Invalid email address');
+        return {
+          success: false,
+          error:
+            validationResult.error.errors[0]?.message ||
+            'Invalid email address',
+        };
+      }
+      email = validationResult.data;
+    } catch (error) {
+      console.log('Email validation failed');
+      return { success: false, error: 'Email validation failed' };
+    }
+
+    // Remove the email
+    const transactionManager = new TransactionManager();
+    const removeEmailService = new RemoveEmailService({
+      transactionManager,
+    });
+
+    try {
+      await removeEmailService.execute({
+        userId,
+        email,
+      });
+    } catch (error) {
+      console.log('Remove email error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Remove email error:', error);
+    return { success: false, error: 'Failed to remove email address' };
   }
 }

@@ -28,6 +28,11 @@ const mockCookieStore = {
   delete: vi.fn(),
 };
 
+// Mock verifyHighRiskActionToken
+vi.mock('@/utils/auth', () => ({
+  verifyHighRiskActionToken: vi.fn(),
+}));
+
 // Mock session manager
 vi.mock('@/backend/adapters/auth', () => ({
   SessionManager: vi.fn().mockImplementation(() => ({
@@ -80,30 +85,16 @@ describe('Account Set Password Form Server Actions', () => {
     // Mock the cookies() function to return our mock cookie store
     const { cookies } = require('next/headers');
     cookies.mockResolvedValue(mockCookieStore);
+
+    // Setup verifyHighRiskActionToken mock to return a valid token
+    const { verifyHighRiskActionToken } = require('@/utils/auth');
+    verifyHighRiskActionToken.mockResolvedValue({ userId, tenantId });
   });
 
-  it('should successfully update password with valid token', async () => {
-    // Create a valid highRiskActionValidatedToken
-    const token = jwt.sign(
-      { userId, tenantId, type: 'highRiskActionValidated' },
-      process.env.JWT_SECRET,
-      { expiresIn: '5m', algorithm: 'HS256' }
-    );
-
-    // Setup cookie mock
-    mockCookieStore.get.mockImplementation((name) => {
-      if (name === 'highRiskActionValidatedToken') {
-        return { value: token };
-      }
-      return null;
-    });
-
+  it('should successfully update password with valid token and credentials', async () => {
     const result = await updatePassword(validPassword);
 
     expect(result).toEqual({ success: true });
-    expect(mockCookieStore.delete).toHaveBeenCalledWith(
-      'highRiskActionValidatedToken'
-    );
 
     // Verify the user's password was updated
     const updatedUser = await userRepository.get({ userId });
@@ -118,111 +109,22 @@ describe('Account Set Password Form Server Actions', () => {
   });
 
   it('should return error with invalid password format', async () => {
-    // Create a valid highRiskActionValidatedToken
-    const token = jwt.sign(
-      { userId, tenantId, type: 'highRiskActionValidated' },
-      process.env.JWT_SECRET,
-      { expiresIn: '5m', algorithm: 'HS256' }
-    );
-
-    // Setup cookie mock
-    mockCookieStore.get.mockImplementation((name) => {
-      if (name === 'highRiskActionValidatedToken') {
-        return { value: token };
-      }
-      return null;
-    });
-
     const result = await updatePassword(invalidPassword);
 
     expect(result.success).toBe(false);
     expect(result.message).toMatch(
       /Password must be at least 8 characters long/
     );
-    expect(mockCookieStore.delete).not.toHaveBeenCalled();
   });
 
-  it('should return error when token is missing', async () => {
-    // Setup cookie mock to return no token
-    mockCookieStore.get.mockImplementation(() => null);
+  it('should return error when password fails validation', async () => {
+    // Test password that fails other validations
+    const noUppercasePassword = 'noupperletter123!';
+    const result = await updatePassword(noUppercasePassword);
 
-    const result = await updatePassword(validPassword);
-
-    expect(result).toEqual({ success: false, tokenInvalid: true });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Missing highRiskActionValidatedToken'
-    );
-  });
-
-  it('should return error when token is expired', async () => {
-    // Create an expired token
-    const expiredToken = jwt.sign(
-      { userId, tenantId, type: 'highRiskActionValidated' },
-      process.env.JWT_SECRET,
-      { expiresIn: '-5s', algorithm: 'HS256' }
-    );
-
-    // Setup cookie mock
-    mockCookieStore.get.mockImplementation((name) => {
-      if (name === 'highRiskActionValidatedToken') {
-        return { value: expiredToken };
-      }
-      return null;
-    });
-
-    const result = await updatePassword(validPassword);
-
-    expect(result).toEqual({ success: false, tokenInvalid: true });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Invalid or expired highRiskActionValidatedToken'
-    );
-  });
-
-  it('should return error when token type is invalid', async () => {
-    // Create a token with wrong type
-    const wrongTypeToken = jwt.sign(
-      { userId, tenantId, type: 'wrongType' },
-      process.env.JWT_SECRET,
-      { expiresIn: '5m', algorithm: 'HS256' }
-    );
-
-    // Setup cookie mock
-    mockCookieStore.get.mockImplementation((name) => {
-      if (name === 'highRiskActionValidatedToken') {
-        return { value: wrongTypeToken };
-      }
-      return null;
-    });
-
-    const result = await updatePassword(validPassword);
-
-    expect(result).toEqual({ success: false, tokenInvalid: true });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Invalid token type - expected highRiskActionValidated'
-    );
-  });
-
-  it('should return error when token userId does not match session userId', async () => {
-    // Create a token with different userId
-    const differentUserIdToken = jwt.sign(
-      { userId: uuidv4(), tenantId, type: 'highRiskActionValidated' },
-      process.env.JWT_SECRET,
-      { expiresIn: '5m', algorithm: 'HS256' }
-    );
-
-    // Setup cookie mock
-    mockCookieStore.get.mockImplementation((name) => {
-      if (name === 'highRiskActionValidatedToken') {
-        return { value: differentUserIdToken };
-      }
-      return null;
-    });
-
-    const result = await updatePassword(validPassword);
-
-    expect(result).toEqual({ success: false, tokenInvalid: true });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Token userId does not match session userId'
+    expect(result.success).toBe(false);
+    expect(result.message).toMatch(
+      /Password must contain at least one uppercase letter/
     );
   });
 
@@ -232,9 +134,107 @@ describe('Account Set Password Form Server Actions', () => {
 
     const result = await updatePassword(validPassword);
 
-    expect(result).toEqual({ success: false, message: 'Session not found' });
+    expect(result).toEqual({ success: false, message: 'Unauthenticated' });
     expect(consoleSpy).toHaveBeenCalledWith(
       'No active session found in updatePassword'
     );
+  });
+
+  it('should return error when password validation fails internally', async () => {
+    // Mock Zod to throw a non-Zod error
+    vi.mock('zod', () => {
+      return {
+        z: {
+          string: () => ({
+            min: () => ({
+              max: () => ({
+                regex: () => ({
+                  regex: () => ({
+                    regex: () => ({
+                      regex: () => {
+                        throw new Error('Some unexpected error');
+                      },
+                    }),
+                  }),
+                }),
+              }),
+            }),
+          }),
+        },
+      };
+    });
+
+    // Need to re-import to get the mocked version
+    jest.resetModules();
+    const {
+      updatePassword,
+    } = require('@/components/account-set-password-form/serverActions');
+
+    const result = await updatePassword(validPassword);
+
+    expect(result.success).toBe(false);
+    expect(result.message).toBe('Unauthenticated');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Password validation error in updatePassword'
+    );
+
+    // Reset the mock
+    vi.resetModules();
+  });
+
+  it('should return error when high risk action token is invalid', async () => {
+    const { verifyHighRiskActionToken } = require('@/utils/auth');
+    verifyHighRiskActionToken.mockResolvedValue(null);
+
+    const result = await updatePassword(validPassword);
+
+    expect(result).toEqual({
+      success: false,
+      message: 'Unauthenticated',
+      tokenInvalid: true,
+    });
+  });
+
+  it('should return error when token userId does not match session userId', async () => {
+    const { verifyHighRiskActionToken } = require('@/utils/auth');
+    verifyHighRiskActionToken.mockResolvedValue({
+      userId: 'different-user-id',
+      tenantId,
+    });
+
+    const result = await updatePassword(validPassword);
+
+    expect(result).toEqual({
+      success: false,
+      message: 'Unauthenticated',
+      tokenInvalid: true,
+    });
+  });
+
+  it('should return error when user is not found', async () => {
+    // Mock userRepository.get to return null
+    vi.spyOn(userRepository, 'get').mockResolvedValue(null);
+
+    const result = await updatePassword(validPassword);
+
+    expect(result).toEqual({ success: false, message: 'Unexpected error' });
+    expect(consoleSpy).toHaveBeenCalledWith('User not found');
+  });
+
+  it('should sanitize the password input', async () => {
+    const passwordWithHtml = '<script>ValidPass123!</script>';
+    const result = await updatePassword(passwordWithHtml);
+
+    expect(result).toEqual({ success: true });
+
+    // Verify the password was sanitized and set
+    const updatedUser = await userRepository.get({ userId });
+
+    // The sanitized password should be "ValidPass123!" without the HTML tags
+    const passwordMatch = await bcrypt.compare(
+      'ValidPass123!',
+      updatedUser.password
+    );
+    expect(passwordMatch).toBe(true);
   });
 });

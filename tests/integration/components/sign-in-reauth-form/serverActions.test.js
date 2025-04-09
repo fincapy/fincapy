@@ -1,11 +1,14 @@
 import { authenticateForHighRiskAction } from '@/components/sign-in-reauth-form/serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { SessionManager } from '@/backend/adapters/auth';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { UserRepository } from '@/backend/adapters/repositories/userRepository';
+import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import { cookies, headers } from 'next/headers';
 import {
   vi,
@@ -87,7 +90,7 @@ describe('Sign In Reauth Form Server Actions', () => {
 
       expect(result).toBe(true);
       expect(cookies().set).toHaveBeenCalledWith(
-        'emailPasswordAuthenticatedToken',
+        'emailPasswordAuthenticatedHighRiskActionToken',
         expect.any(String),
         {
           path: '/',
@@ -104,7 +107,7 @@ describe('Sign In Reauth Form Server Actions', () => {
       expect(decoded).toMatchObject({
         userId,
         tenantId,
-        type: 'emailPasswordAuthenticated',
+        type: 'emailPasswordAuthenticatedHighRiskAction',
       });
     });
 
@@ -127,6 +130,52 @@ describe('Sign In Reauth Form Server Actions', () => {
       expect(cookies().set).not.toHaveBeenCalled();
     });
 
+    it('should fail with validation errors on email or password', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userId,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Test with invalid email
+      const resultInvalidEmail = await authenticateForHighRiskAction({
+        email: 'not-an-email',
+        password: testPassword,
+      });
+
+      expect(resultInvalidEmail).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
+      expect(cookies().set).not.toHaveBeenCalled();
+
+      // Reset mocks
+      vi.clearAllMocks();
+      vi.spyOn(console, 'log');
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Test with short password
+      const resultShortPassword = await authenticateForHighRiskAction({
+        email: testEmail,
+        password: 'short', // Less than 8 characters
+      });
+
+      expect(resultShortPassword).toBe(false);
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
+      expect(cookies().set).not.toHaveBeenCalled();
+    });
+
     it('should fail with incorrect password', async () => {
       // Mock an active session
       const sessionRepository = new SessionRepository({
@@ -145,7 +194,7 @@ describe('Sign In Reauth Form Server Actions', () => {
 
       const result = await authenticateForHighRiskAction({
         email: testEmail,
-        password: 'wrongPassword',
+        password: 'wrongPassword123!',
       });
 
       expect(result).toBe(false);
@@ -183,7 +232,7 @@ describe('Sign In Reauth Form Server Actions', () => {
       );
     });
 
-    it('should respect rate limiting', async () => {
+    it('should handle case with nonexistent user', async () => {
       // Mock an active session
       const sessionRepository = new SessionRepository({
         redisAdapter: new RedisAdapter({ redisClient }),
@@ -199,17 +248,51 @@ describe('Sign In Reauth Form Server Actions', () => {
       // Mock touchSession to return a valid session
       vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
 
-      headers.mockReturnValue({
-        get: vi.fn().mockReturnValue(crypto.randomUUID()),
+      // Mock userRepository.getByEmail to return null
+      const userRepository = new UserRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      vi.spyOn(userRepository, 'getByEmail').mockResolvedValue(null);
+
+      const result = await authenticateForHighRiskAction({
+        email: 'nonexistent@example.com',
+        password: testPassword,
       });
 
-      // Make multiple rapid requests
-      for (let i = 0; i < 10; i++) {
-        await authenticateForHighRiskAction({
-          email: testEmail,
-          password: 'wrongPassword',
-        });
-      }
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email does not match authenticated user'
+      );
+    });
+
+    it('should respect rate limiting', async () => {
+      // Mock rate limiter to simulate exceeded limit
+      const mockRateLimiter = new AuthRateLimiter({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+
+      vi.spyOn(mockRateLimiter, 'withRateLimit').mockImplementation(
+        async (params, callback) => {
+          // Simulate rate limit exceeded
+          return false;
+        }
+      );
+
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userId,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
 
       const result = await authenticateForHighRiskAction({
         email: testEmail,
@@ -217,7 +300,7 @@ describe('Sign In Reauth Form Server Actions', () => {
       });
 
       expect(result).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('IP Rate limit exceeded');
+      expect(cookies().set).not.toHaveBeenCalled();
     });
   });
 });

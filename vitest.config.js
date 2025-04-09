@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    globalTeardown: './tests/integration/globalTeardown.js',
+    setupFiles: './tests/integration/setup.js',
+    threads: false,
   },
   resolve: {
     alias: {

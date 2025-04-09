@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { verifyHighRiskActionToken } from '@/utils/auth';
 
 // Define Zod schema for password validation
 const passwordSchema = z
@@ -49,7 +50,7 @@ export async function updatePassword(newPassword) {
 
   if (!session) {
     console.log('No active session found in updatePassword');
-    return { success: false, message: 'Session not found' };
+    return { success: false, message: 'Unauthenticated' };
   }
 
   // Validate and sanitize password
@@ -60,47 +61,19 @@ export async function updatePassword(newPassword) {
       return { success: false, message: error.errors[0].message };
     }
     console.log('Password validation error in updatePassword');
-    return { success: false, message: 'Invalid password format' };
+    return { success: false, message: 'Unauthenticated' };
   }
 
   const sanitizedPassword = sanitizeInput(newPassword);
 
-  // Get highRiskActionValidatedToken from cookies
-  const cookieStore = await cookies();
-  const highRiskActionValidatedToken = cookieStore.get(
-    'highRiskActionValidatedToken'
-  )?.value;
-
-  if (!highRiskActionValidatedToken) {
-    console.log('Missing highRiskActionValidatedToken');
-    return { success: false, tokenInvalid: true };
-  }
-
-  // Verify the token
-  let verifiedToken;
-  try {
-    verifiedToken = jwt.verify(
-      highRiskActionValidatedToken,
-      process.env.JWT_SECRET,
-      {
-        algorithms: ['HS256'],
-      }
-    );
-  } catch (error) {
-    console.log('Invalid or expired highRiskActionValidatedToken');
-    return { success: false, tokenInvalid: true };
-  }
-
-  // Validate token type
-  if (verifiedToken.type !== 'highRiskActionValidated') {
-    console.log('Invalid token type - expected highRiskActionValidated');
-    return { success: false, tokenInvalid: true };
-  }
-
-  // Ensure token userId matches session userId
-  if (verifiedToken.userId !== session.userId) {
-    console.log('Token userId does not match session userId');
-    return { success: false, tokenInvalid: true };
+  // Verify high-risk action token
+  const authToken = await verifyHighRiskActionToken();
+  if (!authToken || authToken.userId !== session.userId) {
+    return {
+      success: false,
+      message: 'Unauthenticated',
+      tokenInvalid: true,
+    };
   }
 
   // Get the user
@@ -108,7 +81,7 @@ export async function updatePassword(newPassword) {
 
   if (!user) {
     console.log('User not found');
-    return { success: false, message: 'User not found' };
+    return { success: false, message: 'Unexpected error' };
   }
 
   // Hash and update the password
@@ -120,9 +93,6 @@ export async function updatePassword(newPassword) {
     userId: user.id,
     user,
   });
-
-  // Clear the highRiskActionValidatedToken
-  cookieStore.delete('highRiskActionValidatedToken');
 
   return { success: true };
 }

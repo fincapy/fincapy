@@ -17,10 +17,7 @@ import {
   validateAndSanitize,
 } from '@/utils/validation';
 
-export async function verifyTOTPForHighRiskAction(
-  rawToken,
-  isBackupCode = false
-) {
+export async function verifyTOTPForHighRiskAction(isBackupCode = false) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new AuthRateLimiter({ redisAdapter });
   const sessionRepository = new SessionRepository({ redisAdapter });
@@ -42,19 +39,29 @@ export async function verifyTOTPForHighRiskAction(
   return await rateLimiter.withRateLimit(
     { ip, processId: 'verifyTOTPForHighRiskAction', userId: session.userId },
     async () => {
-      const validation = validateAndSanitize(
-        rawToken,
-        isBackupCode ? backupCodeSchema : totpSchema
-      );
-      const token = validation.data;
+      const cookiesList = await cookies();
+      const token = cookiesList.get(
+        'emailPasswordAuthenticatedHighRiskActionToken'
+      )?.value;
+      if (!token) {
+        console.log('No token found');
+        return false;
+      }
 
-      if (!validation.success) {
-        console.log('TOTP validation error');
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (error) {
+        console.log('Invalid token');
+        return false;
+      }
+      if (decoded.type !== 'emailPasswordAuthenticatedHighRiskAction') {
+        console.log('Invalid token type');
         return false;
       }
 
       const userRepository = new UserRepository({ redisAdapter });
-      const user = await userRepository.get({ userId: session.userId });
+      const user = await userRepository.get({ userId: decoded.userId });
 
       if (!user) {
         console.log('TOTP user not found');
@@ -96,11 +103,13 @@ export async function verifyTOTPForHighRiskAction(
       }
 
       // Set highRiskActionValidated token
+      const jti = crypto.randomUUID();
       const highRiskActionValidatedToken = jwt.sign(
         {
           userId: user.id,
           tenantId: user.tenantId,
           type: 'highRiskActionValidated',
+          jti,
         },
         process.env.JWT_SECRET,
         { expiresIn: '5m', algorithm: 'HS256' }

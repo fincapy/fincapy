@@ -100,19 +100,19 @@ async function authenticateForHighRiskAction(rawInput) {
       });
 
       if (result) {
-        const emailPasswordAuthenticatedToken = jwt.sign(
+        const emailPasswordAuthenticatedHighRiskActionToken = jwt.sign(
           {
             userId: user.id,
             tenantId: user.tenantId,
-            type: 'emailPasswordAuthenticated',
+            type: 'emailPasswordAuthenticatedHighRiskAction',
           },
           process.env.JWT_SECRET,
           { expiresIn: '5m', algorithm: 'HS256' }
         );
 
         (await cookies()).set(
-          'emailPasswordAuthenticatedToken',
-          emailPasswordAuthenticatedToken,
+          'emailPasswordAuthenticatedHighRiskActionToken',
+          emailPasswordAuthenticatedHighRiskActionToken,
           {
             path: '/',
             httpOnly: true,

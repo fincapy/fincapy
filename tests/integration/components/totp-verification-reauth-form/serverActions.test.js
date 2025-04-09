@@ -8,6 +8,7 @@ import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { cookies, headers } from 'next/headers';
 import { generateBackupCodes } from '@/utils/backupCodes';
 import speakeasy from 'speakeasy';
+import crypto from 'crypto';
 import {
   vi,
   describe,
@@ -20,6 +21,7 @@ import {
 
 const userId = uuidv4();
 const userIdRateLimited = uuidv4();
+const userIdWithoutTOTP = uuidv4();
 const tenantId = uuidv4();
 const secret = speakeasy.generateSecret();
 
@@ -64,11 +66,22 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       },
     });
 
+    await userRepository.set({
+      userId: userIdWithoutTOTP,
+      user: {
+        id: userIdWithoutTOTP,
+        tenantId,
+        role: 'owner',
+        totpEnabled: false,
+      },
+    });
+
     // Mock cookies
-    cookies.mockReturnValue({
+    const mockCookies = {
       set: vi.fn(),
       get: vi.fn(),
-    });
+    };
+    cookies.mockReturnValue(mockCookies);
   });
 
   describe('verifyTOTPForHighRiskAction', () => {
@@ -88,12 +101,32 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       // Mock touchSession to return a valid session
       vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
 
+      // Generate valid TOTP token
       const token = speakeasy.totp({
         secret: secret.base32,
         encoding: 'base32',
       });
 
-      const result = await verifyTOTPForHighRiskAction(token);
+      // Create JWT token for authentication
+      const jwtToken = jwt.sign(
+        {
+          userId,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return our JWT token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: token };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction();
 
       expect(result).toBe(true);
       expect(cookies().set).toHaveBeenCalledWith(
@@ -116,6 +149,7 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
         tenantId,
         type: 'highRiskActionValidated',
       });
+      expect(decoded.jti).toBeDefined();
     });
 
     it('should successfully verify valid backup code with active session', async () => {
@@ -145,7 +179,26 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       user.backupCodes = [backupCodes.hashedCodes[0]];
       await userRepository.set({ userId, user });
 
-      const result = await verifyTOTPForHighRiskAction(backupCode, true);
+      // Create JWT token for authentication
+      const jwtToken = jwt.sign(
+        {
+          userId,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return our JWT token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: backupCode };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction(true);
 
       expect(result).toBe(true);
       expect(cookies().set).toHaveBeenCalledWith(
@@ -159,6 +212,10 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
           maxAge: 60 * 5 * 1000, // 5 minutes
         }
       );
+
+      // Verify backup code is marked as used
+      const updatedUser = await userRepository.get({ userId });
+      expect(updatedUser.backupCodes[0].used).toBe(true);
     });
 
     it('should fail with no active session', async () => {
@@ -171,16 +228,196 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       // Mock touchSession to return false (no valid session)
       vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(false);
 
-      const token = speakeasy.totp({
-        secret: secret.base32,
-        encoding: 'base32',
-      });
-
-      const result = await verifyTOTPForHighRiskAction(token);
+      const result = await verifyTOTPForHighRiskAction();
 
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith('No active session found');
+    });
+
+    it('should fail when no token cookie is present', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userId,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Mock cookies get to return null
+      cookies().get.mockImplementation(() => null);
+
+      const result = await verifyTOTPForHighRiskAction();
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('No token found');
+    });
+
+    it('should fail with invalid JWT token', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userId,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Mock the cookie get to return invalid token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: 'invalid-token' };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction();
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('Invalid token');
+    });
+
+    it('should fail with wrong token type', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userId,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Create JWT token with wrong type
+      const jwtToken = jwt.sign(
+        {
+          userId,
+          tenantId,
+          type: 'wrongType',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return token with wrong type
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: jwtToken };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction();
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('Invalid token type');
+    });
+
+    it('should fail for user without TOTP setup when not using backup code', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value with user without TOTP
+      const mockSession = {
+        userId: userIdWithoutTOTP,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Create JWT token
+      const jwtToken = jwt.sign(
+        {
+          userId: userIdWithoutTOTP,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return our JWT token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: jwtToken };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction();
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('TOTP not set up for user');
+    });
+
+    it('should fail when user has no backup codes available', async () => {
+      // Mock an active session
+      const sessionRepository = new SessionRepository({
+        redisAdapter: new RedisAdapter({ redisClient }),
+      });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      // Mock session return value
+      const mockSession = {
+        userId: userIdWithoutTOTP,
+        tenantId: tenantId,
+      };
+
+      // Mock touchSession to return a valid session
+      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
+
+      // Create JWT token
+      const jwtToken = jwt.sign(
+        {
+          userId: userIdWithoutTOTP,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return our JWT token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: 'backup-code' };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction(true);
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'TOTP no backup codes available for user'
+      );
     });
 
     it('should fail with invalid TOTP token', async () => {
@@ -199,7 +436,26 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       // Mock touchSession to return a valid session
       vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
 
-      const result = await verifyTOTPForHighRiskAction('123456');
+      // Create JWT token
+      const jwtToken = jwt.sign(
+        {
+          userId,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return invalid TOTP token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: '123456' };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction();
 
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
@@ -224,7 +480,26 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       // Mock touchSession to return a valid session
       vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
 
-      const result = await verifyTOTPForHighRiskAction('INVALID123456', true);
+      // Create JWT token
+      const jwtToken = jwt.sign(
+        {
+          userId,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return invalid backup code
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: 'INVALID123456' };
+        }
+        return null;
+      });
+
+      const result = await verifyTOTPForHighRiskAction(true);
 
       expect(result).toBe(false);
       expect(cookies().set).not.toHaveBeenCalled();
@@ -253,13 +528,30 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
       const testIp = '127.0.0.1';
       headers.mockReturnValue({ get: vi.fn(() => testIp) });
 
-      const token = '123456';
+      // Create JWT token
+      const jwtToken = jwt.sign(
+        {
+          userId: userIdRateLimited,
+          tenantId,
+          type: 'emailPasswordAuthenticatedHighRiskAction',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Mock the cookie get to return our JWT token
+      cookies().get.mockImplementation((name) => {
+        if (name === 'emailPasswordAuthenticatedHighRiskActionToken') {
+          return { value: '123456' };
+        }
+        return null;
+      });
 
       for (let i = 0; i < 10; i++) {
-        await verifyTOTPForHighRiskAction(token);
+        await verifyTOTPForHighRiskAction();
       }
 
-      const result = await verifyTOTPForHighRiskAction(token);
+      const result = await verifyTOTPForHighRiskAction();
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith('IP Rate limit exceeded');
     });

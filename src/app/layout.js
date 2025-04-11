@@ -133,15 +133,15 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  // const headersList = await headers();
-  // const nonce = headersList.get('x-nonce');
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce');
 
   return (
     <html lang="en" className="overscroll-none bg-card">
       <head>
         <Script
           src="/mixpanel-init.js"
-          // nonce={nonce}
+          nonce={nonce}
           strategy="beforeInteractive"
         />
       </head>

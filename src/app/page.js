@@ -24,7 +24,12 @@ export default function Home() {
 
   useEffect(() => {
     // Check if Mixpanel is available
-    if (typeof window !== 'undefined' && window.mixpanel) {
+    console.log('env', process.env.NODE_ENV);
+    if (
+      typeof window !== 'undefined' &&
+      window.mixpanel &&
+      process.env.NODE_ENV === 'production'
+    ) {
       window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
         debug: process.env.NODE_ENV === 'development',
         track_pageview: false,
@@ -44,10 +49,6 @@ export default function Home() {
       if (!localStorage.getItem('mp_existing_user')) {
         window.mixpanel.track('home_page_viewed', {});
       }
-    } else {
-      console.error(
-        'Mixpanel not loaded. Make sure mixpanel-init.js is being loaded correctly.'
-      );
     }
   }, [MIXPANEL_TOKEN]);
 

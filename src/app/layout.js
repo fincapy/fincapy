@@ -1,4 +1,6 @@
 import './globals.css';
+import { headers } from 'next/headers';
+import Script from 'next/script';
 
 export const metadata = {
   title: 'Who will your money make you?',
@@ -131,8 +133,18 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce');
+
   return (
     <html lang="en" className="overscroll-none bg-card">
+      <head>
+        <Script
+          src="/mixpanel-init.js"
+          nonce={nonce}
+          strategy="beforeInteractive"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

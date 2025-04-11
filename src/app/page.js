@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WaitlistModal } from '@/components/waitlist-modal';
-import mixpanel from 'mixpanel-browser';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
@@ -19,13 +18,14 @@ export default function Home() {
   const handleOpenModal = () => {
     setModalOpen(true);
     if (process.env.NODE_ENV === 'production') {
-      mixpanel.track('sign_up_button_clicked', {});
+      window.mixpanel.track('sign_up_button_clicked', {});
     }
   };
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
+    // Check if Mixpanel is available
+    if (typeof window !== 'undefined' && window.mixpanel) {
+      window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
         debug: process.env.NODE_ENV === 'development',
         track_pageview: false,
         persistence: 'localStorage',
@@ -40,10 +40,14 @@ export default function Home() {
       }
 
       // Identify the user with the anonymous ID
-      mixpanel.identify(distinctId);
+      window.mixpanel.identify(distinctId);
       if (!localStorage.getItem('mp_existing_user')) {
-        mixpanel.track('home_page_viewed', {});
+        window.mixpanel.track('home_page_viewed', {});
       }
+    } else {
+      console.error(
+        'Mixpanel not loaded. Make sure mixpanel-init.js is being loaded correctly.'
+      );
     }
   }, [MIXPANEL_TOKEN]);
 

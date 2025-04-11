@@ -17,19 +17,11 @@ export default function Home() {
 
   const handleOpenModal = () => {
     setModalOpen(true);
-    if (process.env.NODE_ENV === 'production') {
-      window.mixpanel.track('sign_up_button_clicked', {});
-    }
+    window.mixpanel.track('sign_up_button_clicked', {});
   };
 
   useEffect(() => {
-    // Check if Mixpanel is available
-    console.log('env', process.env.NODE_ENV);
-    if (
-      typeof window !== 'undefined' &&
-      window.mixpanel &&
-      process.env.NODE_ENV === 'production'
-    ) {
+    if (typeof window !== 'undefined' && window.mixpanel) {
       window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
         debug: process.env.NODE_ENV === 'development',
         track_pageview: false,

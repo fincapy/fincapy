@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       <section id="about" className="py-12 md:py-24 lg:py-32 w-full">
-        <div className="container px-4 mx-auto max-w-5xl">
+        <div className="container px-4 mx-auto max-w-6xl">
           <div className="mb-8 flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               About Us

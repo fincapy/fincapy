@@ -413,7 +413,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
   return (
     <div className="flex flex-col w-full h-full px-4 md:px-6">
-      <div className="w-full max-w-5xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         {/* Mobile dropdown navigation */}
         <div className="md:hidden w-full my-4">
           <DropdownMenu>

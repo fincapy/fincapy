@@ -13,7 +13,7 @@ export const metadata = {
   applicationName: 'Fincapy',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Fincapy',
     startupImage: [
       // iPhone 14 Pro Max, 13 Pro Max (1290 x 2796)
@@ -121,7 +121,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#09090b',
+  themeColor: '#f9fafb',
   minimumScale: 1,
   initialScale: 1,
   width: 'device-width',

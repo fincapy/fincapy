@@ -13,7 +13,7 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const logoRef = useRef(null);
   const ctaButtonRef = useRef(null);
-  const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
+  const MIXPANEL_TOKEN = '050c483ab6f1f8fd53a396d95f7b3c4c';
 
   const handleOpenModal = () => {
     setModalOpen(true);

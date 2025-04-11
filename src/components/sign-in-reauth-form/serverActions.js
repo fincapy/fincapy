@@ -56,8 +56,9 @@ async function authenticateForHighRiskAction(rawInput) {
   const ip = headersList.get('fly-client-ip') || 'unknown-ip';
 
   // Verify user has an active session
+  const cookiesList = await cookies();
   const session = await sessionManager.touchSession({
-    cookies: await cookies(),
+    cookies: cookiesList,
   });
   if (!session) {
     return false;

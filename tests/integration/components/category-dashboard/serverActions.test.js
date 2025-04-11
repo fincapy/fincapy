@@ -156,6 +156,7 @@ describe('Category Dashboard Server Actions', () => {
       const categoryData = {
         categoryId: uuidv4(),
         name: 'Test Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId: 'initial',
         type: 'spending',
@@ -172,6 +173,7 @@ describe('Category Dashboard Server Actions', () => {
       const categoryData = {
         categoryId: uuidv4(),
         name: 'Test Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -190,6 +192,7 @@ describe('Category Dashboard Server Actions', () => {
       const categoryData = {
         categoryId: uuidv4(),
         name: 'Test Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -209,6 +212,7 @@ describe('Category Dashboard Server Actions', () => {
       const categoryData = {
         categoryId: uuidv4(),
         name: 'Test Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -232,6 +236,7 @@ describe('Category Dashboard Server Actions', () => {
       const createData = {
         categoryId,
         name: 'Original Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -316,6 +321,7 @@ describe('Category Dashboard Server Actions', () => {
       const createData = {
         categoryId,
         name: 'Category to Delete',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'spending',
@@ -392,6 +398,7 @@ describe('Category Dashboard Server Actions', () => {
       const createCategoryData = {
         categoryId,
         name: 'Parent Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -480,6 +487,7 @@ describe('Category Dashboard Server Actions', () => {
       const createCategoryData = {
         categoryId,
         name: 'Parent Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -580,6 +588,7 @@ describe('Category Dashboard Server Actions', () => {
       const createCategoryData = {
         categoryId,
         name: 'Parent Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'expense',
@@ -679,6 +688,7 @@ describe('Category Dashboard Server Actions', () => {
         categoryId: categoryId1,
         name: 'Category 1',
         monthlyGoal: 1000,
+        otherSubcategoryId: uuidv4(),
         planId,
         type: 'expense',
       });
@@ -687,6 +697,7 @@ describe('Category Dashboard Server Actions', () => {
         categoryId: categoryId2,
         name: 'Category 2',
         monthlyGoal: 1000,
+        otherSubcategoryId: uuidv4(),
         planId,
         type: 'expense',
       });
@@ -786,6 +797,7 @@ describe('Category Dashboard Server Actions', () => {
       const createCategoryData = {
         categoryId,
         name: 'Parent Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'spending',
@@ -834,6 +846,7 @@ describe('Category Dashboard Server Actions', () => {
       const createCategoryData = {
         categoryId,
         name: 'Parent Category',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 1000,
         planId,
         type: 'spending',
@@ -849,6 +862,7 @@ describe('Category Dashboard Server Actions', () => {
         subcategoryId: subcategoryId1,
         categoryId,
         name: 'Subcategory 1',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 500,
         planId,
       });
@@ -857,6 +871,7 @@ describe('Category Dashboard Server Actions', () => {
         subcategoryId: subcategoryId2,
         categoryId,
         name: 'Subcategory 2',
+        otherSubcategoryId: uuidv4(),
         monthlyGoal: 500,
         planId,
       });

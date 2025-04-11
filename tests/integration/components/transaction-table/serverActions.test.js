@@ -138,7 +138,7 @@ describe('Transaction Table Server Actions', () => {
 
       // First create a transaction
       const transactionId = uuidv4();
-      const categoryId = 'uncategorizedSpending';
+      const categoryId = 'spending_other';
       const createData = {
         transactionId,
         planId,

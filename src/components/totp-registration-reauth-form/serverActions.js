@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { generateBackupCodes } from '@/utils/backupCodes';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { SessionManager } from '@/backend/adapters/auth';
 
 // Validation schemas
 const tokenSchema = z.string().trim().min(6).max(8);
@@ -54,8 +55,16 @@ export async function generateTOTPSecret() {
 
 export async function verifyAndSaveTOTP(token, secret) {
   const redisAdapter = new RedisAdapter({ redisClient });
-
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+  const cookiesList = await cookies();
   try {
+    const session = await sessionManager.touchSession({ cookies: cookiesList });
+    if (!session) {
+      console.log('Session not found');
+      return { success: false, error: 'Session not found' };
+    }
+
     // Validate and sanitize inputs
     const validatedToken = tokenSchema.parse(token);
     const sanitizedToken = sanitizeHtml(validatedToken, sanitizeOptions);

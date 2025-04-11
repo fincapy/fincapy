@@ -6,7 +6,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './tests/integration/setup.js',
-    threads: false,
+    poolOptions: {
+      forks: {
+        maxForks: 5,
+      },
+    },
   },
   resolve: {
     alias: {

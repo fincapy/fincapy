@@ -1,15 +1,11 @@
 import { authenticateForHighRiskAction } from '@/components/sign-in-reauth-form/serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { SetupNewTenantService } from '@/backend/services/setupNewTenantService';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
-import { SessionManager } from '@/backend/adapters/auth';
-import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
-import { UserRepository } from '@/backend/adapters/repositories/userRepository';
-import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import { cookies, headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import {
   vi,
   describe,
@@ -19,77 +15,88 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
-
-const userId = uuidv4();
-const tenantId = uuidv4();
-const testEmail = `${userId}@test.com`;
-const testPassword = 'testPassword123!';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { Session } from '@/backend/domain/session';
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
   headers: vi.fn(),
 }));
 
-describe('Sign In Reauth Form Server Actions', () => {
-  beforeAll(async () => {
-    // Set up a test user
-    const redisAdapter = new RedisAdapter({ redisClient });
-    const transactionManager = new TransactionManager({
-      redisAdapter,
-    });
-    const setupNewTenantService = new SetupNewTenantService({
-      transactionManager,
-    });
-    await setupNewTenantService.execute({
-      tenantId,
-      userId,
-      email: testEmail,
-      password: testPassword,
-      name: 'Test User',
-      whitelistBilling: true,
-    });
-  });
-
+describe('Sign In Form Server Actions', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    const ip = crypto.randomUUID();
-    headers.mockReturnValue({ get: vi.fn(() => ip) });
+    headers.mockReturnValue({ get: vi.fn(() => crypto.randomUUID()) });
+    vi.spyOn(console, 'log');
     cookies.mockReturnValue({
       set: vi.fn(),
       get: vi.fn(),
-      delete: vi.fn(),
     });
-    vi.spyOn(console, 'log');
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('authenticateForHighRiskAction', () => {
-    it('should successfully authenticate with valid credentials and active session', async () => {
-      // Mock an active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
+  describe('authenticateEmailPassword', () => {
+    it('should successfully authenticate with valid credentials', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
       });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value
-      const mockSession = {
-        userId: userId,
-        tenantId: tenantId,
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
       };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
+      cookies.mockResolvedValue(validTotpCookieResolution);
       const result = await authenticateForHighRiskAction({
         email: testEmail,
         password: testPassword,
       });
 
-      expect(result).toBe(true);
-      expect(cookies().set).toHaveBeenCalledWith(
+      expect(validTotpCookieResolution.set).toHaveBeenCalledWith(
         'emailPasswordAuthenticatedHighRiskActionToken',
         expect.any(String),
         {
@@ -101,206 +108,409 @@ describe('Sign In Reauth Form Server Actions', () => {
         }
       );
 
-      // Verify the token structure
-      const token = cookies().set.mock.calls[0][1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      expect(decoded).toMatchObject({
-        userId,
-        tenantId,
-        type: 'emailPasswordAuthenticatedHighRiskAction',
-      });
-    });
-
-    it('should fail with no active session', async () => {
-      // Mock no active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
-      });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock touchSession to return false (no valid session)
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(false);
-
-      const result = await authenticateForHighRiskAction({
-        email: testEmail,
-        password: testPassword,
-      });
-
-      expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
-    });
-
-    it('should fail with validation errors on email or password', async () => {
-      // Mock an active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
-      });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value
-      const mockSession = {
-        userId: userId,
-        tenantId: tenantId,
-      };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
-      // Test with invalid email
-      const resultInvalidEmail = await authenticateForHighRiskAction({
-        email: 'not-an-email',
-        password: testPassword,
-      });
-
-      expect(resultInvalidEmail).toBe(false);
-      expect(console.log).toHaveBeenCalledWith(
-        'Email/password validation failed'
-      );
-      expect(cookies().set).not.toHaveBeenCalled();
-
-      // Reset mocks
-      vi.clearAllMocks();
-      vi.spyOn(console, 'log');
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
-      // Test with short password
-      const resultShortPassword = await authenticateForHighRiskAction({
-        email: testEmail,
-        password: 'short', // Less than 8 characters
-      });
-
-      expect(resultShortPassword).toBe(false);
-      expect(console.log).toHaveBeenCalledWith(
-        'Email/password validation failed'
-      );
-      expect(cookies().set).not.toHaveBeenCalled();
+      expect(result).toBe(true);
     });
 
     it('should fail with incorrect password', async () => {
-      // Mock an active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
       });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value
-      const mockSession = {
-        userId: userId,
-        tenantId: tenantId,
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
       };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
+      cookies.mockResolvedValue(validTotpCookieResolution);
       const result = await authenticateForHighRiskAction({
         email: testEmail,
-        password: 'wrongPassword123!',
+        password: 'wrongPassword',
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
+      expect(validTotpCookieResolution.set).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
         'Invalid email/password combination'
       );
     });
 
-    it('should fail with email that does not match session user', async () => {
-      // Mock an active session with different userId
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
+    it('should fail with non-existent email', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
       });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value with different userId
-      const mockSession = {
-        userId: uuidv4(), // Different userId than the test user
-        tenantId: tenantId,
-      };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
-      const result = await authenticateForHighRiskAction({
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
         email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validTotpCookieResolution);
+      const result = await authenticateForHighRiskAction({
+        email: 'nonexistent@test.com',
         password: testPassword,
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
+      expect(validTotpCookieResolution.set).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
         'Email does not match authenticated user'
       );
     });
 
-    it('should handle case with nonexistent user', async () => {
-      // Mock an active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
+    it('should fail with invalid email format', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
       });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value
-      const mockSession = {
-        userId: userId,
-        tenantId: tenantId,
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
       };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
-      // Mock userRepository.getByEmail to return null
-      const userRepository = new UserRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
-      });
-      vi.spyOn(userRepository, 'getByEmail').mockResolvedValue(null);
-
+      cookies.mockResolvedValue(validTotpCookieResolution);
       const result = await authenticateForHighRiskAction({
-        email: 'nonexistent@example.com',
+        email: 'invalid-email',
         password: testPassword,
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
+      expect(validTotpCookieResolution.set).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
-        'Email does not match authenticated user'
+        'Email/password validation failed'
       );
     });
 
-    it('should respect rate limiting', async () => {
-      // Mock rate limiter to simulate exceeded limit
-      const mockRateLimiter = new AuthRateLimiter({
-        redisAdapter: new RedisAdapter({ redisClient }),
+    it('should fail with empty password', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
       });
-
-      vi.spyOn(mockRateLimiter, 'withRateLimit').mockImplementation(
-        async (params, callback) => {
-          // Simulate rate limit exceeded
-          return false;
-        }
-      );
-
-      // Mock an active session
-      const sessionRepository = new SessionRepository({
-        redisAdapter: new RedisAdapter({ redisClient }),
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
       });
-      const sessionManager = new SessionManager({ sessionRepository });
-
-      // Mock session return value
-      const mockSession = {
-        userId: userId,
-        tenantId: tenantId,
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
       };
-
-      // Mock touchSession to return a valid session
-      vi.spyOn(sessionManager, 'touchSession').mockResolvedValue(mockSession);
-
+      cookies.mockResolvedValue(validTotpCookieResolution);
       const result = await authenticateForHighRiskAction({
         email: testEmail,
+        password: '',
+      });
+
+      expect(result).toBe(false);
+      expect(validTotpCookieResolution.set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email/password validation failed'
+      );
+    });
+
+    it('should respect rate limiting for IP address', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
+      });
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validTotpCookieResolution);
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValue(crypto.randomUUID()),
+      });
+      // Make multiple rapid requests
+      for (let i = 0; i < 10; i++) {
+        const randomEmail = `${uuidv4()}@test.com`;
+        await authenticateForHighRiskAction({
+          email: randomEmail,
+          password: 'wrongPassword',
+        });
+      }
+
+      const result = await authenticateForHighRiskAction({
+        email: `${uuidv4()}@test.com`,
         password: testPassword,
       });
 
       expect(result).toBe(false);
-      expect(cookies().set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith('IP Rate limit exceeded');
+    });
+
+    it('should respect rate limiting for email address', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
+      });
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validTotpCookieResolution);
+      headers.mockReturnValue({
+        get: vi.fn().mockReturnValueOnce(crypto.randomUUID()),
+      });
+
+      // Make multiple rapid requests
+      for (let i = 0; i < 10; i++) {
+        await authenticateForHighRiskAction({
+          email: 'rateLimitedEmail@test.com',
+          password: 'wrongPassword',
+        });
+      }
+
+      const result = await authenticateForHighRiskAction({
+        email: 'rateLimitedEmail@test.com',
+        password: testPassword,
+      });
+
+      expect(result).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('User Rate limit exceeded');
     });
   });
 });

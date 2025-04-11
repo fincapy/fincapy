@@ -18,6 +18,8 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { Session } from '@/backend/domain/session';
+import { generateBackupCodes } from '@/utils/backupCodes';
 
 const userId = uuidv4();
 const tenantId = uuidv4();
@@ -27,29 +29,6 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn(),
   headers: vi.fn(),
 }));
-
-const validHighRiskActionToken = jwt.sign(
-  { userId, tenantId, type: 'highRiskActionValidated' },
-  process.env.JWT_SECRET,
-  { expiresIn: '3h', algorithm: 'HS256' }
-);
-
-const validCookieResolution = {
-  get: vi.fn((key) => {
-    if (key === 'highRiskActionValidatedToken') {
-      return { value: validHighRiskActionToken };
-    }
-    return undefined;
-  }),
-  set: vi.fn(),
-  delete: vi.fn(),
-};
-
-const invalidCookieResolution = {
-  get: vi.fn(() => undefined),
-  set: vi.fn(),
-  delete: vi.fn(),
-};
 
 describe('TOTP Registration Reauth Form Server Actions', () => {
   let userRepository;
@@ -103,7 +82,70 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
 
   describe('verifyAndSaveTOTP', () => {
     it('should successfully verify and save TOTP setup', async () => {
-      cookies.mockReturnValue(validCookieResolution);
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  userId: userId,
+                  tenantId: tenantId,
+                  type: 'highRiskActionValidated',
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const token = speakeasy.totp({
@@ -113,6 +155,7 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
 
       const result = await verifyAndSaveTOTP(token, newSecret);
 
+      expect(result.error).toBeUndefined();
       expect(result.success).toBe(true);
       expect(result.backupCodes).toBeDefined();
       expect(result.backupCodes.length).toBeGreaterThan(0);
@@ -126,7 +169,70 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail with invalid token', async () => {
-      cookies.mockReturnValue(validCookieResolution);
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  userId: userId,
+                  tenantId: tenantId,
+                  type: 'highRiskActionValidated',
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const invalidToken = '123456'; // Not matching the secret
@@ -141,7 +247,57 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail with missing high risk action validation token', async () => {
-      cookies.mockReturnValue(invalidCookieResolution);
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const token = speakeasy.totp({
@@ -159,16 +315,66 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail with invalid JWT token', async () => {
-      // Mock a cookie with invalid signature
-      const invalidSignatureToken = jwt.sign(
-        { userId, tenantId, type: 'highRiskActionValidated' },
-        'wrong-secret',
-        { expiresIn: '3h', algorithm: 'HS256' }
-      );
-
-      cookies.mockReturnValue({
-        get: vi.fn(() => ({ value: invalidSignatureToken })),
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
       });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                { userId, tenantId, type: 'highRiskActionValidated' },
+                'wrong-secret',
+                { expiresIn: '3h', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const token = speakeasy.totp({
@@ -186,16 +392,70 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail with wrong token type', async () => {
-      // Mock a cookie with wrong token type
-      const wrongTypeToken = jwt.sign(
-        { userId, tenantId, type: 'wrongType' },
-        process.env.JWT_SECRET,
-        { expiresIn: '3h', algorithm: 'HS256' }
-      );
-
-      cookies.mockReturnValue({
-        get: vi.fn(() => ({ value: wrongTypeToken })),
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
       });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  userId: userId,
+                  tenantId: tenantId,
+                  type: 'wrong',
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const token = speakeasy.totp({
@@ -213,21 +473,56 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail when user not found', async () => {
-      // Create a token for a non-existent user
-      const nonExistentUserId = uuidv4();
-      const nonExistentUserToken = jwt.sign(
-        {
-          userId: nonExistentUserId,
-          tenantId,
-          type: 'highRiskActionValidated',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '3h', algorithm: 'HS256' }
-      );
-
-      cookies.mockReturnValue({
-        get: vi.fn(() => ({ value: nonExistentUserToken })),
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
       });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  userId: userId,
+                  tenantId: tenantId,
+                  type: 'highRiskActionValidated',
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       const newSecret = speakeasy.generateSecret().base32;
       const token = speakeasy.totp({
@@ -245,7 +540,70 @@ describe('TOTP Registration Reauth Form Server Actions', () => {
     });
 
     it('should fail with invalid input', async () => {
-      cookies.mockReturnValue(validCookieResolution);
+      const userId = uuidv4();
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const userRepository = new UserRepository({ redisAdapter });
+      const backupCodes = await generateBackupCodes();
+      await userRepository.set({
+        userId,
+        user: {
+          id: userId,
+          tenantId,
+          role: 'owner',
+          totpEnabled: true,
+          totpSecret: secret.base32,
+          backupCodes: [backupCodes.hashedCodes[0]],
+        },
+      });
+
+      // Mock cookies with valid session and backup code
+      const validBackupCodeCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  userId: userId,
+                  tenantId: tenantId,
+                  type: 'highRiskActionValidated',
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m', algorithm: 'HS256' }
+              ),
+            };
+          }
+          return null;
+        }),
+        set: vi.fn(),
+        delete: vi.fn(),
+      };
+      cookies.mockResolvedValue(validBackupCodeCookieResolution);
 
       // Test with invalid token length
       const result = await verifyAndSaveTOTP('12', 'invalid-secret');

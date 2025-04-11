@@ -1,7 +1,10 @@
 import { redisClient } from '@/backend/adapters/redisAdapter';
-import { afterEach } from 'vitest';
 
-afterEach(async () => {
-  // console.log('Flushing Redis');
-  // await redisClient.flushall();
+async function flushRedis() {
+  await redisClient.flushall();
+}
+
+process.on('exit', () => {
+  console.log('Flushing Redis');
+  flushRedis();
 });

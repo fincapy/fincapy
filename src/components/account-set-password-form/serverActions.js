@@ -61,10 +61,8 @@ export async function updatePassword(newPassword) {
       return { success: false, message: error.errors[0].message };
     }
     console.log('Password validation error in updatePassword');
-    return { success: false, message: 'Unauthenticated' };
+    return { success: false, message: 'Invalid password' };
   }
-
-  const sanitizedPassword = sanitizeInput(newPassword);
 
   // Verify high-risk action token
   const authToken = await verifyHighRiskActionToken();
@@ -85,7 +83,7 @@ export async function updatePassword(newPassword) {
   }
 
   // Hash and update the password
-  const hashedPassword = await bcrypt.hash(sanitizedPassword, 12);
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
   user.password = hashedPassword;
 
   // Save the updated user

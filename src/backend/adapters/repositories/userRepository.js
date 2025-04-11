@@ -35,6 +35,15 @@ class UserRepository {
     }
   }
 
+  async deleteEmailLookup({ email }) {
+    const emailHash = hashEmail(email);
+    if (this.transactionBuilder) {
+      this.transactionBuilder.addDel(`email:user:${emailHash}`);
+    } else {
+      await this.redisAdapter.delete(`email:user:${emailHash}`);
+    }
+  }
+
   async incrementVersion({ userId }) {
     if (this.transactionBuilder) {
       this.transactionBuilder.addIncr(`version:user:${userId}`);

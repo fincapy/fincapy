@@ -35,7 +35,6 @@ class AddEmailAddressService {
 
         // Save the updated user
         await userRepository.set({ userId: user.id, user });
-        await userRepository.incrementVersion({ userId: user.id });
 
         // Create email lookup
         await userRepository.setEmailLookup({ email, userId });
@@ -48,7 +47,6 @@ class AddEmailAddressService {
           if (tenantUser) {
             tenantUser.emails = user.emails;
             await tenantRepository.set({ tenantId, tenant });
-            await tenantRepository.incrementVersion({ tenantId });
           }
         }
 

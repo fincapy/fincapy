@@ -454,7 +454,7 @@ export async function setPrimaryEmail(email) {
         email,
       });
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: 'Unexpected error' };
     }
 
     return { success: true };
@@ -537,7 +537,7 @@ export async function removeEmail(email) {
       });
     } catch (error) {
       console.log('Remove email error:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: 'Unexpected error' };
     }
 
     return { success: true };

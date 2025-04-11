@@ -35,7 +35,6 @@ class RemoveEmailService {
 
         // Save the updated user
         await userRepository.set({ userId: user.id, user });
-        await userRepository.incrementVersion({ userId: user.id });
 
         // Remove email lookup
         await userRepository.deleteEmailLookup({ email });
@@ -48,7 +47,6 @@ class RemoveEmailService {
           if (tenantUser) {
             tenantUser.emails = user.emails;
             await tenantRepository.set({ tenantId, tenant });
-            await tenantRepository.incrementVersion({ tenantId });
           }
         }
 

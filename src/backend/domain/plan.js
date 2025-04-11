@@ -76,7 +76,8 @@ class Plan {
 
   deleteSubcategory({ subcategoryId, categoryId, type }) {
     const uncategorizedCategory = this.categories.find(
-      (category) => category.type === type && category.name === 'Uncategorized'
+      (category) =>
+        category.type === type && category.categoryId.includes('other')
     );
     const category = this.categories.find(
       (category) => category.categoryId === categoryId
@@ -140,7 +141,7 @@ class Plan {
     const uncategorizedCategory = this.categories.find(
       (category) =>
         category.type === categoryToDelete.type &&
-        category.name === 'Uncategorized'
+        category.categoryId.includes('other')
     );
     uncategorizedCategory.transactions.push(...categoryToDelete.transactions);
     categoryToDelete.subcategories.forEach((subcategory) => {

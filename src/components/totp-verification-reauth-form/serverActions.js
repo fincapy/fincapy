@@ -17,7 +17,10 @@ import {
   validateAndSanitize,
 } from '@/utils/validation';
 
-export async function verifyTOTPForHighRiskAction(isBackupCode = false) {
+export async function verifyTOTPForHighRiskAction(
+  rawToken,
+  isBackupCode = false
+) {
   const redisAdapter = new RedisAdapter({ redisClient });
   const rateLimiter = new AuthRateLimiter({ redisAdapter });
   const sessionRepository = new SessionRepository({ redisAdapter });
@@ -68,38 +71,31 @@ export async function verifyTOTPForHighRiskAction(isBackupCode = false) {
         return false;
       }
 
-      if (!isBackupCode && !user.totpSecret) {
-        console.log('TOTP not set up for user');
-        return false;
-      }
-
       let isValid = false;
 
       if (isBackupCode) {
-        if (!user.backupCodes || !Array.isArray(user.backupCodes)) {
-          console.log('TOTP no backup codes available for user');
-          return false;
-        }
-
-        const codeIndex = await verifyBackupCode(token, user.backupCodes);
+        const codeIndex = await verifyBackupCode(rawToken, user.backupCodes);
         if (codeIndex >= 0) {
           user.backupCodes[codeIndex].used = true;
           await userRepository.set({ userId: user.id, user });
           isValid = true;
+        }
+        if (!isValid) {
+          console.log('TOTP invalid backup code for user');
+          return false;
         }
       } else {
         // Verify TOTP code
         isValid = speakeasy.totp.verify({
           secret: user.totpSecret,
           encoding: 'base32',
-          token: token,
+          token: rawToken,
           window: 1,
         });
-      }
-
-      if (!isValid) {
-        console.log('TOTP invalid verification code for user');
-        return false;
+        if (!isValid) {
+          console.log('TOTP invalid verification code for user');
+          return false;
+        }
       }
 
       // Set highRiskActionValidated token

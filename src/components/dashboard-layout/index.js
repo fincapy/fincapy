@@ -122,7 +122,7 @@ const NavBar = ({ page, setPage, userRole }) => {
       className={`flex flex-col items-center justify-center bg-card z-20 w-full fixed bottom-0 m-0 touch-none h-[7%] select-none`}
     >
       <Separator className="w-full h-[1px] bg-border" />
-      <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-11/12 h-full">
+      <div className="flex flex-row justify-center items-center lg:w-[33.33%] md:w-[50%] w-[96%] h-full">
         <div className="flex flex-row justify-between items-center flex-1">
           <button
             onClick={() => changePage('spending')}

@@ -242,29 +242,6 @@ class Plan {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  getDayWithOrdinal(date) {
-    const day = date.getDate();
-    if (day > 3 && day < 21) return `${day}th`;
-    switch (day % 10) {
-      case 1:
-        return `${day}st`;
-      case 2:
-        return `${day}nd`;
-      case 3:
-        return `${day}rd`;
-      default:
-        return `${day}th`;
-    }
-  }
-
-  // main formatter
-  formatPrettyDate(date) {
-    const month = format(date, 'MMM'); // Apr
-    const dayWithOrdinal = this.getDayWithOrdinal(date); // 1st
-    const year = format(date, 'yyyy'); // 2025
-    return `${month} ${dayWithOrdinal}, ${year}`;
-  }
-
   toTransactionsView() {
     let transactions = [];
     this.categories.forEach((category) => {
@@ -281,7 +258,6 @@ class Plan {
           this.startDate <= transactionDate &&
           transactionDate <= this.endDate
         ) {
-          transaction.date = this.formatPrettyDate(transactionDate);
           transactions.push(transaction);
         }
       });
@@ -299,7 +275,6 @@ class Plan {
             this.startDate <= transactionDate &&
             transactionDate <= this.endDate
           ) {
-            transaction.date = this.formatPrettyDate(transactionDate);
             transactions.push(transaction);
           }
         });

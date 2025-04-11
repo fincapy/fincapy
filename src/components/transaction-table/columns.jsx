@@ -54,6 +54,7 @@ import {
 } from '@/components/transaction-table/serverActions';
 import SubmitButton from '@/components/SubmitButton';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { format, parse } from 'date-fns';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -317,7 +318,7 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
         <DialogTitle>Edit Transaction Dialog</DialogTitle>
       </VisuallyHidden>
       <DialogContent
-        className="sm:max-w-11/12 bg-card"
+        className="sm:max-w-[96%] bg-card"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -485,7 +486,15 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />
     ),
-    show: false,
+    cell: ({ row }) => {
+      const date = parse(row.getValue('date'), 'yyyy-MM-dd', new Date());
+      return format(date, 'MMM d, yyyy');
+    },
+    sortingFn: (rowA, rowB) => {
+      const dateA = new Date(rowA.getValue('date'));
+      const dateB = new Date(rowB.getValue('date'));
+      return dateA.getTime() - dateB.getTime();
+    },
   },
   {
     accessorKey: 'description',

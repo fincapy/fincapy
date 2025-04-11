@@ -255,7 +255,7 @@ const InviteUserDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-11/12 bg-card rounded-xl"
+        className="sm:max-w-[96%] bg-card rounded-xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -292,7 +292,7 @@ export default function Dashboard() {
     <>
       {isLoading ? (
         <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
-          <div className="w-11/12 flex flex-row justify-end">
+          <div className="w-[96%] flex flex-row justify-end">
             <Skeleton className="h-9 w-9 bg-card" />
           </div>
           <div className="w-full">

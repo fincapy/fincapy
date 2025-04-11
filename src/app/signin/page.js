@@ -35,7 +35,7 @@ export default async function SignInPage() {
         <div className="flex flex-col items-center gap-0 mb-2">
           {/* <Suspense
             fallback={
-              <Skeleton className="h-[282px] w-11/12 sm:w-96 bg-background" />
+              <Skeleton className="h-[282px] w-[96%] sm:w-96 bg-background" />
             }
           > */}
           <SignInForm />

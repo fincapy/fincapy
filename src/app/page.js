@@ -21,26 +21,24 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.mixpanel) {
-      window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
-        debug: process.env.NODE_ENV === 'development',
-        track_pageview: false,
-        persistence: 'localStorage',
-        ip: 0,
-      });
+    window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
+      debug: process.env.NODE_ENV === 'development',
+      track_pageview: false,
+      persistence: 'localStorage',
+      ip: 0,
+    });
 
-      // Set or get a persistent anonymous ID
-      let distinctId = localStorage.getItem('mp_anonymous_id');
-      if (!distinctId) {
-        distinctId = uuidv4();
-        localStorage.setItem('mp_anonymous_id', distinctId);
-      }
+    // Set or get a persistent anonymous ID
+    let distinctId = localStorage.getItem('mp_anonymous_id');
+    if (!distinctId) {
+      distinctId = uuidv4();
+      localStorage.setItem('mp_anonymous_id', distinctId);
+    }
 
-      // Identify the user with the anonymous ID
-      window.mixpanel.identify(distinctId);
-      if (!localStorage.getItem('mp_existing_user')) {
-        window.mixpanel.track('home_page_viewed', {});
-      }
+    // Identify the user with the anonymous ID
+    window.mixpanel.identify(distinctId);
+    if (!localStorage.getItem('mp_existing_user')) {
+      window.mixpanel.track('home_page_viewed', {});
     }
   }, [MIXPANEL_TOKEN]);
 

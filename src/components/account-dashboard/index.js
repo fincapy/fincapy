@@ -427,7 +427,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     <UserRound className="h-4 w-4 mr-2" />
                   )}
                   {activeTab === 'users' && <Users className="h-4 w-4 mr-2" />}
-                  {activeTab === 'financial' && (
+                  {activeTab === 'financial-institutions' && (
                     <Landmark className="h-4 w-4 mr-2" />
                   )}
                   {activeTab === 'billing' && (
@@ -436,7 +436,9 @@ const AccountPage = ({ setPage, userEmail }) => {
                   {activeTab === 'security' && (
                     <Shield className="h-4 w-4 mr-2" />
                   )}
-                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                  {activeTab === 'financial-institutions'
+                    ? 'Financial Institutions'
+                    : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                 </span>
                 <ChevronDown className="h-4 w-4 ml-2" />
               </Button>
@@ -473,11 +475,11 @@ const AccountPage = ({ setPage, userEmail }) => {
 
               <DropdownMenuItem
                 className={
-                  activeTab === 'financial'
+                  activeTab === 'financial-institutions'
                     ? 'bg-accent text-accent-foreground'
                     : ''
                 }
-                onSelect={() => setActiveTab('financial')}
+                onSelect={() => setActiveTab('financial-institutions')}
               >
                 <Landmark className="h-4 w-4 mr-2" />
                 Financial Institutions
@@ -546,11 +548,11 @@ const AccountPage = ({ setPage, userEmail }) => {
 
           <button
             className={`px-4 py-2 -mb-px font-medium text-sm ${
-              activeTab === 'financial'
+              activeTab === 'financial-institutions'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
-            onClick={() => setActiveTab('financial')}
+            onClick={() => setActiveTab('financial-institutions')}
           >
             <div className="flex items-center">
               <Landmark className="h-4 w-4 mr-2" />
@@ -801,7 +803,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             </div>
           )}
 
-          {activeTab === 'financial' && (
+          {activeTab === 'financial-institutions' && (
             <div className="w-full overflow-x-auto">
               <FinancialInstitutionsDashboard />
             </div>

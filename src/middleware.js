@@ -5,7 +5,7 @@ export async function middleware(request) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const prodCspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline' https://*.mixpanel.com;
+    script-src 'self' 'nonce-${nonce}' https://*.mixpanel.com;
     connect-src 'self' https://*.plaid.com https://*.mixpanel.com;
     frame-src 'self' https://plaid.com https://*.plaid.com;
     child-src 'self' https://plaid.com https://*.plaid.com;

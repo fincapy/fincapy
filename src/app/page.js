@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WaitlistModal } from '@/components/waitlist-modal';
-import Head from 'next/head';
 
 export default function Home() {
   const ctaText = 'Join the waitlist';
   const [modalOpen, setModalOpen] = useState(false);
+  const logoRef = useRef(null);
+  const ctaButtonRef = useRef(null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,14 +19,17 @@ export default function Home() {
       <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
         <div className="flex h-[10vh] items-center justify-between w-full">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/icons/android-chrome-192x192.png"
-              alt="Fincapy Logo"
-              width={60}
-              height={60}
-              className="h-[60px] w-[60px] sm:ml-[9px] ml-[1px]"
-              priority
-            />
+            <div className="relative">
+              <Image
+                ref={logoRef}
+                src="/icons/android-chrome-192x192.png"
+                alt="Fincapy Logo"
+                width={60}
+                height={60}
+                className={`h-[60px] w-[60px] sm:ml-[9px] ml-[1px]`}
+                priority
+              />
+            </div>
           </Link>
           <div className="flex items-center gap-3 sm:px-7 px-3">
             <Link href="/signin">
@@ -60,8 +64,9 @@ export default function Home() {
               solution that just works.
             </p>
             <Button
+              ref={ctaButtonRef}
               size="lg"
-              className="w-[200px] bg-primary text-white hover:bg-secondary font-bold text-md"
+              className="w-[200px] bg-primary text-white hover:bg-secondary font-bold text-md relative"
               onClick={() => setModalOpen(true)}
             >
               {ctaText}
@@ -83,22 +88,20 @@ export default function Home() {
                 Hi! I&apos;m Ryan Wible, the founder of Fincapy, and these are
                 some goats that I found. Over the past few years, I&apos;ve been
                 on a journey to understand myself and my finances. I want to be
-                a truly integrated person and part of that is putting my money
-                where my mouth is, literally.
+                an integrated person and part of that is what I do with my
+                money.
               </p>
               <p className="text-muted-foreground">
                 I created Fincapy to help me understand my spending in a simple
-                and intuitive way. Do I spend too much on groceries? Most
+                and intuitive way. Do I spend a lot on groceries? Most
                 certainly. Is it because I love to cook? Also yes. Does that
-                make me a bad person? Absolutely not. But maybe I don&apos;t
-                care as much about travel (not true, but just go with it). With
-                Fincapy, I can see where my money is going, what I need to
-                budget for, and make adjustments.
+                make me a bad person? Absolutely not. With Fincapy, I can see
+                where my money is going and make adjustments as needed.
               </p>
               <p className="text-muted-foreground">
                 I want to empower you with the tools you need to understand
-                yourself and your finances. I hope that Fincapy can be a part of
-                your journey in financial wellness.
+                yourself and your finances. I hope that Fincapy will be a part
+                of your journey in financial wellness.
               </p>
             </div>
             <div className="w-full md:w-1/2 order-1 flex justify-center">
@@ -169,7 +172,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
-            <Card className="flex flex-col p-6">
+            <Card className="flex flex-col p-6 border">
               <div className="mb-4 text-center">
                 <h3 className="text-2xl font-bold">Free</h3>
                 <p className="text-muted-foreground">Check it out</p>
@@ -196,7 +199,7 @@ export default function Home() {
               </Button>
             </Card>
 
-            <Card className="flex flex-col border-primary p-6">
+            <Card className="flex flex-col border-primary p-6 border">
               <div className="mb-4 text-center">
                 <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">
                   RECOMMENDED
@@ -332,7 +335,7 @@ export default function Home() {
 // Helper components
 function FeatureCard({ title, description, icon }) {
   return (
-    <Card className="flex flex-col items-center p-6 text-center">
+    <Card className="flex flex-col items-center p-6 text-center border">
       <div className="mb-4 text-4xl">{icon}</div>
       <h3 className="mb-2 text-xl font-bold">{title}</h3>
       <p className="text-muted-foreground">{description}</p>

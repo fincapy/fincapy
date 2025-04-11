@@ -1640,6 +1640,13 @@ export default function CategoryDashboard({ type, categories }) {
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!localStorage.getItem('mp_existing_user')) {
+      localStorage.setItem('mp_existing_user', 'true');
+    }
+  }, []);
+
   useEffect(() => {
     if (categories.length > 0) {
       setCategoriesState(categories);

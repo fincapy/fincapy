@@ -38,6 +38,7 @@ services:
       - MODEL_ID=${MODEL_ID}
       - SITE_URL=${SITE_URL}
       - ENCRYPTION_KEY_1=${ENCRYPTION_KEY_1}
+      - NEXT_PUBLIC_MIXPANEL_TOKEN=${NEXT_PUBLIC_MIXPANEL_TOKEN}
   consumer:
     build:
       context: .

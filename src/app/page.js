@@ -1,17 +1,51 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { WaitlistModal } from '@/components/waitlist-modal';
+import mixpanel from 'mixpanel-browser';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const ctaText = 'Join the waitlist';
   const [modalOpen, setModalOpen] = useState(false);
   const logoRef = useRef(null);
   const ctaButtonRef = useRef(null);
+  const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.track('sign_up_button_clicked', {});
+    }
+  };
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
+        debug: process.env.NODE_ENV === 'development',
+        track_pageview: false,
+        persistence: 'localStorage',
+        ip: 0,
+      });
+
+      // Set or get a persistent anonymous ID
+      let distinctId = localStorage.getItem('mp_anonymous_id');
+      if (!distinctId) {
+        distinctId = uuidv4();
+        localStorage.setItem('mp_anonymous_id', distinctId);
+      }
+
+      // Identify the user with the anonymous ID
+      mixpanel.identify(distinctId);
+      if (!localStorage.getItem('mp_existing_user')) {
+        mixpanel.track('home_page_viewed', {});
+      }
+    }
+  }, [MIXPANEL_TOKEN]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +76,7 @@ export default function Home() {
             </Link>
             <Button
               className="bg-primary text-white hover:bg-secondary"
-              onClick={() => setModalOpen(true)}
+              onClick={handleOpenModal}
             >
               {ctaText}
             </Button>
@@ -67,7 +101,7 @@ export default function Home() {
               ref={ctaButtonRef}
               size="lg"
               className="w-[200px] bg-primary text-white hover:bg-secondary font-bold text-md relative"
-              onClick={() => setModalOpen(true)}
+              onClick={handleOpenModal}
             >
               {ctaText}
             </Button>
@@ -193,7 +227,7 @@ export default function Home() {
               <Button
                 className="w-full bg-card hover:bg-background mt-auto"
                 variant="outline"
-                onClick={() => setModalOpen(true)}
+                onClick={handleOpenModal}
               >
                 {ctaText}
               </Button>
@@ -219,7 +253,7 @@ export default function Home() {
               </ul>
               <Button
                 className="w-full bg-primary text-white hover:bg-secondary"
-                onClick={() => setModalOpen(true)}
+                onClick={handleOpenModal}
               >
                 {ctaText}
               </Button>
@@ -270,7 +304,7 @@ export default function Home() {
             <Button
               size="lg"
               className="bg-primary text-white hover:bg-primary-dark"
-              onClick={() => setModalOpen(true)}
+              onClick={handleOpenModal}
             >
               {ctaText}
             </Button>

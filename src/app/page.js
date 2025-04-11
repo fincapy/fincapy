@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { WaitlistModal } from '@/components/waitlist-modal';
 import mixpanel from 'mixpanel-browser';
 import { v4 as uuidv4 } from 'uuid';
+import Script from 'next/script';
 
 export default function Home() {
   const ctaText = 'Join the waitlist';

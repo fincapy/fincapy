@@ -4,6 +4,7 @@ import {
   resendEmailVerification,
   setPrimaryEmail,
   removeEmail,
+  changeUserName,
 } from '@/components/account-dashboard/serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
@@ -1294,6 +1295,150 @@ describe('Account Dashboard Server Actions', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid email address');
       expect(console.log).toHaveBeenCalledWith('Invalid email address');
+    });
+  });
+
+  describe('changeUserName', () => {
+    it('should successfully change user name', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      vi.spyOn(redisAdapter, 'set');
+
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Mock cookies
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // ACT
+      const result = await changeUserName('New Test User');
+
+      // ASSERT
+      expect(result.success).toBe(true);
+
+      const userRepository = new UserRepository({ redisAdapter });
+      const updatedUser = await userRepository.get({ userId });
+      expect(updatedUser.name).toBe('New Test User');
+    });
+
+    it('should fail with no session', async () => {
+      const result = await changeUserName('New Test User');
+      expect(result.success).toBe(false);
+      expect(console.log).toHaveBeenCalledWith('No session found');
+      expect(result.error).toBe('Unauthenticated');
+    });
+
+    it('should fail with empty name', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      vi.spyOn(redisAdapter, 'set');
+
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Mock cookies
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // ACT
+      const result = await changeUserName('');
+
+      // ASSERT
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Name cannot be empty');
     });
   });
 });

@@ -12,8 +12,6 @@ import { redirect } from 'next/navigation';
 import { generateBackupCodes } from '@/utils/backupCodes';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
-import { SessionManager } from '@/backend/adapters/auth';
-
 // Validation schemas
 const tokenSchema = z.string().trim().min(6).max(8);
 const secretSchema = z.string().trim().min(16);

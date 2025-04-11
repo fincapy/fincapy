@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { InputTOTP } from '../input-totp';
@@ -11,7 +11,6 @@ import {
   DownloadIcon,
 } from 'lucide-react';
 import { generateTOTPSecret, verifyAndSaveTOTP } from './serverActions';
-import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { Skeleton } from '../ui/skeleton';
 
@@ -25,42 +24,6 @@ const TOTPRegistrationReauthForm = ({ onSuccess }) => {
   const [copied, setCopied] = useState(false);
   const [backupCodes, setBackupCodes] = useState(null);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const router = useRouter();
-
-  const getTimeLeft = () => {
-    if (typeof window !== 'undefined') {
-      const timestamp = sessionStorage.getItem('emailPasswordCountdown');
-      if (timestamp) {
-        const elapsed = Math.floor(
-          (Date.now() - parseInt(timestamp, 10)) / 1000
-        );
-        const remaining = Math.max(0, 600 - elapsed);
-        return remaining;
-      }
-    }
-    return 600;
-  };
-
-  const [timeLeft, setTimeLeft] = useState(() => getTimeLeft());
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (timeLeft > 0) {
-        timerRef.current = setInterval(() => {
-          setTimeLeft((prev) => {
-            const newTime = prev - 1;
-            if (newTime <= 0) {
-              clearInterval(timerRef.current);
-              router.push('/signin');
-            }
-            return Math.max(0, newTime);
-          });
-        }, 1000);
-        return () => clearInterval(timerRef.current);
-      }
-    }
-  }, [timeLeft, router]);
 
   useEffect(() => {
     const initTOTP = async () => {
@@ -107,7 +70,7 @@ const TOTPRegistrationReauthForm = ({ onSuccess }) => {
   };
 
   return (
-    <Card className="w-[384px] border">
+    <Card className="w-[384px]">
       <CardContent className="pt-6">
         <div className="flex w-full flex-col items-center justify-center gap-1">
           {!showBackupCodes ? (
@@ -198,17 +161,6 @@ const TOTPRegistrationReauthForm = ({ onSuccess }) => {
               </Button>
             </>
           )}
-          <div className="flex w-full flex-col items-center justify-center gap-1 mt-2">
-            {!showBackupCodes && timeLeft > 0 && (
-              <div className="flex items-center space-x-1 text-xs">
-                <span className="text-xs text-muted-foreground">
-                  {Math.floor(timeLeft / 60)}:
-                  {(timeLeft % 60).toString().padStart(2, '0')}
-                </span>
-                <span className="text-muted-foreground">remaining</span>
-              </div>
-            )}
-          </div>
         </div>
       </CardContent>
     </Card>

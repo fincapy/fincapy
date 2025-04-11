@@ -15,6 +15,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { SetPrimaryEmailService } from '@/backend/services/setPrimaryEmailService';
 import { RemoveEmailService } from '@/backend/services/removeEmailService';
 import { verifyHighRiskActionToken } from '@/utils/auth';
+import { ChangeUserNameService } from '@/backend/services/changeUserNameService';
 
 // Create validation schema for email
 const emailSchema = z
@@ -544,5 +545,65 @@ export async function removeEmail(email) {
   } catch (error) {
     console.error('Remove email error:', error);
     return { success: false, error: 'Failed to remove email address' };
+  }
+}
+
+/**
+ * Change the current user's name
+ * @param {string} name - The new name for the user
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export async function changeUserName(name) {
+  try {
+    // Get current user token
+    const cookiesList = await cookies();
+
+    // Set up session manager
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+
+    const session = await sessionManager.getSession({
+      cookies: cookiesList,
+    });
+
+    if (!session) {
+      console.log('No session found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    const userId = session.userId;
+    if (!userId) {
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Sanitize name input
+    const sanitizedName = sanitizeInput(name);
+    if (!sanitizedName || sanitizedName.trim().length === 0) {
+      return { success: false, error: 'Name cannot be empty' };
+    }
+
+    // Change the user's name
+    const transactionManager = new TransactionManager();
+    const changeUserNameService = new ChangeUserNameService({
+      transactionManager,
+    });
+
+    try {
+      await changeUserNameService.execute({
+        userId,
+        tenantId: session.tenantId,
+        name: sanitizedName,
+      });
+    } catch (error) {
+      console.log('Change name error:', error);
+      return { success: false, error: 'Failed to change name' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Change name error:', error);
+    return { success: false, error: 'Unexpected error' };
   }
 }

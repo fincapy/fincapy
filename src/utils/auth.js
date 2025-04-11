@@ -9,17 +9,12 @@ import { cookies } from 'next/headers';
 export async function verifyHighRiskActionToken() {
   try {
     const cookiesList = await cookies();
-    console.log('cookiesList', cookiesList);
     const token = cookiesList.get('highRiskActionValidatedToken')?.value;
-    console.log('token', token);
     if (!token) {
       return null;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('decoded', decoded);
-    console.log('decoded.type', decoded.type);
-    console.log('decoded.jti', decoded.jti);
     if (decoded.type !== 'highRiskActionValidated' || !decoded.jti) {
       return null;
     }

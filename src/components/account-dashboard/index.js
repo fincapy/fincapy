@@ -85,13 +85,15 @@ import {
   resendEmailVerification,
   setPrimaryEmail,
   removeEmail,
+  changeUserName,
 } from './serverActions';
+import { useAtom } from 'jotai';
 import { InputTOTP } from '../input-totp';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
-  const currentUser = useAtomValue(currentUserAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(false);
 
@@ -114,16 +116,9 @@ const AccountPage = ({ setPage, userEmail }) => {
     useState(false);
   const [pendingHighRiskAction, setPendingHighRiskAction] = useState(null);
 
-  const setPageCookie = (page) => {
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1);
-    document.cookie = `page=${page}; expires=${expires.toUTCString()}; path=/app`;
-  };
-
-  const changePage = (page) => {
-    setPage(page);
-    setPageCookie(page);
-  };
+  // Name change state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
 
   const showNotImplemented = () => {
     toast({
@@ -203,15 +198,21 @@ const AccountPage = ({ setPage, userEmail }) => {
       const result = await verifyEmailAddress(emailToVerify, code);
 
       if (result.success) {
+        const newCurrentUser = {
+          ...currentUser,
+        };
+        newCurrentUser.emails.push({
+          email: emailToVerify,
+          verified: true,
+          primary: false,
+        });
+        setCurrentUser(newCurrentUser);
         toast({
           title: 'Email verified',
           description: 'Your email address has been verified successfully.',
           duration: 3000,
         });
         setIsVerifyEmailModalOpen(false);
-
-        // Force refresh of user data
-        window.location.reload();
       } else {
         setEmailError(result.error || 'Failed to verify email address');
       }
@@ -250,24 +251,6 @@ const AccountPage = ({ setPage, userEmail }) => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Handle the 2FA reset
-  const handleReset2FA = async () => {
-    // TODO: Implement actual 2FA reset API call here
-
-    // Show success toast and close modal
-    toast({
-      title: '2FA reset successful',
-      description:
-        "Your 2FA device has been reset. You'll be logged out and asked to set up 2FA on your next login.",
-      duration: 5000,
-    });
-
-    setIsReset2FAModalOpen(false);
-
-    // In a real implementation, we might redirect to logout after a short delay
-    // setTimeout(() => window.location.href = '/api/signout', 3000);
   };
 
   // Handle modal close for either modal
@@ -316,6 +299,27 @@ const AccountPage = ({ setPage, userEmail }) => {
       }
 
       if (result.success) {
+        // Update the currentUser state based on the action type
+        const newCurrentUser = {
+          ...currentUser,
+        };
+
+        if (pendingHighRiskAction.type === 'setPrimary') {
+          // Update primary status for all emails
+          newCurrentUser.emails = newCurrentUser.emails.map((email) => ({
+            ...email,
+            primary: email.email === pendingHighRiskAction.email,
+          }));
+        } else if (pendingHighRiskAction.type === 'removeEmail') {
+          // Remove the email from the list
+          newCurrentUser.emails = newCurrentUser.emails.filter(
+            (email) => email.email !== pendingHighRiskAction.email
+          );
+        }
+
+        // Update the state
+        setCurrentUser(newCurrentUser);
+
         toast({
           title:
             pendingHighRiskAction.type === 'setPrimary'
@@ -330,9 +334,6 @@ const AccountPage = ({ setPage, userEmail }) => {
 
         setIsHighRiskActionModalOpen(false);
         setPendingHighRiskAction(null);
-
-        // Force refresh of user data
-        window.location.reload();
       } else if (result.requiresAuth) {
         // Authentication expired, restart the flow
         setAuthStep('emailPassword');
@@ -367,6 +368,47 @@ const AccountPage = ({ setPage, userEmail }) => {
   // Add a function for TOTP Success for high risk actions
   const handleTOTPSuccessForHighRiskAction = () => {
     handleCompleteHighRiskAction();
+  };
+
+  // Handle name change
+  const handleChangeName = async (newName) => {
+    setIsSubmitting(true);
+
+    try {
+      const result = await changeUserName(newName);
+
+      if (result.success) {
+        const newCurrentUser = {
+          ...currentUser,
+          name: newName,
+        };
+        setCurrentUser(newCurrentUser);
+        toast({
+          title: 'Name updated',
+          description: 'Your name has been updated successfully.',
+          duration: 3000,
+        });
+        setIsEditingName(false);
+        setNewName('');
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to update name',
+          variant: 'destructive',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      console.error('Change name error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -692,20 +734,60 @@ const AccountPage = ({ setPage, userEmail }) => {
 
                   <div>
                     <label className="block text-md font-medium text-muted-foreground mb-2">
-                      Full Name
+                      Name
                     </label>
                     <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md">
-                      <span className="text-md break-all">
-                        {currentUser.name}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={showNotImplemented}
-                        className="w-full md:w-auto"
-                      >
-                        Edit
-                      </Button>
+                      {isEditingName ? (
+                        <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
+                          <Input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            placeholder={currentUser.name}
+                            className="flex-1"
+                            disabled={isSubmitting}
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setIsEditingName(false);
+                                setNewName('');
+                              }}
+                              disabled={isSubmitting}
+                              className="w-full md:w-auto"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleChangeName(newName)}
+                              disabled={isSubmitting || !newName.trim()}
+                              className="w-full md:w-auto text-white"
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="text-md break-all">
+                            {currentUser.name}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setNewName(currentUser.name);
+                              setIsEditingName(true);
+                            }}
+                            className="w-full md:w-auto"
+                          >
+                            Edit
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -879,7 +961,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
       {/* Reset 2FA Modal */}
       <Dialog open={isReset2FAModalOpen} onOpenChange={setIsReset2FAModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card">
+        <DialogContent className="sm:max-w-md bg-card focus:outline-none focus-visible:outline-none focus-visible:ring-0">
           <DialogHeader>
             <DialogTitle>Reset 2FA Device</DialogTitle>
             <DialogDescription>
@@ -912,23 +994,19 @@ const AccountPage = ({ setPage, userEmail }) => {
           )}
 
           {authStep === 'action' && (
-            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
-              <div className="flex flex-col items-center justify-center gap-1 w-full">
-                <div className="flex flex-col gap-6 w-full items-center mt-6">
-                  <TOTPRegistrationReauthForm
-                    onSuccess={() => {
-                      toast({
-                        title: '2FA device reset',
-                        description:
-                          'Your 2FA device has been reset! Please use your new device on next sign in.',
-                        duration: 5000,
-                      });
-                      setIsReset2FAModalOpen(false);
-                    }}
-                    onCancel={handleCloseModal}
-                  />
-                </div>
-              </div>
+            <div className="w-full flex flex-col items-center justify-center">
+              <TOTPRegistrationReauthForm
+                onSuccess={() => {
+                  toast({
+                    title: '2FA device reset',
+                    description:
+                      'Your 2FA device has been reset! Please use your new device on next sign in.',
+                    duration: 5000,
+                  });
+                  setIsReset2FAModalOpen(false);
+                }}
+                onCancel={handleCloseModal}
+              />
             </div>
           )}
         </DialogContent>
@@ -1084,6 +1162,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                   <Button
                     onClick={handleAddEmail}
                     disabled={isSubmitting || !newEmail.trim()}
+                    className="text-white"
                   >
                     {isSubmitting ? (
                       <>

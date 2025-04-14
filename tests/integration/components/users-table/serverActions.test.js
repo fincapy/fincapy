@@ -267,6 +267,52 @@ describe('Users Table Server Actions', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should terminate all sessions of the user whose role is changed', async () => {
+      cookies.mockResolvedValue(validCookieResolution);
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const newUserId = uuidv4();
+
+      // First invite a user
+      await inviteUser({
+        userId: newUserId,
+        email: `${newUserId}@test.com`,
+        role: 'editor',
+        name: 'Test Editor',
+      });
+
+      // Create a session for the test user
+      const testUserSession = new Session({
+        sessionId: uuidv4(),
+        userId: newUserId,
+        userRole: 'editor',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+
+      await sessionRepository.set({
+        session: testUserSession,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Verify session exists before role change
+      const sessionsBefore = await sessionRepository.getUserSessions(newUserId);
+      expect(sessionsBefore.length).toBeGreaterThan(0);
+
+      // Change the user's role
+      const result = await changeUserRole({
+        userId: newUserId,
+        role: 'viewer',
+      });
+
+      expect(result.success).toBe(true);
+
+      // Verify all sessions were terminated
+      const sessionsAfter = await sessionRepository.getUserSessions(newUserId);
+      expect(sessionsAfter.length).toBe(0);
+    });
+
     it('should return false when user role is viewer', async () => {
       cookies.mockResolvedValue(viewerCookieResolution);
 

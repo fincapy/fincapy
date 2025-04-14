@@ -8,6 +8,8 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { Session } from '@/backend/domain/session';
 import {
   vi,
   describe,
@@ -100,6 +102,44 @@ describe('Set Password Form Server Actions', () => {
         updatedUser.password
       );
       expect(passwordMatch).toBe(true);
+    });
+
+    it('should terminate all active sessions when initial password is set', async () => {
+      cookies.mockResolvedValue(mockCookiesSet);
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+
+      // Create a session for the user
+      const userSession = new Session({
+        sessionId: uuidv4(),
+        userId: userId,
+        userRole: 'owner',
+        tenantId: tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+
+      await sessionRepository.set({
+        session: userSession,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Verify session exists before setting password
+      const sessionsBefore = await sessionRepository.getUserSessions(userId);
+      expect(sessionsBefore.length).toBeGreaterThan(0);
+
+      // Set initial password
+      const token = jwt.sign(
+        { userId, type: 'inviteUser' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h', algorithm: 'HS256' }
+      );
+
+      await setInitialPassword(validPassword, token);
+
+      // Verify all sessions were terminated
+      const sessionsAfter = await sessionRepository.getUserSessions(userId);
+      expect(sessionsAfter.length).toBe(0);
     });
 
     it('should validate password requirements and return error message', async () => {
@@ -202,6 +242,46 @@ describe('Set Password Form Server Actions', () => {
         updatedUser.password
       );
       expect(passwordMatch).toBe(true);
+    });
+
+    it('should terminate all active sessions when password is reset', async () => {
+      cookies.mockResolvedValue(mockCookiesSet);
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+
+      // Create a session for the user
+      const userSession = new Session({
+        sessionId: uuidv4(),
+        userId: userId,
+        userRole: 'owner',
+        tenantId: tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+
+      await sessionRepository.set({
+        session: userSession,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Verify session exists before password reset
+      const sessionsBefore = await sessionRepository.getUserSessions(userId);
+      expect(sessionsBefore.length).toBeGreaterThan(0);
+
+      // Reset password
+      const token = jwt.sign(
+        { userId, type: 'resetPassword' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h', algorithm: 'HS256' }
+      );
+
+      const result = await resetPassword(validPassword, token);
+
+      expect(result).toBe(true);
+
+      // Verify all sessions were terminated
+      const sessionsAfter = await sessionRepository.getUserSessions(userId);
+      expect(sessionsAfter.length).toBe(0);
     });
 
     it('should validate password requirements and return error message', async () => {

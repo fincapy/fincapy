@@ -8,6 +8,8 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 
 // Define Zod schemas for validation
 const passwordSchema = z
@@ -81,7 +83,7 @@ export async function setInitialPassword(newPassword, token) {
     return false;
   }
 
-  // Hash and set the initial password
+  // Hash the password
   const hashedPassword = await bcrypt.hash(sanitizedPassword, 12);
   user.password = hashedPassword;
   user.emails[0].verified = true;
@@ -109,10 +111,23 @@ export async function setInitialPassword(newPassword, token) {
     }
   );
 
-  await userRepository.set({
-    userId,
-    user,
-  });
+  // Use transaction manager to update user and delete sessions atomically
+  const transactionManager = new TransactionManager();
+  await transactionManager.transaction(
+    async ({ userRepository, sessionRepository }) => {
+      await userRepository.set({
+        userId,
+        user,
+      });
+
+      // Terminate all active sessions for this user
+      const userSessions = await sessionRepository.getUserSessions(userId);
+      for (const userSession of userSessions) {
+        await sessionRepository.delete({ sessionId: userSession.sessionId });
+      }
+    }
+  );
+
   redirect('/register-totp');
 }
 
@@ -159,7 +174,7 @@ export async function resetPassword(newPassword, token) {
     return false;
   }
 
-  // Hash and set the initial password
+  // Hash the password
   const hashedPassword = await bcrypt.hash(sanitizedPassword, 12);
   user.password = hashedPassword;
   user.emails[0].verified = true;
@@ -186,9 +201,23 @@ export async function resetPassword(newPassword, token) {
       maxAge: 60 * 10 * 1000, // 10 minutes
     }
   );
-  await userRepository.set({
-    userId,
-    user,
-  });
+
+  // Use transaction manager to update user and delete sessions atomically
+  const transactionManager = new TransactionManager();
+  await transactionManager.transaction(
+    async ({ userRepository, sessionRepository }) => {
+      await userRepository.set({
+        userId,
+        user,
+      });
+
+      // Terminate all active sessions for this user
+      const userSessions = await sessionRepository.getUserSessions(userId);
+      for (const userSession of userSessions) {
+        await sessionRepository.delete({ sessionId: userSession.sessionId });
+      }
+    }
+  );
+
   return true;
 }

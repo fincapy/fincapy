@@ -110,8 +110,8 @@ class OpenaiAdapter {
         ],
         inferenceConfig: {
           maxTokens: 3000,
-          temperature: 0,
-          topP: 0.6,
+          temperature: 1,
+          topP: 0.95,
         },
       };
 

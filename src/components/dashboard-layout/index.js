@@ -253,10 +253,12 @@ export default function DashboardLayout({
   // get starting date of current month
   const startDate = new Date();
   startDate.setDate(1);
+  startDate.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
   // get ending date of current month
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + 1);
   endDate.setDate(0);
+  endDate.setHours(23, 59, 59, 999); // Set time to 23:59:59.999
   newPlan.startDate = startDate;
   newPlan.endDate = endDate;
 
@@ -354,7 +356,7 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe bg-background"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-background"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >

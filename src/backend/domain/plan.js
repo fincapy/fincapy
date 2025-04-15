@@ -22,7 +22,6 @@ class Plan {
   }
 
   clone() {
-    console.log(this.transactions);
     return new Plan({
       planId: this.planId,
       categories: this.categories.map((category) => category.clone()),

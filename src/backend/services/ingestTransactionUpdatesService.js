@@ -65,6 +65,13 @@ class IngestTransactionUpdatesService {
       type: aiTransactionCategories.type,
       createdByUser: false,
     });
+    if (
+      !spendingTransactionTypes.includes(transaction.type) &&
+      !incomeTransactionTypes.includes(transaction.type)
+    ) {
+      plan.transactions.push(transaction);
+      return;
+    }
 
     const category = plan.categories.find(
       (category) => category.categoryId === aiTransactionCategories.categoryId

@@ -14,14 +14,14 @@ import sanitizeHtml from 'sanitize-html';
 const transactionSchema = z.object({
   planId: z.string(),
   transactionId: z.string(),
-  categoryId: z.string(),
+  categoryId: z.string().nullable(),
   subcategoryId: z.string().optional().nullable(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD format
   description: z.string().min(1).max(500),
   status: z.string().max(100),
   type: z.string().max(100),
   amount: z.number().min(0),
-  newCategoryId: z.string(),
+  newCategoryId: z.string().nullable(),
 });
 
 // Sanitize function for text inputs

@@ -32,6 +32,10 @@ export const categoryNamesAtom = atom((get) => {
   }
 
   let categoryNames = [];
+  categoryNames.push({
+    id: null,
+    name: 'None',
+  });
 
   plan.categories.forEach((category) => {
     if (category.categoryId.includes('other') && category.type !== 'savings') {

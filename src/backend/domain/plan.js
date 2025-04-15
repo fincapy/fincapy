@@ -5,18 +5,33 @@ import { Transaction } from './transaction.js';
 import { v4 as uuidv4 } from 'uuid';
 
 class Plan {
-  constructor({ planId, categories, transactionEdits, startDate, endDate }) {
+  constructor({
+    planId,
+    categories,
+    transactionEdits,
+    startDate,
+    endDate,
+    transactions = [],
+  }) {
     this.planId = planId;
     this.categories = categories;
     this.startDate = startDate;
     this.endDate = endDate;
     this.transactionEdits = transactionEdits;
+    this.transactions = transactions;
   }
 
   clone() {
+    console.log(this.transactions);
     return new Plan({
-      ...this,
+      planId: this.planId,
       categories: this.categories.map((category) => category.clone()),
+      transactionEdits: this.transactionEdits,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      transactions: this.transactions.map((transaction) => {
+        return new Transaction({ ...transaction });
+      }),
     });
   }
 
@@ -29,30 +44,27 @@ class Plan {
     amount,
     transactionId,
   }) {
+    const transaction = new Transaction({
+      transactionId,
+      date,
+      description,
+      status,
+      type,
+      amount,
+      createdByUser: true,
+    });
+
+    if (!categoryId) {
+      this.transactions.push(transaction);
+      return;
+    }
+
     this.categories.forEach((category) => {
       if (category.categoryId === categoryId) {
-        const transaction = new Transaction({
-          transactionId,
-          date,
-          description,
-          status,
-          type,
-          amount,
-          createdByUser: true,
-        });
         category.transactions.push(transaction);
       } else {
         category.subcategories.forEach((subcategory) => {
           if (subcategory.subcategoryId === categoryId) {
-            const transaction = new Transaction({
-              transactionId,
-              date,
-              description,
-              status,
-              type,
-              amount,
-              createdByUser: true,
-            });
             subcategory.transactions.push(transaction);
           }
         });
@@ -61,6 +73,10 @@ class Plan {
   }
 
   deleteTransaction({ transactionId }) {
+    this.transactions = this.transactions.filter(
+      (transaction) => transaction.transactionId !== transactionId
+    );
+
     this.categories.forEach((category) => {
       category.transactions = category.transactions.filter(
         (transaction) => transaction.transactionId !== transactionId
@@ -163,79 +179,177 @@ class Plan {
     newCategoryId,
     amount,
   }) {
-    let originalTransactionCategoryName;
-    let transaction;
-    const originalCategory = this.categories.find(
-      (category) => category.categoryId === categoryId
+    // Find and remove transaction from its current location
+    const { transaction, originalCategoryName } = this.findAndRemoveTransaction(
+      transactionId,
+      categoryId,
+      subcategoryId
     );
-    const originalSubcategory = originalCategory.subcategories.find(
-      (subcategory) => subcategory.subcategoryId === subcategoryId
-    );
-    if (originalSubcategory) {
-      originalTransactionCategoryName =
-        originalCategory.name + ' - ' + originalSubcategory.name;
-      transaction = originalSubcategory.transactions.find(
-        (transaction) => transaction.transactionId === transactionId
-      );
-      originalSubcategory.transactions =
-        originalSubcategory.transactions.filter(
-          (existingTransaction) =>
-            existingTransaction.transactionId !== transaction.transactionId
-        );
-    } else {
-      originalTransactionCategoryName = originalCategory.name;
-      transaction = originalCategory.transactions.find(
-        (transaction) => transaction.transactionId === transactionId
-      );
-      originalCategory.transactions = originalCategory.transactions.filter(
-        (existingTransaction) =>
-          existingTransaction.transactionId !== transaction.transactionId
-      );
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
     }
 
-    let newCategoryOrSubcategory;
-    let newTransactionCategoryName;
-    newCategoryOrSubcategory = this.categories.find(
-      (category) => category.categoryId === newCategoryId
-    );
-    if (newCategoryOrSubcategory) {
-      newTransactionCategoryName = newCategoryOrSubcategory.name;
-      newCategoryOrSubcategory.transactions.push(transaction);
-    } else {
-      this.categories.forEach((category) => {
-        const subcategory = category.subcategories.find(
-          (subcategory) => subcategory.subcategoryId === newCategoryId
-        );
-        if (subcategory) {
-          subcategory.transactions.push(transaction);
-          newCategoryOrSubcategory = subcategory;
-          newTransactionCategoryName = category.name + ' - ' + subcategory.name;
-        }
-      });
-    }
+    // Store original values for tracking changes
+    const oldTransactionDescription = transaction.description;
+    const oldTransactionType = transaction.type;
 
-    let oldTransactionDescription = transaction.description;
-    let newTransactionDescription = description;
-    let oldTransactionType = transaction.type;
-    let newTransactionType = type;
-
+    // Update transaction properties
     transaction.date = date;
     transaction.description = description;
     transaction.status = status;
     transaction.type = type;
     transaction.amount = amount;
 
+    // Move transaction to new location and get new category name
+    const newCategoryName = this.moveTransactionToNewLocation(
+      transaction,
+      newCategoryId
+    );
+
+    // Record transaction edit history if not user-created
     if (!transaction.createdByUser) {
-      const transactionEdit = new TransactionEdit({
+      this.recordTransactionEdit(
         oldTransactionDescription,
-        newTransactionDescription,
+        description,
         oldTransactionType,
-        newTransactionType,
-        oldTransactionCategory: originalTransactionCategoryName,
-        newTransactionCategory: newTransactionCategoryName,
-      });
-      this.transactionEdits.push(transactionEdit);
+        type,
+        originalCategoryName,
+        newCategoryName
+      );
     }
+  }
+
+  /**
+   * Finds a transaction and removes it from its current location
+   * @returns {Object} The transaction and its original category name
+   */
+  findAndRemoveTransaction(transactionId, categoryId, subcategoryId) {
+    let transaction;
+    let originalCategoryName = 'None';
+
+    // Case 1: Transaction is at plan level
+    if (!categoryId) {
+      transaction = this.transactions.find(
+        (transaction) => transaction.transactionId === transactionId
+      );
+
+      if (transaction) {
+        this.transactions = this.transactions.filter(
+          (existingTransaction) =>
+            existingTransaction.transactionId !== transactionId
+        );
+      }
+
+      return { transaction, originalCategoryName };
+    }
+
+    // Case 2: Transaction is in a category or subcategory
+    const category = this.categories.find(
+      (category) => category.categoryId === categoryId
+    );
+
+    if (!category) {
+      return { transaction: null, originalCategoryName };
+    }
+
+    // Check if transaction is in a subcategory
+    if (subcategoryId) {
+      const subcategory = category.subcategories.find(
+        (subcategory) => subcategory.subcategoryId === subcategoryId
+      );
+
+      if (subcategory) {
+        transaction = subcategory.transactions.find(
+          (transaction) => transaction.transactionId === transactionId
+        );
+
+        if (transaction) {
+          originalCategoryName = `${category.name} - ${subcategory.name}`;
+          subcategory.transactions = subcategory.transactions.filter(
+            (existingTransaction) =>
+              existingTransaction.transactionId !== transactionId
+          );
+        }
+      }
+    } else {
+      // Check if transaction is directly in the category
+      transaction = category.transactions.find(
+        (transaction) => transaction.transactionId === transactionId
+      );
+
+      if (transaction) {
+        originalCategoryName = category.name;
+        category.transactions = category.transactions.filter(
+          (existingTransaction) =>
+            existingTransaction.transactionId !== transactionId
+        );
+      }
+    }
+
+    return { transaction, originalCategoryName };
+  }
+
+  /**
+   * Moves a transaction to its new location
+   * @returns {string} The name of the new category
+   */
+  moveTransactionToNewLocation(transaction, newCategoryId) {
+    // Case 1: Move to plan level
+    if (!newCategoryId) {
+      this.transactions.push(transaction);
+      return 'None';
+    }
+
+    // Case 2: Try to find category with this ID
+    const category = this.categories.find(
+      (category) => category.categoryId === newCategoryId
+    );
+
+    if (category) {
+      category.transactions.push(transaction);
+      return category.name;
+    }
+
+    // Case 3: Try to find subcategory with this ID
+    for (const category of this.categories) {
+      const subcategory = category.subcategories.find(
+        (subcategory) => subcategory.subcategoryId === newCategoryId
+      );
+
+      if (subcategory) {
+        subcategory.transactions.push(transaction);
+        return `${category.name} - ${subcategory.name}`;
+      }
+    }
+
+    // If we get here, the category/subcategory wasn't found
+    // Add to plan level as fallback
+    this.transactions.push(transaction);
+    return 'None';
+  }
+
+  /**
+   * Records a transaction edit in the history
+   */
+  recordTransactionEdit(
+    oldDescription,
+    newDescription,
+    oldType,
+    newType,
+    oldCategory,
+    newCategory
+  ) {
+    const transactionEdit = new TransactionEdit({
+      oldTransactionDescription: oldDescription,
+      newTransactionDescription: newDescription,
+      oldTransactionType: oldType,
+      newTransactionType: newType,
+      oldTransactionCategory: oldCategory,
+      newTransactionCategory: newCategory,
+    });
+
+    this.transactionEdits.push(transactionEdit);
   }
 
   capitalize(string) {
@@ -244,6 +358,18 @@ class Plan {
 
   toTransactionsView() {
     let transactions = [];
+    this.transactions.forEach((transaction) => {
+      const transactionDate = parse(transaction.date, 'yyyy-MM-dd', new Date());
+      transaction.categoryName = 'None';
+      transaction.categoryId = null;
+      transaction.subcategoryId = null;
+      if (
+        this.startDate <= transactionDate &&
+        transactionDate <= this.endDate
+      ) {
+        transactions.push(transaction);
+      }
+    });
     this.categories.forEach((category) => {
       category.transactions.forEach((transaction) => {
         const transactionDate = parse(

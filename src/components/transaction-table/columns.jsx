@@ -63,7 +63,7 @@ export function SelectDemo({ field }) {
     <Select onValueChange={field.onChange} defaultValue={field.value}>
       <FormControl>
         <SelectTrigger>
-          <SelectValue placeholder="Category" />
+          <SelectValue placeholder="None" />
         </SelectTrigger>
       </FormControl>
       <SelectContent className="bg-card">
@@ -218,7 +218,12 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Date</FormLabel>
-              <Input type="text" autoComplete="off" {...field} />
+              <Input
+                type="text"
+                placeholder="YYYY-MM-DD"
+                autoComplete="off"
+                {...field}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -229,7 +234,12 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input type="text" autoComplete="off" {...field} />
+              <Input
+                type="text"
+                placeholder="Your Description"
+                autoComplete="off"
+                {...field}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -296,7 +306,12 @@ const EditTransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <Input type="text" {...field} autoComplete="off" />
+              <Input
+                type="text"
+                placeholder="0.00"
+                {...field}
+                autoComplete="off"
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -318,7 +333,7 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
         <DialogTitle>Edit Transaction Dialog</DialogTitle>
       </VisuallyHidden>
       <DialogContent
-        className="sm:max-w-[96%] bg-card"
+        className="sm:max-w-[96%] bg-card max-w-[96%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

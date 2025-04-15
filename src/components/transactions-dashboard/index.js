@@ -114,7 +114,7 @@ export function SelectDemo({ field }) {
     <Select onValueChange={field.onChange} defaultValue={field.value}>
       <FormControl>
         <SelectTrigger>
-          <SelectValue placeholder="Category" />
+          <SelectValue placeholder="None" />
         </SelectTrigger>
       </FormControl>
       <SelectContent className="bg-card">
@@ -161,13 +161,13 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
     resolver: zodResolver(recategorizeFormSchema),
-    defaultValues: {
-      description: 'Your Description',
-      date: new Date().toISOString().split('T')[0],
-      status: 'COMPLETED',
-      type: 'spending',
-      amount: 0.0,
-    },
+    // defaultValues: {
+    //   description: 'Your Description',
+    //   date: new Date().toISOString().split('T')[0],
+    //   status: 'COMPLETED',
+    //   type: 'spending',
+    //   amount: 0.0,
+    // },
   });
 
   const handleServerCreateTransaction = ({
@@ -259,7 +259,12 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Transaction Date</FormLabel>
-              <Input type="text" autoComplete="off" {...field} />
+              <Input
+                type="text"
+                placeholder="YYYY-MM-DD"
+                autoComplete="off"
+                {...field}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -270,7 +275,12 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input type="text" autoComplete="off" {...field} />
+              <Input
+                type="text"
+                placeholder="Your Description"
+                autoComplete="off"
+                {...field}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -337,7 +347,12 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <Input type="text" {...field} autoComplete="off" />
+              <Input
+                type="text"
+                placeholder="0.00"
+                {...field}
+                autoComplete="off"
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -366,7 +381,7 @@ const CreateTransactionDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
+        className="max-w-[96%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}

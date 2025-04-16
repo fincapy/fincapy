@@ -529,7 +529,7 @@ const TransactionsDashboard = () => {
               {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
             </div>
             <div
-              className="grid w-[96%] lg:max-w-[1152.5px] h-[calc(83vh_-_env(safe-area-inset-bottom))] bg-card rounded-lg"
+              className="grid w-[96%] lg:max-w-[1152.5px] h-[calc(83vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

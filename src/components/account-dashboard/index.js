@@ -594,7 +594,7 @@ const AccountPage = ({ setPage, userEmail }) => {
         <div className="w-full mb-16">
           {activeTab === 'profile' && (
             <div className="space-y-4">
-              <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
+              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4">
                   Personal Information
                 </h2>
@@ -607,7 +607,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                       {currentUser.emails.map((email) => (
                         <div
                           key={email.email}
-                          className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md"
+                          className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl"
                         >
                           <div className="flex flex-col">
                             <div className="flex flex-row items-center gap-2">
@@ -706,7 +706,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                       ))}
 
                       {/* Add new email section */}
-                      <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md border-dashed">
+                      <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl border-dashed">
                         <div className="flex flex-col">
                           <span className="text-md break-all">
                             Add another email address
@@ -738,7 +738,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     <label className="block text-md font-medium text-muted-foreground mb-2">
                       Name
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-md">
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl">
                       {isEditingName ? (
                         <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
                           <Input
@@ -811,7 +811,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
           {activeTab === 'billing' && currentUser.role === 'owner' && (
             <div className="space-y-4">
-              <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
+              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4">Billing</h2>
                 <p className="text-md text-muted-foreground mb-6">
                   Upgrade your subscription, change payment methods, or cancel
@@ -836,7 +836,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
           {activeTab === 'security' && (
             <div className="space-y-4">
-              <div className="bg-card rounded-lg border border-border p-4 md:p-6 shadow-sm">
+              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4">
                   Security Settings
                 </h2>
@@ -845,7 +845,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     <label className="block text-md font-medium text-muted-foreground mb-2">
                       Password
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-md p-3">
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-xl p-3">
                       <span className="text-md">••••••••</span>
                       <Button
                         variant="outline"
@@ -862,7 +862,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     <label className="block text-md font-medium text-muted-foreground mb-2">
                       Reset 2FA Device
                     </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-md p-3">
+                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-xl p-3">
                       <span className="text-md text-muted-foreground">
                         If you lost access to your 2FA device
                       </span>

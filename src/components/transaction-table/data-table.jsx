@@ -52,7 +52,7 @@ export function DataTable({ columns, data }) {
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea className="border rounded-md w-full h-full">
+      <ScrollArea className="border rounded-xl w-full h-full">
         <Table className="text-md">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

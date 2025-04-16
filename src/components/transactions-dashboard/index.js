@@ -506,7 +506,7 @@ const TransactionsDashboard = () => {
         <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
           <div className="flex flex-col justify-center items-center gap-2">
             <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-6xl"
+              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -515,21 +515,21 @@ const TransactionsDashboard = () => {
               </div>
               <Skeleton className="h-9 w-9 bg-card" />
             </div>
-            <Skeleton className="h-[70vh] w-[96%] lg:max-w-6xl bg-card" />
+            <Skeleton className="h-[70vh] w-[96%] lg:max-w-[1152.5px] bg-card" />
           </div>
         </div>
       ) : (
         <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
           <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
             <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-6xl"
+              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
               key="create-transaction-dialogue"
             >
               <DatePickers />
               {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
             </div>
             <div
-              className="grid w-[96%] lg:max-w-6xl h-[85vh] bg-card rounded-lg"
+              className="grid w-[96%] lg:max-w-[1152.5px] h-[calc(83vh_-_env(safe-area-inset-bottom))] bg-card rounded-lg"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

@@ -1726,7 +1726,7 @@ export default function CategoryDashboard({ type, categories }) {
         <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
           <div className="flex flex-col justify-center items-center gap-2">
             <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-6xl"
+              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -1740,7 +1740,10 @@ export default function CategoryDashboard({ type, categories }) {
 
             {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
               (_, index) => (
-                <div className="flex flex-col w-[96%] lg:max-w-6xl" key={index}>
+                <div
+                  className="flex flex-col w-[96%] lg:max-w-[1152.5px]"
+                  key={index}
+                >
                   <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
                 </div>
               )
@@ -1753,7 +1756,7 @@ export default function CategoryDashboard({ type, categories }) {
             <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
               <div className="flex flex-col justify-center items-center gap-2">
                 <div
-                  className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-6xl"
+                  className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
                   key="create-category-dialogue"
                 >
                   <DatePickers
@@ -1776,7 +1779,7 @@ export default function CategoryDashboard({ type, categories }) {
                   >
                     {categoriesState.map((category, index) => (
                       <div
-                        className="flex flex-col w-[96%] lg:max-w-6xl rounded-xl"
+                        className="flex flex-col w-[96%] lg:max-w-[1152.5px] rounded-xl"
                         key={category.categoryId}
                       >
                         <CategoryCardCollapsible

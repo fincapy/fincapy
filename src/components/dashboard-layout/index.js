@@ -361,7 +361,7 @@ export default function DashboardLayout({
             onMouseDown={handleScrollAreaFocus}
           >
             <ScrollAreaWithPulldown
-              className={`h-[93%] w-screen fixed top-0`}
+              className={`h-[93%] w-full fixed top-0`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {

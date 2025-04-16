@@ -1559,19 +1559,21 @@ const CategoryCard = ({
           >
             <Grip size={26} />
           </div>
-          <CollapsibleTrigger asChild>
-            <button
-              onPointerDown={(e) => e.stopPropagation()}
-              className={`transition-transform duration-200 mr-1 ${
-                areSubcategoriesOpen ? 'rotate-180' : ''
-              } hover:bg-inherit`}
-            >
-              <ChevronDown
-                className={`transition-transform duration-300 rotate-180`}
-                size={22}
-              />
-            </button>
-          </CollapsibleTrigger>
+          {category.subcategories.length > 0 && (
+            <CollapsibleTrigger asChild>
+              <button
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`transition-transform duration-200 mr-1 ${
+                  areSubcategoriesOpen ? 'rotate-180' : ''
+                } hover:bg-inherit`}
+              >
+                <ChevronDown
+                  className={`transition-transform duration-300 rotate-180`}
+                  size={22}
+                />
+              </button>
+            </CollapsibleTrigger>
+          )}
         </div>
       </CardFooter>
     </Card>

@@ -89,6 +89,7 @@ import {
 } from './serverActions';
 import { useAtom } from 'jotai';
 import { InputTOTP } from '../input-totp';
+import { PlusIcon } from 'lucide-react';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
@@ -422,7 +423,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                 variant="outline"
                 className="w-full flex items-center justify-between"
               >
-                <span className="flex items-center">
+                <span className="flex items-center text-md">
                   {activeTab === 'profile' && (
                     <UserRound className="h-4 w-4 mr-2" />
                   )}
@@ -450,12 +451,12 @@ const AccountPage = ({ setPage, userEmail }) => {
               <DropdownMenuItem
                 className={
                   activeTab === 'profile'
-                    ? 'bg-accent text-accent-foreground'
-                    : ''
+                    ? 'bg-accent text-accent-foreground text-md'
+                    : 'text-md'
                 }
                 onSelect={() => setActiveTab('profile')}
               >
-                <UserRound className="h-4 w-4 mr-2" />
+                <UserRound className="mr-1" />
                 Profile
               </DropdownMenuItem>
 
@@ -463,12 +464,12 @@ const AccountPage = ({ setPage, userEmail }) => {
                 <DropdownMenuItem
                   className={
                     activeTab === 'users'
-                      ? 'bg-accent text-accent-foreground'
-                      : ''
+                      ? 'bg-accent text-accent-foreground text-md'
+                      : 'text-md'
                   }
                   onSelect={() => setActiveTab('users')}
                 >
-                  <Users className="h-4 w-4 mr-2" />
+                  <Users className="h-4 w-4 mr-1" />
                   Users
                 </DropdownMenuItem>
               )}
@@ -476,12 +477,12 @@ const AccountPage = ({ setPage, userEmail }) => {
               <DropdownMenuItem
                 className={
                   activeTab === 'financial-institutions'
-                    ? 'bg-accent text-accent-foreground'
-                    : ''
+                    ? 'bg-accent text-accent-foreground text-md'
+                    : 'text-md'
                 }
                 onSelect={() => setActiveTab('financial-institutions')}
               >
-                <Landmark className="h-4 w-4 mr-2" />
+                <Landmark className="mr-1" />
                 Financial Institutions
               </DropdownMenuItem>
 
@@ -489,12 +490,12 @@ const AccountPage = ({ setPage, userEmail }) => {
                 <DropdownMenuItem
                   className={
                     activeTab === 'billing'
-                      ? 'bg-accent text-accent-foreground'
-                      : ''
+                      ? 'bg-accent text-accent-foreground text-md'
+                      : 'text-md'
                   }
                   onSelect={() => setActiveTab('billing')}
                 >
-                  <CircleDollarSign className="h-4 w-4 mr-2" />
+                  <CircleDollarSign className="mr-1" />
                   Billing
                 </DropdownMenuItem>
               )}
@@ -502,12 +503,12 @@ const AccountPage = ({ setPage, userEmail }) => {
               <DropdownMenuItem
                 className={
                   activeTab === 'security'
-                    ? 'bg-accent text-accent-foreground'
-                    : ''
+                    ? 'bg-accent text-accent-foreground text-md'
+                    : 'text-md'
                 }
                 onSelect={() => setActiveTab('security')}
               >
-                <Shield className="h-4 w-4 mr-2" />
+                <Shield className="mr-1" />
                 Security
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -525,7 +526,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             onClick={() => setActiveTab('profile')}
           >
             <div className="flex items-center">
-              <UserRound className="h-4 w-4 mr-2" />
+              <UserRound className="mr-1 h-4 w-4" />
               Profile
             </div>
           </button>
@@ -653,7 +654,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                             {!email.primary && (
                               <Button
                                 variant="outline"
-                                size="sm"
                                 onClick={() =>
                                   handleSetPrimaryEmail(email.email)
                                 }
@@ -666,7 +666,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                             {!email.verified && (
                               <Button
                                 variant="outline"
-                                size="sm"
                                 onClick={() =>
                                   handleResendVerification(email.email)
                                 }
@@ -683,7 +682,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                                   <div>
                                     <Button
                                       variant="outline"
-                                      size="sm"
                                       onClick={() =>
                                         handleRemoveEmail(email.email)
                                       }
@@ -706,31 +704,19 @@ const AccountPage = ({ setPage, userEmail }) => {
                       ))}
 
                       {/* Add new email section */}
-                      <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl border-dashed">
-                        <div className="flex flex-col">
-                          <span className="text-md break-all">
-                            Add another email address
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            You can add additional email addresses to your
-                            account
-                          </span>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setPendingHighRiskAction({
-                              type: 'addEmail',
-                            });
-                            setIsHighRiskActionModalOpen(true);
-                            setAuthStep('emailPassword');
-                          }}
-                          className="w-full md:w-auto"
-                        >
-                          Add Email
-                        </Button>
-                      </div>
+                      <Button
+                        className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
+                        variant="outline"
+                        onClick={() => {
+                          setPendingHighRiskAction({
+                            type: 'addEmail',
+                          });
+                          setIsHighRiskActionModalOpen(true);
+                          setAuthStep('emailPassword');
+                        }}
+                      >
+                        <PlusIcon size={48} />
+                      </Button>
                     </div>
                   </div>
 
@@ -752,7 +738,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                           <div className="flex gap-2">
                             <Button
                               variant="outline"
-                              size="sm"
                               onClick={() => {
                                 setIsEditingName(false);
                                 setNewName('');
@@ -763,7 +748,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                               Cancel
                             </Button>
                             <Button
-                              size="sm"
                               onClick={() => handleChangeName(newName)}
                               disabled={isSubmitting || !newName.trim()}
                               className="w-full md:w-auto text-white"
@@ -779,7 +763,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                           </span>
                           <Button
                             variant="outline"
-                            size="sm"
                             onClick={() => {
                               setNewName(currentUser.name);
                               setIsEditingName(true);
@@ -849,7 +832,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                       <span className="text-md">••••••••</span>
                       <Button
                         variant="outline"
-                        size="sm"
                         onClick={openChangePasswordModal}
                         className="w-full md:w-auto"
                       >
@@ -868,7 +850,6 @@ const AccountPage = ({ setPage, userEmail }) => {
                       </span>
                       <Button
                         variant="outline"
-                        size="sm"
                         onClick={openReset2FAModal}
                         className="w-full md:w-auto"
                       >

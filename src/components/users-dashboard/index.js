@@ -255,7 +255,7 @@ const InviteUserDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-[96%] bg-card rounded-xl"
+        className="max-w-[96%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
@@ -309,7 +309,7 @@ export default function Dashboard() {
               <InviteUserDialogue />
             </div>
             <div
-              className="grid w-full h-[calc(62vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl overflow-hidden"
+              className="grid w-full h-[calc(55vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl overflow-hidden"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

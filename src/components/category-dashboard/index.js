@@ -1407,7 +1407,7 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none mb-[2px] -ml-[5px]"
+              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none z-50 mb-[2px] -ml-[5px]"
               onPointerDown={(e) => e.stopPropagation()}
               style={{
                 WebkitTapHighlightColor: 'transparent',

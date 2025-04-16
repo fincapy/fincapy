@@ -128,7 +128,7 @@ export const viewport = {
   initialScale: 1,
   width: 'device-width',
   shrinkToFit: false,
-  userScalable: false,
+  userScalable: true,
   viewportFit: 'cover',
 };
 

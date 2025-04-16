@@ -309,7 +309,7 @@ export default function Dashboard() {
               <InviteUserDialogue />
             </div>
             <div
-              className="grid w-full h-[calc(65vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl overflow-hidden"
+              className="grid w-full h-[calc(62vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl overflow-hidden"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

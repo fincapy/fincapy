@@ -421,22 +421,22 @@ const AccountPage = ({ setPage, userEmail }) => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-between"
+                className="w-full flex items-center justify-between text-md"
               >
                 <span className="flex items-center text-md">
                   {activeTab === 'profile' && (
-                    <UserRound className="h-4 w-4 mr-2" />
+                    <UserRound size={24} className="mr-2 h-6 w-6" />
                   )}
-                  {activeTab === 'users' && <Users className="h-4 w-4 mr-2" />}
+                  {activeTab === 'users' && (
+                    <Users size={24} className="mr-2" />
+                  )}
                   {activeTab === 'financial-institutions' && (
-                    <Landmark className="h-4 w-4 mr-2" />
+                    <Landmark size={24} className="mr-2" />
                   )}
                   {activeTab === 'billing' && (
-                    <CircleDollarSign className="h-4 w-4 mr-2" />
+                    <CircleDollarSign className="mr-2" />
                   )}
-                  {activeTab === 'security' && (
-                    <Shield className="h-4 w-4 mr-2" />
-                  )}
+                  {activeTab === 'security' && <Shield className="mr-2" />}
                   {activeTab === 'financial-institutions'
                     ? 'Financial Institutions'
                     : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
@@ -445,7 +445,7 @@ const AccountPage = ({ setPage, userEmail }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-[calc(100vw-2rem)] bg-card"
+              className="w-[calc(100vw-2rem)] bg-card text-md"
               align="start"
             >
               <DropdownMenuItem

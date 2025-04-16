@@ -78,5 +78,39 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.text-balance': {
+          'text-wrap': 'balance',
+        },
+        '.pt-safe': {
+          'padding-top': 'env(safe-area-inset-top)',
+        },
+        '.pb-safe': {
+          'padding-bottom': 'env(safe-area-inset-bottom)',
+        },
+        '.pl-safe': {
+          'padding-left': 'env(safe-area-inset-left)',
+        },
+        '.pr-safe': {
+          'padding-right': 'env(safe-area-inset-right)',
+        },
+        '.mt-safe': {
+          'margin-top': 'env(safe-area-inset-top)',
+        },
+        '.mb-safe': {
+          'margin-bottom': 'env(safe-area-inset-bottom)',
+        },
+        '.ml-safe': {
+          'margin-left': 'env(safe-area-inset-left)',
+        },
+        '.mr-safe': {
+          'margin-right': 'env(safe-area-inset-right)',
+        },
+      };
+      addUtilities(newUtilities);
+    },
+  ],
 };

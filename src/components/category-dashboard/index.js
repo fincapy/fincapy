@@ -11,7 +11,14 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Eye, Grip, Pen, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  Eye,
+  Grip,
+  Pen,
+  Trash2,
+  MoreVertical,
+} from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
 import { Progress } from '../ui/progress';
@@ -21,7 +28,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -57,7 +64,7 @@ import {
   reorderSubcategories,
 } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
-import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { CategoryNamesContext } from './categoryNamesContext';
 import {
@@ -103,6 +110,12 @@ import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import SubmitButton from '@/components/SubmitButton';
 import { ProgressSubcategory } from '@/components/ui/progress-subcategory';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -375,39 +388,67 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <button
-          className="h-4 w-4 text-muted-foreground hover:text-foreground mb-[2px] mr-[1px]"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Trash2 size={18} className="hover:text-primary" />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const content = (
+    <DialogContent
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <DialogHeader>
+        <DialogTitle>{`Delete ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to delete this category? All transactions
+          associated with this category will be moved to uncategorized.
+        </DialogDescription>
+      </DialogHeader>
+      <Button
+        variant="destructive"
+        className="bg-destructive hover:bg-destructive-foreground text-white"
+        onClick={onClick}
+        onPointerDown={(e) => e.stopPropagation()}
       >
-        <DialogHeader>
-          <DialogTitle>{`Delete ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this category? All transactions
-            associated with this category will be moved to uncategorized.
-          </DialogDescription>
-        </DialogHeader>
-        <Button
-          variant="destructive"
-          className="bg-destructive hover:bg-destructive-foreground text-white"
-          onClick={onClick}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          Delete
-        </Button>
-      </DialogContent>
-    </Dialog>
+        Delete
+      </Button>
+    </DialogContent>
+  );
+
+  return (
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="h-4 w-4 text-muted-foreground hover:text-foreground mb-[2px] mr-[1px] focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleOpenDialog}
+            data-action="delete"
+            data-context-id={categoryId}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              userSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none',
+              WebkitUserSelect: 'none',
+              appearance: 'none',
+            }}
+          >
+            <Trash2 size={18} className="hover:text-primary" />
+          </button>
+        </DialogTrigger>
+        {content}
+      </Dialog>
+      {/* Hidden dialog for mobile menu click handling */}
+      <button
+        className="hidden"
+        onClick={handleOpenDialog}
+        data-dialog-trigger="delete"
+      />
+    </>
   );
 };
 
@@ -565,39 +606,63 @@ const EditCategoryForm = ({
 const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  // Create the component with the props needed
+  const content = (
+    <DialogContent
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <DialogHeader>
+        <DialogTitle>{`Edit ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
+        <DialogDescription>
+          {`Edit your existing ${type} category`}
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-4 py-4">
+        <EditCategoryForm
+          setDialogOpen={setDialogOpen}
+          categoryName={categoryName}
+          monthlyGoal={monthlyGoal}
+          categoryId={categoryId}
+        />
+      </div>
+    </DialogContent>
+  );
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <button
-          className="text-muted-foreground hover:text-foreground"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Pencil size={18} className="hover:text-primary" />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        <DialogHeader>
-          <DialogTitle>{`Edit ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
-          <DialogDescription>
-            {`Edit your existing ${type} category`}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <EditCategoryForm
-            setDialogOpen={setDialogOpen}
-            categoryName={categoryName}
-            monthlyGoal={monthlyGoal}
-            categoryId={categoryId}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleOpenDialog}
+            data-action="edit"
+            data-context-id={categoryId}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              userSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none',
+              WebkitUserSelect: 'none',
+              appearance: 'none',
+            }}
+          >
+            <Pencil size={18} className="hover:text-primary" />
+          </button>
+        </DialogTrigger>
+        {content}
+      </Dialog>
+    </>
   );
 };
 
@@ -965,38 +1030,60 @@ const EditSubcategoryDialogue = ({
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const content = (
+    <DialogContent
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      onPointerDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <DialogHeader>
+        <DialogTitle>Edit Subcategory</DialogTitle>
+        <DialogDescription>Edit your existing subcategory</DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-4 py-4">
+        <EditSubcategoryForm
+          setDialogOpen={setDialogOpen}
+          subcategory={subcategory}
+          subcategoryId={subcategoryId}
+          categoryId={categoryId}
+        />
+      </div>
+    </DialogContent>
+  );
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <Pencil size={17} className="hover:text-primary" />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onPointerDown={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        <DialogHeader>
-          <DialogTitle>Edit Subcategory</DialogTitle>
-          <DialogDescription>Edit your existing subcategory</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <EditSubcategoryForm
-            setDialogOpen={setDialogOpen}
-            subcategory={subcategory}
-            subcategoryId={subcategoryId}
-            categoryId={categoryId}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleOpenDialog}
+            data-action="edit"
+            data-context-id={subcategoryId}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              userSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none',
+              WebkitUserSelect: 'none',
+              appearance: 'none',
+            }}
+          >
+            <Pencil size={17} className="hover:text-primary" />
+          </button>
+        </DialogTrigger>
+        {content}
+      </Dialog>
+    </>
   );
 };
 
@@ -1004,6 +1091,11 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   const type = useContext(TypeContext);
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
 
   const handleServerDeleteSubcategory = ({
     subcategoryId,
@@ -1067,76 +1159,282 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
       type,
     });
   };
-  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const content = (
+    <DialogContent
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <DialogHeader>
+        <DialogTitle>Delete Subcategory</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to delete this subcategory?
+        </DialogDescription>
+      </DialogHeader>
+      <Button
+        variant="destructive"
+        className="bg-destructive hover:bg-destructive-foreground text-white"
+        onClick={onClick}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        Delete
+      </Button>
+    </DialogContent>
+  );
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <button
-          className="text-muted-foreground hover:text-foreground"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Trash2 size={17} className="hover:text-primary" />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        <DialogHeader>
-          <DialogTitle>Delete Subcategory</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this subcategory?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogClose asChild>
-          <Button
-            variant="destructive"
-            className="bg-destructive hover:bg-destructive-foreground text-white"
-            onClick={onClick}
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none"
             onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleOpenDialog}
+            data-action="delete"
+            data-context-id={subcategoryId}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              userSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none',
+              WebkitUserSelect: 'none',
+              appearance: 'none',
+            }}
           >
-            Delete
-          </Button>
-        </DialogClose>
-      </DialogContent>
-    </Dialog>
+            <Trash2 size={17} className="hover:text-primary" />
+          </button>
+        </DialogTrigger>
+        {content}
+      </Dialog>
+    </>
   );
 };
 
-const OpenTransactionTableDialogue = ({ transactions, eyeSize }) => {
+const OpenTransactionTableDialogue = ({
+  transactions,
+  eyeSize,
+  categoryId,
+}) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const content = (
+    <DialogContent
+      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl"
+      id="transaction-modal"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+      <DialogHeader>
+        <VisuallyHidden>
+          <DialogTitle>Transactions</DialogTitle>
+          <DialogDescription>
+            A list of transactions associated with this category
+          </DialogDescription>
+        </VisuallyHidden>
+      </DialogHeader>
+      <div className="grid place-items-center w-full max-h-[70vh]">
+        <TransactionTable transactions={transactions} />
+      </div>
+    </DialogContent>
+  );
+
   return (
-    <Dialog className="max-w-full max-h-full rounded-xl bg-card">
-      <DialogTrigger asChild>
-        <button
-          className="text-muted-foreground hover:text-foreground"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Eye size={eyeSize} className="hover:text-primary" />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl"
-        id="transaction-modal"
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
+    <>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        className="max-w-full max-h-full rounded-xl bg-card"
       >
-        <DialogHeader>
-          <VisuallyHidden>
-            <DialogTitle>Transactions</DialogTitle>
-            <DialogDescription>
-              A list of transactions associated with this category
-            </DialogDescription>
-          </VisuallyHidden>
-        </DialogHeader>
-        <div className="grid place-items-center w-full max-h-[70vh]">
-          <TransactionTable transactions={transactions} />
+        <DialogTrigger asChild>
+          <button
+            className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleOpenDialog}
+            data-action="view"
+            data-context-id={categoryId}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              userSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none',
+              WebkitUserSelect: 'none',
+              appearance: 'none',
+            }}
+          >
+            <Eye size={eyeSize} className="hover:text-primary" />
+          </button>
+        </DialogTrigger>
+        {content}
+      </Dialog>
+    </>
+  );
+};
+
+const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
+  // Create a mapping of action types to their labels
+  const actionLabels = {
+    edit: 'Edit',
+    delete: 'Delete',
+    view: 'View Transactions',
+  };
+
+  // Helper function to determine the action type and label from the child component
+  const getActionInfo = (child) => {
+    if (!child) return null;
+
+    if (
+      child.type === EditCategoryDialogue ||
+      child.type === EditSubcategoryDialogue
+    ) {
+      return { type: 'edit', icon: <Pencil size={18} className="mr-2" /> };
+    } else if (
+      child.type === DeleteCategoryDialogue ||
+      child.type === DeleteSubcategoryDialogue
+    ) {
+      return { type: 'delete', icon: <Trash2 size={18} className="mr-2" /> };
+    } else if (child.type === OpenTransactionTableDialogue) {
+      return { type: 'view', icon: <Eye size={18} className="mr-2" /> };
+    }
+    return null;
+  };
+
+  // Filter out null/undefined children
+  const validChildren = React.Children.toArray(children).filter(
+    (child) => child
+  );
+  const childrenCount = validChildren.length;
+
+  // Create array of dialog states and their setter functions
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Create menu items and separators with proper keys
+  const menuItems = [];
+  validChildren.forEach((child, index) => {
+    const actionInfo = getActionInfo(child);
+    const isLastItem = index === childrenCount - 1;
+
+    // Extract the setDialogOpen function from the child if possible
+    let openModal = null;
+    if (
+      React.isValidElement(child) &&
+      child.props &&
+      typeof child.props.handleOpenDialog === 'function'
+    ) {
+      openModal = child.props.handleOpenDialog;
+    }
+
+    // Add the menu item
+    menuItems.push(
+      <DropdownMenuItem
+        key={`item-${index}`}
+        className="cursor-pointer p-3 hover:bg-secondary/50 focus:outline-none focus:bg-transparent active:bg-transparent touch-none select-none rounded-md"
+        onSelect={(e) => {
+          e.preventDefault();
+
+          // Close the dropdown menu
+          setDropdownOpen(false);
+
+          // Set a small timeout to allow the dropdown to close before opening the modal
+          setTimeout(() => {
+            // If we have access to the child's handleOpenDialog, call it
+            if (openModal) {
+              openModal();
+            } else {
+              // Find the specific button with the matching contextId and action type
+              const selector = contextId
+                ? `[data-action="${actionInfo?.type}"][data-context-id="${contextId}"]`
+                : `[data-action="${actionInfo?.type}"]`;
+
+              const button = document.querySelector(selector);
+              if (button) {
+                button.click();
+              }
+            }
+          }, 10);
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        style={{
+          WebkitTapHighlightColor: 'transparent',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+          WebkitUserSelect: 'none',
+          appearance: 'none',
+          backgroundColor: 'transparent',
+        }}
+      >
+        <div className="flex items-center w-full gap-2">
+          {actionInfo?.icon}
+          <span className="font-medium text-md">
+            {actionInfo?.type ? actionLabels[actionInfo.type] : 'Action'}
+          </span>
         </div>
-      </DialogContent>
-    </Dialog>
+      </DropdownMenuItem>
+    );
+
+    // Add separator if not the last item
+    if (!isLastItem) {
+      menuItems.push(
+        <div
+          key={`separator-${index}`}
+          className="h-[1px] bg-border mx-2 my-1"
+        ></div>
+      );
+    }
+  });
+
+  return (
+    <>
+      {/* Desktop view - show buttons directly */}
+      <div
+        className={`hidden md:flex flex-row gap-[5px] items-center ${mobileOnly ? 'md:hidden' : ''}`}
+      >
+        {children}
+      </div>
+
+      {/* Mobile view - show kebab menu */}
+      <div className="md:hidden flex items-center">
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none mb-[2px] -ml-[5px]"
+              onPointerDown={(e) => e.stopPropagation()}
+              style={{
+                WebkitTapHighlightColor: 'transparent',
+                WebkitTouchCallout: 'none',
+                userSelect: 'none',
+                MozUserSelect: 'none',
+                msUserSelect: 'none',
+                WebkitUserSelect: 'none',
+                appearance: 'none',
+              }}
+            >
+              <MoreVertical size={18} className="hover:text-primary" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="bg-card w-[200px] p-2 focus:outline-none select-none"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            {menuItems}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Hidden components - render them but don't add refs anymore */}
+      <div className="hidden">{validChildren}</div>
+    </>
   );
 };
 
@@ -1201,16 +1499,14 @@ const CategoryCard = ({
         <div className="flex flex-col gap-0">
           <div className="flex flex-row items-center gap-[5px] ml-[9px] -mb-[9px]">
             <span className="text-lg font-bold">{category.name}</span>
-            <div className="flex flex-row gap-[5px] items-center">
-              <div className="flex flex-col items-center justify-center">
-                {currentUserRole !== 'viewer' && (
-                  <EditCategoryDialogue
-                    categoryName={category.name}
-                    monthlyGoal={category.monthlyGoal}
-                    categoryId={category.categoryId}
-                  />
-                )}
-              </div>
+            <ActionMenu contextId={category.categoryId}>
+              {currentUserRole !== 'viewer' && (
+                <EditCategoryDialogue
+                  categoryName={category.name}
+                  monthlyGoal={category.monthlyGoal}
+                  categoryId={category.categoryId}
+                />
+              )}
               {!category.categoryId.includes('other') &&
                 currentUserRole !== 'viewer' && (
                   <DeleteCategoryDialogue categoryId={category.categoryId} />
@@ -1224,7 +1520,7 @@ const CategoryCard = ({
                   categoryId={category.categoryId}
                 />
               )}
-            </div>
+            </ActionMenu>
           </div>
           <div className="flex flex-row gap-1 items-center">
             <span className="text-lg">$0</span>
@@ -1307,7 +1603,6 @@ const SubcategoryCard = forwardRef(
       transition,
       height: 'auto',
     };
-    console.log(subcategory.subcategoryId);
 
     return (
       <Card
@@ -1320,7 +1615,7 @@ const SubcategoryCard = forwardRef(
           <div className="flex flex-col">
             <div className="flex flex-row items-center gap-[5px] ml-[8px] -mb-[7px]">
               <span className="text-md font-bold">{subcategory.name}</span>
-              <div className="flex flex-row gap-1 items-center">
+              <ActionMenu contextId={subcategory.subcategoryId}>
                 <EditSubcategoryDialogue
                   subcategory={subcategory}
                   subcategoryId={subcategory.subcategoryId}
@@ -1335,8 +1630,9 @@ const SubcategoryCard = forwardRef(
                 <OpenTransactionTableDialogue
                   transactions={subcategory.transactions}
                   eyeSize={17}
+                  categoryId={subcategory.subcategoryId}
                 />
-              </div>
+              </ActionMenu>
             </div>
             <div className="flex flex-row gap-1 items-center">
               <span className="text-md">$0</span>

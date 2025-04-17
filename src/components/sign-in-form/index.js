@@ -22,22 +22,72 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import Link from 'next/link';
+import React from 'react';
 
-// Function to fix iOS PWA keyboard issue using the click-then-focus technique
-const forceiOSKeyboard = (event) => {
-  const element = event.target;
+// iOS-friendly input component
+const IOSTextInput = React.forwardRef(
+  ({ className, onFocus, ...props }, ref) => {
+    const inputRef = useRef(null);
+    const combinedRef = ref || inputRef;
 
-  // Prevent default behavior
-  event.preventDefault();
+    // Force iOS to show keyboard
+    const handleTouch = useCallback(
+      (e) => {
+        // Only do this hack in iOS
+        if (
+          typeof navigator !== 'undefined' &&
+          /iPad|iPhone|iPod/.test(navigator.userAgent)
+        ) {
+          e.preventDefault();
 
-  // Force a simulated click first (counts as user interaction)
-  element.click();
+          // Create a dummy input to show keyboard
+          const dummy = document.createElement('input');
+          dummy.setAttribute('type', 'text');
+          dummy.style.position = 'absolute';
+          dummy.style.opacity = 0;
+          dummy.style.height = '0';
+          dummy.style.fontSize = '16px'; // iOS won't zoom in on inputs with font size 16px+
 
-  // Then focus with a slight delay to ensure sequence
-  setTimeout(() => {
-    element.focus();
-  }, 100);
-};
+          // Append it, focus it, remove it
+          document.body.appendChild(dummy);
+          dummy.focus();
+
+          // A slight delay before focusing our actual input
+          setTimeout(() => {
+            document.body.removeChild(dummy);
+            combinedRef.current?.focus();
+
+            // iOS 18 needs an extra nudge - blur and refocus
+            setTimeout(() => {
+              combinedRef.current?.blur();
+              setTimeout(() => {
+                combinedRef.current?.focus();
+              }, 10);
+            }, 100);
+          }, 100);
+        } else {
+          // Normal behavior for non-iOS
+          combinedRef.current?.focus();
+        }
+
+        // Run the original onFocus if provided
+        if (onFocus) onFocus(e);
+      },
+      [combinedRef, onFocus]
+    );
+
+    return (
+      <Input
+        ref={combinedRef}
+        className={cn('text-base', className)} // iOS zooms on inputs with font < 16px
+        onTouchEnd={handleTouch}
+        {...props}
+      />
+    );
+  }
+);
+
+IOSTextInput.displayName = 'IOSTextInput';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -48,11 +98,6 @@ export function SignInForm() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-
-  // Refs for direct input access
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
-  const resetEmailRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,15 +141,13 @@ export function SignInForm() {
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
+                    <IOSTextInput
                       id="email"
                       type="email"
                       placeholder="m@example.com"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      ref={emailRef}
-                      onClick={(e) => forceiOSKeyboard(e)}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -122,14 +165,12 @@ export function SignInForm() {
                         Forgot your password?
                       </button>
                     </div>
-                    <Input
+                    <IOSTextInput
                       id="password"
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      ref={passwordRef}
-                      onClick={(e) => forceiOSKeyboard(e)}
                     />
                   </div>
                   {error && (
@@ -195,7 +236,7 @@ export function SignInForm() {
             >
               <div className="grid gap-2">
                 <Label htmlFor="resetEmail">Email</Label>
-                <Input
+                <IOSTextInput
                   id="resetEmail"
                   type="email"
                   value={resetEmail}
@@ -203,8 +244,6 @@ export function SignInForm() {
                   placeholder="m@example.com"
                   className="bg-background"
                   required
-                  ref={resetEmailRef}
-                  onClick={(e) => forceiOSKeyboard(e)}
                 />
               </div>
 

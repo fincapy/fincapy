@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input,
-textarea,
-select {
-  pointer-events: auto !important;
-  -webkit-user-select: text !important;
-}
-.offline-overlay {
-  display: none !important;
-}
-
 @layer base {
   :root {
     --background: 210 20% 98%;

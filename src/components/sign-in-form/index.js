@@ -22,72 +22,6 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import Link from 'next/link';
-import React from 'react';
-
-// iOS-friendly input component
-const IOSTextInput = React.forwardRef(
-  ({ className, onFocus, ...props }, ref) => {
-    const inputRef = useRef(null);
-    const combinedRef = ref || inputRef;
-
-    // Force iOS to show keyboard
-    const handleTouch = useCallback(
-      (e) => {
-        // Only do this hack in iOS
-        if (
-          typeof navigator !== 'undefined' &&
-          /iPad|iPhone|iPod/.test(navigator.userAgent)
-        ) {
-          e.preventDefault();
-
-          // Create a dummy input to show keyboard
-          const dummy = document.createElement('input');
-          dummy.setAttribute('type', 'text');
-          dummy.style.position = 'absolute';
-          dummy.style.opacity = 0;
-          dummy.style.height = '0';
-          dummy.style.fontSize = '16px'; // iOS won't zoom in on inputs with font size 16px+
-
-          // Append it, focus it, remove it
-          document.body.appendChild(dummy);
-          dummy.focus();
-
-          // A slight delay before focusing our actual input
-          setTimeout(() => {
-            document.body.removeChild(dummy);
-            combinedRef.current?.focus();
-
-            // iOS 18 needs an extra nudge - blur and refocus
-            setTimeout(() => {
-              combinedRef.current?.blur();
-              setTimeout(() => {
-                combinedRef.current?.focus();
-              }, 10);
-            }, 100);
-          }, 100);
-        } else {
-          // Normal behavior for non-iOS
-          combinedRef.current?.focus();
-        }
-
-        // Run the original onFocus if provided
-        if (onFocus) onFocus(e);
-      },
-      [combinedRef, onFocus]
-    );
-
-    return (
-      <Input
-        ref={combinedRef}
-        className={cn('text-base', className)} // iOS zooms on inputs with font < 16px
-        onTouchEnd={handleTouch}
-        {...props}
-      />
-    );
-  }
-);
-
-IOSTextInput.displayName = 'IOSTextInput';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -141,7 +75,7 @@ export function SignInForm() {
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <IOSTextInput
+                    <Input
                       id="email"
                       type="email"
                       placeholder="m@example.com"
@@ -165,7 +99,7 @@ export function SignInForm() {
                         Forgot your password?
                       </button>
                     </div>
-                    <IOSTextInput
+                    <Input
                       id="password"
                       type="password"
                       value={password}
@@ -236,7 +170,7 @@ export function SignInForm() {
             >
               <div className="grid gap-2">
                 <Label htmlFor="resetEmail">Email</Label>
-                <IOSTextInput
+                <Input
                   id="resetEmail"
                   type="email"
                   value={resetEmail}

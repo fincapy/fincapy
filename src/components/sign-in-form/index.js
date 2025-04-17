@@ -23,29 +23,20 @@ import {
 } from '@/components/ui/dialog';
 import Link from 'next/link';
 
-// Custom hook to handle iOS PWA keyboard bug
-const useIOSKeyboardFix = () => {
-  const inputRef = useRef(null);
-  const [isReadOnly, setIsReadOnly] = useState(true);
+// Function to fix iOS PWA keyboard issue using the click-then-focus technique
+const forceiOSKeyboard = (event) => {
+  const element = event.target;
 
-  const handleFocus = useCallback(() => {
-    // Check if we're in standalone PWA mode
-    if (typeof window !== 'undefined' && window.navigator.standalone) {
-      const el = inputRef.current;
-      if (el) {
-        setIsReadOnly(false); // Allow editing
-        setTimeout(() => el.focus(), 0); // Re-focus to summon keyboard
-      }
-    } else {
-      setIsReadOnly(false); // Not in PWA mode, no need for the workaround
-    }
-  }, []);
+  // Prevent default behavior
+  event.preventDefault();
 
-  const handleBlur = useCallback(() => {
-    setIsReadOnly(true); // Reset to readonly when blurred
-  }, []);
+  // Force a simulated click first (counts as user interaction)
+  element.click();
 
-  return { inputRef, isReadOnly, handleFocus, handleBlur };
+  // Then focus with a slight delay to ensure sequence
+  setTimeout(() => {
+    element.focus();
+  }, 100);
 };
 
 export function SignInForm() {
@@ -58,9 +49,10 @@ export function SignInForm() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  // Apply iOS keyboard fix to inputs
-  const emailInput = useIOSKeyboardFix();
-  const passwordInput = useIOSKeyboardFix();
+  // Refs for direct input access
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const resetEmailRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,10 +103,8 @@ export function SignInForm() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      ref={emailInput.inputRef}
-                      readOnly={emailInput.isReadOnly}
-                      onFocus={emailInput.handleFocus}
-                      onBlur={emailInput.handleBlur}
+                      ref={emailRef}
+                      onClick={(e) => forceiOSKeyboard(e)}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -138,10 +128,8 @@ export function SignInForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      ref={passwordInput.inputRef}
-                      readOnly={passwordInput.isReadOnly}
-                      onFocus={passwordInput.handleFocus}
-                      onBlur={passwordInput.handleBlur}
+                      ref={passwordRef}
+                      onClick={(e) => forceiOSKeyboard(e)}
                     />
                   </div>
                   {error && (
@@ -215,6 +203,8 @@ export function SignInForm() {
                   placeholder="m@example.com"
                   className="bg-background"
                   required
+                  ref={resetEmailRef}
+                  onClick={(e) => forceiOSKeyboard(e)}
                 />
               </div>
 

@@ -33,28 +33,6 @@ export function SignInForm() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  useEffect(() => {
-    const inputs = document.querySelectorAll('input');
-
-    const handleFocus = (e) => {
-      // Ensure proper focus behavior on iOS PWA
-      window.scrollTo(0, 0);
-      setTimeout(() => {
-        e.target.focus();
-      }, 50);
-    };
-
-    inputs.forEach((input) => {
-      input.addEventListener('focus', handleFocus);
-    });
-
-    return () => {
-      inputs.forEach((input) => {
-        input.removeEventListener('focus', handleFocus);
-      });
-    };
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

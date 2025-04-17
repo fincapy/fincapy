@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input,
-textarea {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-touch-callout: default;
-  touch-action: manipulation;
-}
-
 @layer base {
   :root {
     --background: 210 20% 98%;

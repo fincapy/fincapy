@@ -427,15 +427,6 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
             onClick={handleOpenDialog}
             data-action="delete"
             data-context-id={categoryId}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              userSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              WebkitUserSelect: 'none',
-              appearance: 'none',
-            }}
           >
             <Trash2 size={18} className="hover:text-primary" />
           </button>
@@ -647,15 +638,6 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
             onClick={handleOpenDialog}
             data-action="edit"
             data-context-id={categoryId}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              userSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              WebkitUserSelect: 'none',
-              appearance: 'none',
-            }}
           >
             <Pencil size={18} className="hover:text-primary" />
           </button>
@@ -1068,15 +1050,6 @@ const EditSubcategoryDialogue = ({
             onClick={handleOpenDialog}
             data-action="edit"
             data-context-id={subcategoryId}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              userSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              WebkitUserSelect: 'none',
-              appearance: 'none',
-            }}
           >
             <Pencil size={17} className="hover:text-primary" />
           </button>
@@ -1194,15 +1167,6 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
             onClick={handleOpenDialog}
             data-action="delete"
             data-context-id={subcategoryId}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              userSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              WebkitUserSelect: 'none',
-              appearance: 'none',
-            }}
           >
             <Trash2 size={17} className="hover:text-primary" />
           </button>
@@ -1260,15 +1224,6 @@ const OpenTransactionTableDialogue = ({
             onClick={handleOpenDialog}
             data-action="view"
             data-context-id={categoryId}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              userSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              WebkitUserSelect: 'none',
-              appearance: 'none',
-            }}
           >
             <Eye size={eyeSize} className="hover:text-primary" />
           </button>
@@ -1362,16 +1317,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
           }, 10);
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        style={{
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          MozUserSelect: 'none',
-          msUserSelect: 'none',
-          WebkitUserSelect: 'none',
-          appearance: 'none',
-          backgroundColor: 'transparent',
-        }}
       >
         <div className="flex items-center w-full gap-2">
           {actionInfo?.icon}
@@ -1409,15 +1354,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
             <button
               className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none z-50 mb-[2px] -ml-[15px] p-2"
               onPointerDown={(e) => e.stopPropagation()}
-              style={{
-                WebkitTapHighlightColor: 'transparent',
-                WebkitTouchCallout: 'none',
-                userSelect: 'none',
-                MozUserSelect: 'none',
-                msUserSelect: 'none',
-                WebkitUserSelect: 'none',
-                appearance: 'none',
-              }}
             >
               <div className="h-6 w-6 flex items-center justify-center">
                 <MoreVertical size={18} className="hover:text-primary" />
@@ -1427,7 +1363,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
           <DropdownMenuContent
             align="end"
             className="bg-card w-[200px] p-2 focus:outline-none select-none"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {menuItems}
           </DropdownMenuContent>

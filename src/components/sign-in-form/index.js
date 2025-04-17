@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import {
   authenticateEmailPassword,
@@ -23,6 +23,31 @@ import {
 } from '@/components/ui/dialog';
 import Link from 'next/link';
 
+// Custom hook to handle iOS PWA keyboard bug
+const useIOSKeyboardFix = () => {
+  const inputRef = useRef(null);
+  const [isReadOnly, setIsReadOnly] = useState(true);
+
+  const handleFocus = useCallback(() => {
+    // Check if we're in standalone PWA mode
+    if (typeof window !== 'undefined' && window.navigator.standalone) {
+      const el = inputRef.current;
+      if (el) {
+        setIsReadOnly(false); // Allow editing
+        setTimeout(() => el.focus(), 0); // Re-focus to summon keyboard
+      }
+    } else {
+      setIsReadOnly(false); // Not in PWA mode, no need for the workaround
+    }
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setIsReadOnly(true); // Reset to readonly when blurred
+  }, []);
+
+  return { inputRef, isReadOnly, handleFocus, handleBlur };
+};
+
 export function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +57,10 @@ export function SignInForm() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  // Apply iOS keyboard fix to inputs
+  const emailInput = useIOSKeyboardFix();
+  const passwordInput = useIOSKeyboardFix();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +111,10 @@ export function SignInForm() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      ref={emailInput.inputRef}
+                      readOnly={emailInput.isReadOnly}
+                      onFocus={emailInput.handleFocus}
+                      onBlur={emailInput.handleBlur}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -105,6 +138,10 @@ export function SignInForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      ref={passwordInput.inputRef}
+                      readOnly={passwordInput.isReadOnly}
+                      onFocus={passwordInput.handleFocus}
+                      onBlur={passwordInput.handleBlur}
                     />
                   </div>
                   {error && (

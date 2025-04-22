@@ -116,7 +116,7 @@ const EditTransactionForm = ({
   const form = useForm({
     resolver: zodResolver(recategorizeFormSchema),
     defaultValues: {
-      category: transaction.categoryId,
+      category: transaction.subcategoryId ?? transaction.categoryId,
       date: transaction.date,
       description: transaction.description,
       status: transaction.status,

@@ -549,3 +549,47 @@ export {
   reorderCategories,
   reorderSubcategories,
 };
+
+/**
+ * Returns whether the current user has completed or skipped onboarding.
+ */
+export async function getOnboardingStatus() {
+  try {
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
+    if (!session) return false;
+    const key = `user_prefs:${session.userId}:onboarding`;
+    const result = await redisAdapter.get(key);
+    const resultString = result.toString();
+    return resultString === 'true';
+  } catch (error) {
+    console.error('Error in getOnboardingStatus:', error);
+    return false;
+  }
+}
+
+/**
+ * Sets whether the current user has completed or skipped onboarding.
+ * @param {{done: boolean}} params
+ */
+export async function setOnboardingStatus({ done }) {
+  try {
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+    const session = await sessionManager.touchSession({
+      cookies: await cookies(),
+    });
+    if (!session) return false;
+    const key = `user_prefs:${session.userId}:onboarding`;
+    await redisAdapter.set(key, done ? 'true' : 'false');
+    return true;
+  } catch (error) {
+    console.error('Error in setOnboardingStatus:', error);
+    return false;
+  }
+}

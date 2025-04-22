@@ -116,6 +116,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { HelpCircle } from 'lucide-react';
+import OnboardingModal from './OnboardingModal';
+import { getOnboardingStatus } from './serverActions';
+import { Portal } from '@radix-ui/react-portal';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -1876,6 +1880,16 @@ export default function CategoryDashboard({ type, categories }) {
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
   const { toast } = useToast();
 
+  // Onboarding modal state (server-driven)
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const done = await getOnboardingStatus();
+      if (!done) setOnboardingOpen(true);
+    };
+    fetchStatus();
+  }, []);
+
   useEffect(() => {
     if (!localStorage.getItem('mp_existing_user')) {
       localStorage.setItem('mp_existing_user', 'true');
@@ -1954,98 +1968,121 @@ export default function CategoryDashboard({ type, categories }) {
   const progressBarColorArray = Object.keys(progressBarColors);
 
   return (
-    <CategoryContext.Provider
-      value={{ categoriesState, setCategoriesState, setPreviousState }}
-    >
-      {isLoading ? (
-        <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
-          <div className="flex flex-col justify-center items-center gap-2">
-            <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
-              key="create-category-dialogue-skeleton"
-            >
-              <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Skeleton className="h-9 w-[135px] bg-neutral-300" />
-                <Skeleton className="h-9 w-[135px] bg-neutral-300" />
+    <>
+      <OnboardingModal
+        open={onboardingOpen}
+        onOpenChange={setOnboardingOpen}
+        type={type}
+      />
+      <CategoryContext.Provider
+        value={{ categoriesState, setCategoriesState, setPreviousState }}
+      >
+        {isLoading ? (
+          <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+            <div className="flex flex-col justify-center items-center gap-2">
+              <div
+                className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+                key="create-category-dialogue-skeleton"
+              >
+                <div className="flex flex-row flex-wrap gap-2 items-center">
+                  <Skeleton className="h-9 w-[135px] bg-neutral-300" />
+                  <Skeleton className="h-9 w-[135px] bg-neutral-300" />
+                </div>
+                {(type === 'spending' || type === 'income') && (
+                  <Skeleton className="h-9 w-9 bg-neutral-300" />
+                )}
               </div>
-              {(type === 'spending' || type === 'income') && (
-                <Skeleton className="h-9 w-9 bg-neutral-300" />
+
+              {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
+                (_, index) => (
+                  <div
+                    className="flex flex-col w-[96%] lg:max-w-[1152.5px]"
+                    key={index}
+                  >
+                    <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
+                  </div>
+                )
               )}
             </div>
-
-            {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
-              (_, index) => (
-                <div
-                  className="flex flex-col w-[96%] lg:max-w-[1152.5px]"
-                  key={index}
-                >
-                  <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
+          </div>
+        ) : (
+          <CategoryNamesContext.Provider value={categoryNames}>
+            <TypeContext.Provider value={type}>
+              <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+                <div className="flex flex-col justify-center items-center gap-2">
+                  <div
+                    className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+                    key="create-category-dialogue"
+                  >
+                    <DatePickers
+                      startDate={startDateState}
+                      endDate={endDateState}
+                    />
+                    {(type === 'spending' || type === 'income') &&
+                      currentUserRole !== 'viewer' && (
+                        <CreateCategoryDialogue />
+                      )}
+                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={categoriesState.map(
+                        (category) => category.categoryId
+                      )}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {categoriesState.map((category, index) => (
+                        <div
+                          className="flex flex-col w-[96%] lg:max-w-[1152.5px] rounded-xl"
+                          key={category.categoryId}
+                        >
+                          <CategoryCardCollapsible
+                            key={category.categoryId}
+                            id={category.categoryId}
+                            category={category}
+                            subcategories={category.subcategories}
+                            color={
+                              progressBarColors[
+                                progressBarColorArray[
+                                  index % progressBarColorArray.length
+                                ]
+                              ].regular
+                            }
+                            mutedColor={
+                              progressBarColors[
+                                progressBarColorArray[
+                                  index % progressBarColorArray.length
+                                ]
+                              ].muted
+                            }
+                          />
+                        </div>
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
-              )
-            )}
+              </div>
+            </TypeContext.Provider>
+          </CategoryNamesContext.Provider>
+        )}
+      </CategoryContext.Provider>
+      <Portal>
+        <div className="h-screen w-screen flex justify-center items-center z-0 pointer-events-none">
+          <div className="lg:max-w-[1152.5px] w-[96%] h-full relative z-0 pointer-events-none">
+            <Button
+              variant="default"
+              size="default"
+              className="z-50 text-white hover:bg-primary-dark rounded-full h-8 w-8 text-lg absolute bottom-20 right-0 pointer-events-auto"
+              onClick={() => setOnboardingOpen(true)}
+            >
+              ?
+            </Button>
           </div>
         </div>
-      ) : (
-        <CategoryNamesContext.Provider value={categoryNames}>
-          <TypeContext.Provider value={type}>
-            <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
-              <div className="flex flex-col justify-center items-center gap-2">
-                <div
-                  className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
-                  key="create-category-dialogue"
-                >
-                  <DatePickers
-                    startDate={startDateState}
-                    endDate={endDateState}
-                  />
-                  {(type === 'spending' || type === 'income') &&
-                    currentUserRole !== 'viewer' && <CreateCategoryDialogue />}
-                </div>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={categoriesState.map(
-                      (category) => category.categoryId
-                    )}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {categoriesState.map((category, index) => (
-                      <div
-                        className="flex flex-col w-[96%] lg:max-w-[1152.5px] rounded-xl"
-                        key={category.categoryId}
-                      >
-                        <CategoryCardCollapsible
-                          key={category.categoryId}
-                          id={category.categoryId}
-                          category={category}
-                          subcategories={category.subcategories}
-                          color={
-                            progressBarColors[
-                              progressBarColorArray[
-                                index % progressBarColorArray.length
-                              ]
-                            ].regular
-                          }
-                          mutedColor={
-                            progressBarColors[
-                              progressBarColorArray[
-                                index % progressBarColorArray.length
-                              ]
-                            ].muted
-                          }
-                        />
-                      </div>
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              </div>
-            </div>
-          </TypeContext.Provider>
-        </CategoryNamesContext.Provider>
-      )}
-    </CategoryContext.Provider>
+      </Portal>
+    </>
   );
 }

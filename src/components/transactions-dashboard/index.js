@@ -381,7 +381,7 @@ const CreateTransactionDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[96%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
+        className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
@@ -506,7 +506,7 @@ const TransactionsDashboard = () => {
         <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
           <div className="flex flex-col justify-center items-center gap-2">
             <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+              className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
               key="create-category-dialogue-skeleton"
             >
               <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -515,21 +515,21 @@ const TransactionsDashboard = () => {
               </div>
               <Skeleton className="h-9 w-9 bg-card" />
             </div>
-            <Skeleton className="h-[70vh] w-[96%] lg:max-w-[1152.5px] bg-card" />
+            <Skeleton className="h-[70vh] w-[95%] lg:max-w-[1152.5px] bg-card" />
           </div>
         </div>
       ) : (
         <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
           <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
             <div
-              className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+              className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
               key="create-transaction-dialogue"
             >
               <DatePickers />
               {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
             </div>
             <div
-              className="grid w-[96%] lg:max-w-[1152.5px] h-[calc(80vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl"
+              className="grid w-[95%] lg:max-w-[1152.5px] h-[calc(80vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}

@@ -80,11 +80,11 @@ const TOTPVerificationForm = () => {
 
   if (!mounted)
     return (
-      <Skeleton className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-[96%] h-[160px] rounded-xl bg-card" />
+      <Skeleton className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-[95%] h-[160px] rounded-xl bg-card" />
     );
 
   return (
-    <Card className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-[96%] border">
+    <Card className="lg:w-[384px] md:w-[384px] sm:w-[384px] w-[95%] border">
       <CardContent className="pt-6 flex flex-col items-center justify-center gap-1">
         <div className="flex w-full flex-col items-center justify-center">
           {!useBackupCode ? (

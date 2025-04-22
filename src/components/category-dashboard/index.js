@@ -1981,7 +1981,7 @@ export default function CategoryDashboard({ type, categories }) {
           <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
             <div className="flex flex-col justify-center items-center gap-2">
               <div
-                className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+                className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
                 key="create-category-dialogue-skeleton"
               >
                 <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -1996,7 +1996,7 @@ export default function CategoryDashboard({ type, categories }) {
               {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
                 (_, index) => (
                   <div
-                    className="flex flex-col w-[96%] lg:max-w-[1152.5px]"
+                    className="flex flex-col w-[95%] lg:max-w-[1152.5px]"
                     key={index}
                   >
                     <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
@@ -2011,7 +2011,7 @@ export default function CategoryDashboard({ type, categories }) {
               <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
                 <div className="flex flex-col justify-center items-center gap-2">
                   <div
-                    className="flex flex-row justify-between gap-4 w-[96%] lg:max-w-[1152.5px]"
+                    className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
                     key="create-category-dialogue"
                   >
                     <DatePickers
@@ -2036,7 +2036,7 @@ export default function CategoryDashboard({ type, categories }) {
                     >
                       {categoriesState.map((category, index) => (
                         <div
-                          className="flex flex-col w-[96%] lg:max-w-[1152.5px] rounded-xl"
+                          className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl"
                           key={category.categoryId}
                         >
                           <CategoryCardCollapsible
@@ -2071,7 +2071,7 @@ export default function CategoryDashboard({ type, categories }) {
       </CategoryContext.Provider>
       <Portal>
         <div className="h-screen w-screen flex justify-center items-center z-0 pointer-events-none">
-          <div className="lg:max-w-[1152.5px] w-[96%] h-full relative z-0 pointer-events-none">
+          <div className="lg:max-w-[1152.5px] w-[95%] h-full relative z-0 pointer-events-none">
             <Button
               variant="default"
               size="default"

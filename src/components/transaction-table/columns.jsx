@@ -333,7 +333,7 @@ const EditTransactionDialog = ({ row, setOuterDialogIsOpen }) => {
         <DialogTitle>Edit Transaction Dialog</DialogTitle>
       </VisuallyHidden>
       <DialogContent
-        className="sm:max-w-[96%] bg-card max-w-[96%] lg:max-w-[30%] md:max-w-[50%]"
+        className="sm:max-w-[95%] bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%]"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}

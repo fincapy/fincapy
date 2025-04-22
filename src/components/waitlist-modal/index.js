@@ -62,7 +62,7 @@ export function WaitlistModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-w-[96%]rounded-xl">
+      <DialogContent className="sm:max-w-[425px] max-w-[95%]rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             Join our waitlist

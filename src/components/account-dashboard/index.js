@@ -414,7 +414,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
   return (
     <div className="flex w-full flex-col h-full">
-      <div className="max-w-6xl w-[96%] mx-auto">
+      <div className="max-w-6xl w-[95%] mx-auto">
         {/* Mobile dropdown navigation */}
         <div className="md:hidden w-full my-4">
           <DropdownMenu>
@@ -879,7 +879,7 @@ const AccountPage = ({ setPage, userEmail }) => {
         open={isChangePasswordModalOpen}
         onOpenChange={setIsChangePasswordModalOpen}
       >
-        <DialogContent className="bg-card max-w-[96%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
+        <DialogContent className="bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
             <DialogDescription>
@@ -944,7 +944,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
       {/* Reset 2FA Modal */}
       <Dialog open={isReset2FAModalOpen} onOpenChange={setIsReset2FAModalOpen}>
-        <DialogContent className="bg-card focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-xl max-w-[96%] lg:max-w-[30%] md:max-w-[50%]">
+        <DialogContent className="bg-card focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-xl max-w-[95%] lg:max-w-[30%] md:max-w-[50%]">
           <DialogHeader>
             <DialogTitle>Reset 2FA Device</DialogTitle>
             <DialogDescription>
@@ -1000,7 +1000,7 @@ const AccountPage = ({ setPage, userEmail }) => {
         open={isVerifyEmailModalOpen}
         onOpenChange={setIsVerifyEmailModalOpen}
       >
-        <DialogContent className="bg-card max-w-[96%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
+        <DialogContent className="bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
           <DialogHeader>
             <DialogTitle>Verify Email Address</DialogTitle>
             <DialogDescription>
@@ -1065,7 +1065,7 @@ const AccountPage = ({ setPage, userEmail }) => {
           }
         }}
       >
-        <DialogContent className="bg-card max-w-[96%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
+        <DialogContent className="bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%] rounded-xl">
           <DialogHeader>
             <DialogTitle>
               {pendingHighRiskAction?.type === 'setPrimary'

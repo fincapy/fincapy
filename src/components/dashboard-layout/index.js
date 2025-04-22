@@ -310,9 +310,7 @@ export default function DashboardLayout({
         firstRender.current = false;
         setPlanState(newPlan);
         setPlaidItemsState(plaidItems);
-        setUsersState(
-          users.filter((user) => user.emails[0].email !== userEmail.email)
-        );
+        setUsersState(users);
         setCurrentUser(currentUser);
         setCurrentUserId(userId);
         setCurrentUserRole(userRole);

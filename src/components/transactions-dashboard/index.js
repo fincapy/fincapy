@@ -156,6 +156,59 @@ const recategorizeFormSchema = z.object({
   ]),
 });
 
+const DatePickerFormField = ({ form, name, label }) => {
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col">
+          <FormLabel>{label}</FormLabel>
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    'w-full pl-3 text-left font-normal',
+                    !field.value && 'text-muted-foreground'
+                  )}
+                >
+                  {field.value ? (
+                    format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto p-0 bg-card z-[9999]"
+              align="start"
+            >
+              <Calendar
+                mode="single"
+                selected={
+                  field.value
+                    ? parse(field.value, 'yyyy-MM-dd', new Date())
+                    : undefined
+                }
+                onSelect={(date) => {
+                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                }}
+                disabled={false}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
 const CreateTransactionForm = ({ setDialogOpen }) => {
   const { toast } = useToast();
   const [planState, setPlanState] = useAtom(planAtom);
@@ -253,22 +306,7 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3 h-full"
       >
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Transaction Date</FormLabel>
-              <Input
-                type="text"
-                placeholder="YYYY-MM-DD"
-                autoComplete="off"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
+        <DatePickerFormField form={form} name="date" label="Transaction Date" />
         <FormField
           control={form.control}
           name="description"
@@ -375,19 +413,11 @@ const CreateTransactionDialogue = () => {
           variant="outline"
           size="icon"
           className="bg-card hover:bg-card hover:border-primary hover:text-primary"
-          onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
-        onPointerDown={(e) => e.stopPropagation()}
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
+      <DialogContent className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl">
         <DialogHeader>
           <DialogTitle>Create Transaction</DialogTitle>
           <DialogDescription>Add a new custom transaction</DialogDescription>

@@ -82,7 +82,7 @@ const Progress = React.forwardRef(
             style={{ width: `${percentage}%` }}
           />
         </ProgressPrimitive.Root>
-        <div
+        {/* <div
           className={`absolute top-[11px] left-0 ${rawValueSize} font-bold text-primary transition-opacity duration-200`}
           style={{
             left: `${calculateRawValuePosition()}px`,
@@ -93,7 +93,7 @@ const Progress = React.forwardRef(
             style: 'currency',
             currency: 'USD',
           }).format(rawValue)}
-        </div>
+        </div> */}
       </div>
     );
   }

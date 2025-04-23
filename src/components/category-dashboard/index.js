@@ -1417,6 +1417,9 @@ const CategoryCard = ({
   );
   category.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // Determine background color based on whether we're using primary or secondary
+  const bgColor = color === 'bg-primary' ? 'bg-amber-200' : 'bg-emerald-100';
+
   return (
     <Card
       ref={categoryCardRef}
@@ -1438,33 +1441,49 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex flex-row items-center gap-[5px] ml-[9px] -mb-[9px]">
-            <span className="text-lg font-bold">{category.name}</span>
-            <ActionMenu contextId={category.categoryId}>
-              {currentUserRole !== 'viewer' && (
-                <EditCategoryDialogue
-                  categoryName={category.name}
-                  monthlyGoal={category.monthlyGoal}
-                  categoryId={category.categoryId}
-                />
-              )}
-              {!category.categoryId.includes('other') &&
-                currentUserRole !== 'viewer' && (
-                  <DeleteCategoryDialogue categoryId={category.categoryId} />
+          <div className="flex w-full justify-between pb-2">
+            <div className="flex flex-row items-center gap-[5px]">
+              <span className="text-lg font-bold">{category.name}</span>
+              <ActionMenu contextId={category.categoryId}>
+                {currentUserRole !== 'viewer' && (
+                  <EditCategoryDialogue
+                    categoryName={category.name}
+                    monthlyGoal={category.monthlyGoal}
+                    categoryId={category.categoryId}
+                  />
                 )}
-              {category.type === 'savings' ? (
-                <div className="" />
-              ) : (
-                <OpenTransactionTableDialogue
-                  transactions={category.transactions}
-                  eyeSize={18}
-                  categoryId={category.categoryId}
-                />
-              )}
-            </ActionMenu>
+                {!category.categoryId.includes('other') &&
+                  currentUserRole !== 'viewer' && (
+                    <DeleteCategoryDialogue categoryId={category.categoryId} />
+                  )}
+                {category.type === 'savings' ? (
+                  <div className="" />
+                ) : (
+                  <OpenTransactionTableDialogue
+                    transactions={category.transactions}
+                    eyeSize={18}
+                    categoryId={category.categoryId}
+                  />
+                )}
+              </ActionMenu>
+            </div>
+            <div className={`text-lg ${bgColor} px-2 rounded-sm`}>
+              <span className="font-bold">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                }).format(category.currentNet)}
+              </span>
+              <span> / </span>
+              <span>
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                }).format(category.proratedGoal)}
+              </span>
+            </div>
           </div>
           <div className="flex flex-row gap-1 items-center">
-            <span className="text-lg">$0</span>
             <Progress
               barHeight={'h-[9px]'}
               rawValueSize={'text-lg'}
@@ -1474,7 +1493,6 @@ const CategoryCard = ({
               color={color}
               mutedColor={mutedColor}
             />
-            <span className="text-lg">{`$${category.proratedGoal}`}</span>
           </div>
         </div>
       </CardContent>
@@ -1965,8 +1983,6 @@ export default function CategoryDashboard({ type, categories }) {
     });
   };
 
-  const progressBarColorArray = Object.keys(progressBarColors);
-
   return (
     <>
       <OnboardingModal
@@ -2045,18 +2061,7 @@ export default function CategoryDashboard({ type, categories }) {
                             category={category}
                             subcategories={category.subcategories}
                             color={
-                              progressBarColors[
-                                progressBarColorArray[
-                                  index % progressBarColorArray.length
-                                ]
-                              ].regular
-                            }
-                            mutedColor={
-                              progressBarColors[
-                                progressBarColorArray[
-                                  index % progressBarColorArray.length
-                                ]
-                              ].muted
+                              index % 2 === 0 ? 'bg-primary' : 'bg-secondary'
                             }
                           />
                         </div>
@@ -2069,7 +2074,7 @@ export default function CategoryDashboard({ type, categories }) {
           </CategoryNamesContext.Provider>
         )}
       </CategoryContext.Provider>
-      <Portal>
+      {/* <Portal>
         <div className="h-screen w-screen flex justify-center items-center z-0 pointer-events-none">
           <div className="lg:max-w-[1152.5px] w-[95%] h-full relative z-0 pointer-events-none">
             <Button
@@ -2082,7 +2087,7 @@ export default function CategoryDashboard({ type, categories }) {
             </Button>
           </div>
         </div>
-      </Portal>
+      </Portal> */}
     </>
   );
 }

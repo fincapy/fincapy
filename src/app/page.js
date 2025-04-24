@@ -64,13 +64,13 @@ export default function Home() {
             <Link href="/signin">
               <Button
                 variant="outline"
-                className="border-secondary text-secondary hover:border-primary hover:text-primary"
+                className="border-secondary text-secondary hover:border-amber-800 hover:text-amber-800"
               >
                 Sign In
               </Button>
             </Link>
             <Button
-              className="bg-primary text-gray-900 hover:bg-secondary hover:text-white"
+              className="bg-primary text-gray-900 hover:bg-secondary border border-amber-800 hover:text-white hover:shadow-none hover:border-secondary"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -83,7 +83,7 @@ export default function Home() {
       <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
-            <h1 className="text-6xl font-bold tracking-tighter text-center">
+            <h1 className="text-6xl font-bold tracking-tighter text-center text-gray-950">
               Who Will <span className="text-secondary">Your Money</span> Make
               You?
             </h1>
@@ -95,7 +95,7 @@ export default function Home() {
             <Button
               ref={ctaButtonRef}
               size="lg"
-              className="w-[200px] bg-primary text-gray-900 hover:bg-secondary hover:text-white font-bold text-md relative"
+              className="w-[200px] bg-amber-500 text-gray-900 hover:bg-secondary hover:text-white font-bold text-md relative border border-amber-800 hover:border-secondary hover:shadow-none"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -228,7 +228,7 @@ export default function Home() {
               </Button>
             </Card>
 
-            <Card className="flex flex-col border-primary p-6 border">
+            <Card className="flex flex-col border-amber-800 p-6 border">
               <div className="mb-4 text-center">
                 <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">
                   RECOMMENDED
@@ -247,7 +247,7 @@ export default function Home() {
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
               <Button
-                className="w-full bg-primary text-gray-900 hover:bg-secondary hover:text-white"
+                className="w-full bg-primary text-gray-900 hover:bg-secondary hover:text-white border border-amber-800 hover:border-secondary"
                 onClick={handleOpenModal}
               >
                 {ctaText}
@@ -298,7 +298,7 @@ export default function Home() {
             </h2>
             <Button
               size="lg"
-              className="bg-primary text-gray-900 hover:bg-primary-dark"
+              className="bg-primary border border-amber-200 text-gray-900"
               onClick={handleOpenModal}
             >
               {ctaText}

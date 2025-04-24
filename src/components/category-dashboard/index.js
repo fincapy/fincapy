@@ -1498,7 +1498,7 @@ const CategoryCard = ({
               </ActionMenu>
             </div>
             <div
-              className={`flex flex-row items-center gap-[5px] max-w-[60%] text-wrap text-lg ${highlightColor} px-2 rounded-sm min-h-7`}
+              className={`flex flex-row items-center gap-[5px] max-w-[60%] text-wrap text-md ${highlightColor} px-2 rounded-sm min-h-7`}
             >
               <span className="font-medium">
                 {`${new Intl.NumberFormat('en-US', {

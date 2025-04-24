@@ -306,7 +306,7 @@ const CreateCategoryDialogue = () => {
         <Button
           variant="outline"
           size="icon"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
+          className="bg-card hover:bg-card hover:border-primary hover:text-primary text-gray-800"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon size={20} />
@@ -1469,9 +1469,9 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex w-full justify-between pb-1 items-center">
-            <div className="flex flex-row items-center gap-[5px] max-w-[40%] text-wrap break-words">
-              <span className="text-lg break-words max-w-[90%] font-bold">
+          <div className="flex w-full pb-1 items-center">
+            <div className="flex flex-row items-center gap-[5px] max-w-[40%] min-w-0 text-wrap break-words">
+              <span className="text-lg break-words max-w-[90%] font-bold text-gray-800">
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
@@ -1498,24 +1498,28 @@ const CategoryCard = ({
               </ActionMenu>
             </div>
             <div
-              className={`flex flex-row items-center gap-[5px] max-w-[60%] text-wrap text-md ${highlightColor} px-2 rounded-sm min-h-7`}
+              className={`flex-1 min-w-0 flex flex-row items-center gap-[5px] text-wrap text-md px-2 rounded-sm min-h-7 justify-end`}
             >
-              <span className="font-medium">
-                {`${new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  maximumFractionDigits: 0,
-                  minimumFractionDigits: 0,
-                }).format(category.currentNet)} / ${new Intl.NumberFormat(
-                  'en-US',
-                  {
+              <div
+                className={`${highlightColor} px-2 rounded-sm flex flex-row items-center`}
+              >
+                <span className="font-medium">
+                  {`${new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: 'USD',
                     maximumFractionDigits: 0,
                     minimumFractionDigits: 0,
-                  }
-                ).format(category.proratedGoal)}`}
-              </span>
+                  }).format(category.currentNet)} / ${new Intl.NumberFormat(
+                    'en-US',
+                    {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 0,
+                      minimumFractionDigits: 0,
+                    }
+                  ).format(category.proratedGoal)}`}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex flex-row gap-1 items-center">
@@ -1530,7 +1534,7 @@ const CategoryCard = ({
               highlightColor={highlightColor}
             />
           </div>
-          <div className="flex flex-row justify-between pt-1">
+          <div className="flex flex-row justify-between pt-1 text-gray-500">
             <span>{progressPercentage.toFixed(0)}% complete</span>
             <div className="flex flex-row gap-1 items-center">
               <CalendarIcon size={16} />
@@ -1867,7 +1871,7 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[135px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary',
+              'w-[135px] flex items-center text-card-foreground text-md bg-card hover:border-primary hover:text-primary text-gray-800',
               !startDate && 'text-muted-foreground'
             )}
           >

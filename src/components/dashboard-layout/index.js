@@ -84,8 +84,8 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
           page === 'account' ||
           page === 'manage-users' ||
           page === 'financial-institutions'
-            ? 'text-primary -mb-[2px]'
-            : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+            ? 'text-amber-700 -mb-[2px]'
+            : 'text-muted/80 group-hover:text-amber-700 -mb-[2px]'
         }
       />
       <span
@@ -93,8 +93,8 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
           page === 'account' ||
           page === 'manage-users' ||
           page === 'financial-institutions'
-            ? 'text-[13px] font-bold text-primary'
-            : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+            ? 'text-[13px] font-bold text-amber-700'
+            : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-700'
         }
       >
         Account
@@ -132,15 +132,15 @@ const NavBar = ({ page, setPage, userRole }) => {
               size={25}
               className={
                 page === 'spending'
-                  ? 'text-primary -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+                  ? 'text-amber-700 -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-amber-700 -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'spending'
-                  ? 'text-[13px] font-bold text-primary'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-amber-700'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-700'
               }
             >
               Spending
@@ -154,15 +154,15 @@ const NavBar = ({ page, setPage, userRole }) => {
               size={25}
               className={
                 page === 'income'
-                  ? 'text-primary -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+                  ? 'text-amber-700 -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-amber-700 -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'income'
-                  ? 'text-[13px] font-bold text-primary'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-amber-700'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-700'
               }
             >
               Income
@@ -176,15 +176,15 @@ const NavBar = ({ page, setPage, userRole }) => {
               size={25}
               className={
                 page === 'savings'
-                  ? 'text-primary -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+                  ? 'text-amber-700 -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-amber-700 -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'savings'
-                  ? 'text-[13px] font-bold text-primary'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-amber-700'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-700'
               }
             >
               Savings
@@ -198,15 +198,15 @@ const NavBar = ({ page, setPage, userRole }) => {
               size={25}
               className={
                 page === 'transactions'
-                  ? 'text-primary -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-primary -mb-[2px]'
+                  ? 'text-amber-700 -mb-[2px]'
+                  : 'text-muted/80 group-hover:text-amber-700 -mb-[2px]'
               }
             />
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[13px] font-bold text-primary'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-primary'
+                  ? 'text-[13px] font-bold text-amber-700'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-700'
               }
             >
               Transactions

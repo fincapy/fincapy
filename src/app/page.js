@@ -298,7 +298,7 @@ export default function Home() {
             </h2>
             <Button
               size="lg"
-              className="bg-primary border border-amber-400 text-gray-900"
+              className="bg-primary border border-amber-200 hover:bg-amber-400 text-gray-900"
               onClick={handleOpenModal}
             >
               {ctaText}

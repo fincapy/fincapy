@@ -70,7 +70,7 @@ export default function Home() {
               </Button>
             </Link>
             <Button
-              className="bg-primary text-gray-900 hover:bg-secondary"
+              className="bg-primary text-gray-900 hover:bg-secondary hover:text-white"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -95,7 +95,7 @@ export default function Home() {
             <Button
               ref={ctaButtonRef}
               size="lg"
-              className="w-[200px] bg-primary text-gray-900 hover:bg-secondary font-bold text-md relative"
+              className="w-[200px] bg-primary text-gray-900 hover:bg-secondary hover:text-white font-bold text-md relative"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -230,7 +230,7 @@ export default function Home() {
 
             <Card className="flex flex-col border-primary p-6 border">
               <div className="mb-4 text-center">
-                <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-gray-900">
+                <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">
                   RECOMMENDED
                 </div>
                 <h3 className="text-2xl font-bold">Premium</h3>
@@ -247,7 +247,7 @@ export default function Home() {
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
               <Button
-                className="w-full bg-primary text-gray-900 hover:bg-secondary"
+                className="w-full bg-primary text-gray-900 hover:bg-secondary hover:text-white"
                 onClick={handleOpenModal}
               >
                 {ctaText}
@@ -293,7 +293,7 @@ export default function Home() {
       <section className="bg-secondary py-12 md:py-24">
         <div className="px-4 md:px-6">
           <div className="flex flex-col items-center gap-4 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter text-gray-900 sm:text-4xl md:text-5xl">
+            <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
               Ready to Take Control of Your Finances?
             </h2>
             <Button

@@ -1418,8 +1418,7 @@ const CategoryCard = ({
   category.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Determine background color based on whether we're using primary or secondary
-  const highlightColor =
-    color === 'bg-primary' ? 'bg-amber-100' : 'bg-emerald-100';
+  const highlightColor = color === 'bg-primary' ? 'bg-amber-100' : 'bg-teal-50';
 
   const getProgressPercentage = () => {
     if (category.proratedGoal === 0 && category.currentNet > 0) {

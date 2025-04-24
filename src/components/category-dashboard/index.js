@@ -815,9 +815,9 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button
-          variant="ghost"
+          variant=""
           size="icon"
-          className="rounded-lg"
+          className="rounded-full"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon size={20} />
@@ -1418,7 +1418,36 @@ const CategoryCard = ({
   category.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Determine background color based on whether we're using primary or secondary
-  const bgColor = color === 'bg-primary' ? 'bg-amber-200' : 'bg-emerald-100';
+  const highlightColor =
+    color === 'bg-primary' ? 'bg-amber-100' : 'bg-emerald-100';
+
+  const getProgressPercentage = () => {
+    if (category.proratedGoal === 0 && category.currentNet > 0) {
+      return 100;
+    }
+
+    if (category.proratedGoal === 0) {
+      return 0;
+    }
+
+    return (category.currentNet / category.proratedGoal) * 100;
+  };
+
+  const progressPercentage = getProgressPercentage();
+
+  const { endDateState, setEndDateState } = useContext(EndDateContext);
+
+  // uses endDateState context to calculate days remaining based on the current date
+  // if current date is after endDate, returns 0
+  const getDaysRemaining = () => {
+    const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
+
+    const currentDate = new Date();
+    const timeDiff = endDate.getTime() - currentDate.getTime();
+    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  };
+
+  const daysRemaining = getDaysRemaining();
 
   return (
     <Card
@@ -1441,9 +1470,11 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex w-full justify-between pb-2">
-            <div className="flex flex-row items-center gap-[5px]">
-              <span className="text-lg font-bold">{category.name}</span>
+          <div className="flex w-full justify-between pb-1 items-center">
+            <div className="flex flex-row items-center gap-[5px] max-w-[40%] text-wrap break-words">
+              <span className="text-lg break-words max-w-[90%] font-bold">
+                {category.name}
+              </span>
               <ActionMenu contextId={category.categoryId}>
                 {currentUserRole !== 'viewer' && (
                   <EditCategoryDialogue
@@ -1467,19 +1498,20 @@ const CategoryCard = ({
                 )}
               </ActionMenu>
             </div>
-            <div className={`text-lg ${bgColor} px-2 rounded-sm`}>
-              <span className="font-bold">
-                {new Intl.NumberFormat('en-US', {
+            <div
+              className={`flex flex-row items-center gap-[5px] max-w-[60%] text-wrap text-lg ${highlightColor} px-2 rounded-sm min-h-7`}
+            >
+              <span className="font-medium">
+                {`${new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
-                }).format(category.currentNet)}
-              </span>
-              <span> / </span>
-              <span>
-                {new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                }).format(category.proratedGoal)}
+                }).format(category.currentNet)} / ${new Intl.NumberFormat(
+                  'en-US',
+                  {
+                    style: 'currency',
+                    currency: 'USD',
+                  }
+                ).format(category.proratedGoal)}`}
               </span>
             </div>
           </div>
@@ -1491,8 +1523,16 @@ const CategoryCard = ({
               rawValue={category.currentNet}
               goal={category.proratedGoal}
               color={color}
-              mutedColor={mutedColor}
+              mutedColor={highlightColor}
+              highlightColor={highlightColor}
             />
+          </div>
+          <div className="flex flex-row justify-between pt-1">
+            <span>{progressPercentage.toFixed(0)}% complete</span>
+            <div className="flex flex-row gap-1 items-center">
+              <CalendarIcon size={16} />
+              <span>{daysRemaining} days left</span>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -1985,11 +2025,11 @@ export default function CategoryDashboard({ type, categories }) {
 
   return (
     <>
-      <OnboardingModal
+      {/* <OnboardingModal
         open={onboardingOpen}
         onOpenChange={setOnboardingOpen}
         type={type}
-      />
+      /> */}
       <CategoryContext.Provider
         value={{ categoriesState, setCategoriesState, setPreviousState }}
       >

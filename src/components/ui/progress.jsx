@@ -16,6 +16,7 @@ const Progress = React.forwardRef(
       goal,
       color,
       mutedColor,
+      highlightColor,
       barHeight,
       rawValueSize,
       ...props
@@ -49,7 +50,7 @@ const Progress = React.forwardRef(
     }, []);
 
     const calculateRawValuePosition = () => {
-      const rawValueWidth = rawValue.toFixed(2).toString().length * 8; // Approximate width based on font size
+      const rawValueWidth = rawValue.toFixed(2).toString().length * 12; // Approximate width based on font size
       const position =
         (progressBarWidth * percentage) / 100 - rawValueWidth / 2;
 
@@ -74,7 +75,7 @@ const Progress = React.forwardRef(
       <div className="relative w-full">
         <ProgressPrimitive.Root
           ref={mergedRef} // Use the mergedRef
-          className={`relative ${barHeight} w-full overflow-hidden rounded-full ${mutedColor}`}
+          className={`relative ${barHeight} w-full overflow-hidden rounded-full bg-gray-200`}
           {...props}
         >
           <ProgressPrimitive.Indicator
@@ -83,7 +84,7 @@ const Progress = React.forwardRef(
           />
         </ProgressPrimitive.Root>
         {/* <div
-          className={`absolute top-[11px] left-0 ${rawValueSize} font-bold text-primary transition-opacity duration-200`}
+          className={`absolute top-[11px] left-0 ${rawValueSize} font-bold transition-opacity duration-200 ${highlightColor} px-2 rounded-sm mt-1`}
           style={{
             left: `${calculateRawValuePosition()}px`,
             // opacity: isHovered ? 1 : 0,

@@ -18,6 +18,7 @@ import {
   Pen,
   Trash2,
   MoreVertical,
+  CirclePlus,
 } from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
@@ -883,10 +884,10 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
         <button
           variant=""
           size="icon"
-          className="rounded-full"
+          className="rounded-full hover:text-primary"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon size={20} />
+          <CirclePlus size={18} />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -1307,6 +1308,7 @@ const OpenTransactionTableDialogue = ({
 const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
   // Create a mapping of action types to their labels
   const actionLabels = {
+    add: 'Add Subcategory',
     edit: 'Edit',
     delete: 'Delete',
     view: 'View Transactions',
@@ -1316,7 +1318,9 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
   const getActionInfo = (child) => {
     if (!child) return null;
 
-    if (
+    if (child.type === CreateSubcategoryDialogue) {
+      return { type: 'add', icon: <CirclePlus size={18} className="mr-2" /> };
+    } else if (
       child.type === EditCategoryDialogue ||
       child.type === EditSubcategoryDialogue
     ) {
@@ -1505,26 +1509,15 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()} h-[130px]`}
+      className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()}`}
     >
       <CardHeader className="p-0">
-        <CardTitle>
-          <div className="flex flex-row width-full justify-end mt-1 mr-1">
-            {currentUserRole !== 'viewer' ? (
-              <CreateSubcategoryDialogue
-                categoryId={category.categoryId}
-                setDropdownIsOpen={setAreSubcategoriesOpen}
-              />
-            ) : (
-              <div className="h-4 w-4" />
-            )}
-          </div>
-        </CardTitle>
+        <CardTitle>{/* No plus icon, just spacing handled below */}</CardTitle>
       </CardHeader>
-      <CardContent className="pb-0 pt-0">
+      <CardContent className="pb-0 pt-2">
         <div className="flex flex-col gap-0">
-          <div className="flex w-full items-center -mb-[5px] md:mb-[2px]">
-            <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] w-full text-wrap break-words">
+          <div className="flex w-full items-center mb-[2px] h-6">
+            <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
               <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
                 <span
                   className={`inline-block w-3 h-3 rounded-full mr-[6px] ${colorOptions[currentUser.categoryColors[category.categoryId]] || 'bg-primary'}`}
@@ -1532,12 +1525,19 @@ const CategoryCard = ({
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
+                {/* Add Subcategory action for non-viewers */}
                 {currentUserRole !== 'viewer' && (
                   <EditCategoryDialogue
                     categoryName={category.name}
                     monthlyGoal={category.monthlyGoal}
                     categoryId={category.categoryId}
                     color={null}
+                  />
+                )}
+                {currentUserRole !== 'viewer' && (
+                  <CreateSubcategoryDialogue
+                    categoryId={category.categoryId}
+                    setDropdownIsOpen={setAreSubcategoriesOpen}
                   />
                 )}
                 {!category.categoryId.includes('other') &&
@@ -1599,7 +1599,7 @@ const CategoryCard = ({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col justify-center p-0 pt-[3px] md:pt-[9px]">
+      <CardFooter className="flex flex-col justify-center p-0 md:pt-4">
         <div className="flex justify-between w-full">
           <div
             className={`ml-1 mb-1 flex flex-row items-center touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}
@@ -1617,7 +1617,7 @@ const CategoryCard = ({
             {...listeners}
             {...attributes}
           >
-            <Grip size={26} />
+            <Grip size={22} />
           </div>
           {category.subcategories.length > 0 && (
             <CollapsibleTrigger asChild>

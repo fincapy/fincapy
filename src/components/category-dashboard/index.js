@@ -141,9 +141,14 @@ const progressBarColors = {
 };
 
 const createCategoryFormSchema = z.object({
-  name: z.string().min(1, {
-    message: 'Name must be at least 1 character.',
-  }),
+  name: z
+    .string()
+    .min(1, {
+      message: 'Name must be at least 1 character.',
+    })
+    .max(20, {
+      message: 'Name must be less than 20 characters.',
+    }),
   monthlyGoal: z.string().regex(/^[\d$,]+$/, {
     message: 'Enter a number between 0 and 1000000000',
   }),
@@ -1352,11 +1357,11 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
       </div>
 
       {/* Mobile view - show kebab menu */}
-      <div className="md:hidden flex items-center">
+      <div className="md:hidden flex flex-row justify-end">
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none z-50 mb-[2px] -ml-[15px] p-2"
+              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-0 focus:ring-offset-0 active:bg-transparent touch-none select-none z-50 mb-[2px] -mr-[15px] p-2"
               onPointerDown={(e) => e.stopPropagation()}
             >
               <div className="h-6 w-6 flex items-center justify-center">
@@ -1425,6 +1430,10 @@ const CategoryCard = ({
       return 100;
     }
 
+    if (category.proratedGoal === 0 && category.currentNet === 0) {
+      return 100;
+    }
+
     if (category.proratedGoal === 0) {
       return 0;
     }
@@ -1451,7 +1460,7 @@ const CategoryCard = ({
   return (
     <Card
       ref={categoryCardRef}
-      className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()}`}
+      className={`z-40 shadow-none sticky -top-1 ${getRoundedStyle()} h-[130px]`}
     >
       <CardHeader className="p-0">
         <CardTitle>
@@ -1469,8 +1478,8 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-0">
         <div className="flex flex-col gap-0">
-          <div className="flex w-full pb-1 items-center">
-            <div className="flex flex-row items-center gap-[5px] max-w-[40%] min-w-0 text-wrap break-words">
+          <div className="flex w-full items-center -mb-[5px] md:mb-[2px]">
+            <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] w-full text-wrap break-words">
               <span className="text-lg break-words max-w-[90%] font-bold text-gray-800">
                 {category.name}
               </span>
@@ -1497,30 +1506,6 @@ const CategoryCard = ({
                 )}
               </ActionMenu>
             </div>
-            <div
-              className={`flex-1 min-w-0 flex flex-row items-center gap-[5px] text-wrap text-md px-2 rounded-sm min-h-7 justify-end`}
-            >
-              <div
-                className={`${highlightColor} px-2 rounded-sm flex flex-row items-center`}
-              >
-                <span className="font-medium">
-                  {`${new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    maximumFractionDigits: 0,
-                    minimumFractionDigits: 0,
-                  }).format(category.currentNet)} / ${new Intl.NumberFormat(
-                    'en-US',
-                    {
-                      style: 'currency',
-                      currency: 'USD',
-                      maximumFractionDigits: 0,
-                      minimumFractionDigits: 0,
-                    }
-                  ).format(category.proratedGoal)}`}
-                </span>
-              </div>
-            </div>
           </div>
           <div className="flex flex-row gap-1 items-center">
             <Progress
@@ -1535,15 +1520,36 @@ const CategoryCard = ({
             />
           </div>
           <div className="flex flex-row justify-between pt-1 text-gray-500">
-            <span>{progressPercentage.toFixed(0)}% complete</span>
+            <span>
+              {progressPercentage.toFixed(0)}%{' '}
+              {category.type === 'savings'
+                ? 'saved'
+                : category.type === 'spending'
+                  ? 'spent'
+                  : 'earned'}
+            </span>
             <div className="flex flex-row gap-1 items-center">
-              <CalendarIcon size={16} />
-              <span>{daysRemaining} days left</span>
+              <span className="text-gray-500">
+                {`
+                ${new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  maximumFractionDigits: 0,
+                  minimumFractionDigits: 0,
+                }).format(category.currentNet)} / 
+                ${new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  maximumFractionDigits: 0,
+                  minimumFractionDigits: 0,
+                }).format(category.proratedGoal)}
+              `}
+              </span>
             </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col justify-center p-0 pt-[18px]">
+      <CardFooter className="flex flex-col justify-center p-0 pt-[3px] md:pt-[9px]">
         <div className="flex justify-between w-full">
           <div
             className={`ml-1 mb-1 flex flex-row items-center touch-none select-none ${isGrabbing ? 'cursor-grabbing' : 'cursor-grab'}`}

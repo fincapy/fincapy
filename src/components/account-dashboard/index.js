@@ -418,12 +418,12 @@ const AccountPage = ({ setPage, userEmail }) => {
     <div className="flex w-full flex-col h-full">
       <div className="max-w-6xl w-[95%] mx-auto">
         {/* Mobile dropdown navigation */}
-        <div className="md:hidden w-full my-4">
+        <div className="md:hidden w-full my-4 sticky top-0 z-30 bg-card/95 backdrop-blur rounded-xl shadow px-2 py-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-between text-md"
+                className="w-full flex items-center justify-between text-md rounded-lg bg-background/80 shadow-sm border border-border px-4 py-3 font-semibold focus:ring-2 focus:ring-primary focus:outline-none transition-all"
               >
                 <span className="flex items-center text-md">
                   {activeTab === 'profile' && (
@@ -518,79 +518,94 @@ const AccountPage = ({ setPage, userEmail }) => {
         </div>
 
         {/* Desktop tabs navigation */}
-        <div className="hidden md:flex border-b border-border w-full mb-6 mt-2">
+        <div className="hidden md:flex w-full mb-6 mt-2 sticky top-0 z-30 bg-card/95 backdrop-blur rounded-xl border border-border px-2 py-2 items-center gap-2 transition-all">
           <button
-            className={`px-4 py-2 -mb-px font-medium text-sm ${
-              activeTab === 'profile'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
+              ${
+                activeTab === 'profile'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+              }
+            `}
             onClick={() => setActiveTab('profile')}
           >
-            <div className="flex items-center">
-              <UserRound className="mr-1 h-4 w-4" />
-              Profile
-            </div>
+            <UserRound className="mr-1 h-5 w-5" />
+            Profile
+            {activeTab === 'profile' && (
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+            )}
           </button>
 
           {currentUser.role === 'owner' && (
             <button
-              className={`px-4 py-2 -mb-px font-medium text-sm ${
-                activeTab === 'users'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
+                ${
+                  activeTab === 'users'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                }
+              `}
               onClick={() => setActiveTab('users')}
             >
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2" />
-                Users
-              </div>
+              <Users className="h-5 w-5 mr-2" />
+              Users
+              {activeTab === 'users' && (
+                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+              )}
             </button>
           )}
 
           <button
-            className={`px-4 py-2 -mb-px font-medium text-sm ${
-              activeTab === 'financial-institutions'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
+              ${
+                activeTab === 'financial-institutions'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+              }
+            `}
             onClick={() => setActiveTab('financial-institutions')}
           >
-            <div className="flex items-center">
-              <Landmark className="h-4 w-4 mr-2" />
-              Financial Institutions
-            </div>
+            <Landmark className="h-5 w-5 mr-2" />
+            Financial Institutions
+            {activeTab === 'financial-institutions' && (
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+            )}
           </button>
 
           {currentUser.role === 'owner' && (
             <button
-              className={`px-4 py-2 -mb-px font-medium text-sm ${
-                activeTab === 'billing'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
+                ${
+                  activeTab === 'billing'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                }
+              `}
               onClick={() => setActiveTab('billing')}
             >
-              <div className="flex items-center">
-                <CircleDollarSign className="h-4 w-4 mr-2" />
-                Billing
-              </div>
+              <CircleDollarSign className="h-5 w-5 mr-2" />
+              Billing
+              {activeTab === 'billing' && (
+                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+              )}
             </button>
           )}
 
           <button
-            className={`px-4 py-2 -mb-px font-medium text-sm ${
-              activeTab === 'security'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
+              ${
+                activeTab === 'security'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+              }
+            `}
             onClick={() => setActiveTab('security')}
           >
-            <div className="flex items-center">
-              <Shield className="h-4 w-4 mr-2" />
-              Security
-            </div>
+            <Shield className="h-5 w-5 mr-2" />
+            Security
+            {activeTab === 'security' && (
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+            )}
           </button>
         </div>
 

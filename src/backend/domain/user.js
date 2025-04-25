@@ -13,6 +13,7 @@ class User {
     totpSecret,
     totpEnabled,
     backupCodes,
+    categoryColors = {},
   }) {
     this.id = id;
     this.tenantId = tenantId;
@@ -26,6 +27,7 @@ class User {
     this.totpEnabled = totpEnabled;
     this.totpSecret = totpSecret;
     this.backupCodes = backupCodes;
+    this.categoryColors = categoryColors;
   }
 
   toView() {
@@ -41,6 +43,7 @@ class User {
       name: this.name,
       role: this.role,
       mfaMethod: this.mfa_method,
+      categoryColors: this.categoryColors,
     };
   }
 }

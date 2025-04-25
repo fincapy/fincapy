@@ -7,7 +7,9 @@ class CreateCategoryService {
 
   async execute({
     tenantId,
+    userId,
     planId,
+    color,
     categoryId,
     otherSubcategoryId,
     name,
@@ -15,22 +17,31 @@ class CreateCategoryService {
     type,
     isImmutable,
   }) {
-    await this.transactionManager.transaction(async ({ tenantRepository }) => {
-      const tenant = await tenantRepository.get({ tenantId });
-      if (tenant === null) {
-        return;
+    await this.transactionManager.transaction(
+      async ({ tenantRepository, userRepository }) => {
+        const tenant = await tenantRepository.get({ tenantId });
+        const user = await userRepository.get({ userId });
+        if (tenant === null) {
+          return;
+        }
+        const plan = tenant.plans.find((plan) => plan.planId === planId);
+        plan.addCategory({
+          categoryId,
+          otherSubcategoryId,
+          name,
+          monthlyGoal,
+          type,
+          isImmutable,
+        });
+        const tenantUser = tenant.users.find((user) => user.id === userId);
+        tenantUser.categoryColors = {
+          [categoryId]: color,
+        };
+        await tenantRepository.set({ tenantId, tenant });
+        user.categoryColors[categoryId] = color;
+        await userRepository.set({ userId, user });
       }
-      const plan = tenant.plans.find((plan) => plan.planId === planId);
-      plan.addCategory({
-        categoryId,
-        otherSubcategoryId,
-        name,
-        monthlyGoal,
-        type,
-        isImmutable,
-      });
-      await tenantRepository.set({ tenantId, tenant });
-    });
+    );
   }
 }
 

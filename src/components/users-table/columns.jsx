@@ -446,10 +446,14 @@ export const columns = [
     ),
   },
   {
-    accessorKey: 'email',
+    id: 'email',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
+    accessorFn: (row) => {
+      const primaryEmail = row.emails.find((email) => email.primary);
+      return primaryEmail ? primaryEmail.email : '';
+    },
   },
   {
     accessorKey: 'role',

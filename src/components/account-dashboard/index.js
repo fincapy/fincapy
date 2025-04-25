@@ -38,6 +38,8 @@ import {
   CheckCircle2,
   Mail,
   AlertCircle,
+  Lock as LockIcon,
+  Key as KeyIcon,
 } from 'lucide-react';
 import { parse } from 'date-fns';
 import {
@@ -594,194 +596,205 @@ const AccountPage = ({ setPage, userEmail }) => {
 
         <div className="w-full mb-16">
           {activeTab === 'profile' && (
-            <div className="space-y-4">
-              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">
-                  Personal Information
-                </h2>
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-md font-medium text-muted-foreground mb-2">
-                      Email Addresses
-                    </label>
-                    <div className="space-y-4">
-                      {currentUser.emails.map((email) => (
-                        <div
-                          key={email.email}
-                          className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl"
-                        >
-                          <div className="flex flex-col">
-                            <div className="flex flex-row items-center gap-2">
-                              <span className="text-md break-all">
-                                {email.email}
-                              </span>
-                              {email.verified ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="text-xs text-white">
-                                      Verified
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <AlertCircle className="h-4 w-4 text-amber-500" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="text-xs text-white">
-                                      Not verified
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
-                              {email.primary && (
-                                <span className="text-sm text-muted-foreground">
-                                  primary
-                                </span>
-                              )}
-                            </div>
-                            {!email.verified && (
-                              <span className="text-xs text-amber-500 mt-1">
-                                Please verify this email address
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
-                            {!email.primary && (
-                              <Button
-                                variant="outline"
-                                onClick={() =>
-                                  handleSetPrimaryEmail(email.email)
-                                }
-                                className="w-full md:w-auto"
-                                disabled={isSubmitting || !email.verified}
-                              >
-                                Set Primary
-                              </Button>
-                            )}
-                            {!email.verified && (
-                              <Button
-                                variant="outline"
-                                onClick={() =>
-                                  handleResendVerification(email.email)
-                                }
-                                className="w-full md:w-auto"
-                                disabled={isSubmitting}
-                              >
-                                <Mail className="h-4 w-4 mr-2" />
-                                Verify
-                              </Button>
-                            )}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div>
-                                    <Button
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleRemoveEmail(email.email)
-                                      }
-                                      className="w-full md:w-auto"
-                                      disabled={email.primary || isSubmitting}
-                                    >
-                                      Remove
-                                    </Button>
-                                  </div>
-                                </TooltipTrigger>
-                                {email.primary && (
-                                  <TooltipContent className="text-xs text-white">
-                                    Cannot remove primary email address
-                                  </TooltipContent>
-                                )}
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </div>
-                      ))}
+            <div className="space-y-6">
+              {/* Profile Header */}
+              <div className="flex flex-col items-center justify-center mb-2">
+                <UserRound className="h-12 w-12 text-primary mb-2" />
+                <h2 className="text-2xl font-bold mb-1">Your Profile</h2>
+                <p className="text-muted-foreground text-center max-w-md">
+                  Manage your personal information. Keep your profile up to date
+                  for a better experience.
+                </p>
+              </div>
 
-                      {/* Add new email section */}
-                      <Button
-                        className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
-                        variant="outline"
-                        onClick={() => {
-                          setPendingHighRiskAction({
-                            type: 'addEmail',
-                          });
-                          setIsHighRiskActionModalOpen(true);
-                          setAuthStep('emailPassword');
-                        }}
-                      >
-                        <PlusIcon size={48} />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-md font-medium text-muted-foreground mb-2">
-                      Name
-                    </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl">
-                      {isEditingName ? (
-                        <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
-                          <Input
-                            type="text"
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                            placeholder={currentUser.name}
-                            className="flex-1"
-                            disabled={isSubmitting}
-                          />
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setIsEditingName(false);
-                                setNewName('');
-                              }}
-                              disabled={isSubmitting}
-                              className="w-full md:w-auto"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              onClick={() => handleChangeName(newName)}
-                              disabled={isSubmitting || !newName.trim()}
-                              className="w-full md:w-auto text-white"
-                            >
-                              Save
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="text-md break-all">
-                            {currentUser.name}
+              {/* Email Addresses Section */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-md">
+                <div className="flex items-center gap-4 mb-4">
+                  <Mail className="h-8 w-8 text-primary" />
+                  <span className="text-lg font-semibold">Email Addresses</span>
+                </div>
+                <div className="space-y-4">
+                  {currentUser.emails.map((email) => (
+                    <div
+                      key={email.email}
+                      className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl"
+                    >
+                      <div className="flex flex-col w-full">
+                        <div className="flex flex-row items-center w-full justify-between md:justify-start md:gap-2">
+                          <span className="text-md break-all font-medium">
+                            {email.email}
                           </span>
+                          <div className="flex flex-row gap-1 md:ml-2">
+                            {email.verified ? (
+                              <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                Verified
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                                Not Verified
+                              </span>
+                            )}
+                            {email.primary && (
+                              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                                Primary
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {!email.verified && (
+                          <span className="text-xs text-amber-500 mt-1">
+                            Please verify this email address
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
+                        {!email.primary && (
                           <Button
                             variant="outline"
-                            onClick={() => {
-                              setNewName(currentUser.name);
-                              setIsEditingName(true);
-                            }}
-                            className="w-full md:w-auto"
+                            onClick={() => handleSetPrimaryEmail(email.email)}
+                            className="w-full md:w-auto font-semibold"
+                            disabled={isSubmitting || !email.verified}
                           >
-                            Edit
+                            Set Primary
                           </Button>
-                        </>
-                      )}
+                        )}
+                        {!email.verified && (
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              handleResendVerification(email.email)
+                            }
+                            className="w-full md:w-auto font-semibold"
+                            disabled={isSubmitting}
+                          >
+                            <Mail className="h-4 w-4 mr-2" />
+                            Verify
+                          </Button>
+                        )}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleRemoveEmail(email.email)}
+                                  className="w-full md:w-auto font-semibold"
+                                  disabled={email.primary || isSubmitting}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            {email.primary && (
+                              <TooltipContent className="text-xs text-white">
+                                Cannot remove primary email address
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
-                  </div>
+                  ))}
+
+                  {/* Add new email section */}
+                  <Button
+                    className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background mt-2"
+                    variant="outline"
+                    onClick={() => {
+                      setPendingHighRiskAction({
+                        type: 'addEmail',
+                      });
+                      setIsHighRiskActionModalOpen(true);
+                      setAuthStep('emailPassword');
+                    }}
+                  >
+                    <PlusIcon size={48} />
+                  </Button>
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground">
+                  Your email addresses are used for account recovery and
+                  notifications.
+                </div>
+              </div>
+
+              {/* Divider */}
+              <Separator className="my-2" />
+
+              {/* Name Section */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-md">
+                <div className="flex items-center gap-4 mb-4">
+                  <UserRound className="h-8 w-8 text-primary" />
+                  <span className="text-lg font-semibold">Name</span>
+                </div>
+                <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl">
+                  {isEditingName ? (
+                    <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
+                      <Input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder={currentUser.name}
+                        className="flex-1"
+                        disabled={isSubmitting}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsEditingName(false);
+                            setNewName('');
+                          }}
+                          disabled={isSubmitting}
+                          className="w-full md:w-auto font-semibold"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => handleChangeName(newName)}
+                          disabled={isSubmitting || !newName.trim()}
+                          className="w-full md:w-auto text-white font-semibold"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-md break-all font-medium">
+                        {currentUser.name}
+                      </span>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setNewName(currentUser.name);
+                          setIsEditingName(true);
+                        }}
+                        className="w-full md:w-auto font-semibold"
+                      >
+                        Edit
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground">
+                  Your name is visible to other users in your organization.
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'users' && currentUser.role === 'owner' && (
-            <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-x-auto space-y-6">
+              {/* Users Tab Header */}
+              <div className="flex flex-col items-center justify-center mb-2">
+                <Users className="h-12 w-12 text-primary mb-2" />
+                <h2 className="text-2xl font-bold mb-1">Manage Users</h2>
+                <p className="text-muted-foreground text-center max-w-md">
+                  Invite new users to your organization. You can add team
+                  members by sending them an invitation. Only owners can manage
+                  users.
+                </p>
+              </div>
               <Dashboard />
             </div>
           )}
@@ -793,82 +806,153 @@ const AccountPage = ({ setPage, userEmail }) => {
           )}
 
           {activeTab === 'billing' && currentUser.role === 'owner' && (
-            <div className="space-y-4">
-              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">Billing</h2>
-                <p className="text-md text-muted-foreground mb-6">
-                  Upgrade your subscription, change payment methods, or cancel
-                  with Stripe.
+            <div className="space-y-6">
+              {/* Billing Header */}
+              <div className="flex flex-col items-center justify-center mb-2">
+                <CreditCard className="h-12 w-12 text-primary mb-2" />
+                <h2 className="text-2xl font-bold mb-1">
+                  Billing & Subscription
+                </h2>
+                <p className="text-muted-foreground text-center max-w-md">
+                  Manage your subscription, payment methods, and invoices
+                  securely. All payments are processed by Stripe.
                 </p>
-                <div className="flex justify-center">
-                  <a
-                    href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full md:w-auto"
+              </div>
+
+              {/* Billing Card */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <CreditCard className="h-8 w-8 text-primary" />
+                  <span className="text-lg font-semibold">
+                    Subscription Management
+                  </span>
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                    Powered by Stripe
+                  </span>
+                </div>
+                <p className="text-md text-muted-foreground mb-4 text-center">
+                  Upgrade your subscription, change payment methods, or cancel
+                  anytime.
+                </p>
+                <a
+                  href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full md:w-auto"
+                >
+                  <Button
+                    className="w-full md:w-auto text-white font-semibold flex items-center gap-2"
+                    variant="default"
                   >
-                    <Button className="w-full text-white">
-                      <CreditCard className="" />
-                      Manage Billing
-                    </Button>
-                  </a>
+                    <CreditCard className="h-5 w-5" />
+                    Manage Billing
+                  </Button>
+                </a>
+                <div className="mt-4 text-sm text-muted-foreground text-center">
+                  Your payment information is encrypted and securely processed
+                  by Stripe. We never store your card details.
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'security' && (
-            <div className="space-y-4">
-              <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">
-                  Security Settings
+            <div className="space-y-6">
+              {/* Security Header */}
+              <div className="flex flex-col items-center justify-center mb-2">
+                <Shield className="h-12 w-12 text-primary mb-2" />
+                <h2 className="text-2xl font-bold mb-1">
+                  Your Security Settings
                 </h2>
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-md font-medium text-muted-foreground mb-2">
-                      Password
-                    </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-xl p-3">
-                      <span className="text-md">••••••••</span>
-                      <Button
-                        variant="outline"
-                        onClick={openChangePasswordModal}
-                        className="w-full md:w-auto"
-                      >
-                        Change Password
-                      </Button>
-                    </div>
-                  </div>
+                <p className="text-muted-foreground text-center max-w-md">
+                  Manage your account security. We use industry best practices
+                  to keep your data safe.
+                </p>
+              </div>
 
+              {/* Password Section */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <LockIcon className="h-8 w-8 text-primary" />
                   <div>
-                    <label className="block text-md font-medium text-muted-foreground mb-2">
-                      Reset 2FA Device
-                    </label>
-                    <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between border border-border rounded-xl p-3">
-                      <span className="text-md text-muted-foreground">
-                        If you lost access to your 2FA device
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold">Password</span>
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                        Encrypted
                       </span>
-                      <Button
-                        variant="outline"
-                        onClick={openReset2FAModal}
-                        className="w-full md:w-auto"
-                      >
-                        Reset Device
-                      </Button>
                     </div>
+                    <span className="text-sm text-muted-foreground">
+                      Your password is securely encrypted and never shared.
+                    </span>
                   </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl tracking-widest">••••••••</span>
+                  <Button
+                    variant="default"
+                    onClick={openChangePasswordModal}
+                    className="font-semibold"
+                  >
+                    Change Password
+                  </Button>
                 </div>
               </div>
 
-              <Link href="/api/signout" className="w-full">
-                <Button
-                  variant="destructive"
-                  className="w-full text-white mt-4 font-bold hover:bg-destructive-foreground"
-                >
-                  <LogOut className="mr-2 h-4 w-4 text-white" />
-                  Sign Out
-                </Button>
-              </Link>
+              {/* 2FA Section */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <KeyIcon className="h-8 w-8 text-primary" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold">
+                        Two-Factor Authentication (2FA)
+                      </span>
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                        Enabled
+                      </span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Protect your account with an extra layer of security.
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="secondary"
+                    onClick={openReset2FAModal}
+                    className="font-semibold text-warning-foreground border-warning"
+                  >
+                    Reset 2FA Device
+                  </Button>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <Separator className="my-2" />
+
+              {/* Sign Out Section */}
+              <div className="bg-destructive/10 rounded-xl border border-destructive/30 p-6 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <LogOut className="h-8 w-8 text-destructive" />
+                  <div>
+                    <span className="text-lg font-semibold text-destructive">
+                      Sign Out
+                    </span>
+                    <p className="text-sm text-destructive/80">
+                      Sign out of your account securely.
+                    </p>
+                  </div>
+                </div>
+                <Link href="/api/signout" className="w-full md:w-auto">
+                  <Button
+                    variant="destructive"
+                    className="w-full md:w-auto text-white font-bold hover:bg-destructive-foreground"
+                  >
+                    <LogOut className="mr-2 h-4 w-4 text-white" />
+                    Sign Out
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
         </div>

@@ -15,6 +15,7 @@ import {
   Trash2,
   CircleAlert,
   RotateCwIcon,
+  Landmark,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -212,46 +213,77 @@ const ExistingFinancialInstitutionCard = ({ link, name }) => {
     }
   };
 
+  // Modern visually appealing card
   return (
-    <Card className="w-full min-h-40 flex items-center justify-center relative bg-card">
-      <CardHeader className="flex flex-row items-center justify-center gap-2">
-        <CardTitle>{name}</CardTitle>
-        {link.status === 'active' ? (
-          <CircleCheck color="green" style={{ marginTop: '0px' }} />
-        ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger style={{ marginTop: '0px' }}>
-                <CircleAlert color="red" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-sm">
-                  This institution&apos;s link has expired. Please re-link to
-                  continue ingesting transactions.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </CardHeader>
-      <CardContent className="absolute top-0 right-0">
-        <div className="absolute top-0 right-0">
-          <DeletePlaidItemDialogue
-            institutionId={link.institutionId}
-            institutionName={link.institutionName}
-            plaidItemId={link.plaidItemId}
-          />
+    <div
+      className="w-full bg-background rounded-xl border border-border shadow-md hover:shadow-lg transition-shadow flex flex-col sm:flex-row items-start sm:items-center px-4 sm:px-6 py-4 gap-4 group"
+      style={{ minHeight: '88px' }}
+    >
+      {/* Left: name, status */}
+      <div className="flex items-center gap-3 flex-1 min-w-0 w-full">
+        <div className="flex items-center min-w-0 flex-wrap gap-x-2 gap-y-1 flex-1">
+          <span className="font-semibold text-base sm:text-lg break-words max-w-full">
+            {name}
+          </span>
+          {link.status === 'active' ? (
+            <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium whitespace-nowrap">
+              Active
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium whitespace-nowrap">
+              Expired
+            </span>
+          )}
+          {link.status !== 'active' && (
+            <span className="text-xs text-red-500 ml-2 whitespace-nowrap">
+              Re-link required
+            </span>
+          )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-0 right-9 rounded-lg"
-          onClick={handleLinkClick}
-        >
-          <RotateCwIcon className={isLinking ? 'animate-spin' : ''} />
-        </Button>
-      </CardContent>
-    </Card>
+      </div>
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2 mt-2 sm:mt-0 w-full sm:w-auto justify-end">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 border-blue-200 focus:ring-2 focus:ring-blue-300 transition-colors"
+                onClick={handleLinkClick}
+                aria-label="Relink"
+              >
+                <RotateCwIcon className={isLinking ? 'animate-spin' : ''} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Relink Institution</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full bg-red-100 hover:bg-red-200 text-red-700 border-red-200 focus:ring-2 focus:ring-red-300 transition-colors"
+                  aria-label="Delete"
+                  // The DeletePlaidItemDialogue handles the click
+                  asChild
+                >
+                  <DeletePlaidItemDialogue
+                    institutionId={link.institutionId}
+                    institutionName={link.institutionName}
+                    plaidItemId={link.plaidItemId}
+                  />
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Remove Institution</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
   );
 };
 
@@ -384,39 +416,83 @@ export default function FinancialInstitutionsDashboard() {
     }
   }, [plaidItemsState]);
   return (
-    <div className="flex flex-col w-full flex-grow gap-4 mt-4 mb-8 justify-center items-center">
-      <Script
-        nonce={nonce}
-        src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          console.log('Plaid script loaded successfully.');
-        }}
-        onError={(error) => {
-          console.error('Error loading Plaid script:', error);
-        }}
-      />
-      {isLoading ? (
-        <>
-          {Array.from({ length: 7 }).map((_, index) => (
-            <Skeleton className="h-40 w-full bg-card" key={index} />
-          ))}
-        </>
-      ) : (
-        <>
-          {plaidItemsState.map((plaidItem) => (
-            <ExistingFinancialInstitutionCard
-              key={plaidItem.institutionId}
-              link={plaidItem}
-              name={plaidItemDisplayNames[plaidItem.plaidItemId]}
-            />
-          ))}
-          <NewFinancialInstitutionCard
-            key="new-financial-institution-card"
-            currentUserId={currentUserId}
-          />
-        </>
-      )}
+    <div className="flex w-full flex-col h-full">
+      <div className="max-w-6xl w-[95%] mx-auto">
+        {/* Dashboard Header */}
+        <div className="flex flex-col items-center justify-center mb-2">
+          <Landmark className="h-12 w-12 text-primary mb-2" />
+          <h2 className="text-2xl font-bold mb-1">Financial Institutions</h2>
+          <p className="text-muted-foreground text-center max-w-md">
+            Link your bank and financial accounts to securely import
+            transactions. All connections are encrypted and powered by Plaid.
+          </p>
+        </div>
+        <Script
+          nonce={nonce}
+          src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
+          strategy="afterInteractive"
+          onLoad={() => {
+            console.log('Plaid script loaded successfully.');
+          }}
+          onError={(error) => {
+            console.error('Error loading Plaid script:', error);
+          }}
+        />
+        {/* Section Card for Institutions */}
+        <div className="bg-card rounded-xl border border-border p-6 shadow-md mt-6 w-full">
+          <div className="flex items-center gap-4 mb-4">
+            <Landmark className="h-8 w-8 text-primary" />
+            <span className="text-lg font-semibold">Linked Institutions</span>
+          </div>
+          <div className="space-y-4">
+            {isLoading ? (
+              <>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Skeleton
+                    className="h-40 w-full bg-card rounded-xl border border-border"
+                    key={index}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {plaidItemsState.map((plaidItem) => (
+                  <ExistingFinancialInstitutionCard
+                    key={plaidItem.institutionId}
+                    link={plaidItem}
+                    name={plaidItemDisplayNames[plaidItem.plaidItemId]}
+                  />
+                ))}
+                {/* Add new institution button */}
+                <Button
+                  className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-background hover:bg-background mt-2"
+                  variant="outline"
+                  onClick={() => {
+                    // Forward click to the NewFinancialInstitutionCard's button
+                    document.getElementById('add-institution-btn')?.click();
+                  }}
+                >
+                  <PlusIcon size={48} />
+                </Button>
+                {/* Hidden actual button for logic */}
+                <div style={{ display: 'none' }}>
+                  <NewFinancialInstitutionCard
+                    key="new-financial-institution-card"
+                    currentUserId={currentUserId}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            Your linked institutions are used to import transactions securely.
+          </div>
+        </div>
+        <div className="mt-6 text-sm text-muted-foreground text-center max-w-md mx-auto">
+          Your financial data is encrypted and securely processed via Plaid. We
+          never store your bank credentials.
+        </div>
+      </div>
     </div>
   );
 }

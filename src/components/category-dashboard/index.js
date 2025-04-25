@@ -104,7 +104,12 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom } from 'jotai';
-import { planAtom, isLoadingAtom, currentUserRoleAtom } from '../state/atoms';
+import {
+  planAtom,
+  isLoadingAtom,
+  currentUserRoleAtom,
+  currentUserAtom,
+} from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -120,6 +125,7 @@ import { HelpCircle } from 'lucide-react';
 import OnboardingModal from './OnboardingModal';
 import { getOnboardingStatus } from './serverActions';
 import { Portal } from '@radix-ui/react-portal';
+import { ColorSelector, getRandomColor, colorOptions } from './ColorSelector';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -152,10 +158,12 @@ const createCategoryFormSchema = z.object({
   monthlyGoal: z.string().regex(/^[\d$,]+$/, {
     message: 'Enter a number between 0 and 1000000000',
   }),
+  color: z.string().optional(),
 });
 
 const CreateCategoryForm = ({ setDialogOpen }) => {
   const [planState, setPlanState] = useAtom(planAtom);
+  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
   const { toast } = useToast();
   const type = useContext(TypeContext);
   const form = useForm({
@@ -163,6 +171,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     defaultValues: {
       name: '',
       monthlyGoal: null,
+      color: getRandomColor(),
     },
   });
 
@@ -171,6 +180,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     categoryId,
     otherSubcategoryId,
     monthlyGoal,
+    color,
     oldPlan,
     setPlanState,
     values,
@@ -184,6 +194,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
           categoryId,
           otherSubcategoryId,
           monthlyGoal,
+          color,
           planId: 'initial',
           type,
         });
@@ -217,10 +228,16 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       10
     );
     const name = values.name;
+    const color = values.color;
     const categoryId = uuidv4();
     const otherSubcategoryId = categoryId + '_other';
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
+    const newCurrentUser = { ...currentUserRole };
+    newCurrentUser.categoryColors = {
+      ...newCurrentUser.categoryColors,
+      [categoryId]: color,
+    };
     newPlan.addCategory({
       categoryId,
       name,
@@ -239,6 +256,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       oldPlan,
       setPlanState,
       values,
+      color,
       onSubmit,
     });
   }
@@ -289,6 +307,19 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
                   autoComplete="off"
                   value={formatValue(field.value)}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="color"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Color</FormLabel>
+              <FormControl>
+                <ColorSelector value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -456,15 +487,18 @@ const EditCategoryForm = ({
   categoryName,
   monthlyGoal,
   categoryId,
+  color,
   setDialogOpen,
 }) => {
   const [planState, setPlanState] = useAtom(planAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: categoryName,
       monthlyGoal: monthlyGoal.toString(),
+      color: currentUser.categoryColors[categoryId] || color || 'amber',
     },
   });
 
@@ -472,6 +506,7 @@ const EditCategoryForm = ({
     name,
     categoryId,
     monthlyGoal,
+    color,
     planId,
     setPlanState,
     oldPlan,
@@ -484,6 +519,7 @@ const EditCategoryForm = ({
           name,
           categoryId,
           monthlyGoal,
+          color,
           planId,
         });
         if (!result) {
@@ -521,15 +557,20 @@ const EditCategoryForm = ({
       10
     );
     const name = values.name || categoryName;
+    const color = values.color;
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
-    newPlan.updateCategory({ categoryId, name, monthlyGoal });
+    newPlan.updateCategory({ categoryId, name, monthlyGoal, color });
+    const newCurrentUser = { ...currentUser };
+    newCurrentUser.categoryColors[categoryId] = color;
+    setCurrentUser(newCurrentUser);
     setPlanState(newPlan);
     setDialogOpen(false);
     handleServerUpdateCategory({
       name,
       categoryId,
       monthlyGoal,
+      color,
       planId: 'initial',
       setPlanState,
       oldPlan,
@@ -558,25 +599,26 @@ const EditCategoryForm = ({
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        {categoryName !== 'Other' && (
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    autoComplete="off"
-                    placeholder="Category Name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        {categoryName !== 'Other' ||
+          (categoryName !== 'Savings' && (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="Category Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
         <FormField
           control={form.control}
           name="monthlyGoal"
@@ -595,6 +637,19 @@ const EditCategoryForm = ({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="color"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Color</FormLabel>
+              <FormControl>
+                <ColorSelector value={field.value} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <DialogClose asChild>
           <SubmitButton>Save</SubmitButton>
         </DialogClose>
@@ -603,7 +658,12 @@ const EditCategoryForm = ({
   );
 };
 
-const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
+const EditCategoryDialogue = ({
+  categoryName,
+  monthlyGoal,
+  categoryId,
+  color,
+}) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -632,6 +692,7 @@ const EditCategoryDialogue = ({ categoryName, monthlyGoal, categoryId }) => {
           categoryName={categoryName}
           monthlyGoal={monthlyGoal}
           categoryId={categoryId}
+          color={color}
         />
       </div>
     </DialogContent>
@@ -1415,15 +1476,13 @@ const CategoryCard = ({
   };
 
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   const progress = Math.min(
     (category.currentNet / category.proratedGoal) * 100,
     100
   );
   category.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  // Determine background color based on whether we're using primary or secondary
-  const highlightColor = color === 'bg-primary' ? 'bg-amber-100' : 'bg-teal-50';
 
   const getProgressPercentage = () => {
     if (category.proratedGoal === 0 && category.currentNet > 0) {
@@ -1442,20 +1501,6 @@ const CategoryCard = ({
   };
 
   const progressPercentage = getProgressPercentage();
-
-  const { endDateState, setEndDateState } = useContext(EndDateContext);
-
-  // uses endDateState context to calculate days remaining based on the current date
-  // if current date is after endDate, returns 0
-  const getDaysRemaining = () => {
-    const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
-
-    const currentDate = new Date();
-    const timeDiff = endDate.getTime() - currentDate.getTime();
-    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  };
-
-  const daysRemaining = getDaysRemaining();
 
   return (
     <Card
@@ -1480,7 +1525,10 @@ const CategoryCard = ({
         <div className="flex flex-col gap-0">
           <div className="flex w-full items-center -mb-[5px] md:mb-[2px]">
             <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] w-full text-wrap break-words">
-              <span className="text-lg break-words max-w-[90%] font-bold text-gray-800">
+              <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
+                <span
+                  className={`inline-block w-3 h-3 rounded-full mr-[6px] ${colorOptions[currentUser.categoryColors[category.categoryId]] || 'bg-primary'}`}
+                />
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
@@ -1489,6 +1537,7 @@ const CategoryCard = ({
                     categoryName={category.name}
                     monthlyGoal={category.monthlyGoal}
                     categoryId={category.categoryId}
+                    color={null}
                   />
                 )}
                 {!category.categoryId.includes('other') &&
@@ -1514,9 +1563,10 @@ const CategoryCard = ({
               progressPercent={progress}
               rawValue={category.currentNet}
               goal={category.proratedGoal}
-              color={color}
-              mutedColor={highlightColor}
-              highlightColor={highlightColor}
+              color={
+                colorOptions[currentUser.categoryColors[category.categoryId]] ||
+                'bg-primary'
+              }
             />
           </div>
           <div className="flex flex-row justify-between pt-1 text-gray-500">

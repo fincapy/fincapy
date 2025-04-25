@@ -24,7 +24,7 @@ import {
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, Users } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -38,7 +38,7 @@ import { useContext } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { useAtom } from 'jotai';
-import { usersAtom, isLoadingAtom } from '../state/atoms';
+import { usersAtom, isLoadingAtom, currentUserAtom } from '../state/atoms';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -240,44 +240,11 @@ const InviteUserForm = ({ setDialogOpen }) => {
   );
 };
 
-const InviteUserDialogue = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
-          size="icon"
-        >
-          <PlusIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        <DialogHeader>
-          <DialogTitle>Invite User</DialogTitle>
-          <DialogDescription>
-            Invite a new user to your account
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <InviteUserForm setDialogOpen={setDialogOpen} />
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
 export default function Dashboard() {
   const [usersState, setUsersState] = useAtom(usersAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (usersState) {
@@ -301,20 +268,54 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+          {/* Users Tab Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 p-4 bg-card border border-border rounded-xl shadow-sm">
+            <div>
+              <h2 className="text-xl font-bold mb-1 flex items-center gap-2">
+                <Users className="h-6 w-6 text-primary" />
+                Manage Users
+              </h2>
+              <p className="text-muted-foreground max-w-lg">
+                View and manage your organization's users below.
+              </p>
+            </div>
+            <Button
+              className="w-full md:w-auto font-semibold text-white"
+              variant="default"
+              onClick={() => setDialogOpen(true)}
+            >
+              + Invite a User
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogContent
+                className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+              >
+                <DialogHeader>
+                  <DialogTitle>Invite User</DialogTitle>
+                  <DialogDescription>
+                    Invite a new user to your account
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <InviteUserForm setDialogOpen={setDialogOpen} />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
           <div className="flex flex-col justify-end items-center gap-2 w-full">
             <div
-              className="flex flex-row justify-end w-full"
-              key="create-transaction-dialogue"
-            >
-              <InviteUserDialogue />
-            </div>
-            <div
-              className="grid w-full h-[calc(55vh_-_env(safe-area-inset-bottom)_-_env(safe-area-inset-top))] bg-card rounded-xl overflow-hidden"
+              className="grid w-full h-full bg-card rounded-xl overflow-hidden"
               onTouchStart={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              <UserTable users={usersState} />
+              <UserTable
+                users={usersState.filter((user) => user.id !== currentUser.id)}
+              />
             </div>
           </div>
         </div>

@@ -36,6 +36,7 @@ const categorySchema = z.object({
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
   type: z.string().min(1).max(100),
+  color: z.string().min(1).max(100),
 });
 
 const updateCategorySchema = z.object({
@@ -43,6 +44,7 @@ const updateCategorySchema = z.object({
   name: z.string().min(1).max(100),
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
+  color: z.string().min(1).max(100),
 });
 
 const deleteCategorySchema = z.object({
@@ -94,6 +96,7 @@ const createCategory = async ({
   monthlyGoal,
   planId,
   type,
+  color,
 }) => {
   try {
     // Validate inputs
@@ -104,6 +107,7 @@ const createCategory = async ({
       monthlyGoal,
       planId,
       type,
+      color,
     });
 
     // Sanitize string inputs
@@ -113,6 +117,7 @@ const createCategory = async ({
       name: sanitizeInput(validatedData.name),
       planId: sanitizeInput(validatedData.planId),
       type: sanitizeInput(validatedData.type),
+      color: sanitizeInput(validatedData.color),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -137,6 +142,7 @@ const createCategory = async ({
 
     await service.execute({
       tenantId,
+      userId: session.userId,
       otherSubcategoryId: sanitizedData.otherSubcategoryId,
       categoryId: sanitizedData.categoryId,
       name: sanitizedData.name,
@@ -144,6 +150,7 @@ const createCategory = async ({
       type: sanitizedData.type,
       isImmutable: false,
       planId: sanitizedData.planId,
+      color: sanitizedData.color,
     });
   } catch (error) {
     console.error('Error in createCategory:', error);
@@ -152,7 +159,13 @@ const createCategory = async ({
   return true;
 };
 
-const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
+const updateCategory = async ({
+  categoryId,
+  name,
+  monthlyGoal,
+  planId,
+  color,
+}) => {
   try {
     // Validate inputs
     const validatedData = updateCategorySchema.parse({
@@ -160,6 +173,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
       name,
       monthlyGoal,
       planId,
+      color,
     });
 
     // Sanitize string inputs
@@ -168,6 +182,7 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
       categoryId: sanitizeInput(validatedData.categoryId),
       name: sanitizeInput(validatedData.name),
       planId: sanitizeInput(validatedData.planId),
+      color: sanitizeInput(validatedData.color),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -192,10 +207,12 @@ const updateCategory = async ({ categoryId, name, monthlyGoal, planId }) => {
 
     await service.execute({
       tenantId,
+      userId: session.userId,
       categoryId: sanitizedData.categoryId,
       name: sanitizedData.name,
       monthlyGoal: sanitizedData.monthlyGoal,
       planId: sanitizedData.planId,
+      color: sanitizedData.color,
     });
   } catch (error) {
     console.error('Error in updateCategory:', error);

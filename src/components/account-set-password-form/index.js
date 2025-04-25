@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updatePassword } from './serverActions';
 import { Loader2, CheckCircle } from 'lucide-react';
+import SubmitButton from '../SubmitButton';
 
 const AccountSetPasswordForm = ({ onSuccess, onCancel, onTokenInvalid }) => {
   const [password, setPassword] = useState('');
@@ -112,9 +113,9 @@ const AccountSetPasswordForm = ({ onSuccess, onCancel, onTokenInvalid }) => {
                     >
                       Cancel
                     </Button>
-                    <Button
+                    <SubmitButton
                       type="submit"
-                      className="w-full text-white hover:bg-primary-dark"
+                      className="w-full"
                       disabled={isSubmitting || isSuccess}
                     >
                       {isSubmitting ? (
@@ -125,7 +126,7 @@ const AccountSetPasswordForm = ({ onSuccess, onCancel, onTokenInvalid }) => {
                       ) : (
                         'Update Password'
                       )}
-                    </Button>
+                    </SubmitButton>
                   </div>
                 </div>
               </div>

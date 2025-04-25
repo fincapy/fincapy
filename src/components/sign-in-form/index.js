@@ -22,6 +22,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import Link from 'next/link';
+import SubmitButton from '../SubmitButton';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -112,9 +113,9 @@ export function SignInForm() {
                       <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
-                  <Button
+                  <SubmitButton
                     type="submit"
-                    className="w-full text-white hover:bg-primary-dark"
+                    className="w-full text-sm"
                     disabled={loading}
                   >
                     {loading ? (
@@ -124,7 +125,7 @@ export function SignInForm() {
                     ) : (
                       'Sign in'
                     )}
-                  </Button>
+                  </SubmitButton>
                 </div>
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{' '}
@@ -182,9 +183,9 @@ export function SignInForm() {
               </div>
 
               <DialogFooter className="sm:justify-between">
-                <Button
+                <SubmitButton
                   type="submit"
-                  className="text-white hover:bg-primary-dark w-full"
+                  className="text-sm w-full"
                   disabled={resetLoading || !resetEmail}
                 >
                   {resetLoading ? (
@@ -195,7 +196,7 @@ export function SignInForm() {
                   ) : (
                     'Send Reset Link'
                   )}
-                </Button>
+                </SubmitButton>
               </DialogFooter>
             </form>
           ) : (

@@ -104,7 +104,11 @@ const DeletePlaidItemDialogue = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-lg">
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full bg-red-100 hover:bg-red-200 text-red-700 border-red-200 focus:ring-2 focus:ring-red-300 transition-colors"
+        >
           <Trash2 />
         </Button>
       </DialogTrigger>
@@ -383,12 +387,12 @@ const NewFinancialInstitutionCard = ({ currentUserId }) => {
   return (
     <React.Fragment>
       {isLinking ? (
-        <div className="w-full min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background">
+        <div className="w-full min-h-[88px] flex items-center rounded-xl justify-center border-dashed border-2 border-border bg-card hover:bg-background">
           <RotateCwIcon size={18} className="animate-spin" />
         </div>
       ) : (
         <Button
-          className="w-full min-h-40 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background"
+          className="w-full min-h-[88px] flex items-center rounded-xl justify-center border-dashed border-2 border-border bg-card hover:bg-background"
           variant="outline"
           onClick={handleLinkClick}
         >
@@ -463,24 +467,11 @@ export default function FinancialInstitutionsDashboard() {
                     name={plaidItemDisplayNames[plaidItem.plaidItemId]}
                   />
                 ))}
-                {/* Add new institution button */}
-                <Button
-                  className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-background hover:bg-background mt-2"
-                  variant="outline"
-                  onClick={() => {
-                    // Forward click to the NewFinancialInstitutionCard's button
-                    document.getElementById('add-institution-btn')?.click();
-                  }}
-                >
-                  <PlusIcon size={48} />
-                </Button>
-                {/* Hidden actual button for logic */}
-                <div style={{ display: 'none' }}>
-                  <NewFinancialInstitutionCard
-                    key="new-financial-institution-card"
-                    currentUserId={currentUserId}
-                  />
-                </div>
+                {/* Add new institution button - directly use the component */}
+                <NewFinancialInstitutionCard
+                  key="new-financial-institution-card"
+                  currentUserId={currentUserId}
+                />
               </>
             )}
           </div>

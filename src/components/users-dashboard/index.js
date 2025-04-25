@@ -42,7 +42,7 @@ import { usersAtom, isLoadingAtom, currentUserAtom } from '../state/atoms';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import SubmitButton from '@/components/SubmitButton';
+import SubmitButton from '../SubmitButton';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '@/backend/domain/user';
 import { Separator } from '../ui/separator';
@@ -279,13 +279,12 @@ export default function Dashboard() {
                 View and manage your organization&apos;s users below.
               </p>
             </div>
-            <Button
-              className="w-full md:w-auto font-semibold text-white"
-              variant="default"
+            <SubmitButton
               onClick={() => setDialogOpen(true)}
+              className="w-full md:w-auto text-sm"
             >
               + Invite a User
-            </Button>
+            </SubmitButton>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogContent
                 className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl"

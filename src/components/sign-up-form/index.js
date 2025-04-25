@@ -21,6 +21,7 @@ import { TOTPRegistrationForm } from '../totp-registration-form';
 import { AccessCodeContext } from '../access-gate';
 import { useContext } from 'react';
 import Link from 'next/link';
+import SubmitButton from '../SubmitButton';
 
 const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const [email, setEmail] = useState('');
@@ -132,9 +133,9 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button
+                <SubmitButton
                   type="submit"
-                  className="w-full text-white hover:bg-primary-dark"
+                  className="w-full text-sm"
                   disabled={loading}
                 >
                   {loading ? (
@@ -144,7 +145,7 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
                   ) : (
                     'Sign up'
                   )}
-                </Button>
+                </SubmitButton>
               </div>
               <div className="text-center text-sm">
                 Already have an account?{' '}

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { authenticateForHighRiskAction } from './serverActions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import SubmitButton from '../SubmitButton';
 
 export function SignInReauthForm({ email, onSuccess, onCancel, className }) {
   const [password, setPassword] = useState('');
@@ -90,9 +91,9 @@ export function SignInReauthForm({ email, onSuccess, onCancel, className }) {
                         Cancel
                       </Button>
                     )}
-                    <Button
+                    <SubmitButton
                       type="submit"
-                      className="w-full text-white hover:bg-primary-dark"
+                      className="w-full text-sm"
                       disabled={loading}
                     >
                       {loading ? (
@@ -102,7 +103,7 @@ export function SignInReauthForm({ email, onSuccess, onCancel, className }) {
                       ) : (
                         'Confirm'
                       )}
-                    </Button>
+                    </SubmitButton>
                   </div>
                 </div>
               </div>

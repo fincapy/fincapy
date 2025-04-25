@@ -8,6 +8,7 @@ import { LockKeyhole, Loader2 } from 'lucide-react';
 import { createContext, useContext } from 'react';
 import { verifyAccessCode } from './serverActions';
 import Image from 'next/image';
+import SubmitButton from '../SubmitButton';
 
 export const AccessCodeContext = createContext();
 
@@ -69,9 +70,9 @@ export function AccessGate({ children }) {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button
+                <SubmitButton
                   type="submit"
-                  className="w-full text-white hover:bg-primary-dark"
+                  className="w-full text-sm"
                   disabled={loading}
                 >
                   {loading ? (
@@ -79,7 +80,7 @@ export function AccessGate({ children }) {
                   ) : (
                     'Access Site'
                   )}
-                </Button>
+                </SubmitButton>
               </div>
             </form>
           </CardContent>

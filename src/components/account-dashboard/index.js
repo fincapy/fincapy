@@ -92,6 +92,7 @@ import {
 import { useAtom } from 'jotai';
 import { InputTOTP } from '../input-totp';
 import { PlusIcon } from 'lucide-react';
+import SubmitButton from '../SubmitButton';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
@@ -523,8 +524,8 @@ const AccountPage = ({ setPage, userEmail }) => {
             className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
               ${
                 activeTab === 'profile'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                  ? 'text-amber-600'
+                  : 'text-muted-foreground hover:text-amber-600 hover:bg-accent/40'
               }
             `}
             onClick={() => setActiveTab('profile')}
@@ -532,7 +533,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <UserRound className="mr-1 h-5 w-5" />
             Profile
             {activeTab === 'profile' && (
-              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-amber-600/60" />
             )}
           </button>
 
@@ -541,8 +542,8 @@ const AccountPage = ({ setPage, userEmail }) => {
               className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
                 ${
                   activeTab === 'users'
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                    ? 'text-amber-600'
+                    : 'text-muted-foreground hover:text-amber-600 hover:bg-accent/40'
                 }
               `}
               onClick={() => setActiveTab('users')}
@@ -550,7 +551,7 @@ const AccountPage = ({ setPage, userEmail }) => {
               <Users className="h-5 w-5 mr-2" />
               Users
               {activeTab === 'users' && (
-                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-amber-600/60" />
               )}
             </button>
           )}
@@ -559,8 +560,8 @@ const AccountPage = ({ setPage, userEmail }) => {
             className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
               ${
                 activeTab === 'financial-institutions'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                  ? 'text-amber-600'
+                  : 'text-muted-foreground hover:text-amber-600 hover:bg-accent/40'
               }
             `}
             onClick={() => setActiveTab('financial-institutions')}
@@ -568,7 +569,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <Landmark className="h-5 w-5 mr-2" />
             Financial Institutions
             {activeTab === 'financial-institutions' && (
-              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-amber-600/60" />
             )}
           </button>
 
@@ -577,8 +578,8 @@ const AccountPage = ({ setPage, userEmail }) => {
               className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
                 ${
                   activeTab === 'billing'
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                    ? 'text-amber-600'
+                    : 'text-muted-foreground hover:text-amber-600 hover:bg-accent/40'
                 }
               `}
               onClick={() => setActiveTab('billing')}
@@ -586,7 +587,7 @@ const AccountPage = ({ setPage, userEmail }) => {
               <CircleDollarSign className="h-5 w-5 mr-2" />
               Billing
               {activeTab === 'billing' && (
-                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+                <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-amber-600/60" />
               )}
             </button>
           )}
@@ -595,8 +596,8 @@ const AccountPage = ({ setPage, userEmail }) => {
             className={`relative px-5 py-2 font-semibold text-base flex items-center gap-2 rounded-lg transition-all duration-200
               ${
                 activeTab === 'security'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-primary hover:bg-accent/40'
+                  ? 'text-amber-600'
+                  : 'text-muted-foreground hover:text-amber-600 hover:bg-accent/40'
               }
             `}
             onClick={() => setActiveTab('security')}
@@ -604,7 +605,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <Shield className="h-5 w-5 mr-2" />
             Security
             {activeTab === 'security' && (
-              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-primary/60" />
+              <span className="absolute left-2 right-2 -bottom-1 h-1 rounded-b bg-amber-600/60" />
             )}
           </button>
         </div>
@@ -855,13 +856,10 @@ const AccountPage = ({ setPage, userEmail }) => {
                   rel="noopener noreferrer"
                   className="w-full md:w-auto"
                 >
-                  <Button
-                    className="w-full md:w-auto text-white font-semibold flex items-center gap-2"
-                    variant="default"
-                  >
+                  <SubmitButton className="w-full md:w-auto font-semibold flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
                     Manage Billing
-                  </Button>
+                  </SubmitButton>
                 </a>
                 <div className="mt-4 text-sm text-muted-foreground text-center">
                   Your payment information is encrypted and securely processed
@@ -903,13 +901,12 @@ const AccountPage = ({ setPage, userEmail }) => {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-2xl tracking-widest">••••••••</span>
-                  <Button
-                    variant="default"
+                  <SubmitButton
                     onClick={openChangePasswordModal}
-                    className="font-semibold"
+                    className="font-semibold text-sm"
                   >
                     Change Password
-                  </Button>
+                  </SubmitButton>
                 </div>
               </div>
 
@@ -935,7 +932,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                   <Button
                     variant="secondary"
                     onClick={openReset2FAModal}
-                    className="font-semibold text-warning-foreground border-warning"
+                    className="font-semibold text-gray-900 hover:bg-emerald-700 border-warning"
                   >
                     Reset 2FA Device
                   </Button>

@@ -1,11 +1,11 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { setInitialPassword, resetPassword } from './serverActions';
 import { Loader2, CheckCircle } from 'lucide-react';
+import SubmitButton from '../SubmitButton';
 
 const SetPasswordForm = ({ token, isReset }) => {
   const [password, setPassword] = useState('');
@@ -78,9 +78,9 @@ const SetPasswordForm = ({ token, isReset }) => {
               </span>
             </div>
           )}
-          <Button
+          <SubmitButton
             type="submit"
-            className="w-full"
+            className="w-full text-sm"
             disabled={isSubmitting || isSuccess}
           >
             {isSubmitting ? (
@@ -90,7 +90,7 @@ const SetPasswordForm = ({ token, isReset }) => {
             ) : (
               <>{isReset ? 'Reset Password' : 'Set Password'}</>
             )}
-          </Button>
+          </SubmitButton>
         </form>
       </CardContent>
     </Card>

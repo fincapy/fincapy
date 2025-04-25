@@ -276,7 +276,7 @@ export default function Dashboard() {
                 Manage Users
               </h2>
               <p className="text-muted-foreground max-w-lg">
-                View and manage your organization's users below.
+                View and manage your organization&apos;s users below.
               </p>
             </div>
             <Button

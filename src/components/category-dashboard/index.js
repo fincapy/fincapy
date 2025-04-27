@@ -1953,7 +1953,7 @@ const DatePickers = () => {
               }
             }}
             initialFocus
-            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-white"
+            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-gray-900"
           />
         </PopoverContent>
       </Popover>

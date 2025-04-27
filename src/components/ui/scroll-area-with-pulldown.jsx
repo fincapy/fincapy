@@ -20,7 +20,8 @@ const ScrollAreaWithPulldown = React.forwardRef(
     const RESISTANCE_FACTOR = 2;
 
     const calculateProgressiveResistance = (distance) => {
-      return distance / (1 + distance / (THRESHOLD * RESISTANCE_FACTOR));
+      const resistance = distance / (1 + distance / (THRESHOLD * RESISTANCE_FACTOR));
+      return Math.min(resistance, THRESHOLD * 1.2);
     };
 
     const updatePull = useCallback((clientY) => {
@@ -45,6 +46,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
         if (scrollRef.current.scrollTop === 0 && !isRefreshing) {
           pullRef.current.startY = e.touches[0].clientY;
           pullRef.current.lastY = e.touches[0].clientY;
+          pullRef.current.active = true;
 
           // Reset any ongoing transitions
           if (contentRef.current) {
@@ -57,7 +59,8 @@ const ScrollAreaWithPulldown = React.forwardRef(
 
     const handleTouchMove = useCallback(
       (e) => {
-        if (scrollRef.current?.scrollTop <= 0) {
+        if (pullRef.current.active && scrollRef.current?.scrollTop <= 0) {
+          e.preventDefault();
           const touch = e.touches[0];
 
           updatePull(touch.clientY);
@@ -70,6 +73,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
       if (pullRef.current.rafId) {
         cancelAnimationFrame(pullRef.current.rafId);
       }
+      pullRef.current.active = false;
 
       // Add transition back for smooth return
       if (contentRef.current) {
@@ -115,6 +119,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
         <ScrollAreaPrimitive.Viewport
           ref={scrollRef}
           className="h-full w-full rounded-[inherit]"
+          style={{ overscrollBehavior: 'contain' }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}

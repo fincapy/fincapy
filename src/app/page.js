@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default function Home() {
   const ctaText = 'Join the waitlist';
   const [modalOpen, setModalOpen] = useState(false);
+  const [annualBilling, setAnnualBilling] = useState(true);
   const logoRef = useRef(null);
   const ctaButtonRef = useRef(null);
   const MIXPANEL_TOKEN = '050c483ab6f1f8fd53a396d95f7b3c4c';
@@ -18,6 +19,10 @@ export default function Home() {
   const handleOpenModal = () => {
     setModalOpen(true);
     window.mixpanel.track('sign_up_button_clicked', {});
+  };
+
+  const toggleBilling = () => {
+    setAnnualBilling(!annualBilling);
   };
 
   useEffect(() => {
@@ -70,7 +75,7 @@ export default function Home() {
               </Button>
             </Link>
             <Button
-              className="bg-primary text-gray-900 hover:bg-secondary border border-amber-600 hover:text-white hover:shadow-none hover:border-secondary"
+              className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -95,7 +100,7 @@ export default function Home() {
             <Button
               ref={ctaButtonRef}
               size="lg"
-              className="w-[200px] bg-amber-500 text-gray-900 hover:bg-secondary hover:text-white font-bold text-md relative border border-amber-600 hover:border-secondary hover:shadow-none"
+              className="w-[200px] bg-amber-500 text-gray-900 hover:bg-amber-600 font-bold text-md relative border border-amber-600"
               onClick={handleOpenModal}
             >
               {ctaText}
@@ -199,6 +204,37 @@ export default function Home() {
             <p className="max-w-[700px] text-lg text-muted-foreground">
               Choose the plan that works best for your financial journey.
             </p>
+            <div className="flex flex-col items-center gap-4 mt-4">
+              <div className="relative flex items-center justify-center w-full">
+                <div className="relative flex h-9 w-64 rounded-full border border-amber-600 bg-background p-1">
+                  <button
+                    onClick={() => setAnnualBilling(true)}
+                    className={`relative flex-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                      annualBilling
+                        ? 'bg-amber-500 text-gray-900'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Annual
+                  </button>
+                  <button
+                    onClick={() => setAnnualBilling(false)}
+                    className={`relative flex-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                      !annualBilling
+                        ? 'bg-amber-500 text-gray-900'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Monthly
+                  </button>
+                </div>
+                {annualBilling && (
+                  <span className="absolute -right-24 inline-block rounded-full bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-700">
+                    Save 33%
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
             <Card className="flex flex-col p-6 border">
@@ -237,8 +273,15 @@ export default function Home() {
                 <p className="text-muted-foreground">Automate everything</p>
               </div>
               <div className="mb-4 text-center">
-                <span className="text-4xl font-bold">$9.99</span>
+                <span className="text-4xl font-bold">
+                  ${annualBilling ? '9.99' : '14.99'}
+                </span>
                 <span className="text-muted-foreground">/month</span>
+                {annualBilling && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Billed annually ($119.88/year)
+                  </div>
+                )}
               </div>
               <ul className="mb-6 space-y-2">
                 <PricingFeature text="Everything in Free" included />
@@ -247,7 +290,7 @@ export default function Home() {
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
               <Button
-                className="w-full bg-primary text-gray-900 hover:bg-secondary hover:text-white border border-amber-600 hover:border-secondary"
+                className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
                 onClick={handleOpenModal}
               >
                 {ctaText}
@@ -298,7 +341,7 @@ export default function Home() {
             </h2>
             <Button
               size="lg"
-              className="bg-primary border border-amber-200 hover:bg-amber-400 text-gray-900"
+              className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900"
               onClick={handleOpenModal}
             >
               {ctaText}

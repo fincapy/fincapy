@@ -1516,7 +1516,7 @@ const CategoryCard = ({
       </CardHeader>
       <CardContent className="pb-0 pt-2">
         <div className="flex flex-col gap-0">
-          <div className="flex w-full items-center mb-[2px] h-6">
+          <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
             <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
               <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
                 <span

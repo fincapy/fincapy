@@ -59,11 +59,15 @@ const ScrollAreaWithPulldown = React.forwardRef(
 
     const handleTouchMove = useCallback(
       (e) => {
-        if (pullRef.current.active && scrollRef.current?.scrollTop <= 0) {
+        const touch = e.touches[0];
+        const delta = touch.clientY - pullRef.current.startY;
+        // only intercept downward drags at the very top
+        if (pullRef.current.active && scrollRef.current?.scrollTop <= 0 && delta > 0) {
           e.preventDefault();
-          const touch = e.touches[0];
-
           updatePull(touch.clientY);
+        } else {
+          // anything else (up swipe or not at top) should restore native scroll
+          pullRef.current.active = false;
         }
       },
       [updatePull]

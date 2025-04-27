@@ -88,28 +88,24 @@ const ScrollAreaWithPulldown = React.forwardRef(
       setPullDistance(0);
     }, [pullDistance, triggerRefresh]);
 
-    // useEffect(() => {
-    //   const options = { passive: false };
-    //   if (scrollRef.current) {
-    //     scrollRef.current.addEventListener(
-    //       'touchmove',
-    //       handleTouchMove,
-    //       options
-    //     );
-    //   }
-    //   return () => {
-    //     if (scrollRef.current) {
-    //       scrollRef.current.removeEventListener(
-    //         'touchmove',
-    //         handleTouchMove,
-    //         options
-    //       );
-    //       if (pullRef.current.rafId) {
-    //         cancelAnimationFrame(pullRef.current.rafId);
-    //       }
-    //     }
-    //   };
-    // }, [handleTouchMove]);
+    useEffect(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      // we want to catch touch events and call e.preventDefault()
+      const opts = { passive: false };
+      el.addEventListener('touchstart', handleTouchStart, opts);
+      el.addEventListener('touchmove',  handleTouchMove,  opts);
+      el.addEventListener('touchend',   handleTouchEnd,   opts);
+
+      return () => {
+        el.removeEventListener('touchstart', handleTouchStart, opts);
+        el.removeEventListener('touchmove',  handleTouchMove,  opts);
+        el.removeEventListener('touchend',   handleTouchEnd,   opts);
+        if (pullRef.current.rafId) {
+          cancelAnimationFrame(pullRef.current.rafId);
+        }
+      };
+    }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
     return (
       <ScrollAreaPrimitive.Root
@@ -120,9 +116,6 @@ const ScrollAreaWithPulldown = React.forwardRef(
           ref={scrollRef}
           className="h-full w-full rounded-[inherit]"
           style={{ overscrollBehavior: 'contain' }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onTouchMove={handleTouchMove}
         >
           {/* Pull-to-refresh indicator */}
           <div

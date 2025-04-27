@@ -9,6 +9,7 @@ import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { redirect } from 'next/navigation';
 
 // Schema for validating transaction data
 const transactionSchema = z.object({
@@ -88,7 +89,7 @@ const editTransaction = async ({
     });
     if (!session) {
       console.log('Transaction edit failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log(
@@ -133,7 +134,7 @@ const deleteTransaction = async ({ planId, transactionId }) => {
     });
     if (!session) {
       console.log('Transaction delete failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log(

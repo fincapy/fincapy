@@ -371,7 +371,7 @@ describe('Account Dashboard Server Actions', () => {
 
     it('should fail with no session', async () => {
       const result = await verifyEmailAddress('test@test.com', '123456');
-      expect(result.success).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with invalid email address', async () => {

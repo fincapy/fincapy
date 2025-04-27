@@ -2,8 +2,6 @@ import crypto, { timingSafeEqual } from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 const SESSION_TTL_MS = 60 * 60 * 12 * 1000; // 12 hours in milliseconds
 const ROTATION_PERIOD_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
@@ -80,10 +78,10 @@ class SessionManager {
         { algorithms: ['HS256'] }
       );
     } catch (error) {
-      return redirect('/signin');
+      return false;
     }
     if (providedSessionId.type !== 'session') {
-      return redirect('/signin');
+      return false;
     }
 
     const session = await this.sessionRepository.get({
@@ -92,7 +90,7 @@ class SessionManager {
 
     if (!session) {
       this.deleteCookie({ res, cookies });
-      return redirect('/signin');
+      return false;
     }
 
     if (Date.now() - session.createdAt > SESSION_TTL_MS) {
@@ -100,7 +98,7 @@ class SessionManager {
         sessionId: providedSessionId.sessionId,
       });
       this.deleteCookie({ res, cookies });
-      return redirect('/signin');
+      return false;
     }
 
     if (Date.now() - session.createdAt > ROTATION_PERIOD_MS) {
@@ -147,10 +145,10 @@ class SessionManager {
         { algorithms: ['HS256'] }
       );
     } catch (error) {
-      return redirect('/signin');
+      return false;
     }
     if (providedSessionId.type !== 'session') {
-      return redirect('/signin');
+      return false;
     }
 
     const session = await this.sessionRepository.get({
@@ -158,11 +156,11 @@ class SessionManager {
     });
 
     if (!session) {
-      return redirect('/signin');
+      return false;
     }
 
     if (Date.now() - session.createdAt > SESSION_TTL_MS) {
-      return redirect('/signin');
+      return false;
     }
     return session;
   }

@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { generateBackupCodes } from '@/utils/backupCodes';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+
 // Validation schemas
 const tokenSchema = z.string().trim().min(6).max(8);
 const secretSchema = z.string().trim().min(16);
@@ -60,7 +61,7 @@ export async function verifyAndSaveTOTP(token, secret) {
     const session = await sessionManager.touchSession({ cookies: cookiesList });
     if (!session) {
       console.log('Session not found');
-      return { success: false, error: 'Session not found' };
+      return redirect('/signin');
     }
 
     // Validate and sanitize inputs

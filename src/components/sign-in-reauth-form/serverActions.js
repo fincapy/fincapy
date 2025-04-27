@@ -14,7 +14,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-
+import { redirect } from 'next/navigation';
 function hashEmail(email) {
   return crypto
     .createHash('sha256')
@@ -61,7 +61,7 @@ async function authenticateForHighRiskAction(rawInput) {
     cookies: cookiesList,
   });
   if (!session) {
-    return false;
+    return redirect('/signin');
   }
 
   return await rateLimiter.withRateLimit(

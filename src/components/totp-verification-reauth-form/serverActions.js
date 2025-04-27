@@ -16,6 +16,7 @@ import {
   backupCodeSchema,
   validateAndSanitize,
 } from '@/utils/validation';
+import { redirect } from 'next/navigation';
 
 export async function verifyTOTPForHighRiskAction(
   rawToken,
@@ -36,7 +37,7 @@ export async function verifyTOTPForHighRiskAction(
   });
   if (!session) {
     console.log('No active session found');
-    return false;
+    return redirect('/signin');
   }
 
   return await rateLimiter.withRateLimit(

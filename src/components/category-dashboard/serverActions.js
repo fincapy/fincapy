@@ -16,6 +16,7 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { redirect } from 'next/navigation';
 
 // Sanitize function to strip HTML
 const sanitizeInput = (input) => {
@@ -128,7 +129,7 @@ const createCategory = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('Authorization failed: Viewer role cannot create categories');
@@ -193,7 +194,7 @@ const updateCategory = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('Authorization failed: Viewer role cannot update categories');
@@ -244,7 +245,7 @@ const deleteCategory = async ({ categoryId, planId }) => {
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('Authorization failed: Viewer role cannot delete categories');
@@ -302,7 +303,7 @@ const createSubcategory = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log(
@@ -366,7 +367,7 @@ const updateSubcategory = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log(
@@ -427,7 +428,7 @@ const deleteSubcategory = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log(
@@ -480,7 +481,7 @@ const reorderCategories = async ({ planId, type, oldIndex, newIndex }) => {
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     const tenantId = session.tenantId;
 
@@ -533,7 +534,7 @@ const reorderSubcategories = async ({
     });
     if (!session) {
       console.log('Authentication failed: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     const tenantId = session.tenantId;
 
@@ -578,7 +579,7 @@ export async function getOnboardingStatus() {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    if (!session) return false;
+    if (!session) return redirect('/signin');
     const key = `user_prefs:${session.userId}:onboarding`;
     const result = await redisAdapter.get(key);
     const resultString = result.toString();
@@ -601,7 +602,7 @@ export async function setOnboardingStatus({ done }) {
     const session = await sessionManager.touchSession({
       cookies: await cookies(),
     });
-    if (!session) return false;
+    if (!session) return redirect('/signin');
     const key = `user_prefs:${session.userId}:onboarding`;
     await redisAdapter.set(key, done ? 'true' : 'false');
     return true;

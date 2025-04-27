@@ -11,6 +11,7 @@ import { cookies } from 'next/headers';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { redirect } from 'next/navigation';
 
 // Sanitization function for strings
 const sanitizeString = (input) => {
@@ -62,7 +63,7 @@ const fetchLinkToken = async ({ institutionId }) => {
 
     if (!session) {
       console.log('fetchLinkToken: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('fetchLinkToken: User role viewer is not authorized');
@@ -117,7 +118,7 @@ const createPlaidItem = async (params) => {
 
     if (!session) {
       console.log('createPlaidItem: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('createPlaidItem: User role viewer is not authorized');
@@ -173,7 +174,7 @@ const updatePlaidItem = async (params) => {
 
     if (!session) {
       console.log('updatePlaidItem: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('updatePlaidItem: User role viewer is not authorized');
@@ -224,7 +225,7 @@ const deletePlaidItem = async (params) => {
 
     if (!session) {
       console.log('deletePlaidItem: No valid session found');
-      return false;
+      return redirect('/signin');
     }
     if (session.userRole === 'viewer') {
       console.log('deletePlaidItem: User role viewer is not authorized');

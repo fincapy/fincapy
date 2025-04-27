@@ -10,7 +10,7 @@ import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
 import { verifyHighRiskActionToken } from '@/utils/auth';
-
+import { redirect } from 'next/navigation';
 // Define Zod schema for password validation
 const passwordSchema = z
   .string()
@@ -50,7 +50,7 @@ export async function updatePassword(newPassword) {
 
   if (!session) {
     console.log('No active session found in updatePassword');
-    return { success: false, message: 'Unauthenticated' };
+    return redirect('/signin');
   }
 
   // Validate and sanitize password

@@ -10,11 +10,6 @@ import Redis from 'ioredis';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { redirect } from 'next/navigation';
-
-vi.mock('next/navigation', () => ({
-  redirect: vi.fn(),
-}));
 
 const SESSION_TTL_MS = 60 * 60 * 12 * 1000; // 12 hours in milliseconds, same as in auth.js
 
@@ -199,11 +194,11 @@ describe('Auth Integration Tests', () => {
       cookieStore.set('session-id', 'invalid-token', {});
 
       // Try to touch session
-      await sessionManager.touchSession({
+      const result = await sessionManager.touchSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
 
     it('should handle expired sessions', async () => {
@@ -239,11 +234,11 @@ describe('Auth Integration Tests', () => {
       );
 
       // Try to touch session
-      await sessionManager.touchSession({
+      const result = await sessionManager.touchSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
       // Verify session was deleted
       const deletedSession = await sessionRepository.get({
         sessionId: sessionId,
@@ -256,7 +251,7 @@ describe('Auth Integration Tests', () => {
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(touchedSession).toBe(false);
     });
 
     it('should retrieve a valid session', async () => {
@@ -290,11 +285,11 @@ describe('Auth Integration Tests', () => {
       cookieStore.set('session-id', 'invalid-token', {});
 
       // Try to get session
-      await sessionManager.getSession({
+      const result = await sessionManager.getSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
 
     it('should redirect when token type is not session for getSession', async () => {
@@ -306,11 +301,11 @@ describe('Auth Integration Tests', () => {
       cookieStore.set('session-id', wrongTypeToken, {});
 
       // Try to get session
-      await sessionManager.getSession({
+      const result = await sessionManager.getSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
 
     it('should redirect when session does not exist for getSession', async () => {
@@ -322,11 +317,11 @@ describe('Auth Integration Tests', () => {
       cookieStore.set('session-id', nonExistentToken, {});
 
       // Try to get session
-      await sessionManager.getSession({
+      const result = await sessionManager.getSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
 
     it('should redirect when session is expired for getSession', async () => {
@@ -365,20 +360,20 @@ describe('Auth Integration Tests', () => {
       );
 
       // Try to get session
-      await sessionManager.getSession({
+      const result = await sessionManager.getSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
 
     it('should handle missing session cookie for getSession', async () => {
       // Try to get session with no cookie
-      await sessionManager.getSession({
+      const result = await sessionManager.getSession({
         cookies: cookieStore,
       });
 
-      expect(redirect).toHaveBeenCalledWith('/signin');
+      expect(result).toBe(false);
     });
   });
 

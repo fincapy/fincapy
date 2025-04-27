@@ -12,6 +12,7 @@ import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import { redirect } from 'next/navigation';
 
 // Schema for user ID validation
 const userIdSchema = z.object({
@@ -68,7 +69,7 @@ const removeUser = async ({ userId }) => {
 
     if (!session) {
       console.log('Remove user failed: No valid session found');
-      return { success: false, error: 'Authentication required' };
+      return redirect('/signin');
     }
 
     if (session.userRole !== 'owner') {
@@ -126,7 +127,7 @@ const changeUserRole = async ({ userId, role }) => {
 
     if (!session) {
       console.log('Change role failed: No valid session found');
-      return { success: false, error: 'Authentication required' };
+      return redirect('/signin');
     }
 
     if (session.userRole !== 'owner') {
@@ -182,7 +183,7 @@ const changeUserName = async ({ userId, name }) => {
 
     if (!session) {
       console.log('Change name failed: No valid session found');
-      return { success: false, error: 'Authentication required' };
+      return redirect('/signin');
     }
 
     if (session.userRole !== 'owner') {

@@ -16,6 +16,7 @@ import { SetPrimaryEmailService } from '@/backend/services/setPrimaryEmailServic
 import { RemoveEmailService } from '@/backend/services/removeEmailService';
 import { verifyHighRiskActionToken } from '@/utils/auth';
 import { ChangeUserNameService } from '@/backend/services/changeUserNameService';
+import { redirect } from 'next/navigation';
 
 // Create validation schema for email
 const emailSchema = z
@@ -64,7 +65,7 @@ export async function addEmailAddress(email) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;
@@ -182,7 +183,7 @@ export async function verifyEmailAddress(email, verificationCode) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;
@@ -300,7 +301,7 @@ export async function resendEmailVerification(email) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;
@@ -406,7 +407,7 @@ export async function setPrimaryEmail(email) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;
@@ -486,7 +487,7 @@ export async function removeEmail(email) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;
@@ -569,7 +570,7 @@ export async function changeUserName(name) {
 
     if (!session) {
       console.log('No session found');
-      return { success: false, error: 'Unauthenticated' };
+      return redirect('/signin');
     }
 
     const userId = session.userId;

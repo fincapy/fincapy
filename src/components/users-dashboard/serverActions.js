@@ -9,7 +9,7 @@ import { TransactionManager } from '@/backend/adapters/transactionManager';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
-
+import { redirect } from 'next/navigation';
 // Schema for validating user data
 const userSchema = z.object({
   userId: z.string().uuid(),
@@ -62,7 +62,7 @@ const inviteUser = async ({ userId, email, role, name }) => {
 
     if (!session) {
       console.log('User invitation failed: No valid session found');
-      return { success: false, error: 'Authentication required' };
+      return redirect('/signin');
     }
 
     if (session.userRole !== 'owner') {

@@ -16,6 +16,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -184,7 +189,7 @@ describe('Transaction Dashboard Server Actions', () => {
 
       const result = await createTransaction(transactionData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Transaction creation failed: No valid session found'
       );
@@ -206,7 +211,7 @@ describe('Transaction Dashboard Server Actions', () => {
 
       const result = await createTransaction(transactionData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Transaction creation failed: No valid session found'
       );

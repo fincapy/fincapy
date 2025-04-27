@@ -20,6 +20,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -210,7 +215,7 @@ describe('Transaction Table Server Actions', () => {
 
       const result = await editTransaction(editData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Transaction edit failed: No valid session found'
       );
@@ -233,7 +238,7 @@ describe('Transaction Table Server Actions', () => {
 
       const result = await editTransaction(editData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Transaction edit failed: No valid session found'
       );
@@ -320,7 +325,7 @@ describe('Transaction Table Server Actions', () => {
 
       const result = await deleteTransaction(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Transaction delete failed: No valid session found'
       );
@@ -336,7 +341,7 @@ describe('Transaction Table Server Actions', () => {
 
       const result = await deleteTransaction(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Transaction delete failed: No valid session found'
       );

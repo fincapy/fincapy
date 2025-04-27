@@ -13,10 +13,15 @@ import jwt from 'jsonwebtoken';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { User } from '@/backend/domain/user';
 import { z } from 'zod';
+import { redirect } from 'next/navigation';
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
   headers: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }));
 
 describe('Account Set Password Form Server Actions', () => {
@@ -138,8 +143,7 @@ describe('Account Set Password Form Server Actions', () => {
     const result = await updatePassword(newPassword);
 
     // ASSERT
-    expect(result.success).toBe(false);
-    expect(result.message).toBe('Unauthenticated');
+    expect(redirect).toHaveBeenCalledWith('/signin');
     expect(console.log).toHaveBeenCalledWith(
       'No active session found in updatePassword'
     );

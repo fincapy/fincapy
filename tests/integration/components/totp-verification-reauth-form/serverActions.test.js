@@ -19,6 +19,11 @@ import {
   afterEach,
 } from 'vitest';
 import { Session } from '@/backend/domain/session';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const userId = uuidv4();
@@ -303,7 +308,7 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
 
       const result = await verifyTOTPForHighRiskAction();
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(noSessionCookieResolution.set).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith('No active session found');
     });

@@ -16,6 +16,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const tenantId = uuidv4();
@@ -132,11 +137,8 @@ describe('Plan Route API', () => {
         },
       };
 
-      const response = await GET(req);
-      const data = await response.json();
-
-      expect(response.status).toBe(401);
-      expect(data.error).toBe('Unauthorized');
+      await GET(req);
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should return 400 for invalid date format', async () => {

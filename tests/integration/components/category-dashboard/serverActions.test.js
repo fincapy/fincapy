@@ -25,6 +25,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -160,6 +165,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId: 'initial',
         type: 'spending',
+        color: '#FF5733',
       };
 
       const result = await createCategory(categoryData);
@@ -177,6 +183,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       const result = await createCategory(categoryData);
@@ -196,11 +203,12 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       const result = await createCategory(categoryData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -216,11 +224,12 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       const result = await createCategory(categoryData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -240,6 +249,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       await createCategory(createData);
@@ -250,6 +260,7 @@ describe('Category Dashboard Server Actions', () => {
         name: 'Updated Category',
         monthlyGoal: 1500,
         planId,
+        color: '#33FF57',
       };
 
       const result = await updateCategory(updateData);
@@ -265,6 +276,7 @@ describe('Category Dashboard Server Actions', () => {
         name: 'Updated Category',
         monthlyGoal: 1500,
         planId,
+        color: '#33FF57',
       };
 
       const result = await updateCategory(updateData);
@@ -283,11 +295,12 @@ describe('Category Dashboard Server Actions', () => {
         name: 'Updated Category',
         monthlyGoal: 1500,
         planId,
+        color: '#33FF57',
       };
 
       const result = await updateCategory(updateData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -301,11 +314,12 @@ describe('Category Dashboard Server Actions', () => {
         name: 'Updated Category',
         monthlyGoal: 1500,
         planId,
+        color: '#33FF57',
       };
 
       const result = await updateCategory(updateData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -325,6 +339,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'spending',
+        color: '#FF5733',
       };
 
       await createCategory(createData);
@@ -366,7 +381,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await deleteCategory(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -382,7 +397,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await deleteCategory(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -402,6 +417,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       await createCategory(createCategoryData);
@@ -452,7 +468,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await createSubcategory(subcategoryData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -471,7 +487,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await createSubcategory(subcategoryData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -491,6 +507,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       await createCategory(createCategoryData);
@@ -553,7 +570,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await updateSubcategory(updateData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -572,7 +589,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await updateSubcategory(updateData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -592,6 +609,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       };
 
       await createCategory(createCategoryData);
@@ -651,7 +669,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await deleteSubcategory(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -669,7 +687,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await deleteSubcategory(deleteData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -691,6 +709,7 @@ describe('Category Dashboard Server Actions', () => {
         otherSubcategoryId: uuidv4(),
         planId,
         type: 'expense',
+        color: '#FF5733',
       });
 
       await createCategory({
@@ -700,6 +719,7 @@ describe('Category Dashboard Server Actions', () => {
         otherSubcategoryId: uuidv4(),
         planId,
         type: 'expense',
+        color: '#33FF57',
       });
 
       // Then reorder them
@@ -728,6 +748,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#FF5733',
       });
 
       await createCategory({
@@ -736,6 +757,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'expense',
+        color: '#33FF57',
       });
 
       // Then reorder them
@@ -763,7 +785,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await reorderCategories(reorderData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -781,7 +803,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await reorderCategories(reorderData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -801,6 +823,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'spending',
+        color: '#FF5733',
       };
 
       await createCategory(createCategoryData);
@@ -850,6 +873,7 @@ describe('Category Dashboard Server Actions', () => {
         monthlyGoal: 1000,
         planId,
         type: 'spending',
+        color: '#FF5733',
       };
 
       await createCategory(createCategoryData);
@@ -901,7 +925,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await reorderSubcategories(reorderData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );
@@ -919,7 +943,7 @@ describe('Category Dashboard Server Actions', () => {
 
       const result = await reorderSubcategories(reorderData);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Authentication failed: No valid session found'
       );

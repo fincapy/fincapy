@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   SessionManager,
   EmailPasswordAuthenticator,
@@ -10,6 +10,13 @@ import Redis from 'ioredis';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
+
+const SESSION_TTL_MS = 60 * 60 * 12 * 1000; // 12 hours in milliseconds, same as in auth.js
 
 // Create a fake cookie store for testing
 class FakeCookieStore {
@@ -73,6 +80,7 @@ describe('Auth Integration Tests', () => {
 
     // Set test environment variables
     process.env.JWT_SECRET = 'test-secret-key';
+    vi.resetAllMocks();
   });
 
   describe('SessionManager', () => {
@@ -191,11 +199,11 @@ describe('Auth Integration Tests', () => {
       cookieStore.set('session-id', 'invalid-token', {});
 
       // Try to touch session
-      const touchedSession = await sessionManager.touchSession({
+      await sessionManager.touchSession({
         cookies: cookieStore,
       });
 
-      expect(touchedSession).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should handle expired sessions', async () => {
@@ -231,12 +239,11 @@ describe('Auth Integration Tests', () => {
       );
 
       // Try to touch session
-      const touchedSession = await sessionManager.touchSession({
+      await sessionManager.touchSession({
         cookies: cookieStore,
       });
 
-      expect(touchedSession).toBe(false);
-
+      expect(redirect).toHaveBeenCalledWith('/signin');
       // Verify session was deleted
       const deletedSession = await sessionRepository.get({
         sessionId: sessionId,
@@ -249,7 +256,129 @@ describe('Auth Integration Tests', () => {
         cookies: cookieStore,
       });
 
-      expect(touchedSession).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should retrieve a valid session', async () => {
+      const userId = uuidv4();
+      const userRole = 'user';
+      const tenantId = 'test-tenant';
+
+      // Create a session
+      const createdSession = await sessionManager.createSession({
+        userId,
+        userRole,
+        tenantId,
+        cookies: cookieStore,
+      });
+
+      // Retrieve the session
+      const session = await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      // Verify session was retrieved correctly
+      expect(session).toBeDefined();
+      expect(session.sessionId).toBe(createdSession.sessionId);
+      expect(session.userId).toBe(userId);
+      expect(session.userRole).toBe(userRole);
+      expect(session.tenantId).toBe(tenantId);
+    });
+
+    it('should redirect when session token is invalid for getSession', async () => {
+      // Set invalid token
+      cookieStore.set('session-id', 'invalid-token', {});
+
+      // Try to get session
+      await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should redirect when token type is not session for getSession', async () => {
+      // Set token with wrong type
+      const wrongTypeToken = jwt.sign(
+        { sessionId: uuidv4(), type: 'wrong-type' },
+        process.env.JWT_SECRET
+      );
+      cookieStore.set('session-id', wrongTypeToken, {});
+
+      // Try to get session
+      await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should redirect when session does not exist for getSession', async () => {
+      // Set token with non-existent session ID
+      const nonExistentToken = jwt.sign(
+        { sessionId: uuidv4(), type: 'session' },
+        process.env.JWT_SECRET
+      );
+      cookieStore.set('session-id', nonExistentToken, {});
+
+      // Try to get session
+      await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should redirect when session is expired for getSession', async () => {
+      const userId = uuidv4();
+
+      // Set an expired session directly in the cookie store
+      const sessionId = crypto.randomUUID();
+      const expiredSession = new Session({
+        sessionId,
+        userId,
+        userRole: 'user',
+        tenantId: 'test-tenant',
+        createdAt: Date.now() - SESSION_TTL_MS - 1000, // Expired by 1 second
+        lastRotated: Date.now() - 10000000,
+      });
+
+      const SESSION_TTL = 1000 * 60 * 60 * 3; // 3 hours
+      await sessionRepository.set({
+        session: expiredSession,
+        ttl: SESSION_TTL / 1000,
+      });
+
+      cookieStore.set(
+        'session-id',
+        jwt.sign({ sessionId, type: 'session' }, process.env.JWT_SECRET, {
+          expiresIn: '3h',
+          algorithm: 'HS256',
+        }),
+        {
+          maxAge: SESSION_TTL,
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+        }
+      );
+
+      // Try to get session
+      await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should handle missing session cookie for getSession', async () => {
+      // Try to get session with no cookie
+      await sessionManager.getSession({
+        cookies: cookieStore,
+      });
+
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
   });
 

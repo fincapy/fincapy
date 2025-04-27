@@ -21,6 +21,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -149,7 +154,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await fetchLinkToken(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'fetchLinkToken: No valid session found'
       );
@@ -163,7 +168,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await fetchLinkToken(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'fetchLinkToken: No valid session found'
       );
@@ -199,7 +204,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await createPlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'createPlaidItem: No valid session found'
       );
@@ -216,7 +221,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await createPlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'createPlaidItem: No valid session found'
       );
@@ -248,7 +253,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await updatePlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'updatePlaidItem: No valid session found'
       );
@@ -263,7 +268,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await updatePlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'updatePlaidItem: No valid session found'
       );
@@ -293,7 +298,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await deletePlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'deletePlaidItem: No valid session found'
       );
@@ -307,7 +312,7 @@ describe('Financial Institutions Dashboard Server Actions', () => {
 
       const result = await deletePlaidItem(params);
 
-      expect(result).toBe(false);
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'deletePlaidItem: No valid session found'
       );

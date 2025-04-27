@@ -6,7 +6,7 @@ import { parse, isValid } from 'date-fns';
 import { cookies } from 'next/headers';
 import sanitizeHtml from 'sanitize-html';
 import { z } from 'zod';
-
+import { redirect } from 'next/navigation';
 // Define validation schemas using zod
 const planIdSchema = z.string().regex(/^[a-zA-Z0-9-_]+$/, {
   message:
@@ -34,11 +34,8 @@ export const GET = async (req, res) => {
     cookies: await cookies(),
   });
 
-  // Validate session first
   if (!session) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-    });
+    return redirect('/signin');
   }
 
   // Get query parameters

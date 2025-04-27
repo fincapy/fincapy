@@ -20,6 +20,11 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { User } from '@/backend/domain/user';
 import { Session } from '@/backend/domain/session';
 import { z } from 'zod';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 function hashEmail(email) {
   return crypto.createHash('sha256').update(email).digest('hex');
@@ -123,8 +128,7 @@ describe('Account Dashboard Server Actions', () => {
 
     it('should fail with no session', async () => {
       const result = await addEmailAddress('test@test.com');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Unauthenticated');
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with invalid email address', async () => {
@@ -647,8 +651,7 @@ describe('Account Dashboard Server Actions', () => {
       const userId = uuidv4();
       const secondaryEmail = `${userId}-secondary@test.com`;
       const result = await resendEmailVerification(secondaryEmail);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Unauthenticated');
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with invalid email address', async () => {
@@ -930,9 +933,7 @@ describe('Account Dashboard Server Actions', () => {
       const userId = uuidv4();
       const secondaryEmail = `${userId}-secondary@test.com`;
       const result = await setPrimaryEmail(secondaryEmail);
-      expect(result.success).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('No session found');
-      expect(result.error).toBe('Unauthenticated');
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with no high-risk action token', async () => {
@@ -1119,9 +1120,7 @@ describe('Account Dashboard Server Actions', () => {
       const userId = uuidv4();
       const secondaryEmail = `${userId}-secondary@test.com`;
       const result = await removeEmail(secondaryEmail);
-      expect(result.success).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('No session found');
-      expect(result.error).toBe('Unauthenticated');
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with no high-risk action token', async () => {
@@ -1370,9 +1369,7 @@ describe('Account Dashboard Server Actions', () => {
 
     it('should fail with no session', async () => {
       const result = await changeUserName('New Test User');
-      expect(result.success).toBe(false);
-      expect(console.log).toHaveBeenCalledWith('No session found');
-      expect(result.error).toBe('Unauthenticated');
+      expect(redirect).toHaveBeenCalledWith('/signin');
     });
 
     it('should fail with empty name', async () => {

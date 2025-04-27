@@ -21,6 +21,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -211,8 +216,7 @@ describe('Users Table Server Actions', () => {
         userId: testUserId,
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Remove user failed: No valid session found'
       );
@@ -225,8 +229,7 @@ describe('Users Table Server Actions', () => {
         userId: testUserId,
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Remove user failed: No valid session found'
       );
@@ -351,8 +354,7 @@ describe('Users Table Server Actions', () => {
         role: 'viewer',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Change role failed: No valid session found'
       );
@@ -366,8 +368,7 @@ describe('Users Table Server Actions', () => {
         role: 'viewer',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Change role failed: No valid session found'
       );
@@ -445,8 +446,7 @@ describe('Users Table Server Actions', () => {
         name: 'Updated Name',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Change name failed: No valid session found'
       );
@@ -460,8 +460,7 @@ describe('Users Table Server Actions', () => {
         name: 'Updated Name',
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'Change name failed: No valid session found'
       );

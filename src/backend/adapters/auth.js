@@ -3,9 +3,10 @@ import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-const SESSION_TTL = 60 * 60 * 12; // 12 hours
-const ROTATION_PERIOD = 15 * 60; // 15 minutes
+const SESSION_TTL_MS = 60 * 60 * 12 * 1000; // 12 hours in milliseconds
+const ROTATION_PERIOD_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
 
 class SessionManager {
   constructor({ sessionRepository }) {
@@ -37,13 +38,13 @@ class SessionManager {
       { sessionId, type: 'session' },
       process.env.JWT_SECRET,
       {
-        expiresIn: '12h',
+        expiresIn: SESSION_TTL_MS / 1000, // Convert back to seconds for JWT
         algorithm: 'HS256',
       }
     );
     if (cookies) {
       cookies.set('session-id', sessionToken, {
-        maxAge: SESSION_TTL,
+        maxAge: SESSION_TTL_MS,
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -51,7 +52,7 @@ class SessionManager {
       });
     } else if (res) {
       res.cookies.set('session-id', sessionToken, {
-        maxAge: SESSION_TTL,
+        maxAge: SESSION_TTL_MS,
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -79,10 +80,10 @@ class SessionManager {
         { algorithms: ['HS256'] }
       );
     } catch (error) {
-      return false;
+      return redirect('/signin');
     }
     if (providedSessionId.type !== 'session') {
-      return false;
+      return redirect('/signin');
     }
 
     const session = await this.sessionRepository.get({
@@ -91,18 +92,18 @@ class SessionManager {
 
     if (!session) {
       this.deleteCookie({ res, cookies });
-      return false;
+      return redirect('/signin');
     }
 
-    if (Date.now() - session.createdAt > SESSION_TTL * 1000) {
+    if (Date.now() - session.createdAt > SESSION_TTL_MS) {
       await this.sessionRepository.delete({
         sessionId: providedSessionId.sessionId,
       });
       this.deleteCookie({ res, cookies });
-      return false;
+      return redirect('/signin');
     }
 
-    if (Date.now() - session.createdAt > ROTATION_PERIOD * 1000) {
+    if (Date.now() - session.createdAt > ROTATION_PERIOD_MS) {
       await this.sessionRepository.delete({
         sessionId: providedSessionId.sessionId,
       });
@@ -116,7 +117,7 @@ class SessionManager {
       });
       await this.sessionRepository.set({
         session: newSession,
-        ttl: SESSION_TTL,
+        ttl: SESSION_TTL_MS / 1000, // Convert to seconds for Redis TTL
       });
       this.setCookie({ res, cookies, sessionId: newSession.sessionId });
       return newSession;
@@ -146,10 +147,10 @@ class SessionManager {
         { algorithms: ['HS256'] }
       );
     } catch (error) {
-      return false;
+      return redirect('/signin');
     }
     if (providedSessionId.type !== 'session') {
-      return false;
+      return redirect('/signin');
     }
 
     const session = await this.sessionRepository.get({
@@ -157,11 +158,11 @@ class SessionManager {
     });
 
     if (!session) {
-      return false;
+      return redirect('/signin');
     }
 
-    if (Date.now() - session.createdAt > SESSION_TTL * 1000) {
-      return false;
+    if (Date.now() - session.createdAt > SESSION_TTL_MS) {
+      return redirect('/signin');
     }
     return session;
   }
@@ -184,7 +185,7 @@ class SessionManager {
       createdAt: Date.now(),
       lastRotated: Date.now(),
     });
-    await this.sessionRepository.set({ session, ttl: SESSION_TTL });
+    await this.sessionRepository.set({ session, ttl: SESSION_TTL_MS / 1000 }); // Convert to seconds for Redis TTL
     this.setCookie({ res, cookies, sessionId: session.sessionId });
     return session;
   }

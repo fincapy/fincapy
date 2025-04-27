@@ -16,6 +16,11 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
 
 const sessionId = uuidv4();
 const viewerSessionId = uuidv4();
@@ -220,10 +225,7 @@ describe('Users Dashboard Server Actions', () => {
 
       const result = await inviteUser(userData);
 
-      expect(result).toEqual({
-        success: false,
-        error: 'Authentication required',
-      });
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'User invitation failed: No valid session found'
       );
@@ -241,10 +243,7 @@ describe('Users Dashboard Server Actions', () => {
 
       const result = await inviteUser(userData);
 
-      expect(result).toEqual({
-        success: false,
-        error: 'Authentication required',
-      });
+      expect(redirect).toHaveBeenCalledWith('/signin');
       expect(console.log).toHaveBeenCalledWith(
         'User invitation failed: No valid session found'
       );

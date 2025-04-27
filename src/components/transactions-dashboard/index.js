@@ -214,13 +214,10 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
     resolver: zodResolver(recategorizeFormSchema),
-    // defaultValues: {
-    //   description: 'Your Description',
-    //   date: new Date().toISOString().split('T')[0],
-    //   status: 'COMPLETED',
-    //   type: 'spending',
-    //   amount: 0.0,
-    // },
+    defaultValues: {
+      // initialize the picker to today in YYYY-MM-DD
+      date: format(new Date(), 'yyyy-MM-dd'),
+    },
   });
 
   const handleServerCreateTransaction = ({

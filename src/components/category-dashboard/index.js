@@ -878,40 +878,55 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Add handleOpenDialog for ActionMenu
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <button
-          variant=""
-          size="icon"
-          className="rounded-full hover:text-primary"
-          onPointerDown={(e) => e.stopPropagation()}
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <button
+            variant=""
+            size="icon"
+            className="rounded-full hover:text-primary"
+            onPointerDown={(e) => e.stopPropagation()}
+            data-action="add"
+            data-context-id={categoryId}
+          >
+            <CirclePlus size={18} />
+          </button>
+        </DialogTrigger>
+        <DialogContent
+          className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
         >
-          <CirclePlus size={18} />
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        <DialogHeader>
-          <DialogTitle>Create Subcategory</DialogTitle>
-          <DialogDescription>
-            {`Create a new subcategory for your ${type} category`}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <CreateSubcategoryForm
-            categoryId={categoryId}
-            setDropdownIsOpen={setDropdownIsOpen}
-            setDialogOpen={setDialogOpen}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
+          <DialogHeader>
+            <DialogTitle>Create Subcategory</DialogTitle>
+            <DialogDescription>
+              {`Create a new subcategory for your ${type} category`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <CreateSubcategoryForm
+              categoryId={categoryId}
+              setDropdownIsOpen={setDropdownIsOpen}
+              setDialogOpen={setDialogOpen}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Hidden dialog for mobile menu click handling */}
+      <button
+        className="hidden"
+        onClick={handleOpenDialog}
+        data-dialog-trigger="add"
+      />
+    </>
   );
 };
 
@@ -1646,11 +1661,11 @@ const SubcategoryCard = forwardRef(
     ref
   ) => {
     const [isGrabbing, setIsGrabbing] = useState(false);
+    const [currentUser] = useAtom(currentUserAtom);
     const getRoundedStyle = () => {
       if (index === subcategoryLength - 1) {
         return 'rounded-none rounded-b-xl';
       }
-
       return 'rounded-none';
     };
 
@@ -1668,38 +1683,59 @@ const SubcategoryCard = forwardRef(
       height: 'auto',
     };
 
+    // Calculate progress percentage for summary row
+    const getProgressPercentage = () => {
+      if (subcategory.proratedGoal === 0 && subcategory.currentNet > 0) {
+        return 100;
+      }
+      if (subcategory.proratedGoal === 0 && subcategory.currentNet === 0) {
+        return 100;
+      }
+      if (subcategory.proratedGoal === 0) {
+        return 0;
+      }
+      return (subcategory.currentNet / subcategory.proratedGoal) * 100;
+    };
+    const progressPercentage = getProgressPercentage();
+
     return (
       <Card
         ref={setNodeRef}
         className={`shadow-none bg-card-subcategory/60 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
         style={style}
       >
-        <CardHeader className="p-0"></CardHeader>
-        <CardContent className="pb-6 pt-4">
-          <div className="flex flex-col">
-            <div className="flex flex-row items-center gap-[5px] ml-[8px] -mb-[7px]">
-              <span className="text-md font-bold">{subcategory.name}</span>
-              <ActionMenu contextId={subcategory.subcategoryId}>
-                <EditSubcategoryDialogue
-                  subcategory={subcategory}
-                  subcategoryId={subcategory.subcategoryId}
-                  categoryId={category.categoryId}
-                />
-                {!subcategory.subcategoryId.includes('other') && (
-                  <DeleteSubcategoryDialogue
+        <CardHeader className="p-0" />
+        <CardContent className="pb-0 pt-2">
+          <div className="flex flex-col gap-0">
+            <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
+              <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
+                <span className="flex items-center text-md break-words max-w-[90%] font-bold text-gray-800">
+                  <span
+                    className={`inline-block w-3 h-3 rounded-full mr-[6px] ${colorOptions[currentUser?.categoryColors?.[category.categoryId]] || 'bg-primary'}`}
+                  />
+                  {subcategory.name}
+                </span>
+                <ActionMenu contextId={subcategory.subcategoryId}>
+                  <EditSubcategoryDialogue
+                    subcategory={subcategory}
                     subcategoryId={subcategory.subcategoryId}
                     categoryId={category.categoryId}
                   />
-                )}
-                <OpenTransactionTableDialogue
-                  transactions={subcategory.transactions}
-                  eyeSize={17}
-                  categoryId={subcategory.subcategoryId}
-                />
-              </ActionMenu>
+                  {!subcategory.subcategoryId.includes('other') && (
+                    <DeleteSubcategoryDialogue
+                      subcategoryId={subcategory.subcategoryId}
+                      categoryId={category.categoryId}
+                    />
+                  )}
+                  <OpenTransactionTableDialogue
+                    transactions={subcategory.transactions}
+                    eyeSize={17}
+                    categoryId={subcategory.subcategoryId}
+                  />
+                </ActionMenu>
+              </div>
             </div>
             <div className="flex flex-row gap-1 items-center">
-              <span className="text-md">$0</span>
               <Progress
                 barHeight={'h-[8px]'}
                 rawValueSize={'text-md'}
@@ -1709,7 +1745,27 @@ const SubcategoryCard = forwardRef(
                 color={color}
                 mutedColor={mutedColor}
               />
-              <span className="text-md">{`$${subcategory.proratedGoal}`}</span>
+            </div>
+            <div className="flex flex-row justify-between pt-1 text-gray-500">
+              <span>{progressPercentage.toFixed(0)}% spent</span>
+              <div className="flex flex-row gap-1 items-center">
+                <span className="text-gray-500">
+                  {`
+                  ${new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                  }).format(subcategory.currentNet)} / 
+                  ${new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                  }).format(subcategory.proratedGoal)}
+                `}
+                </span>
+              </div>
             </div>
           </div>
         </CardContent>

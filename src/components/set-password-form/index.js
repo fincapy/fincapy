@@ -24,10 +24,32 @@ const SetPasswordForm = ({ token, isReset }) => {
       return;
     }
 
-    if (password.length < 8) {
+    // Validate password complexity
+    const minLength = password.length >= 8;
+    if (!minLength) {
       setError('Password must be at least 8 characters long');
       return;
     }
+
+    // Check for character type requirements
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecials = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    const typeCount = [
+      hasUppercase,
+      hasLowercase,
+      hasNumbers,
+      hasSpecials,
+    ].filter(Boolean).length;
+
+    if (typeCount < 3) {
+      setError(
+        'Password must contain at least 3 of 4 character types: uppercase, lowercase, numbers, and special characters'
+      );
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
     let result;

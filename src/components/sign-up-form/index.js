@@ -33,12 +33,23 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
   const accessCode = useContext(AccessCodeContext);
 
   const validatePassword = (pass) => {
-    if (pass.length < 8) return false;
-    if (!/[A-Z]/.test(pass)) return false;
-    if (!/[a-z]/.test(pass)) return false;
-    if (!/[0-9]/.test(pass)) return false;
-    if (!/[!@#$%^&*]/.test(pass)) return false;
-    return true;
+    // Minimum 8 characters with at least 3 of the 4 character types:
+    // uppercase, lowercase, numbers, and special characters
+    const minLength = pass.length >= 8;
+    const hasUppercase = /[A-Z]/.test(pass);
+    const hasLowercase = /[a-z]/.test(pass);
+    const hasNumbers = /[0-9]/.test(pass);
+    const hasSpecials = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass);
+
+    // Count how many character types are present
+    const typeCount = [
+      hasUppercase,
+      hasLowercase,
+      hasNumbers,
+      hasSpecials,
+    ].filter(Boolean).length;
+
+    return minLength && typeCount >= 3;
   };
 
   const handleSubmit = async (e) => {
@@ -56,7 +67,7 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
 
     if (!validatePassword(password)) {
       setError(
-        'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character'
+        'Password must be at least 8 characters and contain at least 3 of the 4 character types: uppercase, lowercase, number, and special character'
       );
       return;
     }

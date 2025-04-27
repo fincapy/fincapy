@@ -116,7 +116,7 @@ describe('Sign Up Form Server Actions', () => {
       const result = await createAccount(
         testName,
         `${uuidv4()}@test.com`,
-        'weak',
+        'weak1234', // Has lowercase and numbers but only 2 character types
         testAccessCode
       );
 
@@ -126,6 +126,38 @@ describe('Sign Up Form Server Actions', () => {
       );
       expect(cookies().set).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it('should accept password with exactly 3 character types', async () => {
+      const result = await createAccount(
+        testName,
+        `${uuidv4()}@test.com`,
+        'Password123', // Has uppercase, lowercase, and numbers (3 types)
+        testAccessCode
+      );
+
+      expect(cookies().set).toHaveBeenCalledWith(
+        'emailPasswordAuthenticatedToken',
+        expect.any(String),
+        expect.any(Object)
+      );
+      expect(redirect).toHaveBeenCalledWith('/verify-email');
+    });
+
+    it('should accept password with all 4 character types', async () => {
+      const result = await createAccount(
+        testName,
+        `${uuidv4()}@test.com`,
+        'Password123!', // Has all 4 character types
+        testAccessCode
+      );
+
+      expect(cookies().set).toHaveBeenCalledWith(
+        'emailPasswordAuthenticatedToken',
+        expect.any(String),
+        expect.any(Object)
+      );
+      expect(redirect).toHaveBeenCalledWith('/verify-email');
     });
   });
 });

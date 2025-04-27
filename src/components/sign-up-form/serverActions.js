@@ -33,7 +33,27 @@ function hashIp(ip) {
 const createAccountSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .refine((password) => {
+      // Check for at least 3 of 4 character types
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecials = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+        password
+      );
+
+      const typeCount = [
+        hasUppercase,
+        hasLowercase,
+        hasNumbers,
+        hasSpecials,
+      ].filter(Boolean).length;
+
+      return typeCount >= 3;
+    }, 'Password must contain at least 3 of 4 character types: uppercase, lowercase, numbers, and special characters'),
   accessCode: z.string().min(1, 'Access code is required'),
 });
 

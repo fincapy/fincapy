@@ -33,8 +33,9 @@ vi.mock('next/navigation', () => {
 
 const userId = uuidv4();
 const tenantId = uuidv4();
-const validPassword = 'ValidPass123!';
-const invalidPassword = 'weak';
+const validPassword = 'ValidPass123!'; // Has all 4 character types
+const validPassword2 = 'ValidPass123'; // Has 3 character types (uppercase, lowercase, numbers)
+const invalidPassword = 'weak123'; // Has only 2 character types
 
 // Mock cookies functionality
 const mockCookiesSet = {
@@ -102,6 +103,29 @@ describe('Set Password Form Server Actions', () => {
         updatedUser.password
       );
       expect(passwordMatch).toBe(true);
+    });
+
+    it('should accept password with exactly 3 character types', async () => {
+      cookies.mockResolvedValue(mockCookiesSet);
+      const token = jwt.sign(
+        { userId, type: 'inviteUser' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h', algorithm: 'HS256' }
+      );
+
+      const result = await setInitialPassword(validPassword2, token); // Pass with just 3 types
+
+      // Verify password was accepted
+      expect(mockCookiesSet.set).toHaveBeenCalledWith(
+        'emailPasswordAuthenticatedToken',
+        expect.any(String),
+        expect.objectContaining({
+          httpOnly: true,
+          path: '/',
+          sameSite: 'strict',
+          maxAge: 600000,
+        })
+      );
     });
 
     it('should terminate all active sessions when initial password is set', async () => {
@@ -242,6 +266,29 @@ describe('Set Password Form Server Actions', () => {
         updatedUser.password
       );
       expect(passwordMatch).toBe(true);
+    });
+
+    it('should accept password with exactly 3 character types', async () => {
+      cookies.mockResolvedValue(mockCookiesSet);
+      const token = jwt.sign(
+        { userId, type: 'resetPassword' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h', algorithm: 'HS256' }
+      );
+
+      const result = await resetPassword(validPassword2, token); // Pass with just 3 types
+
+      expect(result).toBe(true);
+      expect(mockCookiesSet.set).toHaveBeenCalledWith(
+        'emailPasswordAuthenticatedToken',
+        expect.any(String),
+        expect.objectContaining({
+          httpOnly: true,
+          path: '/',
+          sameSite: 'strict',
+          maxAge: 600000,
+        })
+      );
     });
 
     it('should terminate all active sessions when password is reset', async () => {

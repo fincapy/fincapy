@@ -16,16 +16,30 @@ const passwordSchema = z
   .string()
   .min(8, { message: 'Password must be at least 8 characters long' })
   .max(100, { message: 'Password is too long' })
-  .regex(/[A-Z]/, {
-    message: 'Password must contain at least one uppercase letter',
-  })
-  .regex(/[a-z]/, {
-    message: 'Password must contain at least one lowercase letter',
-  })
-  .regex(/[0-9]/, { message: 'Password must contain at least one number' })
-  .regex(/[^A-Za-z0-9]/, {
-    message: 'Password must contain at least one special character',
-  });
+  .refine(
+    (password) => {
+      // Check for at least 3 of 4 character types
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecials = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+        password
+      );
+
+      const typeCount = [
+        hasUppercase,
+        hasLowercase,
+        hasNumbers,
+        hasSpecials,
+      ].filter(Boolean).length;
+
+      return typeCount >= 3;
+    },
+    {
+      message:
+        'Password must contain at least 3 of 4 character types: uppercase, lowercase, numbers, and special characters',
+    }
+  );
 
 const tokenSchema = z.string().min(10);
 

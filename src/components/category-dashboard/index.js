@@ -1710,9 +1710,6 @@ const SubcategoryCard = forwardRef(
             <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
               <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
                 <span className="flex items-center text-md break-words max-w-[90%] font-bold text-gray-800">
-                  <span
-                    className={`inline-block w-3 h-3 rounded-full mr-[6px] ${colorOptions[currentUser?.categoryColors?.[category.categoryId]] || 'bg-primary'}`}
-                  />
                   {subcategory.name}
                 </span>
                 <ActionMenu contextId={subcategory.subcategoryId}>
@@ -1799,12 +1796,19 @@ const SubcategoryCard = forwardRef(
 const CategoryCardCollapsible = ({
   category,
   subcategories,
-  color,
-  mutedColor,
+  color: _color,
+  mutedColor: _mutedColor,
 }) => {
   const [areSubcategoriesOpen, setAreSubcategoriesOpen] = useState(false);
   const [isOverlapping, setIsOverlapping] = useState(false);
   const [isGrabbing, setIsGrabbing] = useState(false);
+  const [currentUser] = useAtom(currentUserAtom);
+
+  // Compute the correct color and mutedColor for this category
+  const colorKey =
+    currentUser?.categoryColors?.[category.categoryId] || 'primary';
+  const color = colorOptions[colorKey] || 'bg-primary';
+  const mutedColor = progressBarColors[colorKey]?.muted || 'bg-primary/20';
 
   const categoryCardRef = useRef(null);
   const subcategoryRefs = useRef([
@@ -1819,45 +1823,6 @@ const CategoryCardCollapsible = ({
     transition,
     height: 'auto',
   };
-
-  useEffect(() => {
-    // Function to check overlap between category and the first subcategory
-    const checkOverlap = () => {
-      if (!categoryCardRef.current || subcategoryRefs.current.length === 0)
-        return;
-
-      if (areSubcategoriesOpen) {
-        const categoryRect = categoryCardRef.current.getBoundingClientRect();
-        const firstSubcategoryRef = subcategoryRefs.current[0]?.current;
-
-        if (!firstSubcategoryRef) return;
-
-        const subcategoryRect = firstSubcategoryRef.getBoundingClientRect();
-
-        const isOverlapping = categoryRect.bottom - 20 > subcategoryRect.top;
-
-        setIsOverlapping(isOverlapping);
-      }
-    };
-
-    const scrollAreaViewport = document.querySelector(
-      '[data-radix-scroll-area-viewport]'
-    );
-
-    if (scrollAreaViewport) {
-      scrollAreaViewport.addEventListener('scroll', checkOverlap);
-      window.addEventListener('resize', checkOverlap);
-
-      // Initial check
-      checkOverlap();
-
-      // Cleanup listeners on unmount
-      return () => {
-        scrollAreaViewport.removeEventListener('scroll', checkOverlap);
-        window.removeEventListener('resize', checkOverlap);
-      };
-    }
-  }, [categoryCardRef, subcategoryRefs, areSubcategoriesOpen]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -133,8 +133,8 @@ export async function createAccount(name, email, password, accessCode) {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 10 * 1000, // 10 minutes
+        sameSite: 'lax',
+        maxAge: 60 * 10, // 10 minutes
       }
     );
     const emailVerificationCode = crypto.randomInt(100000, 999999);

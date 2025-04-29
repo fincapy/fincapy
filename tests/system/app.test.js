@@ -67,7 +67,7 @@ test.describe('Session Validation Tests', () => {
         path: '/',
         httpOnly: true,
         secure: false,
-        sameSite: 'Strict',
+        sameSite: 'lax',
       },
     ]);
 

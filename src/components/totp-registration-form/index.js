@@ -191,7 +191,7 @@ const TOTPRegistrationForm = () => {
                 Download Backup Codes
               </Button>
               <Button
-                className="w-full text-white hover:bg-primary-dark"
+                className="w-full bg-primary text-gray-900 border border-amber-600 hover:bg-amber-600"
                 onClick={() => (window.location.href = '/app')}
               >
                 Continue to Dashboard

@@ -87,7 +87,7 @@ describe('Set Password Form Server Actions', () => {
         expect.objectContaining({
           httpOnly: true,
           path: '/',
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 600000,
         })
       );
@@ -122,7 +122,7 @@ describe('Set Password Form Server Actions', () => {
         expect.objectContaining({
           httpOnly: true,
           path: '/',
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 600000,
         })
       );
@@ -251,7 +251,7 @@ describe('Set Password Form Server Actions', () => {
         expect.objectContaining({
           httpOnly: true,
           path: '/',
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 600000,
         })
       );
@@ -285,7 +285,7 @@ describe('Set Password Form Server Actions', () => {
         expect.objectContaining({
           httpOnly: true,
           path: '/',
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 600000,
         })
       );

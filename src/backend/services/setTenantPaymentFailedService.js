@@ -1,28 +1,34 @@
 class SetTenantPaymentFailedService {
-  constructor(transactionManager, auth0Adapter, plaidAdapter) {
+  constructor(transactionManager, plaidAdapter) {
     this.transactionManager = transactionManager;
-    this.auth0Adapter = auth0Adapter;
     this.plaidAdapter = plaidAdapter;
   }
 
   async execute(email) {
-    await this.transactionManager.transaction(async ({ tenantRepository }) => {
-      const user = await this.auth0Adapter.getUserByEmail(email);
-      const tenantId = user.app_metadata.tenant_id;
-      const tenant = await tenantRepository.get({
-        tenantId,
-      });
-      tenant.billingStatus = 'payment_failed';
-      tenant.failedBillingAttempts += 1;
-      if (tenant.failedBillingAttempts >= 3) {
-        tenant.billingStatus = 'cancelled';
-        tenant.plaidItems.forEach((plaidItem) => {
-          this.plaidAdapter.deleteItem({ accessToken: plaidItem.accessToken });
+    await this.transactionManager.transaction(
+      async ({ tenantRepository, userRepository }) => {
+        const user = await userRepository.getByEmail(email);
+        const tenant = await tenantRepository.get({
+          tenantId: user.tenantId,
         });
+        tenant.billingStatus = 'payment_failed';
+        tenant.failedBillingAttempts += 1;
+        if (tenant.failedBillingAttempts >= 8) {
+          tenant.billingStatus = 'cancelled';
+          tenant.plaidItems.forEach((plaidItem) => {
+            this.plaidAdapter.deleteItem({
+              accessToken: plaidItem.accessToken,
+            });
+          });
+        }
+        tenant.plaidItems = [];
+        await tenantRepository.set({
+          tenantId: user.tenantId,
+          tenant,
+        });
+        return true;
       }
-      await tenantRepository.set({ tenantId, tenant });
-      return true;
-    });
+    );
   }
 }
 

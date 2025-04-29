@@ -119,8 +119,8 @@ export async function verifyTOTPForHighRiskAction(
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 60 * 5 * 1000, // 5 minutes
+          sameSite: 'lax',
+          maxAge: 60 * 5, // 5 minutes
         }
       );
 

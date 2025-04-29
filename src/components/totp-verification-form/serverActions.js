@@ -123,15 +123,15 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 60 * 60 * 3 * 1000, // 3 hours
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 3, // 3 hours
         });
 
         (await cookies()).set('emailPasswordAuthenticatedToken', '', {
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 0,
         });
 

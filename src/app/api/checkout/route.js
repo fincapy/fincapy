@@ -10,7 +10,7 @@ import Stripe from 'stripe';
 
 export const GET = async (req, res) => {
   // Check for Stripe API key
-  if (!process.env.STRIPE_API_KEY) {
+  if (!process.env.STRIPE_SECRET) {
     console.error('Missing required Stripe environment variables');
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
@@ -31,7 +31,9 @@ export const GET = async (req, res) => {
     return redirect('/signin');
   }
 
-  const priceId = req.query.priceId;
+  const url = new URL(req.url);
+  const priceId = url.searchParams.get('priceId');
+  console.log('priceId', priceId);
   if (!priceId) {
     return new Response(JSON.stringify({ error: 'Price ID is required' }), {
       status: 400,
@@ -40,7 +42,7 @@ export const GET = async (req, res) => {
 
   try {
     // Initialize the Stripe client
-    const stripe = new Stripe(process.env.STRIPE_API_KEY);
+    const stripe = new Stripe(process.env.STRIPE_SECRET);
 
     // Create a checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -52,8 +54,8 @@ export const GET = async (req, res) => {
       ],
       mode: 'subscription',
       customer_email: user.emails[0],
-      success_url: `${process.env.SITE_URL}/app?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.SITE_URL}/app`,
+      success_url: `${process.env.SITE_URL}/upgrade?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.SITE_URL}/upgrade`,
       metadata: {
         userId: user.id,
         tenantId: user.tenantId,

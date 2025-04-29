@@ -229,7 +229,7 @@ describe('Auth Integration Tests', () => {
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: 'lax',
         }
       );
 
@@ -355,7 +355,7 @@ describe('Auth Integration Tests', () => {
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: 'lax',
         }
       );
 

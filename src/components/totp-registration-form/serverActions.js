@@ -130,8 +130,8 @@ export async function verifyAndSaveTOTP(token, secret) {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 3 * 1000, // 3 hours
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 3, // 3 hours
     });
     return { success: true, backupCodes: codes };
   } catch (error) {

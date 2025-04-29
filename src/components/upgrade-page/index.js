@@ -1,19 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { createCheckoutSession } from './serverActions';
 
 export default function UpgradePage() {
   // Define price IDs (these would come from your Stripe account)
   const PRICE_IDS = {
-    MONTHLY: 'price_monthly123',
-    ANNUAL: 'price_annual456',
-  };
-
-  const handleUpgrade = (priceId) => {
-    fetch(`/api/checkout?priceId=${priceId}`);
+    MONTHLY: 'price_1RIhNhBN2LvRzs0wBfJYai9Q',
+    ANNUAL: 'price_1RIhOZBN2LvRzs0wsHIISRf4',
   };
 
   return (
@@ -29,31 +24,6 @@ export default function UpgradePage() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
-          {/* Monthly Plan */}
-          <Card className="flex flex-col p-6 border border-gray-300">
-            <div className="mb-4 text-center">
-              <h3 className="text-2xl font-bold">Premium Monthly</h3>
-              <p className="text-muted-foreground">Automate everything</p>
-            </div>
-            <div className="mb-4 text-center">
-              <span className="text-4xl font-bold">$14.99</span>
-              <span className="text-muted-foreground">/month</span>
-            </div>
-            <ul className="mb-6 space-y-2">
-              <PricingFeature text="Customizable categories" included />
-              <PricingFeature text="Manual transaction entry" included />
-              <PricingFeature text="Bank account linking" included />
-              <PricingFeature text="Automatic transaction imports" included />
-              <PricingFeature text="AI transaction categorization" included />
-            </ul>
-            <Button
-              className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600 mt-auto"
-              onClick={() => handleUpgrade(PRICE_IDS.MONTHLY)}
-            >
-              Upgrade Now
-            </Button>
-          </Card>
-
           {/* Annual Plan */}
           <Card className="flex flex-col p-6 border-amber-600 border-2 bg-amber-50/30 shadow-lg relative">
             <div className="absolute -top-3 -right-3 bg-amber-500 text-gray-900 px-4 py-1 rounded-full font-bold text-sm">
@@ -82,7 +52,32 @@ export default function UpgradePage() {
             </ul>
             <Button
               className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600 mt-auto"
-              onClick={() => handleUpgrade(PRICE_IDS.ANNUAL)}
+              onClick={() => createCheckoutSession(PRICE_IDS.ANNUAL)}
+            >
+              Upgrade Now
+            </Button>
+          </Card>
+
+          {/* Monthly Plan */}
+          <Card className="flex flex-col p-6 border border-gray-300">
+            <div className="mb-4 text-center">
+              <h3 className="text-2xl font-bold">Premium Monthly</h3>
+              <p className="text-muted-foreground">Automate everything</p>
+            </div>
+            <div className="mb-4 text-center">
+              <span className="text-4xl font-bold">$14.99</span>
+              <span className="text-muted-foreground">/month</span>
+            </div>
+            <ul className="mb-6 space-y-2">
+              <PricingFeature text="Customizable categories" included />
+              <PricingFeature text="Manual transaction entry" included />
+              <PricingFeature text="Bank account linking" included />
+              <PricingFeature text="Automatic transaction imports" included />
+              <PricingFeature text="AI transaction categorization" included />
+            </ul>
+            <Button
+              className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600 mt-auto"
+              onClick={() => createCheckoutSession(PRICE_IDS.MONTHLY)}
             >
               Upgrade Now
             </Button>
@@ -130,6 +125,7 @@ export default function UpgradePage() {
     </div>
   );
 }
+
 function PricingFeature({ text, included }) {
   return (
     <li className="flex items-center">

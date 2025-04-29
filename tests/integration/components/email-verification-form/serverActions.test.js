@@ -235,7 +235,7 @@ describe('Email Verification Form Server Actions', () => {
           path: '/',
           httpOnly: true,
           secure: false, // false in development
-          sameSite: 'strict',
+          sameSite: 'lax',
           maxAge: 60 * 10 * 1000, // 10 minutes
         }
       );

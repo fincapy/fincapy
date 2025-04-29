@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 import { Session } from '../domain/session';
 import jwt from 'jsonwebtoken';
 
-const SESSION_TTL_MS = 60 * 60 * 12 * 1000; // 12 hours in milliseconds
-const ROTATION_PERIOD_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
+const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours in seconds
+const ROTATION_PERIOD_SECONDS = 15 * 60; // 15 minutes in seconds
 
 class SessionManager {
   constructor({ sessionRepository }) {
@@ -18,7 +18,7 @@ class SessionManager {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
       });
     } else if (res) {
       res.cookies.set('session-id', '', {
@@ -26,7 +26,7 @@ class SessionManager {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
       });
     }
   }
@@ -36,25 +36,25 @@ class SessionManager {
       { sessionId, type: 'session' },
       process.env.JWT_SECRET,
       {
-        expiresIn: SESSION_TTL_MS / 1000, // Convert back to seconds for JWT
+        expiresIn: SESSION_TTL_SECONDS, // Convert back to seconds for JWT
         algorithm: 'HS256',
       }
     );
     if (cookies) {
       cookies.set('session-id', sessionToken, {
-        maxAge: SESSION_TTL_MS,
+        maxAge: SESSION_TTL_SECONDS,
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
       });
     } else if (res) {
       res.cookies.set('session-id', sessionToken, {
-        maxAge: SESSION_TTL_MS,
+        maxAge: SESSION_TTL_SECONDS,
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
       });
     }
   }
@@ -93,7 +93,7 @@ class SessionManager {
       return false;
     }
 
-    if (Date.now() - session.createdAt > SESSION_TTL_MS) {
+    if (Date.now() - session.createdAt > SESSION_TTL_SECONDS * 1000) {
       await this.sessionRepository.delete({
         sessionId: providedSessionId.sessionId,
       });
@@ -101,7 +101,7 @@ class SessionManager {
       return false;
     }
 
-    if (Date.now() - session.createdAt > ROTATION_PERIOD_MS) {
+    if (Date.now() - session.createdAt > ROTATION_PERIOD_SECONDS * 1000) {
       await this.sessionRepository.delete({
         sessionId: providedSessionId.sessionId,
       });
@@ -115,7 +115,7 @@ class SessionManager {
       });
       await this.sessionRepository.set({
         session: newSession,
-        ttl: SESSION_TTL_MS / 1000, // Convert to seconds for Redis TTL
+        ttl: SESSION_TTL_SECONDS,
       });
       this.setCookie({ res, cookies, sessionId: newSession.sessionId });
       return newSession;
@@ -159,7 +159,7 @@ class SessionManager {
       return false;
     }
 
-    if (Date.now() - session.createdAt > SESSION_TTL_MS) {
+    if (Date.now() - session.createdAt > SESSION_TTL_SECONDS * 1000) {
       return false;
     }
     return session;
@@ -183,7 +183,7 @@ class SessionManager {
       createdAt: Date.now(),
       lastRotated: Date.now(),
     });
-    await this.sessionRepository.set({ session, ttl: SESSION_TTL_MS / 1000 }); // Convert to seconds for Redis TTL
+    await this.sessionRepository.set({ session, ttl: SESSION_TTL_SECONDS }); // Convert to seconds for Redis TTL
     this.setCookie({ res, cookies, sessionId: session.sessionId });
     return session;
   }

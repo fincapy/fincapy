@@ -582,6 +582,7 @@ export async function getOnboardingStatus() {
     if (!session) return redirect('/signin');
     const key = `user_prefs:${session.userId}:onboarding`;
     const result = await redisAdapter.get(key);
+    if (!result) return 'false';
     const resultString = result.toString();
     return resultString === 'true';
   } catch (error) {

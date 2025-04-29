@@ -4,11 +4,11 @@ import { SetTenantPaymentFailedService } from '@/backend/services/setTenantPayme
 import { SetTenantCancelledService } from '@/backend/services/setTenantCancelledService';
 import { TenantRepository } from '@/backend/adapters/repositories/TenantRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
-import { Auth0Adapter, auth0Client } from '@/backend/adapters/auth0';
 import { PlaidAdapter, client } from '@/backend/adapters/plaid';
+import { TransactionManager } from '@/backend/adapters/transactionManager';
 
 export const POST = async (req) => {
-  if (!process.env.STRIPE_API_KEY || !process.env.STRIPE_ENDPOINT_SECRET) {
+  if (!process.env.STRIPE_SECRET || !process.env.STRIPE_WHSEC) {
     console.error('Missing required Stripe environment variables');
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
@@ -22,7 +22,7 @@ export const POST = async (req) => {
     });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_API_KEY);
+  const stripe = new Stripe(process.env.STRIPE_SECRET);
 
   let event;
   try {
@@ -30,52 +30,32 @@ export const POST = async (req) => {
     event = stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      process.env.STRIPE_ENDPOINT_SECRET
+      process.env.STRIPE_WHSEC
     );
   } catch (error) {
-    console.log(error);
+    console.log('stripe webhook failed to parse event');
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 400,
     });
   }
 
-  const redisAdapter = new RedisAdapter({ redisClient });
-  const tenantRepository = new TenantRepository({ redisAdapter });
-  const auth0Adapter = new Auth0Adapter({ client: auth0Client });
   const plaidAdapter = new PlaidAdapter({ client });
+  const transactionManager = new TransactionManager();
   let service;
   switch (event.type) {
     case 'invoice.payment_succeeded':
-      try {
-        service = new SetTenantPaymentSucceededService(
-          tenantRepository,
-          auth0Adapter
-        );
-        await service.execute(event.data.object.customer_email);
-      } catch (error) {
-        console.log(error);
-        return new Response(
-          JSON.stringify({ error: 'Internal server error' }),
-          {
-            status: 500,
-          }
-        );
-      }
+      service = new SetTenantPaymentSucceededService(transactionManager);
+      await service.execute(event.data.object.customer_email);
       break;
     case 'invoice.payment_failed':
       service = new SetTenantPaymentFailedService(
-        tenantRepository,
-        auth0Adapter,
+        transactionManager,
         plaidAdapter
       );
       await service.execute(event.data.object.customer_email);
       break;
     case 'customer.subscription.deleted':
-      service = new SetTenantCancelledService(
-        tenantRepository,
-        auth0Adapter,
-        plaidAdapter
-      );
+      service = new SetTenantCancelledService(transactionManager, plaidAdapter);
       await service.execute(event.data.object.customer_email);
       break;
     default:

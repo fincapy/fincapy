@@ -1,24 +1,28 @@
 class SetTenantCancelledService {
-  constructor(transactionManager, auth0Adapter) {
+  constructor(transactionManager, plaidAdapter) {
     this.transactionManager = transactionManager;
-    this.auth0Adapter = auth0Adapter;
     this.plaidAdapter = plaidAdapter;
   }
 
   async execute(email) {
-    await this.transactionManager.transaction(async ({ tenantRepository }) => {
-      const user = await this.auth0Adapter.getUserByEmail(email);
-      const tenantId = user.app_metadata.tenant_id;
-      const tenant = await tenantRepository.get({
-        tenantId,
-      });
-      tenant.billingStatus = 'cancelled';
-      tenant.plaidItems.forEach((plaidItem) => {
-        this.plaidAdapter.deleteItem({ accessToken: plaidItem.accessToken });
-      });
-      await tenantRepository.set({ tenantId, tenant });
-      return true;
-    });
+    await this.transactionManager.transaction(
+      async ({ tenantRepository, userRepository }) => {
+        const user = await userRepository.getByEmail(email);
+        const tenant = await tenantRepository.get({
+          tenantId: user.tenantId,
+        });
+        tenant.billingStatus = 'cancelled';
+        tenant.plaidItems.forEach((plaidItem) => {
+          this.plaidAdapter.deleteItem({ accessToken: plaidItem.accessToken });
+        });
+        tenant.plaidItems = [];
+        await tenantRepository.set({
+          tenantId: user.tenantId,
+          tenant,
+        });
+        return true;
+      }
+    );
   }
 }
 

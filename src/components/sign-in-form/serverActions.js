@@ -110,8 +110,8 @@ async function authenticateEmailPassword(rawInput) {
             path: '/',
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 10 * 1000, // 10 minutes
+            sameSite: 'lax',
+            maxAge: 60 * 10, // 10 minutes
           }
         );
 

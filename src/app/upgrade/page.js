@@ -12,7 +12,7 @@ export default async function SignUpPage() {
   });
 
   const cookiesList = await cookies();
-  const session = await sessionManager.touchSession({
+  const session = await sessionManager.getSession({
     cookies: cookiesList,
   });
   if (!session) {

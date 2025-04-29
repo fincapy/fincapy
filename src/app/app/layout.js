@@ -83,6 +83,7 @@ export default async function Layout({ children }) {
         users={users}
         pageParam={page}
         nonce={nonce}
+        billingStatus={tenant.billingStatus}
       >
         {children}
       </DashboardLayout>

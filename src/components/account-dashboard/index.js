@@ -50,6 +50,7 @@ import {
   currentUserRoleAtom,
   currentUserAtom,
   nonceAtom,
+  billingStatusAtom,
 } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -93,6 +94,7 @@ import { useAtom } from 'jotai';
 import { InputTOTP } from '../input-totp';
 import { PlusIcon } from 'lucide-react';
 import SubmitButton from '../SubmitButton';
+import { PaywallOverlay } from '../ui/paywall-overlay';
 
 const AccountPage = ({ setPage, userEmail }) => {
   const { toast } = useToast();
@@ -100,6 +102,7 @@ const AccountPage = ({ setPage, userEmail }) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const billingStatus = useAtomValue(billingStatusAtom);
 
   // Reauthentication state
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
@@ -419,7 +422,7 @@ const AccountPage = ({ setPage, userEmail }) => {
     <div className="flex w-full flex-col h-full">
       <div className="max-w-6xl w-[95%] mx-auto">
         {/* Mobile dropdown navigation */}
-        <div className="md:hidden w-full my-4 sticky top-0 z-30 bg-card/95 backdrop-blur rounded-xl shadow px-2 py-2">
+        <div className="md:hidden w-full my-4 sticky top-0 z-50 bg-card/95 backdrop-blur rounded-xl shadow px-2 py-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -612,7 +615,7 @@ const AccountPage = ({ setPage, userEmail }) => {
 
         <div className="w-full mb-16">
           {activeTab === 'profile' && (
-            <div className="space-y-6">
+            <div className="space-y-6 relative">
               {/* Profile Header */}
               <div className="flex flex-col items-center justify-center mb-2">
                 <UserRound className="h-12 w-12 text-primary mb-2" />
@@ -800,7 +803,7 @@ const AccountPage = ({ setPage, userEmail }) => {
           )}
 
           {activeTab === 'users' && currentUser.role === 'owner' && (
-            <div className="w-full overflow-x-auto space-y-6">
+            <div className="w-full overflow-x-auto space-y-6 relative">
               {/* Users Tab Header */}
               <div className="flex flex-col items-center justify-center mb-2">
                 <Users className="h-12 w-12 text-primary mb-2" />
@@ -816,61 +819,71 @@ const AccountPage = ({ setPage, userEmail }) => {
           )}
 
           {activeTab === 'financial-institutions' && (
-            <div className="w-full overflow-x-auto">
-              <FinancialInstitutionsDashboard />
+            <div className="w-full overflow-x-auto relative">
+              <PaywallOverlay
+                title="Upgrade Your Plan"
+                description="Upgrade to a paid plan to connect unlimited financial institutions and automatically import transactions."
+              >
+                <FinancialInstitutionsDashboard />
+              </PaywallOverlay>
             </div>
           )}
 
           {activeTab === 'billing' && currentUser.role === 'owner' && (
             <div className="space-y-6">
               {/* Billing Header */}
-              <div className="flex flex-col items-center justify-center mb-2">
-                <CreditCard className="h-12 w-12 text-primary mb-2" />
-                <h2 className="text-2xl font-bold mb-1">
-                  Billing & Subscription
-                </h2>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Manage your subscription, payment methods, and invoices
-                  securely. All payments are processed by Stripe.
-                </p>
-              </div>
+              <PaywallOverlay
+                title="Upgrade Your Plan"
+                description="Upgrade to a paid plan to manage your subscription, payment methods, and invoices securely. All payments are processed by Stripe."
+              >
+                <div className="flex flex-col items-center justify-center mb-2">
+                  <CreditCard className="h-12 w-12 text-primary mb-2" />
+                  <h2 className="text-2xl font-bold mb-1">
+                    Billing & Subscription
+                  </h2>
+                  <p className="text-muted-foreground text-center max-w-md">
+                    Manage your subscription, payment methods, and invoices
+                    securely. All payments are processed by Stripe.
+                  </p>
+                </div>
 
-              {/* Billing Card */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col items-center gap-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <CreditCard className="h-8 w-8 text-primary" />
-                  <span className="text-lg font-semibold">
-                    Subscription Management
-                  </span>
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                    Powered by Stripe
-                  </span>
+                {/* Billing Card */}
+                <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col items-center gap-4 relative">
+                  <div className="flex items-center gap-3 mb-2">
+                    <CreditCard className="h-8 w-8 text-primary" />
+                    <span className="text-lg font-semibold">
+                      Subscription Management
+                    </span>
+                    <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                      Powered by Stripe
+                    </span>
+                  </div>
+                  <p className="text-md text-muted-foreground mb-4 text-center">
+                    Upgrade your subscription, change payment methods, or cancel
+                    anytime.
+                  </p>
+                  <a
+                    href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full md:w-auto"
+                  >
+                    <SubmitButton className="w-full md:w-auto font-semibold flex items-center gap-2">
+                      <CreditCard className="h-5 w-5" />
+                      Manage Billing
+                    </SubmitButton>
+                  </a>
+                  <div className="mt-4 text-sm text-muted-foreground text-center">
+                    Your payment information is encrypted and securely processed
+                    by Stripe. We never store your card details.
+                  </div>
                 </div>
-                <p className="text-md text-muted-foreground mb-4 text-center">
-                  Upgrade your subscription, change payment methods, or cancel
-                  anytime.
-                </p>
-                <a
-                  href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full md:w-auto"
-                >
-                  <SubmitButton className="w-full md:w-auto font-semibold flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Manage Billing
-                  </SubmitButton>
-                </a>
-                <div className="mt-4 text-sm text-muted-foreground text-center">
-                  Your payment information is encrypted and securely processed
-                  by Stripe. We never store your card details.
-                </div>
-              </div>
+              </PaywallOverlay>
             </div>
           )}
 
           {activeTab === 'security' && (
-            <div className="space-y-6">
+            <div className="space-y-6 relative">
               {/* Security Header */}
               <div className="flex flex-col items-center justify-center mb-2">
                 <Shield className="h-12 w-12 text-primary mb-2" />

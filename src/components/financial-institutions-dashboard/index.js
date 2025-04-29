@@ -34,17 +34,19 @@ import {
 import React from 'react';
 import Script from 'next/script';
 import { PlaidItemsContext } from '../dashboard-layout/plaidItemsContext';
-import { useAtom, useSetAtom } from 'jotai';
-import { plaidItemsAtom, isLoadingAtom } from '../state/atoms';
-import { useToast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import {
-  usersAtom,
+  plaidItemsAtom,
+  isLoadingAtom,
   nonceAtom,
   plaidItemDisplayNamesAtom,
   currentUserIdAtom,
+  billingStatusAtom,
 } from '../state/atoms';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import { PaywallOverlay } from '../ui/paywall-overlay';
 import { v4 as uuidv4 } from 'uuid';
 
 const DeletePlaidItemDialogue = ({
@@ -411,6 +413,8 @@ export default function FinancialInstitutionsDashboard() {
   const [currentUserId, setCurrentUserId] = useAtom(currentUserIdAtom);
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [nonce, setNonce] = useAtom(nonceAtom);
+  const billingStatus = useAtomValue(billingStatusAtom);
+
   useEffect(() => {
     if (plaidItemsState) {
       const timer = setTimeout(() => {
@@ -419,9 +423,10 @@ export default function FinancialInstitutionsDashboard() {
       return () => clearTimeout(timer);
     }
   }, [plaidItemsState]);
+
   return (
     <div className="flex w-full flex-col h-full">
-      <div className="max-w-6xl w-[95%] mx-auto">
+      <div className="max-w-6xl w-[95%] mx-auto relative">
         {/* Dashboard Header */}
         <div className="flex flex-col items-center justify-center mb-2">
           <Landmark className="h-12 w-12 text-primary mb-2" />
@@ -443,7 +448,13 @@ export default function FinancialInstitutionsDashboard() {
           }}
         />
         {/* Section Card for Institutions */}
-        <div className="bg-card rounded-xl border border-border p-6 shadow-md mt-6 w-full">
+        <div className="bg-card rounded-xl border border-border p-6 shadow-md mt-6 w-full relative">
+          {billingStatus === 'free' && (
+            <PaywallOverlay
+              title="Connect Financial Accounts"
+              description="Upgrade to a paid plan to connect unlimited financial institutions and automatically import transactions."
+            />
+          )}
           <div className="flex items-center gap-4 mb-4">
             <Landmark className="h-8 w-8 text-primary" />
             <span className="text-lg font-semibold">Linked Institutions</span>

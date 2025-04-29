@@ -39,7 +39,7 @@ class SetupNewTenantService {
           plaidItems: [],
           outbox: [],
           inbox: [],
-          billingStatus: whitelistBilling ? 'active' : 'unpaid',
+          billingStatus: 'free',
           users: [user],
           failedBillingAttempts: 0,
         });

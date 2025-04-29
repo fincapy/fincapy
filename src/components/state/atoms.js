@@ -84,3 +84,5 @@ export const currentUserAtom = atom(null);
 export const currentUserRoleAtom = atom(null);
 
 export const nonceAtom = atom(null);
+
+export const billingStatusAtom = atom(null);

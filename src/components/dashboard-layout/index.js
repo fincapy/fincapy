@@ -53,6 +53,7 @@ import {
   currentUserRoleAtom,
   nonceAtom,
   currentUserAtom,
+  billingStatusAtom,
 } from '../state/atoms';
 import { useSetAtom } from 'jotai';
 import { useRef } from 'react';
@@ -235,6 +236,7 @@ export default function DashboardLayout({
   users,
   plaidItems,
   pageParam,
+  billingStatus,
   nonce,
 }) {
   const firstRender = useRef(true);
@@ -282,7 +284,7 @@ export default function DashboardLayout({
     endDate: endDateState,
   });
   const setNonce = useSetAtom(nonceAtom);
-
+  const setBillingStatus = useSetAtom(billingStatusAtom);
   useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(
@@ -315,6 +317,7 @@ export default function DashboardLayout({
         setCurrentUserId(userId);
         setCurrentUserRole(userRole);
         setNonce(nonce);
+        setBillingStatus(billingStatus);
       } else {
         if (
           startDateState === previousDates.current.startDate &&

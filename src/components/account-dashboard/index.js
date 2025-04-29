@@ -424,10 +424,13 @@ const AccountPage = ({ setPage, userEmail }) => {
         {/* Mobile dropdown navigation */}
         <div className="md:hidden w-full my-4 sticky top-0 z-50 bg-card/95 backdrop-blur rounded-xl shadow px-2 py-2">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger
+              asChild
+              className="!outline-none !ring-0 !focus:outline-none !focus:ring-0 !focus:ring-offset-0 !focus-visible:outline-none !focus-visible:ring-0"
+            >
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-between text-md rounded-lg bg-background/80 shadow-sm border border-border px-4 py-3 font-semibold focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+                className="w-full flex items-center justify-between text-md rounded-lg bg-background/80 shadow-sm border border-border px-4 py-3 font-semibold !outline-none !ring-0 !focus:outline-none !focus:ring-0 !focus:border-border !focus-visible:ring-0 !focus-visible:ring-offset-0 !focus-visible:outline-none !focus-visible:border-border transition-none focus:transition-none active:transition-none"
               >
                 <span className="flex items-center text-md">
                   {activeTab === 'profile' && (

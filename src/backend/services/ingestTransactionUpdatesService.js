@@ -212,19 +212,18 @@ class IngestTransactionUpdatesService {
           });
           for (const plan of tenant.plans) {
             const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-            const transactionEdits = plan.transactionEdits.map((edit) => {
-              if (
-                edit.oldTransactionDescription !==
-                edit.newTransactionDescription
-              ) {
-                return {
-                  created_at: edit.createdAt,
-                  description: edit.oldTransactionDescription,
-                  original_category: edit.oldTransactionCategory,
-                  user_override_category: edit.newTransactionCategory,
-                };
-              }
-            });
+            const transactionEdits = plan.transactionEdits
+              .filter(
+                (edit) =>
+                  edit.oldTransactionDescription !==
+                  edit.newTransactionDescription
+              )
+              .map((edit) => ({
+                created_at: edit.createdAt,
+                description: edit.oldTransactionDescription,
+                original_category: edit.oldTransactionCategory,
+                user_override_category: edit.newTransactionCategory,
+              }));
 
             const uniqueTransactionEdits = transactionEdits
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending (newest first)
@@ -276,7 +275,7 @@ class IngestTransactionUpdatesService {
           plaidItem.cursor = plaidTransactions.next_cursor;
           plaidItem.lastIngestedAt = new Date();
         } catch (error) {
-          console.error('error ingesting transactions for plaidItem', error);
+          console.error('error ingesting transactions for plaidItem');
           if (error.response?.data?.error_code === 'ITEM_LOGIN_REQUIRED') {
             plaidItem.status = 'item_login_required';
             const primaryEmail = tenant.users.find(

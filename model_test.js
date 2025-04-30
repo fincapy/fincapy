@@ -5,26 +5,7 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 
 async function main() {
-  const transactionEdits = [
-    {
-      created_at: '2024-01-01',
-      description: 'Whole Foods',
-      original_category: 'spending.fixed_costs',
-      user_override_category: 'spending.fixed_costs.groceries',
-    },
-    {
-      created_at: '2024-01-02',
-      description: 'Whole Foods',
-      original_category: 'spending.fixed_costs.groceries',
-      user_override_category: 'spending.guilt_free_spending.fun_budget',
-    },
-    {
-      created_at: '2024-01-03',
-      description: 'Shell',
-      original_category: 'spending.fixed_costs.gas',
-      user_override_category: 'spending.fixed_costs.groceries',
-    },
-  ];
+  const transactionEdits = [];
 
   // filter the new transaction edits so that they have unique descriptions, but always take the most recent edit
   const uniqueTransactionEdits = transactionEdits
@@ -34,6 +15,8 @@ async function main() {
         self.findIndex((t) => t.description === edit.description) === index
     )
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  console.log(uniqueTransactionEdits);
 
   const createPrompt = () => {
     return `

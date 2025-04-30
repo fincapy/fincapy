@@ -31,12 +31,13 @@ class IngestTransactionUpdatesService {
     plaidTransactions,
     plaidTransaction,
     plan,
+    uniqueTransactionEditsString,
     categoryIdToNameMap
   ) {
     const aiTransactionCategories =
       await this.openaiAdapter.categorizeTransaction({
         categoryIdToNameMap,
-        transactionEdits: plan.transactionEdits,
+        transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
         transactionCategory: plaidTransaction.personal_finance_category.primary,
         transactionCategoryConfidenceLevel:
@@ -104,12 +105,13 @@ class IngestTransactionUpdatesService {
     plaidTransactions,
     plaidTransaction,
     plan,
+    uniqueTransactionEditsString,
     categoryIdToNameMap
   ) {
     const aiTransactionCategories =
       await this.openaiAdapter.categorizeTransaction({
         categoryIdToNameMap,
-        transactionEdits: plan.transactionEdits,
+        transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
         transactionCategory: plaidTransaction.personal_finance_category.primary,
         transactionCategoryConfidenceLevel:
@@ -210,9 +212,36 @@ class IngestTransactionUpdatesService {
           });
           for (const plan of tenant.plans) {
             const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
+            const transactionEdits = plan.transactionEdits.map((edit) => {
+              if (
+                edit.oldTransactionDescription !==
+                edit.newTransactionDescription
+              ) {
+                return {
+                  created_at: edit.createdAt,
+                  description: edit.oldTransactionDescription,
+                  original_category: edit.oldTransactionCategory,
+                  user_override_category: edit.newTransactionCategory,
+                };
+              }
+            });
 
-            // Process added transactions in batches of 5
-            const batchSize = 1;
+            const uniqueTransactionEdits = transactionEdits
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending (newest first)
+              .filter(
+                (edit, index, self) =>
+                  self.findIndex((t) => t.description === edit.description) ===
+                  index
+              )
+              .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+            const uniqueTransactionEditsString = JSON.stringify(
+              uniqueTransactionEdits,
+              null,
+              2
+            );
+
+            const batchSize = 500;
             const addedTransactions = plaidTransactions.added;
 
             for (let i = 0; i < addedTransactions.length; i += batchSize) {
@@ -223,6 +252,7 @@ class IngestTransactionUpdatesService {
                     plaidTransactions,
                     plaidTransaction,
                     plan,
+                    uniqueTransactionEditsString,
                     categoryIdToNameMap
                   )
                 )
@@ -234,6 +264,7 @@ class IngestTransactionUpdatesService {
                 plaidTransactions,
                 plaidTransaction,
                 plan,
+                uniqueTransactionEditsString,
                 categoryIdToNameMap
               );
             }

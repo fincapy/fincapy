@@ -9,7 +9,8 @@ import Stripe from 'stripe';
 import { cookies } from 'next/headers';
 
 export default async function UpgradeComplete({ searchParams }) {
-  const stripeSessionId = searchParams.session_id;
+  const params = await searchParams;
+  const stripeSessionId = params.session_id;
 
   const redisAdapter = new RedisAdapter({ redisClient });
   const sessionManager = new SessionManager({

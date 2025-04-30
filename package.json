@@ -12,7 +12,8 @@
     "consume": "node ./src/backend/consumer.js",
     "vitest": "vitest --exclude=tests/system",
     "vitest:agent": "vitest --run --silent --exclude=tests/system",
-    "test:system": "npx playwright test --project=chromium --workers=6"
+    "test:system": "npx playwright test --project=chromium --workers=6",
+    "test:model": "node model_test.js"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",

@@ -2024,13 +2024,13 @@ export default function CategoryDashboard({ type, categories }) {
 
   // Onboarding modal state (server-driven)
   const [onboardingOpen, setOnboardingOpen] = useState(false);
-  useEffect(() => {
-    const fetchStatus = async () => {
-      const done = await getOnboardingStatus();
-      if (!done) setOnboardingOpen(true);
-    };
-    fetchStatus();
-  }, []);
+  // useEffect(() => {
+  //   const fetchStatus = async () => {
+  //     const done = await getOnboardingStatus();
+  //     if (!done) setOnboardingOpen(true);
+  //   };
+  //   fetchStatus();
+  // }, []);
 
   useEffect(() => {
     if (!localStorage.getItem('mp_existing_user')) {

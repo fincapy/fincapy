@@ -39,7 +39,7 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(1); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(500); // Limit for requests per minute
   }
 
   async categorizeTransaction({
@@ -53,38 +53,30 @@ class OpenaiAdapter {
     transactionAccountType,
     transactionSubAccountType,
   }) {
+    // multiply by -1 to make it negative and then add a + or - sign if positive or negative
+    const formatTransactionAmount = (amount) => {
+      const formattedAmount = amount * -1;
+      return formattedAmount > 0 ? `+${formattedAmount}` : formattedAmount;
+    };
+
     const createPrompt = () => {
       return `
-      You are an expert transaction categorization assistant. When given transaction details and lists of valid values, your task is to output exactly one JSON object with two keys: "category" and "type". Use only the values provided in the valid lists.
+        Follow these rules:
+        1. Valid types: 
+            1a. "spending": a negative (-) amount
+            1b. "transfer": a negative (-) amount
+            1c. "credit_card_payment": a positive (+) amount
+            1d. "refund": a positive (+) amount
+            1e. "income": a positive (+) amount
+        2. "refund" types must use the same category as if they were "spending" types.
+        3. The most recent edit's user_override_category with a description relevant to the transaction should be used.
 
-      Rules:
-      - Incoming (negative amounts) typically include refunds, interest, credit card payments, credit card refunds, and income.
-      - Outgoing (positive amounts) typically include purchases, withdrawals, and transfers.
-      - Refunds must mirror their original purchase's category.
-      - Reference edited transactions for consistency.
-      - Determine the transaction type based on the following rules:
-        - "spending": Purchases, payments, and withdrawals.
-        - "transfer": Movement of money between accounts of the same owner.
-        - "credit_card_payment": Payments made to a credit card.
-        - "credit_card_refund": Refunds for purchases made with a credit card.
-        - "debit_card_refund": Refunds for purchases made with a debit card.
-        - "investment_transfer": Transfers to or from an investment account.
-        - "interest_income": Interest earned on an account.
-        - "income": Salary, deposits, or other sources of revenue.
-      - Only use these valid values:
-        - Categories: ${JSON.stringify(Object.values(categoryIdToNameMap))}
-        - Types: ${JSON.stringify(transactionTypes)}
+        Past edits from least recent to most recent:
+        ${transactionEdits}
 
-      Edited by user: ${JSON.stringify(transactionEdits)}
-
-      Transaction:
-      - Amount: ${transactionAmount}
-      - Merchant: ${transactionMerchantName}
-      - Description: ${transactionOriginalDescription}
-      - Acct: ${transactionAccountType}
-      - Sub-Acct: ${transactionSubAccountType}
-      
-      CRITICAL: YOUR RESPONSE MUST BE VALID JSON. PREVIOUS ATTEMPTS FAILED TO PARSE.
+        Transaction:
+        - Amount: ${formatTransactionAmount(transactionAmount)}
+        - Description: ${transactionOriginalDescription}
       `;
     };
 
@@ -97,7 +89,12 @@ class OpenaiAdapter {
 
       // Format for Bedrock Converse API
       const requestBody = {
-        modelId: process.env.MODEL_ID,
+        modelId: 'us.meta.llama4-maverick-17b-instruct-v1:0',
+        system: [
+          {
+            text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters.',
+          },
+        ],
         messages: [
           {
             role: 'user',
@@ -110,8 +107,38 @@ class OpenaiAdapter {
         ],
         inferenceConfig: {
           maxTokens: 3000,
-          temperature: 1,
-          topP: 0.95,
+          temperature: 0,
+          topP: 1,
+        },
+        toolConfig: {
+          tools: [
+            {
+              toolSpec: {
+                name: 'categorize_transaction',
+                description:
+                  'Categorize a transaction given a transaction and a list of past user edits',
+                inputSchema: {
+                  json: {
+                    type: 'object',
+                    properties: {
+                      type: {
+                        type: 'string',
+                        description:
+                          'Type of the transaction. "refund", "income", and "credit_card_payment" will be positive (+) amounts. "spending" and "transfer" will be negative (-) amounts.',
+                        enum: transactionTypes,
+                      },
+                      category: {
+                        type: 'string',
+                        description: 'Category of the transaction.',
+                        enum: Object.values(categoryIdToNameMap),
+                      },
+                    },
+                    required: ['type', 'category'],
+                  },
+                },
+              },
+            },
+          ],
         },
       };
 
@@ -123,30 +150,12 @@ class OpenaiAdapter {
         const command = new ConverseCommand(requestBody);
 
         const response = await client.send(command);
-        let rawOutput = response.output.message.content[0].text;
         const { inputTokens, outputTokens, totalTokens } = response.usage;
         console.log(`Input Tokens: ${inputTokens}`);
         console.log(`Output Tokens: ${outputTokens}`);
         console.log(`Total Tokens: ${totalTokens}`);
 
-        // Clean up the output to handle potential markdown or other formatting
-        rawOutput = rawOutput
-          .replace(/^```json\s*/, '')
-          .replace(/\s*```$/, '')
-          .trim();
-
-        // Try to find JSON in the response if it's not already valid JSON
-        if (!rawOutput.startsWith('{')) {
-          const jsonMatch = rawOutput.match(/({[\s\S]*})/);
-          if (jsonMatch) {
-            rawOutput = jsonMatch[1];
-          }
-        }
-
-        // Parse the JSON
-        categories = JSON.parse(rawOutput);
-
-        // If we got here, parsing succeeded
+        categories = response.output.message.content[0].toolUse.input;
         break;
       } catch (error) {
         console.error(`Attempt ${attemptCount + 1} failed:`, error.message);

@@ -7,7 +7,7 @@ class SetTenantPaymentFailedService {
   async execute(email) {
     await this.transactionManager.transaction(
       async ({ tenantRepository, userRepository }) => {
-        const user = await userRepository.getByEmail(email);
+        const user = await userRepository.getByEmail({ email });
         const tenant = await tenantRepository.get({
           tenantId: user.tenantId,
         });

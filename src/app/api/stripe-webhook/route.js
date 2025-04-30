@@ -44,7 +44,6 @@ export const POST = async (req) => {
   let service;
   switch (event.type) {
     case 'invoice.payment_succeeded':
-      console.log('customer_email', event.data.object.customer_email);
       service = new SetTenantPaymentSucceededService(transactionManager);
       await service.execute(event.data.object.customer_email);
       break;

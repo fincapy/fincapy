@@ -276,7 +276,7 @@ class IngestTransactionUpdatesService {
           plaidItem.cursor = plaidTransactions.next_cursor;
           plaidItem.lastIngestedAt = new Date();
         } catch (error) {
-          console.error('error ingesting transactions for plaidItem');
+          console.error('error ingesting transactions for plaidItem', error);
           if (error.response?.data?.error_code === 'ITEM_LOGIN_REQUIRED') {
             plaidItem.status = 'item_login_required';
             const primaryEmail = tenant.users.find(

@@ -164,7 +164,7 @@ const createCategoryFormSchema = z.object({
 
 const CreateCategoryForm = ({ setDialogOpen }) => {
   const [planState, setPlanState] = useAtom(planAtom);
-  const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const { toast } = useToast();
   const type = useContext(TypeContext);
   const form = useForm({
@@ -234,7 +234,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     const otherSubcategoryId = categoryId + '_other';
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
-    const newCurrentUser = { ...currentUserRole };
+    const newCurrentUser = { ...currentUser };
     newCurrentUser.categoryColors = {
       ...newCurrentUser.categoryColors,
       [categoryId]: color,
@@ -247,6 +247,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       isImmutable: false,
       otherSubcategoryId,
     });
+    setCurrentUser(newCurrentUser);
     setPlanState(newPlan);
     setDialogOpen(false);
     handleCategoryCreation({

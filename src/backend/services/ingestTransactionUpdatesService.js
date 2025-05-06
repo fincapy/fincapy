@@ -17,14 +17,124 @@ class IngestTransactionUpdatesService {
     plan.categories.forEach((category) => {
       if (category.categoryId.includes('other')) {
         categoryIdToNameMap[category.categoryId] =
-          `${category.type}.${category.name.toLowerCase().replace(' ', '_')}`;
+          `${category.type}.${category.name.toLowerCase().replaceAll(' ', '_')}`;
       }
       category.subcategories.forEach((subcategory) => {
         categoryIdToNameMap[subcategory.subcategoryId] =
-          `${category.type}.${category.name.toLowerCase().replace(' ', '_')}.${subcategory.name.toLowerCase().replace(' ', '_')}`;
+          `${category.type}.${category.name.toLowerCase().replaceAll(' ', '_')}.${subcategory.name.toLowerCase().replaceAll(' ', '_')}`;
       });
     });
     return categoryIdToNameMap;
+  }
+
+  /**
+   * Determine transaction type based on Plaid's transaction details
+   * @private
+   */
+  _determineTransactionType(plaidTransactions, plaidTransaction) {
+    const detailedCategory =
+      plaidTransaction.personal_finance_category.detailed;
+
+    // Credit card payment
+    if (detailedCategory === 'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT') {
+      return 'credit_card_payment';
+    }
+
+    // Account transfers with potential matching transactions
+    if (detailedCategory === 'TRANSFER_IN_ACCOUNT_TRANSFER') {
+      return this._handleTransferIn(plaidTransactions, plaidTransaction);
+    }
+
+    if (detailedCategory === 'TRANSFER_OUT_ACCOUNT_TRANSFER') {
+      return this._handleTransferOut(plaidTransactions, plaidTransaction);
+    }
+
+    // Income categories
+    if (this._isIncomeCategory(detailedCategory)) {
+      return 'income';
+    }
+
+    // Spending categories
+    if (this._isSpendingCategory(detailedCategory)) {
+      return 'spending';
+    }
+
+    // Other transfers
+    if (detailedCategory.startsWith('TRANSFER_')) {
+      return 'transfer';
+    }
+
+    // Default cases based on amount
+    return plaidTransaction.amount < 0 ? 'refund' : 'spending';
+  }
+
+  /**
+   * Check if detailed category represents income
+   * @private
+   */
+  _isIncomeCategory(detailedCategory) {
+    return (
+      detailedCategory.startsWith('INCOME_') ||
+      detailedCategory === 'TRANSFER_IN_DEPOSIT' ||
+      detailedCategory === 'TRANSFER_IN_CASH_ADVANCES_AND_LOANS' ||
+      detailedCategory === 'TRANSFER_IN_OTHER_TRANSFER_IN'
+    );
+  }
+
+  /**
+   * Check if detailed category represents spending
+   * @private
+   */
+  _isSpendingCategory(detailedCategory) {
+    return (
+      detailedCategory === 'TRANSFER_OUT_WITHDRAWAL' ||
+      detailedCategory === 'TRANSFER_OUT_OTHER_TRANSFER_OUT'
+    );
+  }
+
+  /**
+   * Handle transfer in transactions
+   * @private
+   */
+  _handleTransferIn(plaidTransactions, plaidTransaction) {
+    const contraTransaction = this._findMatchingTransfer(
+      plaidTransactions,
+      plaidTransaction,
+      'TRANSFER_OUT_ACCOUNT_TRANSFER'
+    );
+
+    return contraTransaction ? 'transfer' : 'income';
+  }
+
+  /**
+   * Handle transfer out transactions
+   * @private
+   */
+  _handleTransferOut(plaidTransactions, plaidTransaction) {
+    const contraTransaction = this._findMatchingTransfer(
+      plaidTransactions,
+      plaidTransaction,
+      'TRANSFER_IN_ACCOUNT_TRANSFER'
+    );
+
+    return contraTransaction ? 'transfer' : 'spending';
+  }
+
+  /**
+   * Find matching transfer transaction
+   * @private
+   */
+  _findMatchingTransfer(
+    plaidTransactions,
+    plaidTransaction,
+    detailedCategoryToMatch
+  ) {
+    return plaidTransactions.added.find(
+      (transaction) =>
+        transaction.amount === plaidTransaction.amount * -1 &&
+        transaction.personal_finance_category.detailed ===
+          detailedCategoryToMatch
+    );
   }
 
   async addTransaction(
@@ -34,24 +144,58 @@ class IngestTransactionUpdatesService {
     uniqueTransactionEditsString,
     categoryIdToNameMap
   ) {
-    const aiTransactionCategories =
-      await this.openaiAdapter.categorizeTransaction({
-        categoryIdToNameMap,
+    const transactionType = this._determineTransactionType(
+      plaidTransactions,
+      plaidTransaction
+    );
+    let transactionCategory;
+
+    if (['spending', 'refund'].includes(transactionType)) {
+      // filter categoryIdToNameMap to only include category id keys that have values prepended with spending.
+      const spendingCategoryIdToNameMap = Object.fromEntries(
+        Object.entries(categoryIdToNameMap).filter(([key, value]) =>
+          value.startsWith('spending.')
+        )
+      );
+
+      transactionCategory = await this.openaiAdapter.getTransactionCategory({
+        categoryIdToNameMap: spendingCategoryIdToNameMap,
         transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
-        transactionCategory: plaidTransaction.personal_finance_category.primary,
-        transactionCategoryConfidenceLevel:
-          plaidTransaction.personal_finance_category.confidence_level,
-        transactionMerchantName: plaidTransaction.merchant_name,
         transactionOriginalDescription: plaidTransaction.original_description,
-        transactionAccountType:
-          plaidTransactions.accounts[plaidTransaction.account_id].type,
-        transactionSubAccountType:
-          plaidTransactions.accounts[plaidTransaction.account_id].subtype,
+        plaidSuggestedCategory:
+          plaidTransaction.personal_finance_category.detailed,
       });
+    }
+
+    if (
+      transactionType === 'credit_card_payment' ||
+      transactionType === 'transfer'
+    ) {
+      transactionCategory = {
+        categoryId: null,
+      };
+    }
+
+    if (transactionType === 'income') {
+      const incomeCategoryIdToNameMap = Object.fromEntries(
+        Object.entries(categoryIdToNameMap).filter(([key, value]) =>
+          value.startsWith('income.')
+        )
+      );
+
+      transactionCategory = await this.openaiAdapter.getTransactionCategory({
+        categoryIdToNameMap: incomeCategoryIdToNameMap,
+        transactionEdits: uniqueTransactionEditsString,
+        transactionAmount: plaidTransaction.amount,
+        transactionOriginalDescription: plaidTransaction.original_description,
+        plaidSuggestedCategory:
+          plaidTransaction.personal_finance_category.detailed,
+      });
+    }
 
     let amount = plaidTransaction.amount;
-    if (incomeTransactionTypes.includes(aiTransactionCategories.type)) {
+    if (incomeTransactionTypes.includes(transactionType)) {
       amount = Math.abs(amount);
     }
 
@@ -63,9 +207,10 @@ class IngestTransactionUpdatesService {
       description: plaidTransaction.merchant_name
         ? plaidTransaction.merchant_name
         : plaidTransaction.original_description,
-      type: aiTransactionCategories.type,
+      type: transactionType,
       createdByUser: false,
     });
+
     if (
       !spendingTransactionTypes.includes(transaction.type) &&
       !incomeTransactionTypes.includes(transaction.type)
@@ -75,7 +220,7 @@ class IngestTransactionUpdatesService {
     }
 
     const category = plan.categories.find(
-      (category) => category.categoryId === aiTransactionCategories.categoryId
+      (category) => category.categoryId === transactionCategory?.categoryId
     );
     if (category) {
       const existingTransaction = category.transactions.find(
@@ -88,7 +233,7 @@ class IngestTransactionUpdatesService {
     }
     plan.categories.forEach((category) => {
       category.subcategories.forEach((subcategory) => {
-        if (subcategory.subcategoryId === aiTransactionCategories.categoryId) {
+        if (subcategory.subcategoryId === transactionCategory?.categoryId) {
           const existingTransaction = subcategory.transactions.find(
             (existingTransaction) =>
               existingTransaction.transactionId === transaction.transactionId
@@ -108,24 +253,26 @@ class IngestTransactionUpdatesService {
     uniqueTransactionEditsString,
     categoryIdToNameMap
   ) {
-    const aiTransactionCategories =
-      await this.openaiAdapter.categorizeTransaction({
+    // First, determine transaction type
+    const transactionType = this._determineTransactionType(
+      plaidTransactions,
+      plaidTransaction
+    );
+
+    // Get the category from OpenAI
+    const transactionCategory = await this.openaiAdapter.getTransactionCategory(
+      {
         categoryIdToNameMap,
         transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
-        transactionCategory: plaidTransaction.personal_finance_category.primary,
-        transactionCategoryConfidenceLevel:
-          plaidTransaction.personal_finance_category.confidence_level,
-        transactionMerchantName: plaidTransaction.merchant_name,
         transactionOriginalDescription: plaidTransaction.original_description,
-        transactionAccountType:
-          plaidTransactions.accounts[plaidTransaction.account_id].type,
-        transactionSubAccountType:
-          plaidTransactions.accounts[plaidTransaction.account_id].subtype,
-      });
+        plaidSuggestedCategory:
+          plaidTransaction.personal_finance_category.detailed,
+      }
+    );
 
     let amount = plaidTransaction.amount;
-    if (incomeTransactionTypes.includes(aiTransactionCategories.type)) {
+    if (incomeTransactionTypes.includes(transactionCategory.type)) {
       amount = Math.abs(amount);
     }
 
@@ -137,9 +284,22 @@ class IngestTransactionUpdatesService {
       description: plaidTransaction.merchant_name
         ? plaidTransaction.merchant_name
         : plaidTransaction.original_description,
-      type: aiTransactionCategories.type,
+      type: transactionType,
       createdByUser: false,
     });
+
+    plan.transactions = plan.transactions.filter(
+      (transaction) =>
+        transaction.transactionId !== plaidTransaction.transaction_id
+    );
+
+    if (
+      !spendingTransactionTypes.includes(transaction.type) &&
+      !incomeTransactionTypes.includes(transaction.type)
+    ) {
+      plan.transactions.push(transaction);
+      return;
+    }
 
     plan.categories.forEach((category) => {
       category.transactions = category.transactions.filter(
@@ -147,7 +307,7 @@ class IngestTransactionUpdatesService {
           transaction.transactionId !== plaidTransaction.transaction_id
       );
 
-      if (category.categoryId === aiTransactionCategories.categoryId) {
+      if (category.categoryId === transactionCategory.categoryId) {
         category.transactions.push(transaction);
       }
 
@@ -157,7 +317,7 @@ class IngestTransactionUpdatesService {
             transaction.transactionId !== plaidTransaction.transaction_id
         );
 
-        if (subcategory.subcategoryId === aiTransactionCategories.categoryId) {
+        if (subcategory.subcategoryId === transactionCategory.categoryId) {
           subcategory.transactions.push(transaction);
         }
       });
@@ -165,6 +325,11 @@ class IngestTransactionUpdatesService {
   }
 
   async removeTransaction(plaidTransaction, plan) {
+    plan.transactions = plan.transactions.filter(
+      (transaction) =>
+        transaction.transactionId !== plaidTransaction.transaction_id
+    );
+
     plan.categories.forEach((category) => {
       category.transactions = category.transactions.filter(
         (transaction) =>
@@ -212,11 +377,10 @@ class IngestTransactionUpdatesService {
           });
           for (const plan of tenant.plans) {
             const categoryIdToNameMap = this.getCategoryNameToIdMap(plan);
-            const transactionEdits = plan.transactionEdits
+            const categoryChangeTransactionEdits = plan.transactionEdits
               .filter(
                 (edit) =>
-                  edit.oldTransactionDescription !==
-                  edit.newTransactionDescription
+                  edit.oldTransactionCategory !== edit.newTransactionCategory
               )
               .map((edit) => ({
                 created_at: edit.createdAt,
@@ -225,22 +389,26 @@ class IngestTransactionUpdatesService {
                 user_override_category: edit.newTransactionCategory,
               }));
 
-            const uniqueTransactionEdits = transactionEdits
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending (newest first)
-              .filter(
-                (edit, index, self) =>
-                  self.findIndex((t) => t.description === edit.description) ===
-                  index
-              )
-              .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            const uniqueCategoryChangeTransactionEdits =
+              categoryChangeTransactionEdits
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date descending (newest first)
+                .filter(
+                  (edit, index, self) =>
+                    self.findIndex(
+                      (t) => t.description === edit.description
+                    ) === index
+                )
+                .sort(
+                  (a, b) => new Date(a.created_at) - new Date(b.created_at)
+                );
 
             const uniqueTransactionEditsString = JSON.stringify(
-              uniqueTransactionEdits,
+              uniqueCategoryChangeTransactionEdits,
               null,
               2
             );
 
-            const batchSize = 500;
+            const batchSize = 50;
             const addedTransactions = plaidTransactions.added;
 
             for (let i = 0; i < addedTransactions.length; i += batchSize) {
@@ -275,7 +443,7 @@ class IngestTransactionUpdatesService {
           plaidItem.cursor = plaidTransactions.next_cursor;
           plaidItem.lastIngestedAt = new Date();
         } catch (error) {
-          console.error('error ingesting transactions for plaidItem');
+          console.error('error ingesting transactions for plaidItem', error);
           if (error.response?.data?.error_code === 'ITEM_LOGIN_REQUIRED') {
             plaidItem.status = 'item_login_required';
             const primaryEmail = tenant.users.find(

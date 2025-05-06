@@ -16,26 +16,22 @@ async function main() {
     )
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-  console.log(uniqueTransactionEdits);
-
   const createPrompt = () => {
     return `
-        Follow these rules:
-        1. Valid types: 
-            1a. "spending": a negative (-) amount
-            1b. "transfer": a negative (-) amount
-            1c. "credit_card_payment": a positive (+) amount
-            1d. "refund": a positive (+) amount
-            1e. "income": a positive (+) amount
-        2. "refund" types must use the same category as if they were "spending" types.
-        3. The most recent edit's user_override_category with a description relevant to the transaction should be used.
-    
-        Past edits from least recent to most recent:
-        ${JSON.stringify(transactionEdits, null, 2)}
+        Follow this rule:
+        1. The most recent edit's user_override_category with a description relevant to the transaction should be used.
 
-        Transaction details:
-        Amount: +23.59
-        Description: Shell
+        Past edits from least recent to most recent:
+        [
+          { "date": "2025-01-01", "original_description": "Whole Foods", "original_category": "spending.fixed_costs", "user_override_category": "spending.fixed_costs.groceries" },
+          { "date": "2025-01-02", "original_description": "Whole Foods", "original_category": "spending.fixed_costs.groceries", "user_override_category": "spending.guilt_free_spending.fun_budget" },
+          { "date": "2025-01-03", "original_description": "ConocoPhillips", "original_category": "spending.fixed_costs.gas", "user_override_category": "spending.guilt_free_spending.fun_budget" },
+        ]
+
+        Transaction:
+        - Amount: 29.99
+        - Description: Shell
+        - Plaid Suggested Category: TRANSPORTATION_GAS
     `;
   };
 
@@ -129,11 +125,9 @@ async function main() {
 
   const response = await client.send(command);
   let toolCall = response.output.message.content[0].toolUse.input;
-  let rawOutput = response.output.message.content[0];
-  const { inputTokens, outputTokens, totalTokens } = response.usage;
+  let { inputTokens, outputTokens, totalTokens } = response.usage;
 
-  console.log(toolCall);
-  console.log(rawOutput);
+  console.log('original toolCall', toolCall);
   console.log(`Input Tokens: ${inputTokens}`);
   console.log(`Output Tokens: ${outputTokens}`);
   console.log(`Total Tokens: ${totalTokens}`);

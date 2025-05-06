@@ -22,20 +22,13 @@ const transactionTypes = [
   'spending',
   'transfer',
   'credit_card_payment',
-  'credit_card_refund',
-  'debit_card_refund',
-  'investment_transfer',
-  'interest_income',
+  'refund',
   'income',
 ];
 
-const spendingTransactionTypes = [
-  'spending',
-  'credit_card_refund',
-  'debit_card_refund',
-];
+const spendingTransactionTypes = ['spending', 'refund'];
 
-const incomeTransactionTypes = ['income', 'interest_income'];
+const incomeTransactionTypes = ['income'];
 
 export {
   Transaction,

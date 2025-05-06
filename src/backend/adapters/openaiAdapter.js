@@ -39,43 +39,26 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(500); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(600); // Limit for requests per minute
+    this.typeRateLimiter = new RateLimiter(600); // Limit for requests per minute
   }
 
-  async categorizeTransaction({
+  async getTransactionCategory({
     categoryIdToNameMap,
     transactionEdits,
     transactionAmount,
-    transactionCategory,
-    transactionCategoryConfidenceLevel,
-    transactionMerchantName,
     transactionOriginalDescription,
-    transactionAccountType,
-    transactionSubAccountType,
   }) {
-    // multiply by -1 to make it negative and then add a + or - sign if positive or negative
-    const formatTransactionAmount = (amount) => {
-      const formattedAmount = amount * -1;
-      return formattedAmount > 0 ? `+${formattedAmount}` : formattedAmount;
-    };
-
     const createPrompt = () => {
       return `
         Follow these rules:
-        1. Valid types: 
-            1a. "spending": a negative (-) amount
-            1b. "transfer": a negative (-) amount
-            1c. "credit_card_payment": a positive (+) amount
-            1d. "refund": a positive (+) amount
-            1e. "income": a positive (+) amount
-        2. "refund" types must use the same category as if they were "spending" types.
-        3. The most recent edit's user_override_category with a description relevant to the transaction should be used.
+        1. The most recent edit's user_override_category with a description relevant to the transaction should be used.
 
         Past edits from least recent to most recent:
         ${transactionEdits}
 
         Transaction:
-        - Amount: ${formatTransactionAmount(transactionAmount)}
+        - Amount: ${transactionAmount}
         - Description: ${transactionOriginalDescription}
       `;
     };
@@ -121,19 +104,13 @@ class OpenaiAdapter {
                   json: {
                     type: 'object',
                     properties: {
-                      type: {
-                        type: 'string',
-                        description:
-                          'Type of the transaction. "refund", "income", and "credit_card_payment" will be positive (+) amounts. "spending" and "transfer" will be negative (-) amounts.',
-                        enum: transactionTypes,
-                      },
                       category: {
                         type: 'string',
                         description: 'Category of the transaction.',
                         enum: Object.values(categoryIdToNameMap),
                       },
                     },
-                    required: ['type', 'category'],
+                    required: ['category'],
                   },
                 },
               },

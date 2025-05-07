@@ -1,82 +1,55 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
-import FeatureCard from './featureCard';
+import { getSortedPosts, getReadingTime } from './data';
 
 export const metadata = {
-  title: 'Blog – MySite',
-  description: 'Latest articles and tutorials.',
+  title: 'Blog – Fincapy',
+  description:
+    'Latest articles and tutorials on personal finance and budgeting.',
 };
 
-// stubbed posts – add more here
-const posts = [
-  {
-    slug: 'lorem-ipsum',
-    title: 'Lorem Ipsum Dolor Sit Amet',
-    summary:
-      'An example lorem ipsum article to demonstrate the blog layout and dynamic routing.',
-    date: '2023-09-15',
-    image: '/blog/lair.png', // your featured image
-    author: {
-      name: 'Jane Doe',
-      avatar: '/goats.png',
-    },
-    content: `
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      Nullam ac vestibulum eros, vel venenatis neque. Aliquam erat volutpat.
-      Phasellus ut elit vel lacus gravida aliquet. Etiam sit amet posuere nulla.
-      Integer nec tincidunt nisl.
-    `,
-  },
-  // → you can add more posts here
-];
-
 export default function BlogPage() {
-  // reverse-chronological
-  const sorted = [...posts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  // Get posts sorted by date (newest first)
+  const sortedPosts = getSortedPosts();
 
-  // separate out the first as featured
-  const [featured, ...others] = sorted;
-
-  // simple reading time = words / 200 wpm
-  const readingTime = (text) =>
-    Math.ceil(text.trim().split(/\s+/).length / 200);
+  // Separate out the first as featured
+  const [featured, ...others] = sortedPosts;
 
   return (
     <>
       {/* Full width background header with overlaid feature card */}
-      <div className="relative">
+      <div className="relative w-full">
         {/* Background image */}
         <div
-          className="w-full h-[90vh] bg-cover bg-center relative"
+          className="w-full h-[100vh] md:h-[90vh] bg-cover bg-center relative"
           style={{ backgroundImage: 'url(/blog/blog-background.png)' }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50">
-            <div className="flex items-center justify-center h-full">
-              <div className="flex flex-row gap-8 items-center">
+            <div className="flex items-center justify-center h-full p-4 pt-4">
+              <div className="flex flex-col md:flex-row gap-8 items-center mt-8 md:mt-0">
                 <Image
                   src={featured.image}
                   alt={featured.title}
                   width={600}
                   height={600}
-                  className="rounded-3xl"
+                  className="rounded-3xl w-full md:w-auto max-w-[85vw] md:max-w-[600px]"
+                  priority
                 />
                 <div className="flex flex-col gap-4 max-w-xl">
                   <div className="text-white">
                     <p className="text-sm opacity-80">
                       {format(new Date(featured.date), 'MMMM d, yyyy')} ·{' '}
-                      {readingTime(featured.content)} min read · By{' '}
+                      {getReadingTime(featured.content)} min read · By{' '}
                       {featured.author.name}
                     </p>
                   </div>
 
-                  <h1 className="text-4xl font-bold text-white">
-                    Why I Built (another) Budgeting App
+                  <h1 className="text-3xl md:text-4xl font-bold text-white">
+                    {featured.title}
                   </h1>
 
-                  <p className="text-white opacity-80 text-lg">
+                  <p className="text-white opacity-80 text-base md:text-lg">
                     {featured.summary}
                   </p>
 
@@ -90,6 +63,61 @@ export default function BlogPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Blog post cards section */}
+      <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {others.map((post) => (
+            <Link
+              href={`/blog/${post.slug}`}
+              key={post.slug}
+              className="group block h-full"
+            >
+              <div className="bg-white rounded-3xl overflow-hidden border border-gray-300 hover:shadow-lg transition-shadow h-full flex flex-col">
+                <div className="relative aspect-[16/9]">
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-4 sm:p-6 flex flex-col flex-grow">
+                  <h3 className="text-lg sm:text-xl font-semibold group-hover:text-amber-600 transition-colors line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                    {post.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-2">
+                    {format(new Date(post.date), 'MMM d, yyyy')} ·{' '}
+                    {getReadingTime(post.content)} min read
+                  </p>
+                  <div className="flex items-center mt-3 sm:mt-4">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden mr-2 sm:mr-3">
+                      <Image
+                        src={post.author.avatar}
+                        alt={post.author.name}
+                        width={32}
+                        height={32}
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="text-xs sm:text-sm text-gray-700">
+                      {post.author.name}
+                    </span>
+                  </div>
+                  <p className="mt-3 sm:mt-4 text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 flex-grow">
+                    {post.summary}
+                  </p>
+                  <div className="mt-4 pt-2">
+                    <span className="text-sm font-medium text-amber-600 group-hover:underline">
+                      Read more
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </>

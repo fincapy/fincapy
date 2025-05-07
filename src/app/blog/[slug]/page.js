@@ -1,41 +1,113 @@
-import { notFound } from 'next/navigation'
-import { format } from 'date-fns'
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { format } from 'date-fns';
+import Link from 'next/link';
+import { getAllSlugs, getPostBySlug, getReadingTime } from '../data';
 
-const posts = [
-  {
-    slug: 'lorem-ipsum',
-    title: 'Lorem Ipsum Dolor Sit Amet',
-    content: `
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac vestibulum eros, vel venenatis neque. Aliquam erat volutpat.</p>
-      <p>Phasellus ut elit vel lacus gravida aliquet. Etiam sit amet posuere nulla. Integer nec tincidunt nisl.</p>
-    `,
-    date: '2023-09-15',
-  },
-]
-
+// Generate static params for all blog posts
 export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }))
+  return getAllSlugs();
+}
+
+// Generate metadata for each blog post
+export async function generateMetadata({ params }) {
+  const post = getPostBySlug(params.slug);
+
+  if (!post) {
+    return {
+      title: 'Post Not Found - Fincapy',
+      description: 'The requested blog post could not be found.',
+    };
+  }
+
+  return {
+    title: `${post.title} - Fincapy Blog`,
+    description: post.summary,
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      type: 'article',
+      publishedTime: post.date,
+      authors: [post.author.name],
+      images: [
+        {
+          url: post.image,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+  };
 }
 
 export default function PostPage({ params: { slug } }) {
-  const post = posts.find((p) => p.slug === slug)
-  if (!post) return notFound()
+  const post = getPostBySlug(slug);
+
+  if (!post) return notFound();
 
   return (
-    <article className="prose lg:prose-xl mx-auto py-8">
-      <h1 className="text-3xl font-bold text-emerald-600 mb-4">
-        {post.title}
-      </h1>
-      <time
-        dateTime={post.date}
-        className="block text-sm text-gray-500 mb-8"
+    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 text-gray-600">
+      <Link
+        href="/blog"
+        className="text-amber-600 hover:text-amber-700 mb-6 sm:mb-8 inline-flex items-center"
       >
-        {format(new Date(post.date), 'MMMM dd, yyyy')}
-      </time>
-      <div
-        className="prose"
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-1"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Back
+      </Link>
+
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+          {post.title}
+        </h1>
+
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+            <Image
+              src={post.author.avatar}
+              alt={post.author.name}
+              width={40}
+              height={40}
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <p className="font-medium text-gray-800">{post.author.name}</p>
+            <div className="text-sm text-gray-500">
+              {format(new Date(post.date), 'MMMM d, yyyy')} ·{' '}
+              {getReadingTime(post.content)} min read
+            </div>
+          </div>
+        </div>
+
+        {post.image && (
+          <div className="relative aspect-[16/9]">
+            <Image
+              src={post.image}
+              alt={post.title}
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
+        )}
+      </div>
+
+      <article
+        className="prose prose-xl max-w-none text-gray-800 prose-headings:text-gray-900 prose-a:text-amber-600 prose-img:rounded-md prose-h2:text-2xl prose-p:font-serif prose-p:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
-    </article>
-  )
+    </div>
+  );
 }

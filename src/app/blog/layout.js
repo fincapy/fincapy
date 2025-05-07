@@ -11,7 +11,7 @@ export default function BlogLayout({ children }) {
   useEffect(() => {
     const handleScroll = () => {
       // Check if we've scrolled past the hero section (90vh)
-      const isScrolled = window.scrollY > window.innerHeight * 0.9 - 100;
+      const isScrolled = window.scrollY > window.innerHeight;
       setScrolled(isScrolled);
     };
 
@@ -24,7 +24,7 @@ export default function BlogLayout({ children }) {
       {/* Fixed position navbar with conditional styling */}
       <div
         className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
-          scrolled ? 'bg-white/80 backdrop-blur-sm shadow-sm' : 'bg-transparent'
+          scrolled ? 'backdrop-blur-sm shadow-sm' : 'bg-transparent'
         }`}
       >
         <div className="flex h-[10vh] items-center justify-between w-full">

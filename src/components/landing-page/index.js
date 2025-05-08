@@ -85,18 +85,21 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20">
+      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20 mb-10 md:mb-0">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
-            <h1 className="text-6xl font-bold tracking-tighter text-center text-gray-900">
-              Who Will <span className="text-secondary">Your Money</span> Make
-              You?
-            </h1>
-            <p className="text-muted-foreground text-xl text-center w-3/4">
-              Understand yourself and your finances. Instant insights, zero
-              hassle, capybara approved. A customizable and automated budgeting
-              solution that just works.
-            </p>
+            <div className="max-w-xs md:max-w-xl">
+              <h1 className="md:text-6xl text-5xl font-bold tracking-tighter text-center text-gray-900">
+                Who Will <span className="text-secondary">Your Money</span> Make
+                You?
+              </h1>
+            </div>
+            <div className="max-w-xl">
+              <p className="text-muted-foreground md:text-xl text-lg text-center italic">
+                Understand yourself and your finances. Instant insights, zero
+                hassle, capybara approved.
+              </p>
+            </div>
             <Button
               ref={ctaButtonRef}
               size="lg"
@@ -373,7 +376,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA Section */}
-      <section className="bg-secondary py-12 md:py-24">
+      <section className="bg-emerald-700 py-12 md:py-24">
         <div className="px-4 md:px-6">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">

@@ -7,8 +7,14 @@ import { createCheckoutSession } from './serverActions';
 export default function UpgradePage() {
   // Define price IDs (these would come from your Stripe account)
   const PRICE_IDS = {
-    MONTHLY: 'price_1RIhNhBN2LvRzs0wBfJYai9Q',
-    ANNUAL: 'price_1RIhOZBN2LvRzs0wsHIISRf4',
+    MONTHLY:
+      process.env.NODE_ENV === 'production'
+        ? 'price_1RMVgOBiZle4NncvRBAt9TFj'
+        : 'price_1RIhNhBN2LvRzs0wBfJYai9Q',
+    ANNUAL:
+      process.env.NODE_ENV === 'production'
+        ? 'price_1RMVfuBiZle4NncvaY3fATnT'
+        : 'price_1RIhOZBN2LvRzs0wsHIISRf4',
   };
 
   return (

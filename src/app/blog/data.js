@@ -1,198 +1,29 @@
 // Blog post data that can be shared across components
 export const blogPosts = [
   {
-    slug: 'why-i-built-another-budgeting-app',
-    title: 'Why I Built (another) Budgeting App',
-    summary:
-      'The story behind Fincapy and why I decided to create yet another personal finance tool in an already crowded market.',
-    date: '2023-10-15',
+    slug: 'a-budgeting-app-for-avoiders-like-me',
+    title: 'A Budgeting App for Avoiders Like Me',
+    subheading: 'Building something I could stand to look at',
+    date: '2025-05-07',
     image: '/blog/lair.png',
     author: {
-      name: 'Jane Doe',
+      name: 'Ryan Wible',
       avatar: '/goats.png',
     },
     content: `
-      <p>When I first started thinking about building a personal finance app, I asked myself the same question you're probably thinking: "Does the world really need another budgeting app?"</p>
-      
-      <p>The short answer is: probably not. But the longer answer is what led me to create Fincapy anyway.</p>
-      
-      <h2>The Problem with Existing Solutions</h2>
-      
-      <p>I've tried them all - Mint, YNAB, Personal Capital, and countless others. Each has its strengths, but I found myself constantly switching between apps or maintaining spreadsheets alongside them.</p>
-      
-      <p>Most existing tools excel at tracking what has already happened with your money, but few are truly helpful at planning for the future in a flexible way that adapts to real life.</p>
-      
-      <h2>The Vision for Fincapy</h2>
-      
-      <p>Fincapy started as a personal project to solve my own frustrations. I wanted:</p>
-      
-      <ul>
-        <li>A tool that combines historical tracking with future planning</li>
-        <li>Flexible budgeting that doesn't make me feel guilty when life happens</li>
-        <li>Simple visualizations that actually help me make decisions</li>
-        <li>Privacy-first design where my financial data isn't the product</li>
-      </ul>
-      
-      <p>What began as a personal project has evolved into something I believe can help others too. Fincapy isn't trying to be everything for everyone - it's built specifically for people who want to be intentional about their finances without becoming obsessive.</p>
-      
-      <h2>What's Next</h2>
-      
-      <p>We're just getting started. The initial version focuses on the core experience, but I have a roadmap full of features I'm excited to build based on early feedback.</p>
-      
-      <p>If you're interested in joining the journey, sign up for the waitlist and be among the first to try Fincapy when it launches.</p>
-    `,
-  },
-  {
-    slug: 'getting-started-with-personal-finance',
-    title: 'Getting Started with Personal Finance',
-    summary:
-      'Learn the basics of personal finance and how to start managing your money effectively.',
-    date: '2023-08-20',
-    image: '/blog/lair.png',
-    author: {
-      name: 'John Smith',
-      avatar: '/goats.png',
-    },
-    content: `
-      <p>Getting started with personal finance can seem overwhelming, but it doesn't have to be. This guide will help you understand the basics and set you on the path to financial success.</p>
-      
-      <h2>1. Track Your Spending</h2>
-      
-      <p>The first step to managing your finances is understanding where your money goes. Start by tracking all your expenses for a month. You might be surprised at what you discover!</p>
-      
-      <h2>2. Create a Budget</h2>
-      
-      <p>Once you know your spending patterns, create a simple budget that allocates your income to different categories. Remember, a budget isn't meant to restrict you—it's a plan for your money.</p>
-      
-      <h2>3. Build an Emergency Fund</h2>
-      
-      <p>Before focusing on other financial goals, aim to save 3-6 months of essential expenses in an easily accessible account. This provides peace of mind and financial stability.</p>
-      
-      <h2>4. Tackle High-Interest Debt</h2>
-      
-      <p>If you have credit card debt or other high-interest loans, prioritize paying these down. The interest you save is often better than returns you might get from investing.</p>
-      
-      <h2>5. Start Investing Early</h2>
-      
-      <p>Even small amounts invested regularly can grow significantly over time thanks to compound interest. Consider retirement accounts like a 401(k) or IRA to get started.</p>
-      
-      <p>Remember, personal finance is personal. What works for someone else might not work for you. The key is to start somewhere and make adjustments as you learn more about your financial habits and goals.</p>
-    `,
-  },
-  {
-    slug: 'understanding-credit-scores',
-    title: 'Understanding Credit Scores',
-    summary:
-      'Everything you need to know about credit scores and how they impact your financial health.',
-    date: '2023-07-15',
-    image: '/blog/lair.png',
-    author: {
-      name: 'Sarah Johnson',
-      avatar: '/goats.png',
-    },
-    content: `
-      <p>Your credit score is a crucial part of your financial identity. This article explains what credit scores are, how they're calculated, and why they matter.</p>
-      
-      <h2>What Is a Credit Score?</h2>
-      
-      <p>A credit score is a three-digit number that represents your creditworthiness. Lenders use this score to determine whether to approve you for loans and what interest rates to offer you.</p>
-      
-      <h2>How Credit Scores Are Calculated</h2>
-      
-      <p>The most common credit scoring model is FICO, which considers five main factors:</p>
-      
-      <ul>
-        <li><strong>Payment History (35%)</strong>: Whether you've paid past credit accounts on time</li>
-        <li><strong>Amounts Owed (30%)</strong>: How much debt you have and how much of your available credit you're using</li>
-        <li><strong>Length of Credit History (15%)</strong>: How long you've been using credit</li>
-        <li><strong>New Credit (10%)</strong>: Recently opened accounts and credit inquiries</li>
-        <li><strong>Credit Mix (10%)</strong>: The variety of credit accounts you have</li>
-      </ul>
-      
-      <h2>Why Your Credit Score Matters</h2>
-      
-      <p>Your credit score affects more than just loan approvals. It can impact:</p>
-      
-      <ul>
-        <li>Interest rates on loans and credit cards</li>
-        <li>Insurance premiums</li>
-        <li>Rental applications</li>
-        <li>Employment opportunities (in some states)</li>
-        <li>Utility deposits</li>
-      </ul>
-      
-      <h2>How to Improve Your Credit Score</h2>
-      
-      <p>Improving your credit score takes time, but these strategies can help:</p>
-      
-      <ul>
-        <li>Pay all bills on time</li>
-        <li>Keep credit card balances low</li>
-        <li>Don't close old credit accounts</li>
-        <li>Limit applications for new credit</li>
-        <li>Regularly check your credit report for errors</li>
-      </ul>
-      
-      <p>Remember that building good credit is a marathon, not a sprint. Consistent, responsible financial habits over time will lead to a strong credit score.</p>
-    `,
-  },
-  {
-    slug: 'budgeting-101',
-    title: 'Budgeting 101: Creating Your First Budget',
-    summary:
-      'A step-by-step guide to creating and sticking to your first budget.',
-    date: '2023-06-10',
-    image: '/blog/lair.png',
-    author: {
-      name: 'Michael Brown',
-      avatar: '/goats.png',
-    },
-    content: `
-      <p>Creating a budget is the foundation of good financial health. This guide will walk you through the process of setting up a budget that works for you.</p>
-      
-      <h2>Step 1: Calculate Your Income</h2>
-      
-      <p>Start by determining your total monthly income after taxes. Include all sources of income: your primary job, side hustles, rental income, etc.</p>
-      
-      <h2>Step 2: Track Your Expenses</h2>
-      
-      <p>Before creating categories, track your spending for a month to see where your money actually goes. Group expenses into categories like:</p>
-      
-      <ul>
-        <li>Housing (rent/mortgage, utilities, maintenance)</li>
-        <li>Transportation (car payment, gas, public transit)</li>
-        <li>Food (groceries, dining out)</li>
-        <li>Insurance (health, auto, home)</li>
-        <li>Debt payments (student loans, credit cards)</li>
-        <li>Savings and investments</li>
-        <li>Entertainment and discretionary spending</li>
-      </ul>
-      
-      <h2>Step 3: Set Realistic Goals</h2>
-      
-      <p>Based on your income and necessary expenses, set realistic goals for discretionary spending and savings. The 50/30/20 rule is a good starting point:</p>
-      
-      <ul>
-        <li>50% for needs (housing, food, transportation)</li>
-        <li>30% for wants (entertainment, dining out)</li>
-        <li>20% for savings and debt repayment</li>
-      </ul>
-      
-      <h2>Step 4: Choose a Budgeting Method</h2>
-      
-      <p>Several budgeting methods exist, including:</p>
-      
-      <ul>
-        <li><strong>Zero-based budgeting</strong>: Every dollar has a job</li>
-        <li><strong>Envelope system</strong>: Cash in envelopes for different categories</li>
-        <li><strong>Pay yourself first</strong>: Prioritize savings, then spend the rest</li>
-      </ul>
-      
-      <h2>Step 5: Review and Adjust Regularly</h2>
-      
-      <p>A budget isn't set in stone. Review it monthly and make adjustments as needed. Life changes, and your budget should too.</p>
-      
-      <p>Remember, the best budget is one you can actually stick to. Be realistic, give yourself grace when you make mistakes, and celebrate your financial wins along the way.</p>
+      <p>I&apos;m not a great budgeter. I&apos;m an avoider. I&apos;ll happily distract myself from the essential logistics of my life and rationalize it later. Like this app. I&apos;ve spent countless hours tuning the interface for other people to look at their budgets. But when I pull up my own, there&apos;s a part of me that recoils.</p>
+
+      <p>It&apos;s exhilarating to experience the daily utility of something I&apos;ve built. But to see my own finances laid bare is uncomfortable. I don&apos;t like seeing how much I spent on groceries. I don&apos;t like seeing that drink I bought that cost nine dollars. The light, it burns.</p>
+
+      <p>I built Fincapy to be as shame-free as possible so that I can look at my money and let the numbers speak for themselves. The good news is that I only have to look at them every once in a while. I&apos;m not someone who runs their spreadsheets every weekend and keeps a tight rein on everything. God bless those people, I&apos;m glad they&apos;re out there.</p>
+
+      <p>For instance, I&apos;ve found recently that I spend a lot of money on Amazon. On what? On… Amazon stuff. I don&apos;t know. What, you expect me to track all of it? Who has time for that? Turns out I need an Amazon category. If I spend a certain amount on Amazon every month, that&apos;s all right with me. But go above that too often, and things get dicey.</p>
+
+      <p>Thankfully, I&apos;m blessed enough that if I make a mistake with my money in the short term, it won&apos;t affect me too badly in the long term. I have time to learn and grow with my finances. I know that the daily practice of humility is what counts. But it&apos;s also the daily practice of joy. I love my coffee in the morning. I&apos;m not going to stop buying it. I love walking for ice cream with my wife. Not going to stop that either.</p>
+
+      <p>I built the app because I wanted something that would force me to engage with my finances just enough so that I could grow with them. All it has to do is keep me on the right track. Overspending by a few dollars? Acceptable. Overspending by a few hundred dollars? Well, there might be something I need to address.</p>
+
+      <p>I&apos;m not a great budgeter, but I suspect that some of you aren&apos;t either. This is a safe place for you. I want this to be a community of people dedicated to growing with their money together. I hope that Fincapy will support you on your journey to live with your money, not fight it.</p>
     `,
   },
 ];

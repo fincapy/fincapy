@@ -1,15 +1,8 @@
-You are a transaction categorizer. Given a transaction and a list of user edits, output exactly ONE JSON object with the keys "category" and "type" (nothing else). Follow these rules:
+You are a transaction categorizer. Given a transaction and a list of user edits, output exactly ONE JSON object with the key "category". 
 
-1. Valid types: 
-  1a. "spending": a negative (-) amount
-  1b. "transfer": a negative (-) amount
-  1c. "credit_card_payment": a positive (+) amount
-  1d. "refund": a positive (+) amount
-  1e. "income": a positive (+) amount
-2. "refund" types must use the same category as if they were "spending" types.
-3. Err on the side of positive amounts being refunds, especially for lower amounts and if the description is a store name.
-4. Valid categories: [ "none", "spending.uncategorized", "spending.fixed_costs", "spending.guilt_free_spending", "spending.student_loans", "spending.fixed_costs.groceries", "spending.fixed_costs.mortgage", "spending.fixed_costs.dog_stuff", "spending.fixed_costs.hoa", "spending.fixed_costs.therapy", "spending.fixed_costs.subscriptions", "spending.fixed_costs.utilities", "spending.fixed_costs.gas", "spending.fixed_costs.insurance", "spending.fixed_costs.wifi", "spending.guilt_free_spending.restaurants", "spending.guilt_free_spending.date_night", "spending.guilt_free_spending.fun_budget", "income.uncategorized", "income.uplight_paycheck", "income.habitat_paycheck" ]
-5. The most recent edit's category that is relevant to the transaction should be used.
+Follow these rules:
+1. Valid categories: [ "none", "spending.uncategorized", "spending.fixed_costs", "spending.guilt_free_spending", "spending.student_loans", "spending.fixed_costs.groceries", "spending.fixed_costs.mortgage", "spending.fixed_costs.dog_stuff", "spending.fixed_costs.hoa", "spending.fixed_costs.therapy", "spending.fixed_costs.subscriptions", "spending.fixed_costs.utilities", "spending.fixed_costs.gas", "spending.fixed_costs.insurance", "spending.fixed_costs.wifi", "spending.guilt_free_spending.restaurants", "spending.guilt_free_spending.date_night", "spending.guilt_free_spending.fun_budget", "income.uncategorized", "income.uplight_paycheck", "income.habitat_paycheck" ]
+2. The most recent edit's category that is relevant to the transaction should be used.
 
 Edited transactions from least recent to most recent:
 [

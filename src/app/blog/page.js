@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { getSortedPosts, getReadingTime } from './data';
-
+import BlogNavbar from './blogNavbar';
 export const metadata = {
   title: 'Blog – Fincapy',
   description:
@@ -18,11 +18,12 @@ export default function BlogPage() {
 
   return (
     <>
+      <BlogNavbar />
       {/* Full width background header with overlaid feature card */}
       <div className="relative w-full">
         {/* Background image */}
         <div
-          className="w-full h-[100vh] md:h-[90vh] bg-cover bg-center relative"
+          className="w-full h-[100vh] md:h-[90vh] bg-cover bg-center relative font-serif"
           style={{ backgroundImage: 'url(/blog/blog-background.png)' }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50">
@@ -50,12 +51,12 @@ export default function BlogPage() {
                   </h1>
 
                   <p className="text-white opacity-80 text-base md:text-lg">
-                    {featured.summary}
+                    {featured.subheading}
                   </p>
 
                   <Link
                     href={`/blog/${featured.slug}`}
-                    className="mt-2 px-6 py-3 bg-primary border border-amber-600 text-gray-900 rounded-full font-medium hover:bg-amber-600 transition inline-block w-fit"
+                    className="mt-2 px-6 py-3 bg-primary border border-amber-600 text-gray-900 rounded-full font-medium hover:bg-amber-600 transition inline-block w-fit font-sans"
                   >
                     Read Article
                   </Link>
@@ -67,7 +68,7 @@ export default function BlogPage() {
       </div>
 
       {/* Blog post cards section */}
-      <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28">
+      <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28 font-serif">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {others.map((post) => (
             <Link
@@ -107,7 +108,7 @@ export default function BlogPage() {
                     </span>
                   </div>
                   <p className="mt-3 sm:mt-4 text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 flex-grow">
-                    {post.summary}
+                    {post.subheading}
                   </p>
                   <div className="mt-4 pt-2">
                     <span className="text-sm font-medium text-amber-600 group-hover:underline">

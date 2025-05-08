@@ -6,11 +6,16 @@ export const metadata = {
   title: 'Who will your money make you?',
   description:
     'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
+  metadataBase: new URL('https://fincapy.com'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Who will your money make you?',
     description:
       'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
     images: [{ url: 'https://fincapy.com/capybara.png' }],
+    url: 'https://fincapy.com',
   },
   applicationName: 'Fincapy',
   appleWebApp: {

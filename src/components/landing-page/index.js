@@ -88,11 +88,11 @@ export default function Home() {
       <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
-            <h1 className="text-6xl font-bold tracking-tighter text-center text-gray-950">
+            <h1 className="text-6xl font-bold tracking-tighter text-center text-gray-900">
               Who Will <span className="text-secondary">Your Money</span> Make
               You?
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground md:text-xl text-center w-full">
+            <p className="text-muted-foreground text-xl text-center w-3/4">
               Understand yourself and your finances. Instant insights, zero
               hassle, capybara approved. A customizable and automated budgeting
               solution that just works.
@@ -205,6 +205,13 @@ export default function Home() {
               Choose the plan that works best for your financial journey.
             </p>
             <div className="flex flex-col items-center gap-4 mt-4">
+              <span
+                className={`inline-block rounded-full bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-700 mb-2 ${
+                  annualBilling ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                Save 33%
+              </span>
               <div className="relative flex items-center justify-center w-full">
                 <div className="relative flex h-9 w-64 rounded-full border border-amber-600 bg-background p-1">
                   <button
@@ -228,42 +235,10 @@ export default function Home() {
                     Monthly
                   </button>
                 </div>
-                {annualBilling && (
-                  <span className="absolute -right-24 inline-block rounded-full bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-700">
-                    Save 33%
-                  </span>
-                )}
               </div>
             </div>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
-            <Card className="flex flex-col p-6 border">
-              <div className="mb-4 text-center">
-                <h3 className="text-2xl font-bold">Free</h3>
-                <p className="text-muted-foreground">Check it out</p>
-              </div>
-              <div className="mb-4 text-center">
-                <span className="text-4xl font-bold">$0</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <ul className="mb-6 space-y-2">
-                <PricingFeature text="Customizable categories" included />
-                <PricingFeature text="Manual transaction entry" included />
-                <PricingFeature text="Bank account linking" included={false} />
-                <PricingFeature
-                  text="AI transaction categorization"
-                  included={false}
-                />
-              </ul>
-              <Button
-                className="w-full bg-card hover:bg-background mt-auto"
-                variant="outline"
-                onClick={handleOpenModal}
-              >
-                {ctaText}
-              </Button>
-            </Card>
-
             <Card className="flex flex-col border-amber-600 p-6 border">
               <div className="mb-4 text-center">
                 <div className="mb-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">
@@ -291,6 +266,33 @@ export default function Home() {
               </ul>
               <Button
                 className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
+                onClick={handleOpenModal}
+              >
+                {ctaText}
+              </Button>
+            </Card>
+
+            <Card className="flex flex-col p-6 border">
+              <div className="mb-4 text-center">
+                <h3 className="text-2xl font-bold">Free</h3>
+                <p className="text-muted-foreground">Check it out</p>
+              </div>
+              <div className="mb-4 text-center">
+                <span className="text-4xl font-bold">$0</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <ul className="mb-6 space-y-2">
+                <PricingFeature text="Customizable categories" included />
+                <PricingFeature text="Manual transaction entry" included />
+                <PricingFeature text="Bank account linking" included={false} />
+                <PricingFeature
+                  text="AI transaction categorization"
+                  included={false}
+                />
+              </ul>
+              <Button
+                className="w-full bg-card hover:bg-background mt-auto"
+                variant="outline"
                 onClick={handleOpenModal}
               >
                 {ctaText}

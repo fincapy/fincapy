@@ -23,6 +23,21 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.fincapy.com',
+          },
+        ],
+        destination: 'https://fincapy.com/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withBundleAnalyzer(bundleAnalyzerConfig)(nextConfig);

@@ -28,7 +28,6 @@ import React, {
 import { set } from 'zod';
 import { TransactionContext } from './transaction';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { sub } from 'date-fns';
 
 export function DataTable({ columns, data }) {
@@ -52,7 +51,12 @@ export function DataTable({ columns, data }) {
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea className="border rounded-xl w-full h-full">
+      <ScrollArea
+        className="border rounded-xl w-full"
+        style={{ maxHeight: '70vh' }}
+        onScroll={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         <Table className="text-md">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -99,9 +103,7 @@ export function DataTable({ columns, data }) {
             )}
           </TableBody>
         </Table>
-        <VisuallyHidden>
-          <ScrollBar orientation="horizontal" />
-        </VisuallyHidden>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </TransactionContext.Provider>
   );

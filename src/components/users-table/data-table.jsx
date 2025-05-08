@@ -26,6 +26,59 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);
+  const scrollAreaRef = useRef(null);
+
+  // Event handlers to prevent propagation
+  const handleScrollEvent = useCallback((e) => {
+    e.stopPropagation();
+    // Also stop immediate propagation to prevent parent native event listeners
+    if (e.nativeEvent) {
+      e.nativeEvent.stopImmediatePropagation();
+    }
+  }, []);
+
+  // Add capture phase event listeners to intercept events before they bubble
+  useEffect(() => {
+    const scrollAreaElement = scrollAreaRef.current;
+    if (!scrollAreaElement) return;
+
+    const handleTouchEvents = (e) => {
+      // Stop propagation in capture phase
+      e.stopPropagation();
+      // Prevent immediate propagation to other listeners
+      e.stopImmediatePropagation();
+    };
+
+    // Add capture phase event listeners (true as third parameter)
+    scrollAreaElement.addEventListener('touchstart', handleTouchEvents, {
+      capture: true,
+      passive: false,
+    });
+    scrollAreaElement.addEventListener('touchmove', handleTouchEvents, {
+      capture: true,
+      passive: false,
+    });
+    scrollAreaElement.addEventListener('touchend', handleTouchEvents, {
+      capture: true,
+      passive: false,
+    });
+
+    return () => {
+      // Clean up listeners
+      scrollAreaElement.removeEventListener('touchstart', handleTouchEvents, {
+        capture: true,
+        passive: false,
+      });
+      scrollAreaElement.removeEventListener('touchmove', handleTouchEvents, {
+        capture: true,
+        passive: false,
+      });
+      scrollAreaElement.removeEventListener('touchend', handleTouchEvents, {
+        capture: true,
+        passive: false,
+      });
+    };
+  }, []);
 
   const table = useReactTable({
     data,
@@ -43,7 +96,15 @@ export function DataTable({ columns, data }) {
 
   return (
     <TransactionContext.Provider value={data}>
-      <ScrollArea className="border rounded-xl grid overflow-auto">
+      <ScrollArea
+        ref={scrollAreaRef}
+        className="border rounded-xl w-full"
+        style={{ maxHeight: '30vh' }}
+        onScroll={handleScrollEvent}
+        onTouchMove={handleScrollEvent}
+        onTouchStart={handleScrollEvent}
+        onTouchEnd={handleScrollEvent}
+      >
         <Table className="text-md">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${post.title} - Fincapy Blog`,
     description: post.subheading,
-    metadataBase: new URL(baseUrl),
+    metadataBase: new URL('https://fincapy.com'),
     openGraph: {
       title: post.title,
       description: post.subheading,

@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import Script from 'next/script';
 
 export const metadata = {
-  title: 'Who will your money make you?',
+  title: 'Fincapy',
   description:
     'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
   metadataBase: new URL('https://fincapy.com'),
@@ -11,7 +11,7 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Who will your money make you?',
+    title: 'Fincapy',
     description:
       'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
     images: [{ url: 'https://fincapy.com/capybara.png' }],

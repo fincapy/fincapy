@@ -25,6 +25,9 @@ export async function generateMetadata({ params }) {
     title: `${post.title} - Fincapy Blog`,
     description: post.subheading,
     metadataBase: new URL('https://fincapy.com'),
+    alternates: {
+      canonical: `https://fincapy.com/blog/${awaitedParams.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.subheading,
@@ -40,7 +43,6 @@ export async function generateMetadata({ params }) {
         },
       ],
     },
-    canonical: `https://fincapy.com/blog/${awaitedParams.slug}`,
   };
 }
 

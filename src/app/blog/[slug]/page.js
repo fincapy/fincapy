@@ -57,7 +57,7 @@ export default function PostPage({ params: { slug } }) {
       <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 text-gray-600 font-serif mt-12">
         <Link
           href="/blog"
-          className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-6"
+          className="inline-flex items-center text-amber-700 hover:text-amber-800 mb-6"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

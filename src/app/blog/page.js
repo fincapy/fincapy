@@ -27,7 +27,7 @@ export default function BlogPage() {
           style={{ backgroundImage: 'url(/blog/blog-background.png)' }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50">
-            <div className="flex items-center justify-center h-full p-4 pt-4 -mt-6 md:-mt-0">
+            <div className="flex items-center justify-center h-full p-4 pt-4 -mt-8 sm:-mt-0">
               <div className="flex flex-col md:flex-row gap-8 items-center md:mt-0">
                 <Image
                   src={featured.image}

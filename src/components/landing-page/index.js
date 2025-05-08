@@ -85,11 +85,11 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20 mb-10 md:mb-0">
+      <section className="w-full h-[90vh] flex-col items-center justify-center content-center -mt-20 mb-10 sm:mb-0">
         <div className="flex flex-col items-center gap-4 sm:gap-6 text-center w-full">
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
-            <div className="max-w-xs md:max-w-xl">
-              <h1 className="md:text-6xl text-5xl font-bold tracking-tighter text-center text-gray-900">
+            <div className="max-w-xs sm:max-w-xl">
+              <h1 className="sm:text-6xl text-5xl font-bold tracking-tighter text-center text-gray-900">
                 Who Will <span className="text-secondary">Your Money</span> Make
                 You?
               </h1>

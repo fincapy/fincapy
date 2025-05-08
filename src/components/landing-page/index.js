@@ -94,7 +94,7 @@ export default function Home() {
                 You?
               </h1>
             </div>
-            <div className="max-w-xl">
+            <div className="max-w-[95vw]">
               <p className="text-muted-foreground md:text-xl text-lg text-center italic">
                 Understand yourself and your finances. Instant insights, zero
                 hassle, capybara approved.

@@ -93,6 +93,7 @@ export default function PostPage({ params: { slug } }) {
                 width={40}
                 height={40}
                 className="object-cover"
+                priority
               />
             </div>
             <div>

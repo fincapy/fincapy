@@ -30,12 +30,18 @@ export default function BlogPage() {
       <BlogNavbar />
       {/* Full width background header with overlaid feature card */}
       <div className="relative w-full">
-        {/* Background image */}
-        <div
-          className="w-full h-[100vh] md:h-[90vh] bg-cover bg-center relative font-serif"
-          style={{ backgroundImage: 'url(/blog/blog-background.png)' }}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-50">
+        {/* Background image container */}
+        <div className="w-full h-[100vh] md:h-[90vh] relative font-serif">
+          {/* Next.js Image as background */}
+          <Image
+            src="/blog/blog-background.png"
+            alt="Blog background"
+            fill
+            priority
+            className="object-cover z-0"
+            quality={85}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50 z-10">
             <div className="flex items-center justify-center h-full p-4 pt-4 -mt-8 sm:-mt-0">
               <div className="flex flex-col md:flex-row gap-8 items-center md:mt-0">
                 <Image

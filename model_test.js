@@ -39,10 +39,10 @@ async function main() {
 
   // Format for Bedrock Converse API
   const requestBody = {
-    modelId: 'us.meta.llama4-maverick-17b-instruct-v1:0',
+    modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
     system: [
       {
-        text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters.',
+        text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters. Be succint in your reasoning.',
       },
     ],
     messages: [
@@ -60,6 +60,10 @@ async function main() {
       temperature: 0,
       topP: 1,
     },
+    thinking: {
+      type: 'disabled',
+      // budgetTokens: 1024,
+    },
     toolConfig: {
       tools: [
         {
@@ -71,18 +75,6 @@ async function main() {
               json: {
                 type: 'object',
                 properties: {
-                  type: {
-                    type: 'string',
-                    description:
-                      'Type of the transaction. "refund", "income", and "credit_card_payment" will be positive (+) amounts. "spending" and "transfer" will be negative (-) amounts.',
-                    enum: [
-                      'spending',
-                      'transfer',
-                      'credit_card_payment',
-                      'refund',
-                      'income',
-                    ],
-                  },
                   category: {
                     type: 'string',
                     description: 'The category of the transaction.',
@@ -111,7 +103,7 @@ async function main() {
                     ],
                   },
                 },
-                required: ['transaction_type', 'transaction_category'],
+                required: ['transaction_category'],
               },
             },
           },
@@ -124,7 +116,8 @@ async function main() {
   const command = new ConverseCommand(requestBody);
 
   const response = await client.send(command);
-  let toolCall = response.output.message.content[0].toolUse.input;
+  console.log('response', response.output.message);
+  let toolCall = response.output.message.content[1].toolUse.input;
   let { inputTokens, outputTokens, totalTokens } = response.usage;
 
   console.log('original toolCall', toolCall);

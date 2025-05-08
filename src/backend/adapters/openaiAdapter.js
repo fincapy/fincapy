@@ -39,8 +39,8 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(600); // Limit for requests per minute
-    this.typeRateLimiter = new RateLimiter(600); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(200); // Limit for requests per minute
+    this.typeRateLimiter = new RateLimiter(200); // Limit for requests per minute
   }
 
   async getTransactionCategory({
@@ -72,7 +72,7 @@ class OpenaiAdapter {
 
       // Format for Bedrock Converse API
       const requestBody = {
-        modelId: 'us.meta.llama4-maverick-17b-instruct-v1:0',
+        modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
         system: [
           {
             text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters.',
@@ -88,10 +88,9 @@ class OpenaiAdapter {
             ],
           },
         ],
-        inferenceConfig: {
-          maxTokens: 3000,
-          temperature: 0,
-          topP: 1,
+        thinking: {
+          type: 'enabled',
+          budgetTokens: 1024,
         },
         toolConfig: {
           tools: [

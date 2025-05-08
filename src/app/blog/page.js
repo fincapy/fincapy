@@ -7,6 +7,13 @@ export const metadata = {
   title: 'Blog – Fincapy',
   description:
     'Latest articles and tutorials on personal finance and budgeting.',
+  canonical: 'https://fincapy.com/blog',
+  openGraph: {
+    title: 'Blog – Fincapy',
+    description:
+      'Latest articles and tutorials on personal finance and budgeting.',
+    canonical: 'https://fincapy.com/blog',
+  },
 };
 
 export default function BlogPage() {

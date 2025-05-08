@@ -23,13 +23,11 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${post.title} - Fincapy Blog`,
-    description: post.summary,
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_APP_URL || 'https://fincapy.com'
-    ),
+    description: post.subheading,
+    metadataBase: new URL(baseUrl),
     openGraph: {
       title: post.title,
-      description: post.summary,
+      description: post.subheading,
       type: 'article',
       publishedTime: post.date,
       authors: [post.author.name],
@@ -42,6 +40,7 @@ export async function generateMetadata({ params }) {
         },
       ],
     },
+    canonical: `https://fincapy.com/blog/${awaitedParams.slug}`,
   };
 }
 

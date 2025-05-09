@@ -131,7 +131,7 @@ class OpenaiAdapter {
         console.log(`Output Tokens: ${outputTokens}`);
         console.log(`Total Tokens: ${totalTokens}`);
 
-        categories = response.output.message.content[0].toolUse.input;
+        categories = response.output.message.content[1].toolUse.input;
         break;
       } catch (error) {
         console.error(`Attempt ${attemptCount + 1} failed:`, error.message);

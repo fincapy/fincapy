@@ -1277,7 +1277,7 @@ const OpenTransactionTableDialogue = ({
 
   const content = (
     <DialogContent
-      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl"
+      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl overflow-hidden"
       id="transaction-modal"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
@@ -1291,7 +1291,7 @@ const OpenTransactionTableDialogue = ({
           </DialogDescription>
         </VisuallyHidden>
       </DialogHeader>
-      <div className="grid place-items-center w-full max-h-[70vh]">
+      <div className="grid place-items-center w-full max-h-[70vh] overflow-y-auto">
         <TransactionTable transactions={transactions} />
       </div>
     </DialogContent>

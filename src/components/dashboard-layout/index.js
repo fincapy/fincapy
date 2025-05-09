@@ -23,7 +23,7 @@ import {
   ScrollBarWithPulldown,
 } from '@/components/ui/scroll-area-with-pulldown';
 import { PlanContext } from './planContext';
-import { useState } from 'react';
+import { useState, useDeferredValue } from 'react';
 import { Plan } from '@/backend/domain/plan';
 import { Category } from '@/backend/domain/category';
 import { Subcategory } from '@/backend/domain/subcategory';
@@ -94,8 +94,8 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
           page === 'account' ||
           page === 'manage-users' ||
           page === 'financial-institutions'
-            ? 'text-[13px] font-bold text-amber-600'
-            : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600'
+            ? 'text-[13px] font-bold text-amber-600 select-none'
+            : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
         }
       >
         Account
@@ -140,8 +140,8 @@ const NavBar = ({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'spending'
-                  ? 'text-[13px] font-bold text-amber-600'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600'
+                  ? 'text-[13px] font-bold text-amber-600 select-none'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
               }
             >
               Spending
@@ -162,8 +162,8 @@ const NavBar = ({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'income'
-                  ? 'text-[13px] font-bold text-amber-600'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600'
+                  ? 'text-[13px] font-bold text-amber-600 select-none'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
               }
             >
               Income
@@ -184,8 +184,8 @@ const NavBar = ({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'savings'
-                  ? 'text-[13px] font-bold text-amber-600'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600'
+                  ? 'text-[13px] font-bold text-amber-600 select-none'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
               }
             >
               Savings
@@ -206,8 +206,8 @@ const NavBar = ({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[13px] font-bold text-amber-600'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600'
+                  ? 'text-[13px] font-bold text-amber-600 select-none'
+                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
               }
             >
               Transactions
@@ -276,7 +276,8 @@ export default function DashboardLayout({
   );
   const setCurrentUserId = useSetAtom(currentUserIdAtom);
   const setCurrentUserRole = useSetAtom(currentUserRoleAtom);
-  const [page, setPage] = useState(pageParam || 'spending');
+  const [immediatePage, setImmediatePage] = useState(pageParam || 'spending');
+  const page = useDeferredValue(immediatePage);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
   const previousDates = useRef({
@@ -355,7 +356,7 @@ export default function DashboardLayout({
   return (
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
-        <PageContext.Provider value={{ page, setPage }}>
+        <PageContext.Provider value={{ page, setPage: setImmediatePage }}>
           <main
             className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-background"
             onTouchStart={handleScrollAreaFocus}
@@ -372,7 +373,11 @@ export default function DashboardLayout({
             >
               {children}
             </ScrollAreaWithPulldown>
-            <NavBar page={page} setPage={setPage} userRole={userRole} />
+            <NavBar
+              page={immediatePage}
+              setPage={setImmediatePage}
+              userRole={userRole}
+            />
           </main>
         </PageContext.Provider>
       </EndDateContext.Provider>

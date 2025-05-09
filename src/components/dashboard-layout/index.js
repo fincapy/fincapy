@@ -62,7 +62,54 @@ import { useStandalone } from '@/hooks/use-standalone';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 
+// define TapButton to require a quick tap on mobile
+const TapButton = ({ onTap, children, className, ...rest }) => {
+  const isMobile = useIsMobile();
+  const startTimeRef = useRef(0);
+  const movedRef = useRef(false);
+  const threshold = 300; // ms threshold for tap vs press-and-hold
+  const handleTouchStart = () => {
+    startTimeRef.current = performance.now();
+    movedRef.current = false;
+  };
+  const handleTouchMove = () => {
+    movedRef.current = true;
+  };
+  const handleTouchEnd = () => {
+    const duration = performance.now() - startTimeRef.current;
+    if (!movedRef.current && duration < threshold) {
+      onTap();
+    }
+  };
+  if (isMobile) {
+    return (
+      <button
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className={`${className} select-none`}
+        style={{
+          touchAction: 'manipulation',
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        }}
+        {...rest}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <button onClick={onTap} className={className} {...rest}>
+      {children}
+    </button>
+  );
+};
+
 const AccountDropdown = ({ userRole, setPage, page }) => {
+  const isMobile = useIsMobile();
+  const hoverClass = isMobile ? '' : 'group-hover:text-amber-600';
   const setPageCookie = (page) => {
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
@@ -75,8 +122,8 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
   };
 
   return (
-    <button
-      onClick={() => changePage('account')}
+    <TapButton
+      onTap={() => changePage('account')}
       className="flex flex-col items-center gap-[0px] group outline-none"
     >
       <UserRound
@@ -86,7 +133,7 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-amber-600 -mb-[2px]'
-            : 'text-muted/80 group-hover:text-amber-600 -mb-[2px]'
+            : `text-muted/80 ${hoverClass} -mb-[2px]`
         }
       />
       <span
@@ -95,12 +142,12 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-[13px] font-bold text-amber-600 select-none'
-            : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
+            : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
         }
       >
         Account
       </span>
-    </button>
+    </TapButton>
   );
 };
 
@@ -117,6 +164,8 @@ const NavBar = ({ page, setPage, userRole }) => {
   };
 
   const isStandalone = useStandalone();
+  const isMobile = useIsMobile();
+  const hoverClass = isMobile ? '' : 'group-hover:text-amber-600';
 
   return (
     <div
@@ -125,8 +174,8 @@ const NavBar = ({ page, setPage, userRole }) => {
       <Separator className="w-full h-[1px] bg-border" />
       <div className="flex flex-row justify-center items-start lg:w-[33.33%] md:w-[50%] w-[95%] select-none h-full">
         <div className="flex flex-row justify-between items-center flex-1">
-          <button
-            onClick={() => changePage('spending')}
+          <TapButton
+            onTap={() => changePage('spending')}
             className="flex flex-col items-center gap-[0px] group"
           >
             <HandCoins
@@ -134,21 +183,21 @@ const NavBar = ({ page, setPage, userRole }) => {
               className={
                 page === 'spending'
                   ? 'text-amber-600 -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-amber-600 -mb-[2px]'
+                  : `text-muted/80 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'spending'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
+                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
               }
             >
               Spending
             </span>
-          </button>
-          <button
-            onClick={() => changePage('income')}
+          </TapButton>
+          <TapButton
+            onTap={() => changePage('income')}
             className="flex flex-col items-center gap-[0px] group"
           >
             <CircleDollarSign
@@ -156,21 +205,21 @@ const NavBar = ({ page, setPage, userRole }) => {
               className={
                 page === 'income'
                   ? 'text-amber-600 -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-amber-600 -mb-[2px]'
+                  : `text-muted/80 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'income'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
+                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
               }
             >
               Income
             </span>
-          </button>
-          <button
-            onClick={() => changePage('savings')}
+          </TapButton>
+          <TapButton
+            onTap={() => changePage('savings')}
             className="flex flex-col items-center gap-[0px] group"
           >
             <PiggyBank
@@ -178,21 +227,21 @@ const NavBar = ({ page, setPage, userRole }) => {
               className={
                 page === 'savings'
                   ? 'text-amber-600 -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-amber-600 -mb-[2px]'
+                  : `text-muted/80 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'savings'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
+                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
               }
             >
               Savings
             </span>
-          </button>
-          <button
-            onClick={() => changePage('transactions')}
+          </TapButton>
+          <TapButton
+            onTap={() => changePage('transactions')}
             className="flex flex-col items-center gap-[0px] group"
           >
             <Table
@@ -200,19 +249,19 @@ const NavBar = ({ page, setPage, userRole }) => {
               className={
                 page === 'transactions'
                   ? 'text-amber-600 -mb-[2px]'
-                  : 'text-muted/80 group-hover:text-amber-600 -mb-[2px]'
+                  : `text-muted/80 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'transactions'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : 'text-[13px] font-bold text-muted/80 group-hover:text-amber-600 select-none'
+                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
               }
             >
               Transactions
             </span>
-          </button>
+          </TapButton>
           <AccountDropdown userRole={userRole} setPage={setPage} page={page} />
         </div>
       </div>

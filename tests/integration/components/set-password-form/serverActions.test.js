@@ -88,7 +88,7 @@ describe('Set Password Form Server Actions', () => {
           httpOnly: true,
           path: '/',
           sameSite: 'lax',
-          maxAge: 600000,
+          maxAge: 60 * 10,
         })
       );
 
@@ -123,7 +123,7 @@ describe('Set Password Form Server Actions', () => {
           httpOnly: true,
           path: '/',
           sameSite: 'lax',
-          maxAge: 600000,
+          maxAge: 60 * 10,
         })
       );
     });
@@ -252,7 +252,7 @@ describe('Set Password Form Server Actions', () => {
           httpOnly: true,
           path: '/',
           sameSite: 'lax',
-          maxAge: 600000,
+          maxAge: 60 * 10,
         })
       );
 
@@ -286,7 +286,7 @@ describe('Set Password Form Server Actions', () => {
           httpOnly: true,
           path: '/',
           sameSite: 'lax',
-          maxAge: 600000,
+          maxAge: 60 * 10,
         })
       );
     });

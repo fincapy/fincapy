@@ -236,7 +236,7 @@ describe('Email Verification Form Server Actions', () => {
           httpOnly: true,
           secure: false, // false in development
           sameSite: 'lax',
-          maxAge: 60 * 10 * 1000, // 10 minutes
+          maxAge: 60 * 10, // 10 minutes
         }
       );
       expect(redirect).toHaveBeenCalledWith('/register-totp');

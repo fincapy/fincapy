@@ -84,7 +84,7 @@ describe('Sign In Form Server Actions', () => {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 60 * 10 * 1000, // 10 minutes
+          maxAge: 60 * 10, // 10 minutes
         }
       );
 

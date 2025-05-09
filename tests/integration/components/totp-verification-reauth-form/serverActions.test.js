@@ -188,7 +188,7 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 60 * 5 * 1000, // 5 minutes
+          maxAge: 60 * 5, // 5 minutes
         }
       );
 
@@ -285,7 +285,7 @@ describe('TOTP Verification Reauth Form Server Actions', () => {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 60 * 5 * 1000, // 5 minutes
+          maxAge: 60 * 5, // 5 minutes
         }
       );
 

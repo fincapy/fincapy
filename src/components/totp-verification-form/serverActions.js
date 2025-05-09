@@ -34,16 +34,11 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       return false;
     }
 
-    try {
-      jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
-        algorithms: ['HS256'],
-      });
-    } catch (jwtError) {
-      console.error('JWT verification error:', jwtError.message);
-      return false;
-    }
+    jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+    });
   } catch (error) {
-    console.error('TOTP cookie access error:', error);
+    console.log('TOTP invalid authentication token', error);
     return false;
   }
 
@@ -55,8 +50,6 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   return await rateLimiter.withRateLimit(
     { ip, processId: 'verifyTOTP', userId: jwtToken.userId },
     async () => {
-      console.log('TOTP verification attempt for userId:', jwtToken.userId);
-
       const validation = validateAndSanitize(
         rawToken,
         isBackupCode ? backupCodeSchema : totpSchema

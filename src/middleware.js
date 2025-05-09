@@ -3,7 +3,12 @@ import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  const prodCspHeader = `
+  // Check if current page is either privacy policy or terms of service
+  const requiresUnsafeEval =
+    request.nextUrl.pathname === '/privacy-policy' ||
+    request.nextUrl.pathname === '/terms-of-service';
+
+  const standardCspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline';
     connect-src 'self' https://*.plaid.com https://*.mixpanel.com;
@@ -17,9 +22,29 @@ export async function middleware(request) {
     form-action 'self';
     frame-ancestors 'none';
     upgrade-insecure-requests;
-`;
+  `;
 
-  const cspHeader = prodCspHeader;
+  const privacyPolicyCspHeader = `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline' 'unsafe-eval';
+    connect-src 'self' https://*.plaid.com https://*.mixpanel.com;
+    frame-src 'self' https://plaid.com https://*.plaid.com;
+    child-src 'self' https://plaid.com https://*.plaid.com;
+    style-src 'self' https: 'unsafe-inline';
+    img-src 'self';
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `;
+
+  // Choose the appropriate CSP based on the current route
+  const cspHeader = requiresUnsafeEval
+    ? privacyPolicyCspHeader
+    : standardCspHeader;
+
   // Replace newline characters and spaces
   const contentSecurityPolicyHeaderValue = cspHeader
     .replace(/\s{2,}/g, ' ')

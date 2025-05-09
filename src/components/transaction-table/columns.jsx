@@ -256,7 +256,7 @@ const EditTransactionForm = ({
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-card">
                   <SelectItem value="PENDING">PENDING</SelectItem>
                   <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                 </SelectContent>
@@ -277,7 +277,7 @@ const EditTransactionForm = ({
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-card">
                   {transactionTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}

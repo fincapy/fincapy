@@ -1277,7 +1277,7 @@ const OpenTransactionTableDialogue = ({
 
   const content = (
     <DialogContent
-      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl overflow-hidden"
+      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl overflow-y-auto"
       id="transaction-modal"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}

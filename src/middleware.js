@@ -28,7 +28,7 @@ export async function middleware(request) {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline' 'unsafe-eval';
     connect-src 'self' https://*.plaid.com https://*.mixpanel.com;
-    frame-src 'self' https://plaid.com https://*.plaid.com;
+    frame-src 'self' https://plaid.com https://*.plaid.com https://app.termly.io;
     child-src 'self' https://plaid.com https://*.plaid.com;
     style-src 'self' https: 'unsafe-inline';
     img-src 'self';

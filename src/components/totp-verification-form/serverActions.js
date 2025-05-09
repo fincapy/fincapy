@@ -34,11 +34,16 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
       return false;
     }
 
-    jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
-      algorithms: ['HS256'],
-    });
+    try {
+      jwtToken = await jwt.verify(cookieValue, process.env.JWT_SECRET, {
+        algorithms: ['HS256'],
+      });
+    } catch (jwtError) {
+      console.error('JWT verification error:', jwtError.message);
+      return false;
+    }
   } catch (error) {
-    console.log('TOTP invalid authentication token');
+    console.error('TOTP cookie access error:', error);
     return false;
   }
 
@@ -50,6 +55,8 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
   return await rateLimiter.withRateLimit(
     { ip, processId: 'verifyTOTP', userId: jwtToken.userId },
     async () => {
+      console.log('TOTP verification attempt for userId:', jwtToken.userId);
+
       const validation = validateAndSanitize(
         rawToken,
         isBackupCode ? backupCodeSchema : totpSchema
@@ -94,7 +101,7 @@ export async function verifyTOTP(rawToken, isBackupCode = false) {
           secret: user.totpSecret,
           encoding: 'base32',
           token: token,
-          window: 1,
+          window: 2,
         });
       }
 

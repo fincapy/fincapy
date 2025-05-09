@@ -113,8 +113,8 @@ export function DataTable({ columns, data }) {
         onTouchStart={handleScrollEvent}
         onTouchEnd={handleScrollEvent}
       >
-        <Table className="text-md">
-          <TableHeader>
+        <Table className="text-md relative">
+          <TableHeader className="sticky top-0 bg-background z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (

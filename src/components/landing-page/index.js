@@ -408,7 +408,7 @@ export default function Home() {
               </div>
               <div>
                 <Link
-                  href="/privacy"
+                  href="/privacy-policy"
                   className="text-sm text-muted-foreground hover:text-foreground font-medium"
                 >
                   Privacy Policy
@@ -416,7 +416,7 @@ export default function Home() {
               </div>
               <div>
                 <Link
-                  href="/terms"
+                  href="/terms-of-service"
                   className="text-sm text-muted-foreground hover:text-foreground font-medium"
                 >
                   Terms of Service
@@ -424,7 +424,7 @@ export default function Home() {
               </div>
               <div>
                 <Link
-                  href="/trust"
+                  href="/why-trust-us"
                   className="text-sm text-muted-foreground hover:text-foreground font-medium"
                 >
                   Why Trust Us

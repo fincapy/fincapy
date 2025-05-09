@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { getSortedPosts, getReadingTime } from './data';
 import BlogNavbar from './blogNavbar';
 export const metadata = {
-  title: 'Blog – Fincapy',
+  title: 'The Fincapy Blog',
   description:
     'Latest articles and tutorials on personal finance and budgeting.',
   alternates: {

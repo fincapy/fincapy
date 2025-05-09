@@ -8,7 +8,7 @@ export const metadata = {
     'Understand yourself and your finances with Fincapy. Instant insights, zero hassle, capybara approved. A customizable and automated budgeting solution that just works.',
   metadataBase: new URL('https://fincapy.com'),
   alternates: {
-    canonical: '/',
+    canonical: 'https://fincapy.com',
   },
   openGraph: {
     title: 'Fincapy',

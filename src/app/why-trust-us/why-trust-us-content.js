@@ -82,8 +82,8 @@ export default function WhyTrustUsContent() {
           Why Trust <span className="text-secondary">Fincapy</span>?
         </h1>
         <p className="text-muted-foreground md:text-xl text-lg max-w-2xl mx-auto italic">
-          Your privacy and security are our top priorities. Here's how we keep
-          your data safe and your trust at the center of everything we do.
+          Your privacy and security are our top priorities. Here&apos;s how we
+          keep your data safe and your trust at the center of everything we do.
         </p>
       </section>
 
@@ -132,7 +132,7 @@ export default function WhyTrustUsContent() {
                 parties.
               </li>
               <li>
-                Minimal data collection: only what's needed to provide our
+                Minimal data collection: only what&apos;s needed to provide our
                 service.
               </li>
               <li>
@@ -200,7 +200,7 @@ export default function WhyTrustUsContent() {
             </h2>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2 text-lg">
               <li>Clear, simple pricing—no hidden fees or surprise charges.</li>
-              <li>30-day money-back guarantee if you're not satisfied.</li>
+              <li>30-day money-back guarantee if you&apos;re not satisfied.</li>
               <li>
                 Open communication: reach us anytime at{' '}
                 <span className="font-semibold text-amber-700">

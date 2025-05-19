@@ -136,12 +136,12 @@ async function authenticateEmailPassword(rawInput) {
           } else {
             console.log('emailVerificationCode', emailVerificationCode);
           }
-          return () => redirect('/verify-email');
+          return redirect('/verify-email');
         }
         if (!user.totpEnabled) {
-          return () => redirect('/register-totp');
+          return redirect('/register-totp');
         }
-        return () => redirect('/verify-totp');
+        return redirect('/verify-totp');
       }
       console.log('Invalid email/password combination');
       return false;

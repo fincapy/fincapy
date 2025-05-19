@@ -14,8 +14,6 @@ const TOTPVerificationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [useBackupCode, setUseBackupCode] = useState(false);
   const [backupCode, setBackupCode] = useState('');
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 2;
 
   const getTimeLeft = () => {
     if (typeof window !== 'undefined') {
@@ -63,26 +61,8 @@ const TOTPVerificationForm = () => {
     const result = await verifyTOTP(otp);
 
     if (!result) {
-      if (retryCount < MAX_RETRIES) {
-        setError(
-          `Verification failed. Retrying automatically... (${retryCount + 1}/${MAX_RETRIES})`
-        );
-        setRetryCount((prev) => prev + 1);
-        // Add a slight delay before retrying
-        setTimeout(() => {
-          verifyTOTP(otp).then((retryResult) => {
-            if (!retryResult) {
-              setError(
-                'Invalid verification code. Please try again or sign in again.'
-              );
-            }
-            setIsSubmitting(false);
-          });
-        }, 1000);
-      } else {
-        setError('Invalid verification code. Please try signing in again.');
-        setIsSubmitting(false);
-      }
+      setError('Invalid verification code. Please try again.');
+      setIsSubmitting(false);
     } else {
       setIsSubmitting(false);
     }
@@ -100,26 +80,8 @@ const TOTPVerificationForm = () => {
     const result = await verifyTOTP(backupCode, true);
 
     if (!result) {
-      if (retryCount < MAX_RETRIES) {
-        setError(
-          `Verification failed. Retrying automatically... (${retryCount + 1}/${MAX_RETRIES})`
-        );
-        setRetryCount((prev) => prev + 1);
-        // Add a slight delay before retrying
-        setTimeout(() => {
-          verifyTOTP(backupCode, true).then((retryResult) => {
-            if (!retryResult) {
-              setError(
-                'Invalid backup code. Please try again or sign in again.'
-              );
-            }
-            setIsSubmitting(false);
-          });
-        }, 1000);
-      } else {
-        setError('Invalid backup code. Please try signing in again.');
-        setIsSubmitting(false);
-      }
+      setError('Invalid backup code. Please try again.');
+      setIsSubmitting(false);
     } else {
       setIsSubmitting(false);
     }

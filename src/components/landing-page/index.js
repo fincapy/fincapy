@@ -88,14 +88,13 @@ export default function Home() {
           <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto flex flex-col items-center justify-center">
             <div className="max-w-xs sm:max-w-xl">
               <h1 className="sm:text-6xl text-5xl font-bold tracking-tighter text-center text-gray-900">
-                Who Will <span className="text-secondary">Your Money</span> Make
-                You?
+                Budgets on <span className="text-secondary">Autopilot</span>
               </h1>
             </div>
             <div className="max-w-[95vw]">
               <p className="text-muted-foreground md:text-xl text-lg text-center italic">
-                Understand yourself and your finances. Instant insights, zero
-                hassle, capybara approved.
+                Instant insights, zero hassle, capybara approved. A budgeting
+                app that just works.
               </p>
             </div>
             <Link href="/signup" passHref legacyBehavior>

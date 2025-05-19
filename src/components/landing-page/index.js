@@ -9,7 +9,6 @@ import { WaitlistModal } from '@/components/waitlist-modal';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
-  const ctaText = 'Join the waitlist';
   const [modalOpen, setModalOpen] = useState(false);
   const [annualBilling, setAnnualBilling] = useState(true);
   const logoRef = useRef(null);
@@ -74,12 +73,11 @@ export default function Home() {
                 Sign In
               </Button>
             </Link>
-            <Button
-              className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
-              onClick={handleOpenModal}
-            >
-              {ctaText}
-            </Button>
+            <Link href="/signup" passHref legacyBehavior>
+              <Button className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
+                Sign Up
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -100,14 +98,15 @@ export default function Home() {
                 hassle, capybara approved.
               </p>
             </div>
-            <Button
-              ref={ctaButtonRef}
-              size="lg"
-              className="w-[200px] bg-amber-500 text-gray-900 hover:bg-amber-600 font-bold text-md relative border border-amber-600"
-              onClick={handleOpenModal}
-            >
-              {ctaText}
-            </Button>
+            <Link href="/signup" passHref legacyBehavior>
+              <Button
+                ref={ctaButtonRef}
+                size="lg"
+                className="w-[200px] bg-amber-500 text-gray-900 hover:bg-amber-600 font-bold text-md relative border border-amber-600"
+              >
+                Start For Free
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -267,12 +266,11 @@ export default function Home() {
                 <PricingFeature text="Automatic transaction imports" included />
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
-              <Button
-                className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
-                onClick={handleOpenModal}
-              >
-                {ctaText}
-              </Button>
+              <Link href="/signup" passHref legacyBehavior>
+                <Button className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
+                  Start For Free
+                </Button>
+              </Link>
             </Card>
 
             <Card className="flex flex-col p-6 border">
@@ -293,13 +291,14 @@ export default function Home() {
                   included={false}
                 />
               </ul>
-              <Button
-                className="w-full bg-card hover:bg-background mt-auto"
-                variant="outline"
-                onClick={handleOpenModal}
-              >
-                {ctaText}
-              </Button>
+              <Link href="/signup" passHref legacyBehavior>
+                <Button
+                  className="w-full bg-card hover:bg-background mt-auto"
+                  variant="outline"
+                >
+                  Start For Free
+                </Button>
+              </Link>
             </Card>
           </div>
 
@@ -382,13 +381,14 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
               Ready to Take Control of Your Finances?
             </h2>
-            <Button
-              size="lg"
-              className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900"
-              onClick={handleOpenModal}
-            >
-              {ctaText}
-            </Button>
+            <Link href="/signup" passHref legacyBehavior>
+              <Button
+                size="lg"
+                className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900"
+              >
+                Start For Free
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -51,7 +51,10 @@ class OpenaiAdapter {
   }) {
     const createPrompt = () => {
       return `
-        You are a transaction categorizer. Categorize the transaction based on the description and the past edits. Call the "categorize_transaction" tool with the correct parameters.
+        You are a transaction categorizer. Categorize the transaction based on the description and the past edits. 
+        
+        ##IMPORTANT##
+        Call the "categorize_transaction" tool with the correct parameters.
       
         Follow these rules:
         1. The most recent edit's user_override_category with a description relevant to the transaction should be used.

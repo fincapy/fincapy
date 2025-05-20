@@ -1,5 +1,6 @@
 import Script from 'next/script';
 import { headers } from 'next/headers';
+import PrivacyPolicyPage from './privacy-component';
 
 export const metadata = {
   title: 'Fincapy | Privacy Policy',
@@ -21,18 +22,9 @@ export default async function PrivacyPolicy() {
 
   return (
     <div className="py-2 h-full flex justify-center">
-      <div
-        name="termly-embed"
-        data-id="adce23a1-078c-4dbf-9aeb-6df13709080d"
-        className="w-[95%] max-w-4xl"
-      ></div>
-
-      <Script
-        id="termly-script"
-        src="https://app.termly.io/embed-policy.min.js"
-        strategy="afterInteractive"
-        nonce={nonce}
-      />
+      <div className="w-[95%] max-w-4xl">
+        <PrivacyPolicyPage nonce={nonce} />
+      </div>
     </div>
   );
 }

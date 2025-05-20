@@ -1,5 +1,6 @@
 import Script from 'next/script';
 import { headers } from 'next/headers';
+import TermsOfServicePage from './terms-component';
 
 export const metadata = {
   title: 'Fincapy | Terms of Service',
@@ -21,18 +22,9 @@ export default async function TermsOfService() {
 
   return (
     <div className="py-2 h-full flex justify-center">
-      <div
-        name="termly-embed"
-        data-id="aa41ec73-64aa-4e13-95bd-2098f1fa6048"
-        className="w-[95%] max-w-4xl"
-      ></div>
-
-      <Script
-        id="termly-script"
-        src="https://app.termly.io/embed-policy.min.js"
-        strategy="afterInteractive"
-        nonce={nonce}
-      />
+      <div className="w-[95%] max-w-4xl">
+        <TermsOfServicePage nonce={nonce} />
+      </div>
     </div>
   );
 }

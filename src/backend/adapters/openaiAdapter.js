@@ -68,7 +68,7 @@ class OpenaiAdapter {
       `;
     };
 
-    const MAX_RETRIES = 5;
+    const MAX_RETRIES = 15;
     let attemptCount = 0;
     let categories;
 
@@ -95,7 +95,7 @@ class OpenaiAdapter {
         ],
         thinking: {
           type: 'enabled',
-          budgetTokens: 1024,
+          budgetTokens: 2000,
         },
         toolConfig: {
           tools: [

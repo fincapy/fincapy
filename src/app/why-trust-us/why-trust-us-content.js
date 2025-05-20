@@ -9,7 +9,7 @@ import { WaitlistModal } from '@/components/waitlist-modal';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function WhyTrustUsContent() {
-  const ctaText = 'Join the waitlist';
+  const ctaText = 'Start For Free';
   const [modalOpen, setModalOpen] = useState(false);
   const MIXPANEL_TOKEN = '050c483ab6f1f8fd53a396d95f7b3c4c';
 
@@ -66,12 +66,14 @@ export default function WhyTrustUsContent() {
                 Sign In
               </Button>
             </Link>
-            <Button
-              className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
-              onClick={handleOpenModal}
-            >
-              {ctaText}
-            </Button>
+            <Link href="/signup">
+              <Button
+                className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
+                onClick={handleOpenModal}
+              >
+                Sign Up
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -222,13 +224,15 @@ export default function WhyTrustUsContent() {
           <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl mb-4">
             Ready to experience secure, private budgeting?
           </h2>
-          <Button
-            size="lg"
-            className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900 font-bold"
-            onClick={handleOpenModal}
-          >
-            {ctaText}
-          </Button>
+          <Link href="/signup">
+            <Button
+              size="lg"
+              className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900 font-bold"
+              onClick={handleOpenModal}
+            >
+              {ctaText}
+            </Button>
+          </Link>
         </div>
       </section>
 

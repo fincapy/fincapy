@@ -10,28 +10,26 @@ export default async function SignUpPage() {
   const env = process.env.NODE_ENV;
 
   return (
-    <AccessGate>
-      <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-background">
-        <div className="flex w-full max-w-sm flex-col gap-6">
-          <div className="flex items-center justify-center">
-            <Image
-              src="/capybara.png"
-              alt="Fincapy"
-              width={64}
-              height={64}
-              className="rounded-full"
-            />
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-background">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <div className="flex items-center justify-center">
+          <Image
+            src="/capybara.png"
+            alt="Fincapy"
+            width={64}
+            height={64}
+            className="rounded-full"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
+          <div className="flex flex-col items-center gap-0 mb-2">
+            <h2 className="text-2xl text-center font-semibold tracking-tight">
+              Welcome!
+            </h2>
           </div>
-          <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-            <div className="flex flex-col items-center gap-0 mb-2">
-              <h2 className="text-2xl text-center font-semibold tracking-tight">
-                Welcome!
-              </h2>
-            </div>
-            <PasswordSignupForm />
-          </div>
+          <PasswordSignupForm />
         </div>
       </div>
-    </AccessGate>
+    </div>
   );
 }

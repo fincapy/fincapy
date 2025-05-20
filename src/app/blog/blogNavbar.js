@@ -51,9 +51,9 @@ export default function BlogNavbar() {
               Sign In
             </Button>
           </Link>
-          <Link href="/#waitlist">
+          <Link href="/signup">
             <Button className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
-              Join the waitlist
+              Sign Up
             </Button>
           </Link>
         </div>

@@ -1,44 +1,10 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { WaitlistModal } from '@/components/waitlist-modal';
-import { v4 as uuidv4 } from 'uuid';
 
 export default function WhyTrustUsContent() {
   const ctaText = 'Start For Free';
-  const [modalOpen, setModalOpen] = useState(false);
-  const MIXPANEL_TOKEN = '050c483ab6f1f8fd53a396d95f7b3c4c';
-
-  const handleOpenModal = () => {
-    setModalOpen(true);
-    window.mixpanel?.track('sign_up_button_clicked', {});
-  };
-
-  useEffect(() => {
-    window.mixpanel?.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
-      debug: process.env.NODE_ENV === 'development',
-      track_pageview: false,
-      persistence: 'localStorage',
-      ip: 0,
-    });
-
-    // Set or get a persistent anonymous ID
-    let distinctId = localStorage.getItem('mp_anonymous_id');
-    if (!distinctId) {
-      distinctId = uuidv4();
-      localStorage.setItem('mp_anonymous_id', distinctId);
-    }
-
-    // Identify the user with the anonymous ID
-    window.mixpanel?.identify(distinctId);
-    if (!localStorage.getItem('mp_existing_user')) {
-      window.mixpanel?.track('why_trust_us_page_viewed', {});
-    }
-  }, [MIXPANEL_TOKEN]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -282,9 +248,6 @@ export default function WhyTrustUsContent() {
           </div>
         </div>
       </footer>
-
-      {/* Waitlist Modal */}
-      <WaitlistModal open={modalOpen} onOpenChange={setModalOpen} />
     </div>
   );
 }

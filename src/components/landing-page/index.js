@@ -13,38 +13,6 @@ export default function Home() {
   const [annualBilling, setAnnualBilling] = useState(true);
   const logoRef = useRef(null);
   const ctaButtonRef = useRef(null);
-  const MIXPANEL_TOKEN = '050c483ab6f1f8fd53a396d95f7b3c4c';
-
-  const handleOpenModal = () => {
-    setModalOpen(true);
-    window.mixpanel.track('sign_up_button_clicked', {});
-  };
-
-  const toggleBilling = () => {
-    setAnnualBilling(!annualBilling);
-  };
-
-  useEffect(() => {
-    window.mixpanel.init(MIXPANEL_TOKEN || 'YOUR_TOKEN', {
-      debug: process.env.NODE_ENV === 'development',
-      track_pageview: false,
-      persistence: 'localStorage',
-      ip: 0,
-    });
-
-    // Set or get a persistent anonymous ID
-    let distinctId = localStorage.getItem('mp_anonymous_id');
-    if (!distinctId) {
-      distinctId = uuidv4();
-      localStorage.setItem('mp_anonymous_id', distinctId);
-    }
-
-    // Identify the user with the anonymous ID
-    window.mixpanel.identify(distinctId);
-    if (!localStorage.getItem('mp_existing_user')) {
-      window.mixpanel.track('home_page_viewed', {});
-    }
-  }, [MIXPANEL_TOKEN]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +41,7 @@ export default function Home() {
                 Sign In
               </Button>
             </Link>
-            <Link href="/signup" passHref legacyBehavior>
+            <Link href="/signup">
               <Button className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
                 Sign Up
               </Button>
@@ -97,9 +65,8 @@ export default function Home() {
                 app that just works.
               </p>
             </div>
-            <Link href="/signup" passHref legacyBehavior>
+            <Link href="/signup">
               <Button
-                ref={ctaButtonRef}
                 size="lg"
                 className="w-[200px] bg-amber-500 text-gray-900 hover:bg-amber-600 font-bold text-md relative border border-amber-600"
               >
@@ -265,7 +232,7 @@ export default function Home() {
                 <PricingFeature text="Automatic transaction imports" included />
                 <PricingFeature text="AI transaction categorization" included />
               </ul>
-              <Link href="/signup" passHref legacyBehavior>
+              <Link href="/signup">
                 <Button className="w-full bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
                   Start For Free
                 </Button>
@@ -290,7 +257,7 @@ export default function Home() {
                   included={false}
                 />
               </ul>
-              <Link href="/signup" passHref legacyBehavior>
+              <Link href="/signup">
                 <Button
                   className="w-full bg-card hover:bg-background mt-auto"
                   variant="outline"
@@ -380,7 +347,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl">
               Ready to Take Control of Your Finances?
             </h2>
-            <Link href="/signup" passHref legacyBehavior>
+            <Link href="/signup">
               <Button
                 size="lg"
                 className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900"

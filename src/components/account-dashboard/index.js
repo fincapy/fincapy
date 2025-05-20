@@ -866,7 +866,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     anytime.
                   </p>
                   <a
-                    href="https://billing.stripe.com/p/login/test_7sI28i4mUcdG8Ok4gg"
+                    href={`${process.env.NODE_ENV === 'production' ? 'https://billing.stripe.com/p/login/00gfZmh0FcG57VmaEE' : 'https://billing.stripe.com/test_7sI28i4mUcdG8Ok4gg'}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full md:w-auto"

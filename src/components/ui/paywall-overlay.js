@@ -1,6 +1,6 @@
 'use client';
 
-import { LockIcon, ArrowUpRightIcon } from 'lucide-react';
+import { LockIcon, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './button';
 import { billingStatusAtom } from '../state/atoms';
@@ -31,7 +31,7 @@ export const PaywallOverlay = ({ title, description, children }) => {
           </p>
           <Link href="/upgrade">
             <Button className="font-semibold mt-2 flex items-center gap-2 bg-primary border border-amber-600 hover:bg-amber-600 text-gray-900">
-              Upgrade Now <ArrowUpRightIcon className="h-4 w-4" />
+              Upgrade Now <Sparkles className="h-4 w-4" />
             </Button>
           </Link>
         </div>

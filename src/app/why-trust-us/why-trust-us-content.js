@@ -33,10 +33,7 @@ export default function WhyTrustUsContent() {
               </Button>
             </Link>
             <Link href="/signup">
-              <Button
-                className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600"
-                onClick={handleOpenModal}
-              >
+              <Button className="bg-primary text-gray-900 hover:bg-amber-600 border border-amber-600">
                 Sign Up
               </Button>
             </Link>
@@ -194,7 +191,6 @@ export default function WhyTrustUsContent() {
             <Button
               size="lg"
               className="bg-primary border border-amber-200 hover:bg-amber-600 text-gray-900 font-bold"
-              onClick={handleOpenModal}
             >
               {ctaText}
             </Button>

@@ -153,11 +153,18 @@ class Plan {
     if (!categoryToDelete) {
       throw new Error('Category not found');
     }
-    const uncategorizedCategory = this.categories.find(
+    let uncategorizedCategory;
+    uncategorizedCategory = this.categories.find(
       (category) =>
         category.type === categoryToDelete.type &&
         category.categoryId.includes('other')
     );
+    if (!uncategorizedCategory) {
+      uncategorizedCategory = this.categories.find(
+        (category) =>
+          category.type === categoryToDelete.type && category.name === 'Other'
+      );
+    }
     uncategorizedCategory.transactions.push(...categoryToDelete.transactions);
     categoryToDelete.subcategories.forEach((subcategory) => {
       uncategorizedCategory.transactions.push(...subcategory.transactions);

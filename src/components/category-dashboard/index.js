@@ -495,11 +495,41 @@ const EditCategoryForm = ({
   const [planState, setPlanState] = useAtom(planAtom);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const { toast } = useToast();
+
+  const category = planState.categories.find(
+    (cat) => cat.categoryId === categoryId
+  );
+  const hasSubcategories =
+    category && category.subcategories && category.subcategories.length > 0;
+  const isSpecialCategory =
+    categoryName === 'Other' || categoryName === 'Savings';
+  const isMonthlyGoalReadOnly = !isSpecialCategory && hasSubcategories;
+
+  let displayedMonthlyGoal = monthlyGoal;
+  if (isMonthlyGoalReadOnly && category && category.subcategories) {
+    displayedMonthlyGoal = category.subcategories.reduce((sum, sub) => {
+      const subGoal = parseFloat(sub.monthlyGoal);
+      return sum + (isNaN(subGoal) ? 0 : subGoal);
+    }, 0);
+  }
+
+  const formatValue = (value) => {
+    if (value === null || value === undefined || value === '' || value === '$')
+      return '';
+    let numericValue = null;
+    if (typeof value === 'string') {
+      numericValue = value.replace(/[^0-9]/g, '');
+    } else {
+      numericValue = value;
+    }
+    return `$${new Intl.NumberFormat('en-US').format(Number(numericValue))}`;
+  };
+
   const form = useForm({
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: categoryName,
-      monthlyGoal: monthlyGoal.toString(),
+      monthlyGoal: displayedMonthlyGoal.toString(),
       color: currentUser.categoryColors[categoryId] || color || 'amber',
     },
   });
@@ -554,15 +584,26 @@ const EditCategoryForm = ({
   };
 
   async function onSubmit(values) {
-    const monthlyGoal = parseInt(
-      values.monthlyGoal.replace(',', '').replace('$', ''),
-      10
-    );
     const name = values.name || categoryName;
     const color = values.color;
+    let goalToSubmit;
+
+    if (isMonthlyGoalReadOnly) {
+      goalToSubmit = category
+        ? parseFloat(category.monthlyGoal)
+        : parseFloat(monthlyGoal);
+    } else {
+      goalToSubmit = parseInt(values.monthlyGoal.replace(/[,\$]/g, ''), 10);
+    }
+
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
-    newPlan.updateCategory({ categoryId, name, monthlyGoal, color });
+    newPlan.updateCategory({
+      categoryId,
+      name,
+      monthlyGoal: goalToSubmit,
+      color,
+    });
     const newCurrentUser = { ...currentUser };
     newCurrentUser.categoryColors[categoryId] = color;
     setCurrentUser(newCurrentUser);
@@ -571,7 +612,7 @@ const EditCategoryForm = ({
     handleServerUpdateCategory({
       name,
       categoryId,
-      monthlyGoal,
+      monthlyGoal: goalToSubmit,
       color,
       planId: 'initial',
       setPlanState,
@@ -580,18 +621,6 @@ const EditCategoryForm = ({
       values,
     });
   }
-
-  const formatValue = (value) => {
-    if (value === null || value === undefined || value === '' || value === '$')
-      return '';
-    let numericValue = null;
-    if (typeof value === 'string') {
-      numericValue = value.replace(/[^0-9]/g, '');
-    } else {
-      numericValue = value;
-    }
-    return `$${new Intl.NumberFormat('en-US').format(Number(numericValue))}`;
-  };
 
   return (
     <Form {...form}>
@@ -620,24 +649,26 @@ const EditCategoryForm = ({
             )}
           />
         )}
-        <FormField
-          control={form.control}
-          name="monthlyGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Monthly Goal</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="$0"
-                  {...field}
-                  value={formatValue(field.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!isMonthlyGoalReadOnly && (
+          <FormField
+            control={form.control}
+            name="monthlyGoal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Monthly Goal</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="$0"
+                    {...field}
+                    value={formatValue(field.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="color"
@@ -672,7 +703,6 @@ const EditCategoryDialogue = ({
     setDialogOpen(true);
   };
 
-  // Create the component with the props needed
   const content = (
     <DialogContent
       className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
@@ -878,7 +908,6 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Add handleOpenDialog for ActionMenu
   const handleOpenDialog = () => {
     setDialogOpen(true);
   };
@@ -1321,7 +1350,6 @@ const OpenTransactionTableDialogue = ({
 };
 
 const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
-  // Create a mapping of action types to their labels
   const actionLabels = {
     add: 'Add Subcategory',
     edit: 'Edit',
@@ -1329,7 +1357,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
     view: 'View Transactions',
   };
 
-  // Helper function to determine the action type and label from the child component
   const getActionInfo = (child) => {
     if (!child) return null;
 
@@ -1351,22 +1378,18 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
     return null;
   };
 
-  // Filter out null/undefined children
   const validChildren = React.Children.toArray(children).filter(
     (child) => child
   );
   const childrenCount = validChildren.length;
 
-  // Create array of dialog states and their setter functions
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Create menu items and separators with proper keys
   const menuItems = [];
   validChildren.forEach((child, index) => {
     const actionInfo = getActionInfo(child);
     const isLastItem = index === childrenCount - 1;
 
-    // Extract the setDialogOpen function from the child if possible
     let openModal = null;
     if (
       React.isValidElement(child) &&
@@ -1376,7 +1399,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
       openModal = child.props.handleOpenDialog;
     }
 
-    // Add the menu item
     menuItems.push(
       <DropdownMenuItem
         key={`item-${index}`}
@@ -1384,16 +1406,12 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
         onSelect={(e) => {
           e.preventDefault();
 
-          // Close the dropdown menu
           setDropdownOpen(false);
 
-          // Set a small timeout to allow the dropdown to close before opening the modal
           setTimeout(() => {
-            // If we have access to the child's handleOpenDialog, call it
             if (openModal) {
               openModal();
             } else {
-              // Find the specific button with the matching contextId and action type
               const selector = contextId
                 ? `[data-action="${actionInfo?.type}"][data-context-id="${contextId}"]`
                 : `[data-action="${actionInfo?.type}"]`;
@@ -1416,7 +1434,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
       </DropdownMenuItem>
     );
 
-    // Add separator if not the last item
     if (!isLastItem) {
       menuItems.push(
         <div
@@ -1429,14 +1446,12 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
 
   return (
     <>
-      {/* Desktop view - show buttons directly */}
       <div
         className={`hidden md:flex flex-row gap-[5px] items-center ${mobileOnly ? 'md:hidden' : ''}`}
       >
         {children}
       </div>
 
-      {/* Mobile view - show kebab menu */}
       <div className="md:hidden flex flex-row justify-end">
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
@@ -1458,7 +1473,6 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
         </DropdownMenu>
       </div>
 
-      {/* Hidden components - render them but don't add refs anymore */}
       <div className="hidden">{validChildren}</div>
     </>
   );
@@ -1540,7 +1554,6 @@ const CategoryCard = ({
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
-                {/* Add Subcategory action for non-viewers */}
                 {currentUserRole !== 'viewer' && (
                   <EditCategoryDialogue
                     categoryName={category.name}
@@ -1683,7 +1696,6 @@ const SubcategoryCard = forwardRef(
       height: 'auto',
     };
 
-    // Calculate progress percentage for summary row
     const getProgressPercentage = () => {
       if (subcategory.proratedGoal === 0 && subcategory.currentNet > 0) {
         return 100;
@@ -1804,7 +1816,6 @@ const CategoryCardCollapsible = ({
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [currentUser] = useAtom(currentUserAtom);
 
-  // Compute the correct color and mutedColor for this category
   const colorKey =
     currentUser?.categoryColors?.[category.categoryId] || 'primary';
   const color = colorOptions[colorKey] || 'bg-primary';
@@ -1839,10 +1850,8 @@ const CategoryCardCollapsible = ({
   const handleDragEnd = async (event) => {
     const { active, over } = event;
 
-    // If dropped outside or in the same position, do nothing
     if (!over || active.id === over.id) return;
 
-    // Reorder cards
     const oldIndex = subcategoriesState.findIndex(
       (subcategory) => subcategory.subcategoryId === active.id
     );
@@ -2022,15 +2031,7 @@ export default function CategoryDashboard({ type, categories }) {
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
   const { toast } = useToast();
 
-  // Onboarding modal state (server-driven)
   const [onboardingOpen, setOnboardingOpen] = useState(false);
-  // useEffect(() => {
-  //   const fetchStatus = async () => {
-  //     const done = await getOnboardingStatus();
-  //     if (!done) setOnboardingOpen(true);
-  //   };
-  //   fetchStatus();
-  // }, []);
 
   useEffect(() => {
     if (!localStorage.getItem('mp_existing_user')) {
@@ -2088,10 +2089,8 @@ export default function CategoryDashboard({ type, categories }) {
   const handleDragEnd = async (event) => {
     const { active, over } = event;
 
-    // If dropped outside or in the same position, do nothing
     if (!over || active.id === over.id) return;
 
-    // Reorder cards
     const oldIndex = categoriesState.findIndex(
       (category) => category.categoryId === active.id
     );
@@ -2109,11 +2108,6 @@ export default function CategoryDashboard({ type, categories }) {
 
   return (
     <>
-      {/* <OnboardingModal
-        open={onboardingOpen}
-        onOpenChange={setOnboardingOpen}
-        type={type}
-      /> */}
       <CategoryContext.Provider
         value={{ categoriesState, setCategoriesState, setPreviousState }}
       >
@@ -2198,20 +2192,6 @@ export default function CategoryDashboard({ type, categories }) {
           </CategoryNamesContext.Provider>
         )}
       </CategoryContext.Provider>
-      {/* <Portal>
-        <div className="h-screen w-screen flex justify-center items-center z-0 pointer-events-none">
-          <div className="lg:max-w-[1152.5px] w-[95%] h-full relative z-0 pointer-events-none">
-            <Button
-              variant="default"
-              size="default"
-              className="z-50 text-white hover:bg-primary-dark rounded-full h-8 w-8 text-lg absolute bottom-20 right-0 pointer-events-auto"
-              onClick={() => setOnboardingOpen(true)}
-            >
-              ?
-            </Button>
-          </div>
-        </div>
-      </Portal> */}
     </>
   );
 }

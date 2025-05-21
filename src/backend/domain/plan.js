@@ -439,6 +439,12 @@ class Plan {
     this.categories.forEach((category) => {
       if (category.type === 'spending') {
         const newCategory = category.clone();
+
+        // Get the effective goal for view calculation using the new category method
+        const effectiveMonthlyGoal =
+          newCategory.getEffectiveMonthlyGoalForView();
+        newCategory.monthlyGoal = effectiveMonthlyGoal;
+
         newCategory.toSpendingView(
           this.startDate,
           this.endDate,
@@ -457,6 +463,12 @@ class Plan {
     this.categories.forEach((category) => {
       if (category.type === 'income') {
         const newCategory = category.clone();
+
+        // Get the effective goal for view calculation using the new category method
+        const effectiveMonthlyGoal =
+          newCategory.getEffectiveMonthlyGoalForView();
+        newCategory.monthlyGoal = effectiveMonthlyGoal;
+
         newCategory.toIncomeView(
           this.startDate,
           this.endDate,

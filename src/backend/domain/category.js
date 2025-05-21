@@ -29,6 +29,21 @@ class Category {
     this.rank = rank;
   }
 
+  getEffectiveMonthlyGoalForView() {
+    const isSpecialCategory = this.name === 'Other' || this.name === 'Savings';
+    const hasSubcategories =
+      this.subcategories && this.subcategories.length > 0;
+
+    if (isSpecialCategory || !hasSubcategories) {
+      return this.monthlyGoal;
+    }
+
+    return this.subcategories.reduce((sum, sub) => {
+      const subGoal = parseFloat(sub.monthlyGoal);
+      return sum + (isNaN(subGoal) ? 0 : subGoal);
+    }, 0);
+  }
+
   deleteSubcategory({ subcategoryId }) {
     this.subcategories = this.subcategories.filter(
       (subcategory) => subcategory.subcategoryId !== subcategoryId

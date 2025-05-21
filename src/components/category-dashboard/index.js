@@ -601,26 +601,25 @@ const EditCategoryForm = ({
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        {categoryName !== 'Other' ||
-          (categoryName !== 'Savings' && (
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      placeholder="Category Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
+        {categoryName !== 'Other' && categoryName !== 'Savings' && (
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="Category Name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="monthlyGoal"

@@ -90,10 +90,16 @@ class Plan {
   }
 
   deleteSubcategory({ subcategoryId, categoryId, type }) {
-    const uncategorizedCategory = this.categories.find(
+    let uncategorizedCategory;
+    uncategorizedCategory = this.categories.find(
       (category) =>
         category.type === type && category.categoryId.includes('other')
     );
+    if (!uncategorizedCategory) {
+      uncategorizedCategory = this.categories.find(
+        (category) => category.type === type && category.name === 'Other'
+      );
+    }
     const category = this.categories.find(
       (category) => category.categoryId === categoryId
     );

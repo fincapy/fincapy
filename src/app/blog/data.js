@@ -13,7 +13,7 @@ export const blogPosts = [
       avatar: '/goats.png',
     },
     content: `
-      <p>I&apos;m not the best budgeter. I&apos;m a bit of an avoider. I don&apos;t want to look at where I&apos;m spending my money. If my bank balance is going up, that&apos;s probably good enough, no need to look too closely. Thankfully, I have a framework I love that&apos;s helping me de-stress my finances: Ramit Sethi&apos;s conscious spending plan.</p>
+      <p>I&apos;m not the best budgeter. I&apos;m <a href="/blog/a-budgeting-app-for-avoiders-like-me">a bit of an avoider</a>. I don&apos;t want to look at where I&apos;m spending my money. If my bank balance is going up, that&apos;s probably good enough, no need to look too closely. Thankfully, I have a framework I love that&apos;s helping me de-stress my finances: <a href="https://www.iwillteachyoutoberich.com/conscious-spending-basics/">Ramit Sethi&apos;s conscious spending plan</a>.</p>
 
       <p>It&apos;s a thing of beauty, weaving together psychology and sound financial practices. It&apos;s simple at its core. You allocate percentages of spending to different parts of your take home income each month. Standard stuff that we&apos;ve all seen before, like the 50, 30, 20 plan.</p>
 
@@ -52,7 +52,7 @@ export const blogPosts = [
 
       <p>There&apos;s a recurring fear in my life. That I won&apos;t have enough. Or that I won&apos;t be enough. It&apos;s been a constant. Frameworks like this take some of the edge off for me. I know that if I&apos;m following a good framework then my efforts will be enough. And if I die before I see the fruits of my labor pay off, well then I&apos;ve had that guilt free spending all this time to enjoy my life while it&apos;s happening. That&apos;s the beauty of the conscious spending plan.</p>
 
-      <p>The plan is absurdly reasonable, and as we know from the psychology of money, the goal of personal finances is not to be perfect, it&apos;s to be reasonable. What helps you sleep at night? That&apos;s the goal. To, as Ramit puts it, live a rich life. But not just anyone&apos;s rich life. Your particular rich life.</p>
+      <p>The plan is absurdly reasonable, and as we know from <a href="https://www.amazon.com/Psychology-Money-Timeless-lessons-happiness/dp/0857197681">The Psychology of Money</a>, the goal of personal finances is not to be perfect, it&apos;s to be reasonable. What helps you sleep at night? That&apos;s the goal. To, as Ramit puts it, live a rich life. But not just anyone&apos;s rich life. Your particular rich life.</p>
 
       <p>The guilt free spending prioritizes the fact that life is short. There is a real certainty of death in our world. I don&apos;t know how long I have to enjoy my life, spend time with my wife, do amazing things. Nobody does. I want to live my life to the fullest now and enjoy what comes. I want to be able to spend money on the things that bring joy to my life (for me, mostly food and travel). The guilt free spending line item lets me do that, while also keeping me in line to look after future me. The framework provides me with guardrails to balance my future life with my present one.</p>
 

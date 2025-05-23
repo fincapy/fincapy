@@ -11,7 +11,7 @@ export const metadata = {
     canonical: 'https://fincapy.com/blog',
   },
   openGraph: {
-    title: 'Blog – Fincapy',
+    title: 'The Fincapy Blog',
     description:
       'Latest articles and tutorials on personal finance and budgeting.',
     canonical: 'https://fincapy.com/blog',

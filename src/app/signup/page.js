@@ -4,6 +4,19 @@ import { headers } from 'next/headers';
 import { LockKeyhole } from 'lucide-react';
 import Image from 'next/image';
 
+export const metadata = {
+  title: 'Fincapy | Sign up',
+  description: 'Sign up for a Fincapy account.',
+  alternates: {
+    canonical: 'https://fincapy.com/signup',
+  },
+  openGraph: {
+    title: 'Fincapy | Sign up',
+    description: 'Sign up for a Fincapy account.',
+    canonical: 'https://fincapy.com/signup',
+  },
+};
+
 export default async function SignUpPage() {
   const headersList = await headers();
   const nonce = headersList.get('x-nonce');

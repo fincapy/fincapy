@@ -9,6 +9,20 @@ import { LockKeyhole } from 'lucide-react';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+
+export const metadata = {
+  title: 'Fincapy | Sign in',
+  description: 'Sign in to your Fincapy account.',
+  alternates: {
+    canonical: 'https://fincapy.com/signin',
+  },
+  openGraph: {
+    title: 'Fincapy | Sign in',
+    description: 'Sign in to your Fincapy account.',
+    canonical: 'https://fincapy.com/signin',
+  },
+};
+
 export default async function SignInPage() {
   const headersList = await headers();
   const nonce = headersList.get('x-nonce');

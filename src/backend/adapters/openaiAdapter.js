@@ -39,8 +39,8 @@ class RateLimiter {
 
 class OpenaiAdapter {
   constructor() {
-    this.rateLimiter = new RateLimiter(200); // Limit for requests per minute
-    this.typeRateLimiter = new RateLimiter(200); // Limit for requests per minute
+    this.rateLimiter = new RateLimiter(100); // Limit for requests per minute
+    this.typeRateLimiter = new RateLimiter(100); // Limit for requests per minute
   }
 
   async getTransactionCategory({
@@ -51,11 +51,6 @@ class OpenaiAdapter {
   }) {
     const createPrompt = () => {
       return `
-        You are a transaction categorizer. Categorize the transaction based on the description and the past edits. 
-        
-        ##IMPORTANT##
-        Call the "categorize_transaction" tool with the correct parameters.
-      
         Follow these rules:
         1. The most recent edit's user_override_category with a description relevant to the transaction should be used.
 
@@ -68,7 +63,7 @@ class OpenaiAdapter {
       `;
     };
 
-    const MAX_RETRIES = 15;
+    const MAX_RETRIES = 6;
     let attemptCount = 0;
     let categories;
 
@@ -77,10 +72,10 @@ class OpenaiAdapter {
 
       // Format for Bedrock Converse API
       const requestBody = {
-        modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
         system: [
           {
-            text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters.',
+            text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters. Be succint in your reasoning. Do not output any text. Do not explain your decision.',
           },
         ],
         messages: [
@@ -93,9 +88,15 @@ class OpenaiAdapter {
             ],
           },
         ],
-        thinking: {
-          type: 'enabled',
-          budgetTokens: 2000,
+        inferenceConfig: {
+          maxTokens: 3000,
+          temperature: 1,
+        },
+        additionalModelRequestFields: {
+          reasoning_config: {
+            type: 'enabled',
+            budget_tokens: 1024,
+          },
         },
         toolConfig: {
           tools: [
@@ -136,7 +137,10 @@ class OpenaiAdapter {
         console.log(`Output Tokens: ${outputTokens}`);
         console.log(`Total Tokens: ${totalTokens}`);
 
-        categories = response.output.message.content[1].toolUse.input;
+        const toolUseContent = response.output.message.content.find(
+          (message) => message.toolUse
+        );
+        categories = toolUseContent.toolUse.input;
         break;
       } catch (error) {
         console.error(`Attempt ${attemptCount + 1} failed:`, error.message);

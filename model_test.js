@@ -39,12 +39,18 @@ async function main() {
 
   // Format for Bedrock Converse API
   const requestBody = {
-    modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+    modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
     system: [
       {
-        text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters. Be succint in your reasoning.',
+        text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters. Be succint in your reasoning. Do not output any text. Do not explain your decision.',
       },
     ],
+    additionalModelRequestFields: {
+      reasoning_config: {
+        type: 'enabled',
+        budget_tokens: 1024,
+      },
+    },
     messages: [
       {
         role: 'user',
@@ -57,12 +63,7 @@ async function main() {
     ],
     inferenceConfig: {
       maxTokens: 3000,
-      temperature: 0,
-      topP: 1,
-    },
-    thinking: {
-      type: 'disabled',
-      // budgetTokens: 1024,
+      temperature: 1,
     },
     toolConfig: {
       tools: [

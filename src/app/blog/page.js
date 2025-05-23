@@ -46,7 +46,7 @@ export default function BlogPage() {
               <div className="flex flex-col md:flex-row gap-8 items-center md:mt-0">
                 <Image
                   src={featured.image}
-                  alt={featured.title}
+                  alt={featured.imageAlt || featured.title}
                   width={600}
                   height={600}
                   className="rounded-3xl w-full md:w-auto max-w-[85vw] md:max-w-[600px]"
@@ -83,7 +83,7 @@ export default function BlogPage() {
       </div>
 
       {/* Blog post cards section */}
-      <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28 font-serif">
+      <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28 font-serif relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {others.map((post) => (
             <Link
@@ -95,7 +95,7 @@ export default function BlogPage() {
                 <div className="relative aspect-[16/9]">
                   <Image
                     src={post.image}
-                    alt={post.title}
+                    alt={post.imageAlt || post.title}
                     fill
                     className="object-cover"
                   />

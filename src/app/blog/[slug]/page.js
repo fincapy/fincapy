@@ -39,15 +39,16 @@ export async function generateMetadata({ params }) {
           url: post.image,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: post.imageAlt || post.title,
         },
       ],
     },
   };
 }
 
-export default function PostPage({ params: { slug } }) {
-  const post = getPostBySlug(slug);
+export default async function PostPage({ params }) {
+  const awaitedParams = await params;
+  const post = getPostBySlug(awaitedParams.slug);
 
   if (!post) return notFound();
 
@@ -109,7 +110,7 @@ export default function PostPage({ params: { slug } }) {
             <div className="relative aspect-[16/9]">
               <Image
                 src={post.image}
-                alt={post.title}
+                alt={post.imageAlt || post.title}
                 fill
                 className="object-cover rounded-lg"
                 priority
@@ -119,7 +120,7 @@ export default function PostPage({ params: { slug } }) {
         </div>
 
         <article
-          className="prose prose-lg max-w-none text-gray-800 prose-headings:text-gray-900 prose-a:text-amber-600 prose-img:rounded-md prose-h2:text-xl prose-p:font-serif prose-p:leading-relaxed"
+          className="prose prose-lg max-w-none text-black prose-headings:text-gray-900 prose-a:text-amber-600 prose-img:rounded-md prose-h2:text-xl prose-p:font-serif prose-p:leading-relaxed prose-ul:-mt-[16px] prose-li:marker:text-black"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>

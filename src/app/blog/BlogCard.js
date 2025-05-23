@@ -12,7 +12,7 @@ export default function BlogCard({ post }) {
         <div className="relative aspect-[16/9]">
           <Image
             src={post.image}
-            alt={post.title}
+            alt={post.imageAlt || post.title}
             fill
             className="object-cover"
           />

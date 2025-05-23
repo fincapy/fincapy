@@ -1,11 +1,72 @@
 // Blog post data that can be shared across components
 export const blogPosts = [
   {
+    slug: 'conscious-spending-plan',
+    title: "Why I love Ramit Sethi's Conscious Spending Plan",
+    subheading: 'The best way to manage your money',
+    date: '2025-05-23',
+    image: '/blog/conscious-spending-river.png',
+    imageAlt:
+      'Capyman mindfully meditating on a raging river about his finances',
+    author: {
+      name: 'Ryan Wible',
+      avatar: '/goats.png',
+    },
+    content: `
+      <p>I&apos;m not the best budgeter. I&apos;m a bit of an avoider. I don&apos;t want to look at where I&apos;m spending my money. If my bank balance is going up, that&apos;s probably good enough, no need to look too closely. Thankfully, I have a framework I love that&apos;s helping me de-stress my finances: Ramit Sethi&apos;s conscious spending plan.</p>
+
+      <p>It&apos;s a thing of beauty, weaving together psychology and sound financial practices. It&apos;s simple at its core. You allocate percentages of spending to different parts of your take home income each month. Standard stuff that we&apos;ve all seen before, like the 50, 30, 20 plan.</p>
+
+      <p>Here&apos;s how he breaks it down:</p>
+      <ul>
+        <li>50-60% fixed costs (things you know are coming each month. Mortgage, insurance, etc.)</li>
+        <li>10% investments</li>
+        <li>5-10% savings</li>
+        <li>20-35% guilt free spending (that&apos;s right, guilt free)</li>
+      </ul>
+
+      <p>Magic. But isn&apos;t this just a repackaging of old ideas? Of course it is! But all great insights are. The magic of the conscious spending plan is the way that it plays on psychology while offering long term financial stability. Notice how there are no indictments in the plan and &quot;guilt free&quot; is emphasized. The plan is not, &quot;save as much as you can until you die.&quot;</p>
+
+      <p>The 10% towards investments shows the plan&apos;s elegance. When I look at 10%, it seems like a low amount for investing for the future, but let&apos;s run the numbers.</p>
+
+      <p>Here are our inputs:
+      <ul>
+        <li>$100,000 annual income</li>
+        <li>$80,000 take home pay</li>
+        <li>$8,000 a year investment contribution</li>
+        <li>7% annual rate of return (a conservative estimate that factors in inflation and market averages and gives you your future net worth in today&apos;s dollars)</li>
+        <li>35 years until retirement</li>
+      </ul>
+      </p>
+
+      <p>And, via our handy compound interest calculator, the output:</p>
+      <ul>
+        <li>$1.16 million net worth</li>
+      </ul>
+
+      <p>That&apos;s pretty cool. But how does that translate into monthly payments? If we pull from our investments at a rate of 4% a year, that gives us an annual income of $46,400. But wait, that&apos;s not as much as the $100,000 a year that I was making!</p>
+
+      <p>Sure, you can invest more aggressively. But you also have to account for other factors. You won&apos;t be saving as aggressively in retirement. You won&apos;t be investing in retirement. Your fixed costs per month will most likely be lower (maybe you own a house or you downsize your rental). You might get social security income each month. And as your income grows, so will that 10%. You won&apos;t be stuck investing $8,000 a year forever, the rule flexes with you.</p>
+
+      <p>With all of these baked in, your net worth starts to look better and be closer to your current standard of living. That&apos;s why I like the 10% rule. It bakes in all of these factors and gives me peace of mind that I&apos;m taking steps to secure my future without me having to get into the nitty gritty and stress about whether I&apos;m investing enough. I can take a deep breath. It is enough. I&apos;m going to be OK in the future. I won&apos;t be destitute.</p>
+
+      <p>There&apos;s a recurring fear in my life. That I won&apos;t have enough. Or that I won&apos;t be enough. It&apos;s been a constant. Frameworks like this take some of the edge off for me. I know that if I&apos;m following a good framework then my efforts will be enough. And if I die before I see the fruits of my labor pay off, well then I&apos;ve had that guilt free spending all this time to enjoy my life while it&apos;s happening. That&apos;s the beauty of the conscious spending plan.</p>
+
+      <p>The plan is absurdly reasonable, and as we know from the psychology of money, the goal of personal finances is not to be perfect, it&apos;s to be reasonable. What helps you sleep at night? That&apos;s the goal. To, as Ramit puts it, live a rich life. But not just anyone&apos;s rich life. Your particular rich life.</p>
+
+      <p>The guilt free spending prioritizes the fact that life is short. There is a real certainty of death in our world. I don&apos;t know how long I have to enjoy my life, spend time with my wife, do amazing things. Nobody does. I want to live my life to the fullest now and enjoy what comes. I want to be able to spend money on the things that bring joy to my life (for me, mostly food and travel). The guilt free spending line item lets me do that, while also keeping me in line to look after future me. The framework provides me with guardrails to balance my future life with my present one.</p>
+
+      <p>Plans like this keep me sane when my anxiety is running rampant. I can treat it like a process to follow. As long as I&apos;m following these steps, then I know that I&apos;ll be alright when I&apos;m 65 and about to retire. I will have the assets I need to live. I&apos;ll get to live the life that I want in the future. And, I get to live the rich life that I want right now. Thanks Ramit.</p>
+    `,
+  },
+  {
     slug: 'a-budgeting-app-for-avoiders-like-me',
     title: 'A Budgeting App for Avoiders Like Me',
     subheading: 'Building something I could stand to look at',
     date: '2025-05-07',
     image: '/blog/lair.png',
+    imageAlt:
+      'Capyman building fincapy on a computer inside of his capybara suitable lair',
     author: {
       name: 'Ryan Wible',
       avatar: '/goats.png',

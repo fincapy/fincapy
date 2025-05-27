@@ -592,7 +592,7 @@ export default function FamilyBudgetPieChartClient() {
           <p>
             Remember, a good budget reflects your values and priorities. Use
             this visualization tool to ensure your spending aligns with what
-            matters most to your family's financial goals.
+            matters most to your family&apos;s financial goals.
           </p>
         </article>
       </div>

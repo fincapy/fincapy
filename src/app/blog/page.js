@@ -85,6 +85,62 @@ export default function BlogPage() {
       {/* Blog post cards section */}
       <div className="max-w-[1255px] mx-auto px-4 sm:px-6 py-12 md:py-16 md:-mt-28 font-serif relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Calculator Tool Card */}
+          <Link
+            href="/blog/how-long-to-save-for-a-house-calculator"
+            className="group block h-full"
+          >
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl overflow-hidden border-2 border-amber-200 hover:shadow-lg hover:border-amber-300 transition-all h-full flex flex-col">
+              <div className="relative aspect-[16/9] bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">🏠</div>
+                  <div className="text-2xl font-bold text-amber-800">
+                    Calculator
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 sm:p-6 flex flex-col flex-grow">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-amber-600 text-white text-xs px-2 py-1 rounded-full font-sans font-medium">
+                    TOOL
+                  </span>
+                  <span className="text-xs text-amber-700 font-medium">
+                    Interactive Calculator
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-amber-700 transition-colors line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                  How Long to Save for a House Calculator
+                </h3>
+                <p className="mt-3 sm:mt-4 text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 flex-grow">
+                  Calculate how long it will take to save for your dream home
+                  based on your target monthly mortgage payment. Free
+                  interactive tool with real-time calculations.
+                </p>
+                <div className="mt-4 pt-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-amber-600 group-hover:underline">
+                    Use Calculator
+                  </span>
+                  <div className="flex items-center text-xs text-amber-600">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Free Tool
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {others.map((post) => (
             <Link
               href={`/blog/${post.slug}`}

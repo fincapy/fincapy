@@ -27,6 +27,18 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/blog/how-long-to-save-for-a-house-calculator`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/family-budget-plan-pie-graph`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/terms-of-service`,
       lastModified: new Date(),
       changeFrequency: 'monthly',

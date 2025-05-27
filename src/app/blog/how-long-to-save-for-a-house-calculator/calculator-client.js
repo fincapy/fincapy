@@ -431,7 +431,7 @@ export default function HouseSavingsCalculatorClient() {
                     <p className="text-blue-800 text-sm mt-1">
                       At your current savings rate of{' '}
                       {formatCurrency(parseFloat(inputs.monthlySavings))}/month,
-                      you'll reach your goal in{' '}
+                      you&apos;ll reach your goal in{' '}
                       {formatTime(results.monthsToSave)}.
                     </p>
                   </div>
@@ -465,7 +465,7 @@ export default function HouseSavingsCalculatorClient() {
             </li>
             <li>
               <strong>Savings Rate:</strong> The more you can save monthly, the
-              faster you'll reach your goal
+              faster you&apos;ll reach your goal
             </li>
             <li>
               <strong>House Price:</strong> Higher priced homes require larger

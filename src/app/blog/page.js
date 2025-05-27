@@ -141,6 +141,62 @@ export default function BlogPage() {
             </div>
           </Link>
 
+          {/* Budget Pie Chart Tool Card */}
+          <Link
+            href="/blog/family-budget-plan-pie-graph"
+            className="group block h-full"
+          >
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl overflow-hidden border-2 border-green-200 hover:shadow-lg hover:border-green-300 transition-all h-full flex flex-col">
+              <div className="relative aspect-[16/9] bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📊</div>
+                  <div className="text-2xl font-bold text-green-800">
+                    Pie Chart
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 sm:p-6 flex flex-col flex-grow">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-sans font-medium">
+                    TOOL
+                  </span>
+                  <span className="text-xs text-green-700 font-medium">
+                    Budget Visualizer
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-green-700 transition-colors line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                  Family Budget Plan Pie Chart Generator
+                </h3>
+                <p className="mt-3 sm:mt-4 text-sm text-gray-600 line-clamp-2 sm:line-clamp-3 flex-grow">
+                  Create visual pie charts for your family budget. Enter up to
+                  100 categories and see your spending breakdown with colorful,
+                  interactive charts.
+                </p>
+                <div className="mt-4 pt-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-green-600 group-hover:underline">
+                    Create Chart
+                  </span>
+                  <div className="flex items-center text-xs text-green-600">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
+                    </svg>
+                    Free Tool
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {others.map((post) => (
             <Link
               href={`/blog/${post.slug}`}

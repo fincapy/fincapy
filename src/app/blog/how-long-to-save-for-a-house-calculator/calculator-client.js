@@ -82,13 +82,45 @@ export default function HouseSavingsCalculatorClient() {
       return;
     }
 
-    // Binary search to find the right down payment for target monthly payment
-    let minDownPayment = 0;
-    let maxDownPayment = housePrice * 0.5; // Max 50% down payment
-    let optimalDownPayment = 0;
+    // First, check if the target payment is achievable
+    // Calculate monthly payment with zero down payment (maximum loan amount)
+    const maxLoanAmount = housePrice;
+    const maxMonthlyPayment = calculateMonthlyMortgage(
+      maxLoanAmount,
+      userMortgageRate
+    );
 
-    for (let i = 0; i < 100; i++) {
-      // Max iterations
+    // Calculate monthly payment with 5% down payment (conventional minimum)
+    const minConventionalDownPayment = housePrice * 0.05;
+    const maxConventionalLoanAmount = housePrice - minConventionalDownPayment;
+    const maxConventionalMonthlyPayment = calculateMonthlyMortgage(
+      maxConventionalLoanAmount,
+      userMortgageRate
+    );
+
+    // Check if target payment is achievable with conventional loan requirements
+    if (targetPayment > maxConventionalMonthlyPayment) {
+      // Target payment too high - even with minimum 5% down payment, monthly payment would be lower
+      setResults({
+        error: 'Target payment too high',
+        message: `With a $${housePrice.toLocaleString()} house at ${userMortgageRate}% interest and 5% minimum down payment, the maximum monthly payment is $${Math.round(maxConventionalMonthlyPayment).toLocaleString()}. Your target of $${targetPayment.toLocaleString()} is not achievable with conventional financing.`,
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Binary search to find the right down payment for target monthly payment
+    let minDownPayment = housePrice * 0.05; // Start from 5% down payment (conventional minimum)
+    let maxDownPayment = housePrice * 0.95; // Max 95% down payment (5% loan minimum)
+    let optimalDownPayment = 0;
+    let iterations = 0;
+    const maxIterations = 50;
+
+    // Perform binary search
+    while (
+      iterations < maxIterations &&
+      maxDownPayment - minDownPayment > 100
+    ) {
       const testDownPayment = (minDownPayment + maxDownPayment) / 2;
       const loanAmount = housePrice - testDownPayment;
       const monthlyPayment = calculateMonthlyMortgage(
@@ -102,15 +134,28 @@ export default function HouseSavingsCalculatorClient() {
       }
 
       if (monthlyPayment > targetPayment) {
+        // Monthly payment too high, need larger down payment
         minDownPayment = testDownPayment;
       } else {
+        // Monthly payment too low, need smaller down payment
         maxDownPayment = testDownPayment;
       }
+
+      iterations++;
     }
+
+    // If we didn't converge, use the last test value
+    if (optimalDownPayment === 0) {
+      optimalDownPayment = (minDownPayment + maxDownPayment) / 2;
+    }
+
+    // Ensure minimum down payment of at least 5% (conventional minimum)
+    const minimumRequiredDown = housePrice * 0.05;
+    optimalDownPayment = Math.max(optimalDownPayment, minimumRequiredDown);
 
     // Calculate time to save for optimal down payment
     const neededSavings = Math.max(0, optimalDownPayment - startingSavings);
-    const monthsToSave = neededSavings / monthlySavings;
+    const monthsToSave = neededSavings > 0 ? neededSavings / monthlySavings : 0;
     const yearsToSave = monthsToSave / 12;
 
     // Calculate final loan details
@@ -127,6 +172,7 @@ export default function HouseSavingsCalculatorClient() {
       finalLoanAmount,
       finalMonthlyPayment,
       neededSavings,
+      downPaymentPercentage: (optimalDownPayment / housePrice) * 100,
     });
 
     setLoading(false);
@@ -371,72 +417,117 @@ export default function HouseSavingsCalculatorClient() {
           {/* Results Section */}
           {results && (
             <div className="mt-8 space-y-6">
-              {/* Primary Result - Time to Save */}
-              <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg text-center">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  Your Savings Timeline
-                </h3>
-                <div className="text-4xl font-bold text-green-800 mb-2">
-                  {formatTime(results.monthsToSave)}
+              {results.error ? (
+                /* Error Display */
+                <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+                  <h3 className="text-xl font-bold text-red-800 mb-2">
+                    Unable to Calculate
+                  </h3>
+                  <p className="text-red-700">{results.message}</p>
+                  <p className="text-red-600 text-sm mt-2">
+                    Try adjusting your house price, target payment, or interest
+                    rate.
+                  </p>
                 </div>
-                <p className="text-gray-600">
-                  Time needed to reach your target monthly payment of{' '}
-                  {formatCurrency(parseFloat(inputs.targetMonthlyPayment))}
-                </p>
-              </div>
-
-              {/* Additional Details */}
-              <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
-                <h4 className="text-lg font-bold text-gray-800 mb-4">
-                  Calculation Details
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-sm text-gray-600 mb-1">
-                      Required Down Payment
+              ) : (
+                <>
+                  {/* Primary Result - Time to Save */}
+                  <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg text-center">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      Your Savings Timeline
+                    </h3>
+                    <div className="text-4xl font-bold text-green-800 mb-2">
+                      {results.monthsToSave === 0
+                        ? 'Ready Now!'
+                        : formatTime(results.monthsToSave)}
                     </div>
-                    <div className="text-xl font-bold text-amber-800">
-                      {formatCurrency(results.optimalDownPayment)}
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-sm text-gray-600 mb-1">
-                      Loan Amount
-                    </div>
-                    <div className="text-xl font-bold text-gray-800">
-                      {formatCurrency(results.finalLoanAmount)}
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-sm text-gray-600 mb-1">
-                      Actual Monthly Payment
-                    </div>
-                    <div className="text-xl font-bold text-gray-800">
-                      {formatCurrency(results.finalMonthlyPayment)}
-                    </div>
-                  </div>
-                </div>
-
-                {results.neededSavings > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-blue-900">
-                      <span className="font-semibold">
-                        Additional savings needed:
-                      </span>{' '}
-                      {formatCurrency(results.neededSavings)}
-                    </p>
-                    <p className="text-blue-800 text-sm mt-1">
-                      At your current savings rate of{' '}
-                      {formatCurrency(parseFloat(inputs.monthlySavings))}/month,
-                      you&apos;ll reach your goal in{' '}
-                      {formatTime(results.monthsToSave)}.
+                    <p className="text-gray-600">
+                      {results.monthsToSave === 0
+                        ? `You already have enough savings for your target monthly payment of ${formatCurrency(parseFloat(inputs.targetMonthlyPayment))}`
+                        : `Time needed to reach your target monthly payment of ${formatCurrency(parseFloat(inputs.targetMonthlyPayment))}`}
                     </p>
                   </div>
-                )}
-              </div>
+
+                  {/* Additional Details */}
+                  <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h4 className="text-lg font-bold text-gray-800 mb-4">
+                      Calculation Details
+                    </h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-sm text-gray-600 mb-1">
+                          Required Down Payment
+                        </div>
+                        <div className="text-xl font-bold text-amber-800">
+                          {formatCurrency(results.optimalDownPayment)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {results.downPaymentPercentage?.toFixed(1)}% of house
+                          price
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-sm text-gray-600 mb-1">
+                          Loan Amount
+                        </div>
+                        <div className="text-xl font-bold text-gray-800">
+                          {formatCurrency(results.finalLoanAmount)}
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-sm text-gray-600 mb-1">
+                          Actual Monthly Payment
+                        </div>
+                        <div className="text-xl font-bold text-gray-800">
+                          {formatCurrency(results.finalMonthlyPayment)}
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border">
+                        <div className="text-sm text-gray-600 mb-1">
+                          Current Savings
+                        </div>
+                        <div className="text-xl font-bold text-green-800">
+                          {formatCurrency(
+                            parseFloat(inputs.startingSavings) || 0
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {results.neededSavings > 0 ? (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-blue-900">
+                          <span className="font-semibold">
+                            Additional savings needed:
+                          </span>{' '}
+                          {formatCurrency(results.neededSavings)}
+                        </p>
+                        <p className="text-blue-800 text-sm mt-1">
+                          At your current savings rate of{' '}
+                          {formatCurrency(parseFloat(inputs.monthlySavings))}
+                          /month, you&apos;ll reach your goal in{' '}
+                          {formatTime(results.monthsToSave)}.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p className="text-green-900">
+                          <span className="font-semibold">Great news!</span> You
+                          already have enough savings for the required down
+                          payment.
+                        </p>
+                        <p className="text-green-800 text-sm mt-1">
+                          You can start shopping for your home right away!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

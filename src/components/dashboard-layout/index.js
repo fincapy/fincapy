@@ -23,7 +23,7 @@ import {
   ScrollBarWithPulldown,
 } from '@/components/ui/scroll-area-with-pulldown';
 import { PlanContext } from './planContext';
-import { useState, useDeferredValue } from 'react';
+import { useState } from 'react';
 import { Plan } from '@/backend/domain/plan';
 import { Category } from '@/backend/domain/category';
 import { Subcategory } from '@/backend/domain/subcategory';
@@ -61,9 +61,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useStandalone } from '@/hooks/use-standalone';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import React from 'react';
+import { useCallback } from 'react';
 
 // define TapButton to require a quick tap on mobile
-const TapButton = ({ onTap, children, className, ...rest }) => {
+const TapButton = React.memo(({ onTap, children, className, ...rest }) => {
   const isMobile = useIsMobile();
   const startTimeRef = useRef(0);
   const movedRef = useRef(false);
@@ -105,21 +107,26 @@ const TapButton = ({ onTap, children, className, ...rest }) => {
       {children}
     </button>
   );
-};
+});
 
-const AccountDropdown = ({ userRole, setPage, page }) => {
+TapButton.displayName = 'TapButton';
+
+const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
   const isMobile = useIsMobile();
   const hoverClass = isMobile ? '' : 'group-hover:text-amber-600';
-  const setPageCookie = (page) => {
+  const setPageCookie = useCallback((page) => {
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
     document.cookie = `page=${page}; expires=${expires.toUTCString()}; path=/app`;
-  };
+  }, []);
 
-  const changePage = (page) => {
-    setPage(page);
-    setPageCookie(page);
-  };
+  const changePage = useCallback(
+    (page) => {
+      setPage(page);
+      setPageCookie(page);
+    },
+    [setPage, setPageCookie]
+  );
 
   return (
     <TapButton
@@ -149,19 +156,24 @@ const AccountDropdown = ({ userRole, setPage, page }) => {
       </span>
     </TapButton>
   );
-};
+});
 
-const NavBar = ({ page, setPage, userRole }) => {
-  const setPageCookie = (page) => {
+AccountDropdown.displayName = 'AccountDropdown';
+
+const NavBar = React.memo(({ page, setPage, userRole }) => {
+  const setPageCookie = useCallback((page) => {
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
     document.cookie = `page=${page}; expires=${expires.toUTCString()}; path=/app`;
-  };
+  }, []);
 
-  const changePage = (page) => {
-    setPage(page);
-    setPageCookie(page);
-  };
+  const changePage = useCallback(
+    (page) => {
+      setPage(page);
+      setPageCookie(page);
+    },
+    [setPage, setPageCookie]
+  );
 
   const isStandalone = useStandalone();
   const isMobile = useIsMobile();
@@ -267,7 +279,9 @@ const NavBar = ({ page, setPage, userRole }) => {
       </div>
     </div>
   );
-};
+});
+
+NavBar.displayName = 'NavBar';
 
 function toLocalISO(date) {
   const offsetMs = date.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
@@ -325,8 +339,7 @@ export default function DashboardLayout({
   );
   const setCurrentUserId = useSetAtom(currentUserIdAtom);
   const setCurrentUserRole = useSetAtom(currentUserRoleAtom);
-  const [immediatePage, setImmediatePage] = useState(pageParam || 'spending');
-  const page = useDeferredValue(immediatePage);
+  const [page, setPage] = useState(pageParam || 'spending');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
   const previousDates = useRef({
@@ -405,7 +418,7 @@ export default function DashboardLayout({
   return (
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
-        <PageContext.Provider value={{ page, setPage: setImmediatePage }}>
+        <PageContext.Provider value={{ page, setPage }}>
           <main
             className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-background"
             onTouchStart={handleScrollAreaFocus}
@@ -422,11 +435,7 @@ export default function DashboardLayout({
             >
               {children}
             </ScrollAreaWithPulldown>
-            <NavBar
-              page={immediatePage}
-              setPage={setImmediatePage}
-              userRole={userRole}
-            />
+            <NavBar page={page} setPage={setPage} userRole={userRole} />
           </main>
         </PageContext.Provider>
       </EndDateContext.Provider>

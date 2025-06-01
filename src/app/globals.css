@@ -51,3 +51,32 @@
     @apply text-foreground;
   }
 }
+
+/* Virtualized table performance optimizations */
+@layer utilities {
+  /* Optimize scrolling performance for virtualized content */
+  [data-radix-scroll-area-viewport] {
+    scroll-behavior: auto !important;
+    will-change: scroll-position;
+    transform: translateZ(0); /* Force hardware acceleration */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+
+  /* Optimize table rendering */
+  .virtualized-table {
+    contain: layout style paint; /* CSS containment for better performance */
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+
+  /* Smooth row transitions while maintaining performance */
+  .virtualized-table tbody tr {
+    will-change: auto; /* Only animate when needed */
+    backface-visibility: hidden; /* Prevent flicker */
+  }
+
+  /* Optimize sticky header */
+  .virtualized-table thead {
+    contain: layout style;
+    transform: translateZ(0);
+  }
+}

@@ -127,6 +127,22 @@ const AccountPage = ({ setPage, userEmail }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
 
+  // Return loading state if currentUser is not available yet
+  if (!currentUser) {
+    return (
+      <div className="flex w-full flex-col h-full">
+        <div className="max-w-6xl w-[95%] mx-auto">
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground">
+              Loading your account...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const showNotImplemented = () => {
     toast({
       title: 'Not implemented',
@@ -636,87 +652,90 @@ const AccountPage = ({ setPage, userEmail }) => {
                   <span className="text-lg font-semibold">Email Addresses</span>
                 </div>
                 <div className="space-y-4">
-                  {currentUser.emails.map((email) => (
-                    <div
-                      key={email.email}
-                      className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl"
-                    >
-                      <div className="flex flex-col w-full">
-                        <div className="flex flex-row items-center w-full justify-between md:justify-start md:gap-2">
-                          <span className="text-md break-all font-medium">
-                            {email.email}
-                          </span>
-                          <div className="flex flex-row gap-1 md:ml-2">
-                            {email.verified ? (
-                              <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                                Verified
-                              </span>
-                            ) : (
-                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
-                                Not Verified
-                              </span>
-                            )}
-                            {email.primary && (
-                              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                                Primary
-                              </span>
-                            )}
+                  {currentUser.emails &&
+                    currentUser.emails.map((email) => (
+                      <div
+                        key={email.email}
+                        className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between p-3 border border-border rounded-xl"
+                      >
+                        <div className="flex flex-col w-full">
+                          <div className="flex flex-row items-center w-full justify-between md:justify-start md:gap-2">
+                            <span className="text-md break-all font-medium">
+                              {email.email}
+                            </span>
+                            <div className="flex flex-row gap-1 md:ml-2">
+                              {email.verified ? (
+                                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                  Verified
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                                  Not Verified
+                                </span>
+                              )}
+                              {email.primary && (
+                                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                                  Primary
+                                </span>
+                              )}
+                            </div>
                           </div>
+                          {!email.verified && (
+                            <span className="text-xs text-amber-500 mt-1">
+                              Please verify this email address
+                            </span>
+                          )}
                         </div>
-                        {!email.verified && (
-                          <span className="text-xs text-amber-500 mt-1">
-                            Please verify this email address
-                          </span>
-                        )}
+                        <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
+                          {!email.primary && (
+                            <Button
+                              variant="outline"
+                              onClick={() => handleSetPrimaryEmail(email.email)}
+                              className="w-full md:w-auto font-semibold"
+                              disabled={isSubmitting || !email.verified}
+                            >
+                              Set Primary
+                            </Button>
+                          )}
+                          {!email.verified && (
+                            <Button
+                              variant="outline"
+                              onClick={() =>
+                                handleResendVerification(email.email)
+                              }
+                              className="w-full md:w-auto font-semibold"
+                              disabled={isSubmitting}
+                            >
+                              <Mail className="h-4 w-4 mr-2" />
+                              Verify
+                            </Button>
+                          )}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleRemoveEmail(email.email)
+                                    }
+                                    className="w-full md:w-auto font-semibold"
+                                    disabled={email.primary || isSubmitting}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </TooltipTrigger>
+                              {email.primary && (
+                                <TooltipContent className="text-xs text-white">
+                                  Cannot remove primary email address
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </div>
-                      <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2">
-                        {!email.primary && (
-                          <Button
-                            variant="outline"
-                            onClick={() => handleSetPrimaryEmail(email.email)}
-                            className="w-full md:w-auto font-semibold"
-                            disabled={isSubmitting || !email.verified}
-                          >
-                            Set Primary
-                          </Button>
-                        )}
-                        {!email.verified && (
-                          <Button
-                            variant="outline"
-                            onClick={() =>
-                              handleResendVerification(email.email)
-                            }
-                            className="w-full md:w-auto font-semibold"
-                            disabled={isSubmitting}
-                          >
-                            <Mail className="h-4 w-4 mr-2" />
-                            Verify
-                          </Button>
-                        )}
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleRemoveEmail(email.email)}
-                                  className="w-full md:w-auto font-semibold"
-                                  disabled={email.primary || isSubmitting}
-                                >
-                                  Remove
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            {email.primary && (
-                              <TooltipContent className="text-xs text-white">
-                                Cannot remove primary email address
-                              </TooltipContent>
-                            )}
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
 
                   {/* Add new email section */}
                   <Button
@@ -755,7 +774,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                         type="text"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
-                        placeholder={currentUser.name}
+                        placeholder={currentUser.name || 'No name set'}
                         className="flex-1"
                         disabled={isSubmitting}
                       />
@@ -783,12 +802,12 @@ const AccountPage = ({ setPage, userEmail }) => {
                   ) : (
                     <>
                       <span className="text-md break-all font-medium">
-                        {currentUser.name}
+                        {currentUser.name || 'No name set'}
                       </span>
                       <Button
                         variant="outline"
                         onClick={() => {
-                          setNewName(currentUser.name);
+                          setNewName(currentUser.name || '');
                           setIsEditingName(true);
                         }}
                         className="w-full md:w-auto font-semibold"

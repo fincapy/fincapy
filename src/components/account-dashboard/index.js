@@ -1231,8 +1231,8 @@ const AccountPage = ({ setPage, userEmail }) => {
                         </span>
                       </div>
                       <span className="text-sm text-blue-700">
-                        Your account is secured with Google's authentication
-                        system.
+                        Your account is secured with Google&apos;s
+                        authentication system.
                       </span>
                     </div>
                   </div>
@@ -1243,7 +1243,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                     <ul className="text-sm text-blue-700 space-y-1">
                       <li>• Password management through your Google account</li>
                       <li>
-                        • Two-factor authentication via Google's security
+                        • Two-factor authentication via Google&apos;s security
                         settings
                       </li>
                       <li>

@@ -11,7 +11,7 @@ const TransactionTable = ({ transactions }) => {
   //   return <VirtualizedDataTable columns={columns} data={transactions} />;
   // }
 
-  return <VirtualizedDataTable columns={columns} data={transactions} />;
+  return <DataTable columns={columns} data={transactions} />;
 };
 
 export default TransactionTable;

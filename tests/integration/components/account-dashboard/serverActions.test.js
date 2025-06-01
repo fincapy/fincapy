@@ -5,6 +5,7 @@ import {
   setPrimaryEmail,
   removeEmail,
   changeUserName,
+  disable2FA,
 } from '@/components/account-dashboard/serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
@@ -1436,6 +1437,369 @@ describe('Account Dashboard Server Actions', () => {
       // ASSERT
       expect(result.success).toBe(false);
       expect(result.error).toBe('Name cannot be empty');
+    });
+  });
+
+  describe('disable2FA', () => {
+    it('should successfully disable 2FA when enabled', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // Enable 2FA for the user
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId });
+      user.totpEnabled = true;
+      user.totpSecret = 'test-secret';
+      user.backupCodes = ['123456', '789012'];
+      await userRepository.set({ userId, user });
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Mock cookies with high-risk action token
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  type: 'highRiskActionValidated',
+                  jti: uuidv4(),
+                  userId,
+                  tenantId,
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // ACT
+      const result = await disable2FA();
+
+      // ASSERT
+      expect(result.success).toBe(true);
+
+      const updatedUser = await userRepository.get({ userId });
+      expect(updatedUser.totpEnabled).toBe(false);
+      expect(updatedUser.totpSecret).toBeNull();
+      expect(updatedUser.backupCodes).toEqual([]);
+    });
+
+    it('should fail with no session', async () => {
+      const result = await disable2FA();
+      expect(redirect).toHaveBeenCalledWith('/signin');
+    });
+
+    it('should fail with no high-risk action token', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // Enable 2FA for the user
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId });
+      user.totpEnabled = true;
+      user.totpSecret = 'test-secret';
+      user.backupCodes = ['123456', '789012'];
+      await userRepository.set({ userId, user });
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Mock cookies without high-risk action token
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // ACT
+      const result = await disable2FA();
+
+      // ASSERT
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Unauthenticated');
+      expect(console.log).toHaveBeenCalledWith(
+        'Invalid auth token for 2FA disable'
+      );
+    });
+
+    it('should fail when 2FA is already disabled', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // User has 2FA disabled (default state)
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId });
+      expect(user.totpEnabled).toBe(false);
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Mock cookies with high-risk action token (can be obtained directly when 2FA disabled)
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  type: 'highRiskActionValidated',
+                  jti: uuidv4(),
+                  userId,
+                  tenantId,
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // ACT
+      const result = await disable2FA();
+
+      // ASSERT
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('2FA is already disabled');
+      expect(console.log).toHaveBeenCalledWith('2FA already disabled for user');
+    });
+
+    it('should succeed when 2FA is disabled and user authenticates with password only', async () => {
+      // ARRANGE
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const newPassword = 'testPassword123!5%234a';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager();
+      const newTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await newTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        name: 'Test User',
+        whitelistBilling: true,
+        password: newPassword,
+      });
+
+      // Enable 2FA first, then disable it to test the functionality
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId });
+      user.totpEnabled = true;
+      user.totpSecret = 'test-secret';
+      user.backupCodes = ['123456', '789012'];
+      await userRepository.set({ userId, user });
+
+      // Set up session
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      // Disable 2FA temporarily to get the token with just password
+      user.totpEnabled = false;
+      await userRepository.set({ userId, user });
+
+      // Mock cookies - high-risk action token can be obtained directly when 2FA disabled
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+          if (name === 'highRiskActionValidatedToken') {
+            return {
+              value: jwt.sign(
+                {
+                  type: 'highRiskActionValidated',
+                  jti: uuidv4(),
+                  userId,
+                  tenantId,
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // Re-enable 2FA to have something to disable
+      user.totpEnabled = true;
+      await userRepository.set({ userId, user });
+
+      // ACT
+      const result = await disable2FA();
+
+      // ASSERT
+      expect(result.success).toBe(true);
+
+      const updatedUser = await userRepository.get({ userId });
+      expect(updatedUser.totpEnabled).toBe(false);
+      expect(updatedUser.totpSecret).toBeNull();
+      expect(updatedUser.backupCodes).toEqual([]);
     });
   });
 });

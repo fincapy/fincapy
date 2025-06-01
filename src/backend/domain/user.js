@@ -43,6 +43,7 @@ class User {
       name: this.name,
       role: this.role,
       mfaMethod: this.mfa_method,
+      totpEnabled: this.totpEnabled,
       categoryColors: this.categoryColors,
     };
   }

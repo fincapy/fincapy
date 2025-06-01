@@ -139,7 +139,45 @@ async function authenticateEmailPassword(rawInput) {
           return redirect('/verify-email');
         }
         if (!user.totpEnabled) {
-          return redirect('/register-totp');
+          // 2FA is disabled, create session directly and redirect to app
+          try {
+            const sessionRepository = new SessionRepository({ redisAdapter });
+            const sessionManager = new SessionManager({ sessionRepository });
+            const session = await sessionManager.createSession({
+              userId: user.id,
+              tenantId: user.tenantId,
+              userRole: user.role,
+              cookies: await cookies(),
+            });
+
+            const sessionToken = jwt.sign(
+              { sessionId: session.sessionId, type: 'session' },
+              process.env.JWT_SECRET,
+              { expiresIn: '3h', algorithm: 'HS256' }
+            );
+
+            (await cookies()).set('session-id', sessionToken, {
+              path: '/',
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 60 * 60 * 3, // 3 hours
+            });
+
+            // Clear the email/password authentication token since we're now fully authenticated
+            (await cookies()).set('emailPasswordAuthenticatedToken', '', {
+              path: '/',
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 0,
+            });
+
+            return redirect('/app');
+          } catch (error) {
+            console.log('Session creation error:', error);
+            return false;
+          }
         }
         return redirect('/verify-totp');
       }

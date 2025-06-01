@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles: './tests/integration/setup.js',
     poolOptions: {
       forks: {
+        minForks: 1,
         maxForks: 5,
       },
     },

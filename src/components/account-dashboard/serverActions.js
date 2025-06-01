@@ -608,3 +608,137 @@ export async function changeUserName(name) {
     return { success: false, error: 'Unexpected error' };
   }
 }
+
+/**
+ * Disable two-factor authentication for the user
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export async function disable2FA() {
+  try {
+    // Get current user token
+    const cookiesList = await cookies();
+
+    // Set up session manager
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+
+    const session = await sessionManager.getSession({
+      cookies: cookiesList,
+    });
+
+    if (!session) {
+      console.log('No session found');
+      return redirect('/signin');
+    }
+
+    const userId = session.userId;
+    if (!userId) {
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Verify high-risk action token
+    const authToken = await verifyHighRiskActionToken();
+    if (!authToken || authToken.userId !== userId) {
+      console.log('Invalid auth token for 2FA disable');
+      return {
+        success: false,
+        error: 'Unauthenticated',
+        requiresAuth: true,
+      };
+    }
+
+    // Get user repository
+    const userRepository = new UserRepository({ redisAdapter });
+    const user = await userRepository.get({ userId });
+
+    if (!user) {
+      console.log('User not found during 2FA disable');
+      return { success: false, error: 'User not found' };
+    }
+
+    // Check if 2FA is currently enabled
+    if (!user.totpEnabled) {
+      console.log('2FA already disabled for user');
+      return { success: false, error: '2FA is already disabled' };
+    }
+
+    // Disable 2FA by clearing the TOTP settings
+    user.totpEnabled = false;
+    user.totpSecret = null;
+    user.backupCodes = [];
+
+    // Update user in database
+    await userRepository.set({ userId: user.id, user });
+
+    console.log('2FA disabled successfully for user:', userId);
+    return { success: true };
+  } catch (error) {
+    console.error('Disable 2FA error:', error);
+    return { success: false, error: 'Failed to disable 2FA' };
+  }
+}
+
+/**
+ * Enable two-factor authentication for the user
+ * @returns {Promise<Object>} - Result of the operation
+ */
+export async function enable2FA() {
+  try {
+    // Get current user token
+    const cookiesList = await cookies();
+
+    // Set up session manager
+    const redisAdapter = new RedisAdapter({ redisClient });
+    const sessionRepository = new SessionRepository({ redisAdapter });
+    const sessionManager = new SessionManager({ sessionRepository });
+
+    const session = await sessionManager.getSession({
+      cookies: cookiesList,
+    });
+
+    if (!session) {
+      console.log('No session found');
+      return redirect('/signin');
+    }
+
+    const userId = session.userId;
+    if (!userId) {
+      console.log('No user ID found');
+      return { success: false, error: 'Unauthenticated' };
+    }
+
+    // Verify high-risk action token
+    const authToken = await verifyHighRiskActionToken();
+    if (!authToken || authToken.userId !== userId) {
+      console.log('Invalid auth token for 2FA enable');
+      return {
+        success: false,
+        error: 'Unauthenticated',
+        requiresAuth: true,
+      };
+    }
+
+    // Get user repository
+    const userRepository = new UserRepository({ redisAdapter });
+    const user = await userRepository.get({ userId });
+
+    if (!user) {
+      console.log('User not found during 2FA enable');
+      return { success: false, error: 'User not found' };
+    }
+
+    // Check if 2FA is already enabled
+    if (user.totpEnabled) {
+      console.log('2FA already enabled for user');
+      return { success: false, error: '2FA is already enabled' };
+    }
+
+    console.log('2FA enable authenticated successfully for user:', userId);
+    return { success: true };
+  } catch (error) {
+    console.error('Enable 2FA error:', error);
+    return { success: false, error: 'Failed to enable 2FA' };
+  }
+}

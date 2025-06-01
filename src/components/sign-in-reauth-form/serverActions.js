@@ -101,29 +101,60 @@ async function authenticateForHighRiskAction(rawInput) {
       });
 
       if (result) {
-        const emailPasswordAuthenticatedHighRiskActionToken = jwt.sign(
-          {
-            userId: user.id,
-            tenantId: user.tenantId,
-            type: 'emailPasswordAuthenticatedHighRiskAction',
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: '5m', algorithm: 'HS256' }
-        );
+        // Check if user has 2FA enabled
+        if (!user.totpEnabled) {
+          // 2FA is disabled, create highRiskActionValidatedToken directly
+          const jti = crypto.randomUUID();
+          const highRiskActionValidatedToken = jwt.sign(
+            {
+              userId: user.id,
+              tenantId: user.tenantId,
+              type: 'highRiskActionValidated',
+              jti,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '5m', algorithm: 'HS256' }
+          );
 
-        (await cookies()).set(
-          'emailPasswordAuthenticatedHighRiskActionToken',
-          emailPasswordAuthenticatedHighRiskActionToken,
-          {
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 5, // 5 minutes
-          }
-        );
+          (await cookies()).set(
+            'highRiskActionValidatedToken',
+            highRiskActionValidatedToken,
+            {
+              path: '/',
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 60 * 5, // 5 minutes
+            }
+          );
 
-        return true;
+          return true;
+        } else {
+          // 2FA is enabled, create intermediate token for TOTP verification
+          const emailPasswordAuthenticatedHighRiskActionToken = jwt.sign(
+            {
+              userId: user.id,
+              tenantId: user.tenantId,
+              type: 'emailPasswordAuthenticatedHighRiskAction',
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '5m', algorithm: 'HS256' }
+          );
+
+          (await cookies()).set(
+            'emailPasswordAuthenticatedHighRiskActionToken',
+            emailPasswordAuthenticatedHighRiskActionToken,
+            {
+              path: '/',
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 60 * 5, // 5 minutes
+            }
+          );
+
+          return true;
+        }
       }
 
       console.log('Invalid email/password combination');

@@ -89,6 +89,7 @@ import {
   setPrimaryEmail,
   removeEmail,
   changeUserName,
+  disable2FA,
 } from './serverActions';
 import { useAtom } from 'jotai';
 import { InputTOTP } from '../input-totp';
@@ -108,6 +109,8 @@ const AccountPage = ({ setPage, userEmail }) => {
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
   const [isReset2FAModalOpen, setIsReset2FAModalOpen] = useState(false);
+  const [isEnable2FAModalOpen, setIsEnable2FAModalOpen] = useState(false);
+  const [isDisable2FAModalOpen, setIsDisable2FAModalOpen] = useState(false);
   const [authStep, setAuthStep] = useState('emailPassword'); // emailPassword, totp, action
 
   // Email management state
@@ -168,9 +171,28 @@ const AccountPage = ({ setPage, userEmail }) => {
     setAuthStep('emailPassword');
   };
 
+  // Handlers for opening enable 2FA modal
+  const openEnable2FAModal = () => {
+    setIsEnable2FAModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
+  // Handlers for opening disable 2FA modal
+  const openDisable2FAModal = () => {
+    setIsDisable2FAModalOpen(true);
+    setAuthStep('emailPassword');
+  };
+
   // Handle successful email/password authentication for any modal
   const handleEmailPasswordSuccess = () => {
-    setAuthStep('totp');
+    // Check if user has 2FA enabled
+    if (currentUser.totpEnabled) {
+      // User has 2FA enabled, proceed to TOTP verification
+      setAuthStep('totp');
+    } else {
+      // User has 2FA disabled, proceed directly to the action step
+      setAuthStep('action');
+    }
   };
 
   // Handle successful TOTP verification for password change
@@ -181,6 +203,28 @@ const AccountPage = ({ setPage, userEmail }) => {
   // Handle successful TOTP verification for 2FA reset
   const handleTOTPSuccessFor2FA = () => {
     setAuthStep('action');
+  };
+
+  // Handle successful TOTP verification for disable 2FA
+  const handleTOTPSuccessForDisable2FA = () => {
+    setAuthStep('action');
+  };
+
+  // Handle successful TOTP setup for enable 2FA
+  const handleTOTPSuccessForEnable2FA = (backupCodes) => {
+    const newCurrentUser = {
+      ...currentUser,
+      totpEnabled: true,
+    };
+    setCurrentUser(newCurrentUser);
+    toast({
+      title: '2FA enabled',
+      description:
+        'Two-factor authentication has been enabled for your account. Please save your backup codes in a secure location.',
+      duration: 5000,
+    });
+    setIsEnable2FAModalOpen(false);
+    setAuthStep('emailPassword');
   };
 
   // Handle email actions
@@ -280,6 +324,8 @@ const AccountPage = ({ setPage, userEmail }) => {
   const handleCloseModal = () => {
     setIsChangePasswordModalOpen(false);
     setIsReset2FAModalOpen(false);
+    setIsEnable2FAModalOpen(false);
+    setIsDisable2FAModalOpen(false);
     setIsHighRiskActionModalOpen(false);
     setPendingHighRiskAction(null);
     setAuthStep('emailPassword');
@@ -429,6 +475,58 @@ const AccountPage = ({ setPage, userEmail }) => {
         duration: 3000,
       });
       console.error('Change name error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle disable 2FA
+  const handleDisable2FA = async () => {
+    setIsSubmitting(true);
+
+    try {
+      const result = await disable2FA();
+
+      if (result.success) {
+        const newCurrentUser = {
+          ...currentUser,
+          totpEnabled: false,
+        };
+        setCurrentUser(newCurrentUser);
+        toast({
+          title: '2FA disabled',
+          description:
+            'Two-factor authentication has been disabled for your account.',
+          duration: 5000,
+        });
+        setIsDisable2FAModalOpen(false);
+        setAuthStep('emailPassword');
+      } else if (result.requiresAuth) {
+        // Authentication expired, restart the flow
+        setAuthStep('emailPassword');
+        toast({
+          title: 'Authentication expired',
+          description:
+            'Your authentication has expired. Please re-authenticate to continue.',
+          variant: 'destructive',
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to disable 2FA',
+          variant: 'destructive',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      console.error('Disable 2FA error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -954,23 +1052,50 @@ const AccountPage = ({ setPage, userEmail }) => {
                       <span className="text-lg font-semibold">
                         Two-Factor Authentication (2FA)
                       </span>
-                      <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                        Enabled
+                      <span
+                        className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          currentUser.totpEnabled
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {currentUser.totpEnabled ? 'Enabled' : 'Disabled'}
                       </span>
                     </div>
                     <span className="text-sm text-muted-foreground">
-                      Protect your account with an extra layer of security.
+                      {currentUser.totpEnabled
+                        ? 'Your account is protected with an extra layer of security.'
+                        : 'Add an extra layer of security to your account.'}
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="secondary"
-                    onClick={openReset2FAModal}
-                    className="font-semibold text-gray-900 hover:bg-emerald-700 border-warning"
-                  >
-                    Reset 2FA Device
-                  </Button>
+                <div className="flex items-center gap-2">
+                  {currentUser.totpEnabled ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={openReset2FAModal}
+                        className="font-semibold"
+                      >
+                        Reset Device
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={openDisable2FAModal}
+                        className="font-semibold text-white hover:bg-red-900"
+                      >
+                        Disable 2FA
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="default"
+                      onClick={openEnable2FAModal}
+                      className="font-semibold"
+                    >
+                      Enable 2FA
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -1126,6 +1251,149 @@ const AccountPage = ({ setPage, userEmail }) => {
         </DialogContent>
       </Dialog>
 
+      {/* Disable 2FA Modal */}
+      <Dialog
+        open={isDisable2FAModalOpen}
+        onOpenChange={setIsDisable2FAModalOpen}
+      >
+        <DialogContent className="bg-card focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-xl max-w-[95%] lg:max-w-[30%] md:max-w-[50%]">
+          <DialogHeader>
+            <DialogTitle>Disable Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              {authStep === 'emailPassword' &&
+                'Confirm your identity to disable 2FA on your account.'}
+              {authStep === 'totp' &&
+                'Enter your 2FA verification code to continue.'}
+              {authStep === 'action' &&
+                'Are you sure you want to disable two-factor authentication? This will make your account less secure.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {authStep === 'emailPassword' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <SignInReauthForm
+                email={currentUser.emails[0]?.email || ''}
+                onSuccess={handleEmailPasswordSuccess}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'totp' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <TOTPVerificationReauthForm
+                onSuccess={handleTOTPSuccessForDisable2FA}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'action' && (
+            <div className="space-y-4 p-2">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-5 w-5 text-amber-600" />
+                  <span className="font-semibold text-amber-800">Warning</span>
+                </div>
+                <p className="text-sm text-amber-700">
+                  Disabling two-factor authentication will remove an important
+                  security layer from your account. You will only need your
+                  password to sign in, making your account more vulnerable to
+                  unauthorized access.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleCloseModal}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDisable2FA}
+                  disabled={isSubmitting}
+                  className="font-semibold"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="mr-2">Disabling...</span>
+                      <span className="animate-spin">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                        </svg>
+                      </span>
+                    </>
+                  ) : (
+                    'Disable 2FA'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Enable 2FA Modal */}
+      <Dialog
+        open={isEnable2FAModalOpen}
+        onOpenChange={setIsEnable2FAModalOpen}
+      >
+        <DialogContent className="bg-card focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-xl max-w-[95%] lg:max-w-[30%] md:max-w-[50%]">
+          <DialogHeader>
+            <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              {authStep === 'emailPassword' &&
+                'Confirm your identity to enable 2FA on your account.'}
+              {authStep === 'totp' &&
+                'Enter your 2FA verification code to continue.'}
+              {authStep === 'action' &&
+                'Set up two-factor authentication to add an extra layer of security to your account.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {authStep === 'emailPassword' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <SignInReauthForm
+                email={currentUser.emails[0]?.email || ''}
+                onSuccess={handleEmailPasswordSuccess}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'totp' && (
+            <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
+              <TOTPVerificationReauthForm
+                onSuccess={() => setAuthStep('action')}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+
+          {authStep === 'action' && (
+            <div className="w-full flex flex-col items-center justify-center">
+              <TOTPRegistrationReauthForm
+                onSuccess={handleTOTPSuccessForEnable2FA}
+                onCancel={handleCloseModal}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Verify Email Modal */}
       <Dialog
         open={isVerifyEmailModalOpen}
@@ -1213,6 +1481,12 @@ const AccountPage = ({ setPage, userEmail }) => {
               {authStep === 'action' &&
                 pendingHighRiskAction?.type === 'addEmail' &&
                 'Enter a new email address to add to your account.'}
+              {authStep === 'action' &&
+                pendingHighRiskAction?.type === 'setPrimary' &&
+                'Are you sure you want to set this email as your primary email address?'}
+              {authStep === 'action' &&
+                pendingHighRiskAction?.type === 'removeEmail' &&
+                'Are you sure you want to remove this email address from your account?'}
             </DialogDescription>
           </DialogHeader>
 
@@ -1299,6 +1573,120 @@ const AccountPage = ({ setPage, userEmail }) => {
                       </>
                     ) : (
                       'Add Email'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+          {authStep === 'action' &&
+            pendingHighRiskAction?.type === 'setPrimary' && (
+              <div className="w-full px-2">
+                <div className="space-y-4 py-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-700">
+                      <strong>{pendingHighRiskAction.email}</strong> will become
+                      your primary email address. This email will be used for
+                      account recovery and important notifications.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleCloseModal}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCompleteHighRiskAction}
+                    disabled={isSubmitting}
+                    className="text-white"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Setting...</span>
+                        <span className="animate-spin">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                          </svg>
+                        </span>
+                      </>
+                    ) : (
+                      'Set as Primary'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+          {authStep === 'action' &&
+            pendingHighRiskAction?.type === 'removeEmail' && (
+              <div className="w-full px-2">
+                <div className="space-y-4 py-2">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-5 w-5 text-amber-600" />
+                      <span className="font-semibold text-amber-800">
+                        Warning
+                      </span>
+                    </div>
+                    <p className="text-sm text-amber-700">
+                      <strong>{pendingHighRiskAction.email}</strong> will be
+                      permanently removed from your account. You will no longer
+                      be able to use this email address for account access or
+                      recovery.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleCloseModal}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleCompleteHighRiskAction}
+                    disabled={isSubmitting}
+                    className="font-semibold"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Removing...</span>
+                        <span className="animate-spin">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                          </svg>
+                        </span>
+                      </>
+                    ) : (
+                      'Remove Email'
                     )}
                   </Button>
                 </div>

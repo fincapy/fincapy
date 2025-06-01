@@ -69,6 +69,27 @@ describe('Sign In Form Server Actions', () => {
     vi.clearAllMocks();
   });
 
+  afterEach(async () => {
+    // Clean up rate limiter Redis keys to prevent state from carrying over between tests
+    const redisAdapter = new RedisAdapter({ redisClient });
+
+    // Clear all keys for the authenticateEmailPassword and sendPasswordResetEmail processes
+    const patterns = [
+      'rate-limit:authenticateEmailPassword:*',
+      'rate-limit:sendPasswordResetEmail:*',
+    ];
+    try {
+      for (const pattern of patterns) {
+        const keys = await redisClient.keys(pattern);
+        if (keys.length > 0) {
+          await redisClient.del(...keys);
+        }
+      }
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+  });
+
   describe('authenticateEmailPassword', () => {
     it('should successfully authenticate with valid credentials', async () => {
       const result = await authenticateEmailPassword({

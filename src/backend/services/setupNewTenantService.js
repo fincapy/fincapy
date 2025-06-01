@@ -28,6 +28,7 @@ class SetupNewTenantService {
           role: 'owner',
           password: null,
           mfaMethod: 'email',
+          totpEnabled: false,
           totpSecret: null,
           totpVerified: false,
         });

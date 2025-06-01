@@ -408,7 +408,7 @@ class IngestTransactionUpdatesService {
               2
             );
 
-            const batchSize = 50;
+            const batchSize = 5;
             const addedTransactions = plaidTransactions.added;
 
             for (let i = 0; i < addedTransactions.length; i += batchSize) {

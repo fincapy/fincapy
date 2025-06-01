@@ -61,7 +61,7 @@
     "png-to-ico": "^2.1.8",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.7.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.4",
     "recharts": "^2.15.3",

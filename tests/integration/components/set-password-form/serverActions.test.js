@@ -19,6 +19,7 @@ import {
   beforeEach,
   afterEach,
 } from 'vitest';
+import { redirect } from 'next/navigation';
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
@@ -57,6 +58,7 @@ describe('Set Password Form Server Actions', () => {
       id: userId,
       tenantId,
       emails: [{ email: 'test@example.com', verified: false }],
+      role: 'user',
       mfa_method: 'totp',
     };
 
@@ -82,15 +84,16 @@ describe('Set Password Form Server Actions', () => {
 
       // Since setInitialPassword redirects and doesn't return a value, we verify side effects
       expect(mockCookiesSet.set).toHaveBeenCalledWith(
-        'emailPasswordAuthenticatedToken',
+        'session-id',
         expect.any(String),
         expect.objectContaining({
           httpOnly: true,
-          path: '/',
           sameSite: 'lax',
-          maxAge: 60 * 10,
         })
       );
+
+      // Verify redirect to /app
+      expect(redirect).toHaveBeenCalledWith('/app');
 
       // Verify the user's password was updated and email marked as verified
       const updatedUser = await userRepository.get({ userId });
@@ -115,17 +118,18 @@ describe('Set Password Form Server Actions', () => {
 
       const result = await setInitialPassword(validPassword2, token); // Pass with just 3 types
 
-      // Verify password was accepted
+      // Verify session was created
       expect(mockCookiesSet.set).toHaveBeenCalledWith(
-        'emailPasswordAuthenticatedToken',
+        'session-id',
         expect.any(String),
         expect.objectContaining({
           httpOnly: true,
-          path: '/',
           sameSite: 'lax',
-          maxAge: 60 * 10,
         })
       );
+
+      // Verify redirect to /app
+      expect(redirect).toHaveBeenCalledWith('/app');
     });
 
     it('should terminate all active sessions when initial password is set', async () => {
@@ -161,9 +165,10 @@ describe('Set Password Form Server Actions', () => {
 
       await setInitialPassword(validPassword, token);
 
-      // Verify all sessions were terminated
+      // Verify old sessions were terminated and a new session was created
       const sessionsAfter = await sessionRepository.getUserSessions(userId);
-      expect(sessionsAfter.length).toBe(0);
+      expect(sessionsAfter.length).toBe(1); // One new session created
+      expect(sessionsAfter[0].sessionId).not.toBe(userSession.sessionId); // Different session
     });
 
     it('should validate password requirements and return error message', async () => {

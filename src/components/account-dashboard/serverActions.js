@@ -638,6 +638,25 @@ export async function disable2FA() {
       return { success: false, error: 'Unauthenticated' };
     }
 
+    // Get user repository
+    const userRepository = new UserRepository({ redisAdapter });
+    const user = await userRepository.get({ userId });
+
+    if (!user) {
+      console.log('User not found during 2FA disable');
+      return { success: false, error: 'User not found' };
+    }
+
+    // Block Google users from disabling 2FA
+    if (user.authProvider === 'google') {
+      console.log('Google user attempted to disable 2FA');
+      return {
+        success: false,
+        error:
+          "Google users cannot modify 2FA settings. Please use Google's security settings.",
+      };
+    }
+
     // Verify high-risk action token
     const authToken = await verifyHighRiskActionToken();
     if (!authToken || authToken.userId !== userId) {
@@ -647,15 +666,6 @@ export async function disable2FA() {
         error: 'Unauthenticated',
         requiresAuth: true,
       };
-    }
-
-    // Get user repository
-    const userRepository = new UserRepository({ redisAdapter });
-    const user = await userRepository.get({ userId });
-
-    if (!user) {
-      console.log('User not found during 2FA disable');
-      return { success: false, error: 'User not found' };
     }
 
     // Check if 2FA is currently enabled
@@ -709,6 +719,25 @@ export async function enable2FA() {
       return { success: false, error: 'Unauthenticated' };
     }
 
+    // Get user repository
+    const userRepository = new UserRepository({ redisAdapter });
+    const user = await userRepository.get({ userId });
+
+    if (!user) {
+      console.log('User not found during 2FA enable');
+      return { success: false, error: 'User not found' };
+    }
+
+    // Block Google users from enabling 2FA
+    if (user.authProvider === 'google') {
+      console.log('Google user attempted to enable 2FA');
+      return {
+        success: false,
+        error:
+          "Google users cannot modify 2FA settings. Please use Google's security settings.",
+      };
+    }
+
     // Verify high-risk action token
     const authToken = await verifyHighRiskActionToken();
     if (!authToken || authToken.userId !== userId) {
@@ -718,15 +747,6 @@ export async function enable2FA() {
         error: 'Unauthenticated',
         requiresAuth: true,
       };
-    }
-
-    // Get user repository
-    const userRepository = new UserRepository({ redisAdapter });
-    const user = await userRepository.get({ userId });
-
-    if (!user) {
-      console.log('User not found during 2FA enable');
-      return { success: false, error: 'User not found' };
     }
 
     // Check if 2FA is already enabled

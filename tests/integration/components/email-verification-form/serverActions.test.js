@@ -114,6 +114,7 @@ describe('Email Verification Form Server Actions', () => {
             verified: false,
           },
         ],
+        role: 'user',
         totpEnabled: false,
       },
     });
@@ -228,18 +229,25 @@ describe('Email Verification Form Server Actions', () => {
       const userRepository = new UserRepository({ redisAdapter });
       const user = await userRepository.get({ userId });
       expect(user.emails[0].verified).toBe(true);
+
+      // Check that the email password authenticated token was deleted
+      expect(validEmailPasswordToken.delete).toHaveBeenCalledWith(
+        'emailPasswordAuthenticatedToken'
+      );
+
+      // Check that a session was created (session cookie should be set)
       expect(validEmailPasswordToken.set).toHaveBeenCalledWith(
-        'emailPasswordAuthenticatedToken',
+        'session-id',
         expect.any(String),
-        {
-          path: '/',
+        expect.objectContaining({
           httpOnly: true,
           secure: false, // false in development
           sameSite: 'lax',
-          maxAge: 60 * 10, // 10 minutes
-        }
+        })
       );
-      expect(redirect).toHaveBeenCalledWith('/register-totp');
+
+      // Should redirect to /app instead of /register-totp
+      expect(redirect).toHaveBeenCalledWith('/app');
     });
 
     it('should return false for incorrect verification code', async () => {

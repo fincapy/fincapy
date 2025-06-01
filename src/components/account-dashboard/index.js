@@ -16,13 +16,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ChatWidget } from '@/components/chat-widget';
 import {
   ScrollAreaWithPulldown,
   ScrollBarWithPulldown,
 } from '@/components/ui/scroll-area-with-pulldown';
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
   HandCoins,
   PiggyBank,
@@ -129,6 +129,81 @@ const AccountPage = ({ setPage, userEmail }) => {
   // Name change state
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+
+  // Check for OAuth success and restore state on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authSuccess = urlParams.get('auth') === 'success';
+    const authError = urlParams.get('error');
+
+    if (authSuccess) {
+      // Clean up URL parameters immediately
+      const url = new URL(window.location);
+      url.searchParams.delete('auth');
+      window.history.replaceState({}, '', url);
+
+      try {
+        // Restore state from sessionStorage
+        const savedState = sessionStorage.getItem('postOAuthState');
+        const savedAction = sessionStorage.getItem('pendingHighRiskAction');
+
+        if (savedState && savedAction) {
+          const state = JSON.parse(savedState);
+          const action = JSON.parse(savedAction);
+
+          // Check if the saved state is recent (within 10 minutes)
+          const timeDiff = Date.now() - (state.timestamp || 0);
+          if (timeDiff < 10 * 60 * 1000) {
+            // Restore the modal state and pending action
+            // Note: DashboardLayout will handle setting page to 'account'
+            setPendingHighRiskAction(action);
+            setIsHighRiskActionModalOpen(true);
+            setAuthStep('action'); // OAuth was successful, go to action step
+
+            toast({
+              title: 'Authentication successful',
+              description: 'Please complete your action.',
+              duration: 3000,
+            });
+          }
+
+          // Clean up sessionStorage
+          sessionStorage.removeItem('postOAuthState');
+          sessionStorage.removeItem('pendingHighRiskAction');
+        }
+      } catch (error) {
+        console.warn('Failed to restore OAuth state:', error);
+        // Clean up potentially corrupted data
+        sessionStorage.removeItem('postOAuthState');
+        sessionStorage.removeItem('pendingHighRiskAction');
+      }
+    } else if (authError) {
+      // Handle OAuth errors
+      const url = new URL(window.location);
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url);
+
+      // Clean up sessionStorage
+      sessionStorage.removeItem('postOAuthState');
+      sessionStorage.removeItem('pendingHighRiskAction');
+
+      let errorMessage = 'Authentication failed';
+      if (authError === 'authentication_mismatch') {
+        errorMessage = 'Authentication failed: Account mismatch';
+      } else if (authError === 'authentication_failed') {
+        errorMessage = 'Authentication failed: Please try again';
+      } else if (authError === 'oauth_error') {
+        errorMessage = 'OAuth authentication failed';
+      }
+
+      toast({
+        title: 'Authentication Failed',
+        description: errorMessage,
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
+  }, []); // Empty dependency array - only run on mount
 
   // Return loading state if currentUser is not available yet
   if (!currentUser) {
@@ -329,26 +404,50 @@ const AccountPage = ({ setPage, userEmail }) => {
     setIsHighRiskActionModalOpen(false);
     setPendingHighRiskAction(null);
     setAuthStep('emailPassword');
+
+    // Clean up sessionStorage when modal is closed
+    try {
+      sessionStorage.removeItem('postOAuthState');
+      sessionStorage.removeItem('pendingHighRiskAction');
+    } catch (error) {
+      console.warn('Failed to clean up sessionStorage:', error);
+    }
   };
 
   // Update the handleSetPrimaryEmail function
   const handleSetPrimaryEmail = async (email) => {
-    // Instead of calling the server, open the authentication modal directly
-    setPendingHighRiskAction({
+    const action = {
       type: 'setPrimary',
       email: email,
-    });
+    };
+
+    // Save action to sessionStorage in case we need OAuth
+    try {
+      sessionStorage.setItem('pendingHighRiskAction', JSON.stringify(action));
+    } catch (error) {
+      console.warn('Failed to save pending action:', error);
+    }
+
+    setPendingHighRiskAction(action);
     setIsHighRiskActionModalOpen(true);
     setAuthStep('emailPassword');
   };
 
   // Update the handleRemoveEmail function
   const handleRemoveEmail = async (email) => {
-    // Instead of calling the server, open the authentication modal directly
-    setPendingHighRiskAction({
+    const action = {
       type: 'removeEmail',
       email: email,
-    });
+    };
+
+    // Save action to sessionStorage in case we need OAuth
+    try {
+      sessionStorage.setItem('pendingHighRiskAction', JSON.stringify(action));
+    } catch (error) {
+      console.warn('Failed to save pending action:', error);
+    }
+
+    setPendingHighRiskAction(action);
     setIsHighRiskActionModalOpen(true);
     setAuthStep('emailPassword');
   };
@@ -840,9 +939,21 @@ const AccountPage = ({ setPage, userEmail }) => {
                     className="w-full min-h-16 flex items-center rounded-lg justify-center border-dashed border-2 bg-card hover:bg-background mt-2"
                     variant="outline"
                     onClick={() => {
-                      setPendingHighRiskAction({
+                      const action = {
                         type: 'addEmail',
-                      });
+                      };
+
+                      // Save action to sessionStorage in case we need OAuth
+                      try {
+                        sessionStorage.setItem(
+                          'pendingHighRiskAction',
+                          JSON.stringify(action)
+                        );
+                      } catch (error) {
+                        console.warn('Failed to save pending action:', error);
+                      }
+
+                      setPendingHighRiskAction(action);
                       setIsHighRiskActionModalOpen(true);
                       setAuthStep('emailPassword');
                     }}
@@ -1016,88 +1127,155 @@ const AccountPage = ({ setPage, userEmail }) => {
                 </p>
               </div>
 
-              {/* Password Section */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <LockIcon className="h-8 w-8 text-primary" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">Password</span>
-                      <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                        Encrypted
+              {/* Password Section - Hidden for Google users */}
+              {currentUser.authProvider !== 'google' && (
+                <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <LockIcon className="h-8 w-8 text-primary" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-semibold">Password</span>
+                        <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                          Encrypted
+                        </span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        Your password is securely encrypted and never shared.
                       </span>
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      Your password is securely encrypted and never shared.
-                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-2xl tracking-widest">••••••••</span>
+                    <SubmitButton
+                      onClick={openChangePasswordModal}
+                      className="font-semibold text-sm"
+                    >
+                      Change Password
+                    </SubmitButton>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl tracking-widest">••••••••</span>
-                  <SubmitButton
-                    onClick={openChangePasswordModal}
-                    className="font-semibold text-sm"
-                  >
-                    Change Password
-                  </SubmitButton>
-                </div>
-              </div>
+              )}
 
-              {/* 2FA Section */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <KeyIcon className="h-8 w-8 text-primary" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">
-                        Two-Factor Authentication (2FA)
-                      </span>
-                      <span
-                        className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                          currentUser.totpEnabled
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {currentUser.totpEnabled ? 'Enabled' : 'Disabled'}
+              {/* 2FA Section - Hidden for Google users */}
+              {currentUser.authProvider !== 'google' && (
+                <div className="bg-card rounded-xl border border-border p-6 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <KeyIcon className="h-8 w-8 text-primary" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-semibold">
+                          Two-Factor Authentication (2FA)
+                        </span>
+                        <span
+                          className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            currentUser.totpEnabled
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          {currentUser.totpEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {currentUser.totpEnabled
+                          ? 'Your account is protected with an extra layer of security.'
+                          : 'Add an extra layer of security to your account.'}
                       </span>
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      {currentUser.totpEnabled
-                        ? 'Your account is protected with an extra layer of security.'
-                        : 'Add an extra layer of security to your account.'}
-                    </span>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {currentUser.totpEnabled ? (
-                    <>
+                  <div className="flex items-center gap-2">
+                    {currentUser.totpEnabled ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          onClick={openReset2FAModal}
+                          className="font-semibold"
+                        >
+                          Reset Device
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={openDisable2FAModal}
+                          className="font-semibold text-white hover:bg-red-900"
+                        >
+                          Disable 2FA
+                        </Button>
+                      </>
+                    ) : (
                       <Button
-                        variant="outline"
-                        onClick={openReset2FAModal}
+                        variant="default"
+                        onClick={openEnable2FAModal}
                         className="font-semibold"
                       >
-                        Reset Device
+                        Enable 2FA
                       </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={openDisable2FAModal}
-                        className="font-semibold text-white hover:bg-red-900"
-                      >
-                        Disable 2FA
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="default"
-                      onClick={openEnable2FAModal}
-                      className="font-semibold"
-                    >
-                      Enable 2FA
-                    </Button>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Google Auth Info Section - Shown for Google users */}
+              {currentUser.authProvider === 'google' && (
+                <div className="bg-blue-50 rounded-xl border border-blue-200 p-6 shadow-md">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">G</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-semibold text-blue-900">
+                          Google Authentication
+                        </span>
+                        <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                          Active
+                        </span>
+                      </div>
+                      <span className="text-sm text-blue-700">
+                        Your account is secured with Google's authentication
+                        system.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-blue-100">
+                    <p className="text-sm text-blue-800 mb-2">
+                      <strong>Security managed by Google:</strong>
+                    </p>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Password management through your Google account</li>
+                      <li>
+                        • Two-factor authentication via Google's security
+                        settings
+                      </li>
+                      <li>
+                        • Advanced threat protection and account monitoring
+                      </li>
+                    </ul>
+                    <div className="mt-4">
+                      <a
+                        href="https://myaccount.google.com/security"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        Manage Google Security Settings
+                        <svg
+                          className="ml-1 w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Divider */}
               <Separator className="my-2" />
@@ -1151,6 +1329,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <SignInReauthForm
                 email={currentUser.emails[0]?.email || ''}
+                authProvider={currentUser.authProvider || 'email'}
                 onSuccess={handleEmailPasswordSuccess}
                 onCancel={handleCloseModal}
               />
@@ -1217,6 +1396,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <SignInReauthForm
                 email={currentUser.emails[0]?.email || ''}
+                authProvider={currentUser.authProvider || 'email'}
                 onSuccess={handleEmailPasswordSuccess}
                 onCancel={handleCloseModal}
               />
@@ -1273,6 +1453,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <SignInReauthForm
                 email={currentUser.emails[0]?.email || ''}
+                authProvider={currentUser.authProvider || 'email'}
                 onSuccess={handleEmailPasswordSuccess}
                 onCancel={handleCloseModal}
               />
@@ -1368,6 +1549,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <SignInReauthForm
                 email={currentUser.emails[0]?.email || ''}
+                authProvider={currentUser.authProvider || 'email'}
                 onSuccess={handleEmailPasswordSuccess}
                 onCancel={handleCloseModal}
               />
@@ -1459,6 +1641,14 @@ const AccountPage = ({ setPage, userEmail }) => {
               setAuthStep('emailPassword');
               setNewEmail('');
               setEmailError('');
+
+              // Clean up sessionStorage when modal is closed
+              try {
+                sessionStorage.removeItem('postOAuthState');
+                sessionStorage.removeItem('pendingHighRiskAction');
+              } catch (error) {
+                console.warn('Failed to clean up sessionStorage:', error);
+              }
             }, 300); // Wait until the close animation is complete
             setIsHighRiskActionModalOpen(false);
           }
@@ -1494,6 +1684,7 @@ const AccountPage = ({ setPage, userEmail }) => {
             <div className="w-full -mx-2 -mt-2 px-2 overflow-hidden scale-[0.95] origin-top">
               <SignInReauthForm
                 email={currentUser.emails[0]?.email || ''}
+                authProvider={currentUser.authProvider || 'email'}
                 onSuccess={handleEmailPasswordSuccess}
                 onCancel={handleCloseModal}
               />

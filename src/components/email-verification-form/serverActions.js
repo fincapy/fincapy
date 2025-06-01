@@ -5,6 +5,8 @@ import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { RedisAdapter, redisClient } from '@/backend/adapters/redisAdapter';
 import { AuthRateLimiter } from '@/backend/adapters/rateLimiter';
 import { SESAdapter } from '@/backend/adapters/sesAdapter';
+import { SessionManager } from '@/backend/adapters/auth';
+import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -189,35 +191,24 @@ export async function verifyEmail(unverifiedEmailVerificationCode) {
       user.emails.find((emailInfo) => emailInfo.primary === true).verified =
         true;
       await userRepository.set({ userId: token.userId, user });
-      const emailPasswordAuthenticatedToken = jwt.sign(
-        {
-          userId: user.id,
-          tenantId: user.tenantId,
-          type: 'emailPasswordAuthenticated',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '10m', algorithm: 'HS256' }
-      );
-      (await cookies()).set(
-        'emailPasswordAuthenticatedToken',
-        emailPasswordAuthenticatedToken,
-        {
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 10, // 10 minutes
-        }
-      );
-      if (user.totpEnabled) {
-        return () => {
-          redirect('/verify-totp');
-        };
-      } else {
-        return () => {
-          redirect('/register-totp');
-        };
-      }
+
+      // Clear the email password authenticated token
+      (await cookies()).delete('emailPasswordAuthenticatedToken');
+
+      // Create a session for the user
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionManager = new SessionManager({ sessionRepository });
+
+      await sessionManager.createSession({
+        userId: user.id,
+        userRole: user.role,
+        tenantId: user.tenantId,
+        cookies: await cookies(),
+      });
+
+      return () => {
+        redirect('/app');
+      };
     }
   );
 }

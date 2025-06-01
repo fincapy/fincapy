@@ -1,7 +1,4 @@
-import {
-  createAccount,
-  verifyEmail,
-} from '@/components/sign-up-form/serverActions';
+import { createAccount } from '@/components/sign-up-form/serverActions';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';

@@ -23,6 +23,9 @@ import {
 } from '@/components/ui/dialog';
 import Link from 'next/link';
 import SubmitButton from '../SubmitButton';
+import { GoogleSignInButton } from '../ui/google-signin-button';
+import { Separator } from '../ui/separator';
+import { useSearchParams } from 'next/navigation';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -33,6 +36,41 @@ export function SignInForm() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Handle OAuth errors from URL params
+  useEffect(() => {
+    const oauthError = searchParams.get('error');
+    const customMessage = searchParams.get('message');
+
+    if (oauthError) {
+      switch (oauthError) {
+        case 'oauth_error':
+          setError('There was an error with Google sign-in. Please try again.');
+          break;
+        case 'access_denied':
+          setError('Invalid access code.');
+          break;
+        case 'email_not_verified':
+          setError(
+            'Your Google account email is not verified. Please verify your email with Google first.'
+          );
+          break;
+        case 'session_error':
+          setError(
+            'There was an error creating your session. Please try again.'
+          );
+          break;
+        case 'account_not_found':
+          setError(
+            'No account found with this Google email. Please sign up first or sign in with your email and password.'
+          );
+          break;
+        default:
+          setError('An unexpected error occurred. Please try again.');
+      }
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,70 +109,92 @@ export function SignInForm() {
       <div className="flex flex-col gap-6 w-full items-center">
         <Card className="bg-card w-[95%] sm:w-96 flex flex-col items-center border">
           <CardContent className="pt-6 w-full">
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-6">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <Label htmlFor="password">Password</Label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setResetEmail(email);
-                          setResetDialogOpen(true);
-                          setResetEmailSent(false);
-                        }}
-                        className="ml-auto text-sm underline-offset-4 hover:underline"
-                      >
-                        Forgot your password?
-                      </button>
-                    </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  <SubmitButton
-                    type="submit"
-                    className="w-full text-sm"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      </>
-                    ) : (
-                      'Sign in'
-                    )}
-                  </SubmitButton>
+            <div className="grid gap-6">
+              {/* Google Sign-in Button */}
+              <GoogleSignInButton source="signin">
+                Continue with Google
+              </GoogleSignInButton>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
                 </div>
-                <div className="text-center text-sm">
-                  Don&apos;t have an account?{' '}
-                  <Link href="/signup" className="underline underline-offset-4">
-                    Sign up
-                  </Link>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or
+                  </span>
                 </div>
               </div>
-            </form>
+
+              {/* Email/Password Form */}
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-6">
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="password">Password</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setResetEmail(email);
+                            setResetDialogOpen(true);
+                            setResetEmailSent(false);
+                          }}
+                          className="ml-auto text-sm underline-offset-4 hover:underline"
+                        >
+                          Forgot your password?
+                        </button>
+                      </div>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+                    <SubmitButton
+                      type="submit"
+                      className="w-full text-sm"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        </>
+                      ) : (
+                        'Sign in'
+                      )}
+                    </SubmitButton>
+                  </div>
+                  <div className="text-center text-sm">
+                    Don&apos;t have an account?{' '}
+                    <Link
+                      href="/signup"
+                      className="underline underline-offset-4"
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                </div>
+              </form>
+            </div>
           </CardContent>
         </Card>
       </div>

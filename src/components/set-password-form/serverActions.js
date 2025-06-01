@@ -10,6 +10,7 @@ import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
 import { SessionRepository } from '@/backend/adapters/repositories/sessionRepository';
 import { TransactionManager } from '@/backend/adapters/transactionManager';
+import { SessionManager } from '@/backend/adapters/auth';
 
 // Define Zod schemas for validation
 const passwordSchema = z
@@ -102,29 +103,6 @@ export async function setInitialPassword(newPassword, token) {
   user.password = hashedPassword;
   user.emails[0].verified = true;
 
-  const emailPasswordAuthenticatedToken = jwt.sign(
-    {
-      userId: user.id,
-      mfaMethod: user.mfa_method,
-      emailVerified: true,
-      tenantId: user.tenantId,
-      type: 'emailPasswordAuthenticated',
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '10m', algorithm: 'HS256' }
-  );
-  (await cookies()).set(
-    'emailPasswordAuthenticatedToken',
-    emailPasswordAuthenticatedToken,
-    {
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 10, // 10 minutes
-    }
-  );
-
   // Use transaction manager to update user and delete sessions atomically
   const transactionManager = new TransactionManager();
   await transactionManager.transaction(
@@ -142,7 +120,18 @@ export async function setInitialPassword(newPassword, token) {
     }
   );
 
-  redirect('/register-totp');
+  // Create a session for the user instead of redirecting to 2FA setup
+  const sessionRepository = new SessionRepository({ redisAdapter });
+  const sessionManager = new SessionManager({ sessionRepository });
+
+  await sessionManager.createSession({
+    userId: user.id,
+    userRole: user.role,
+    tenantId: user.tenantId,
+    cookies: await cookies(),
+  });
+
+  redirect('/app');
 }
 
 export async function resetPassword(newPassword, token) {

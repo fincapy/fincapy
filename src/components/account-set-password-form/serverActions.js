@@ -82,6 +82,16 @@ export async function updatePassword(newPassword) {
     return { success: false, message: 'Unexpected error' };
   }
 
+  // Block Google users from changing password
+  if (user.authProvider === 'google') {
+    console.log('Google user attempted to change password');
+    return {
+      success: false,
+      message:
+        "Google users cannot change their password. Please use Google's security settings.",
+    };
+  }
+
   // Hash and update the password
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   user.password = hashedPassword;

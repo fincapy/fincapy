@@ -9,7 +9,16 @@ class SetupNewTenantService {
     this.transactionManager = transactionManager;
   }
 
-  async execute({ userId, tenantId, email, name, password, whitelistBilling }) {
+  async execute({
+    userId,
+    tenantId,
+    email,
+    name,
+    password,
+    whitelistBilling,
+    emailVerified = false,
+    authProvider = 'email',
+  }) {
     await this.transactionManager.transaction(
       async ({ userRepository, tenantRepository }) => {
         const existingUser = await userRepository.getByEmail({ email });
@@ -24,13 +33,14 @@ class SetupNewTenantService {
           id: userId,
           tenantId,
           name,
-          emails: [{ email, verified: false, primary: true }],
+          emails: [{ email, verified: emailVerified, primary: true }],
           role: 'owner',
           password: null,
           mfaMethod: 'email',
           totpEnabled: false,
           totpSecret: null,
           totpVerified: false,
+          authProvider,
         });
         const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;

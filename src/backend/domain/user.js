@@ -14,6 +14,7 @@ class User {
     totpEnabled,
     backupCodes,
     categoryColors = {},
+    authProvider = 'email', // 'email' or 'google' - tracks how the account was created
   }) {
     this.id = id;
     this.tenantId = tenantId;
@@ -28,6 +29,7 @@ class User {
     this.totpSecret = totpSecret;
     this.backupCodes = backupCodes;
     this.categoryColors = categoryColors;
+    this.authProvider = authProvider;
   }
 
   toView() {
@@ -45,6 +47,7 @@ class User {
       mfaMethod: this.mfa_method,
       totpEnabled: this.totpEnabled,
       categoryColors: this.categoryColors,
+      authProvider: this.authProvider,
     };
   }
 }

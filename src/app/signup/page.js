@@ -35,11 +35,6 @@ export default async function SignUpPage() {
           />
         </div>
         <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-          <div className="flex flex-col items-center gap-0 mb-2">
-            <h2 className="text-2xl text-center font-semibold tracking-tight">
-              Welcome!
-            </h2>
-          </div>
           <PasswordSignupForm />
         </div>
       </div>

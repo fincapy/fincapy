@@ -629,5 +629,152 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith('User Rate limit exceeded');
     });
+
+    it('should fail when user email does not match session user', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const differentUserId = uuidv4();
+      const differentTenantId = uuidv4(); // Use different tenant ID
+      const testEmail = `${userId}@test.com`;
+      const differentEmail = `${differentUserId}@test.com`;
+      const testPassword = 'testPassword123!';
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
+      });
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: testPassword,
+        name: 'Test User',
+        whitelistBilling: true,
+      });
+      await setupNewTenantService.execute({
+        tenantId: differentTenantId, // Use different tenant ID
+        userId: differentUserId,
+        email: differentEmail,
+        password: testPassword,
+        name: 'Different User',
+        whitelistBilling: true,
+      });
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+      const validTotpCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validTotpCookieResolution);
+      const result = await authenticateForHighRiskAction({
+        email: differentEmail, // Different email than session user
+        password: testPassword,
+      });
+
+      expect(result).toBe(false);
+      expect(validTotpCookieResolution.set).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Email does not match authenticated user'
+      );
+    });
+
+    it('should work for Google users with authProvider google', async () => {
+      const userId = uuidv4();
+      const tenantId = uuidv4();
+      const testEmail = `${userId}@test.com`;
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
+      });
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId,
+        userId,
+        email: testEmail,
+        password: 'dummy-password',
+        name: 'Test User',
+        whitelistBilling: true,
+        authProvider: 'google',
+      });
+
+      // Verify user is marked as Google user
+      const userRepository = new UserRepository({ redisAdapter });
+      const user = await userRepository.get({ userId });
+      expect(user.authProvider).toBe('google');
+
+      const sessionRepository = new SessionRepository({ redisAdapter });
+      const sessionId = uuidv4();
+      const session = new Session({
+        sessionId,
+        userId,
+        userRole: 'owner',
+        tenantId,
+        createdAt: new Date(),
+        lastRotated: new Date(),
+      });
+      await sessionRepository.set({
+        session,
+        ttl: 60 * 60 * 3, // 3 hours
+      });
+
+      const validCookieResolution = {
+        get: vi.fn((name) => {
+          if (name === 'session-id') {
+            return {
+              value: jwt.sign(
+                { sessionId, type: 'session' },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: '3h',
+                  algorithm: 'HS256',
+                }
+              ),
+            };
+          }
+        }),
+        set: vi.fn(),
+      };
+      cookies.mockResolvedValue(validCookieResolution);
+
+      // For Google users, password authentication should not work
+      // They should use Google OAuth for high risk actions
+      const result = await authenticateForHighRiskAction({
+        email: testEmail,
+        password: 'any-password',
+      });
+
+      // This should fail because Google users should use OAuth flow
+      expect(result).toBe(false);
+      expect(validCookieResolution.set).not.toHaveBeenCalled();
+    });
   });
 });

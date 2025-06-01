@@ -303,6 +303,19 @@ export default function DashboardLayout({
   nonce,
 }) {
   const firstRender = useRef(true);
+  const searchParams = useSearchParams();
+
+  // Check for page parameter in URL and determine initial page
+  const getInitialPage = () => {
+    // First check URL search params (takes precedence)
+    const pageFromUrl = searchParams.get('page');
+    if (pageFromUrl) {
+      return pageFromUrl;
+    }
+
+    // Fall back to pageParam prop or default
+    return pageParam || 'spending';
+  };
 
   const newPlan = new Plan({
     ...plan,
@@ -339,7 +352,7 @@ export default function DashboardLayout({
   );
   const setCurrentUserId = useSetAtom(currentUserIdAtom);
   const setCurrentUserRole = useSetAtom(currentUserRoleAtom);
-  const [page, setPage] = useState(pageParam || 'spending');
+  const [page, setPage] = useState(getInitialPage());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [triggerRefresh, setTriggerRefresh] = useState(false);
   const previousDates = useRef({
@@ -348,6 +361,21 @@ export default function DashboardLayout({
   });
   const setNonce = useSetAtom(nonceAtom);
   const setBillingStatus = useSetAtom(billingStatusAtom);
+
+  // Clean up URL parameters after processing them
+  useEffect(() => {
+    const authParam = searchParams.get('auth');
+    const pageParam = searchParams.get('page');
+
+    if (authParam || pageParam) {
+      // Clean up URL parameters
+      const url = new URL(window.location);
+      url.searchParams.delete('auth');
+      url.searchParams.delete('page');
+      window.history.replaceState({}, '', url);
+    }
+  }, []); // Run once on mount
+
   useEffect(() => {
     const getPlan = async () => {
       const res = await fetch(

@@ -153,7 +153,7 @@ export function DataTable({ columns, data }) {
             )}
           </TableBody>
         </Table>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" className="hidden" />
       </ScrollArea>
     </TransactionContext.Provider>
   );

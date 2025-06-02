@@ -133,105 +133,130 @@ const PasswordSignupForm = ({ nonce, progressionPoint }) => {
     }
   };
 
+  const isFormValid = name && email && password && confirmPassword;
+
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="border">
-        <CardContent className="mt-8">
-          <div className="grid gap-6">
-            {/* Google Sign-in Button */}
-            <GoogleSignInButton>Continue with Google</GoogleSignInButton>
+    <div className="w-full space-y-6">
+      <div className="space-y-6">
+        {/* Google Sign-in Button */}
+        <div className="w-full">
+          <GoogleSignInButton className="w-full h-12 text-base font-medium">
+            Continue with Google
+          </GoogleSignInButton>
+        </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
-
-            {/* Email/Password Form */}
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-6">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">First Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="John"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john.doe@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  <SubmitButton
-                    type="submit"
-                    className="w-full text-sm"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      </>
-                    ) : (
-                      'Sign up'
-                    )}
-                  </SubmitButton>
-                </div>
-                <div className="text-center text-sm">
-                  Already have an account?{' '}
-                  <Link href="/signin" className="underline underline-offset-4">
-                    Sign in
-                  </Link>
-                </div>
-              </div>
-            </form>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator className="w-full" />
           </div>
-        </CardContent>
-      </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
-        By clicking Sign up, you agree to our{' '}
-        <Link href="/terms-of-service">Terms of Service</Link> and{' '}
-        <Link href="/privacy-policy">Privacy Policy</Link>.
+          <div className="relative flex justify-center text-sm uppercase">
+            <span className="bg-background px-3 text-muted-foreground font-medium">
+              Or
+            </span>
+          </div>
+        </div>
+
+        {/* Email/Password Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
+            <Input
+              id="name"
+              type="text"
+              placeholder="First Name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+            />
+
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+            />
+
+            <Input
+              id="password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+            />
+
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+            />
+
+            {error && (
+              <Alert variant="destructive" className="border border-red-300">
+                <AlertDescription className="text-base">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <SubmitButton
+              type="submit"
+              className={`w-full h-12 text-base font-semibold rounded-lg transition-colors ${
+                !isFormValid
+                  ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed hover:bg-gray-300'
+                  : ''
+              }`}
+              disabled={loading || !isFormValid}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                'Sign up'
+              )}
+            </SubmitButton>
+          </div>
+
+          <div className="text-center">
+            <p className="text-base text-muted-foreground">
+              Already have an account?{' '}
+              <Link
+                href="/signin"
+                className="text-amber-700 hover:text-amber-800 underline-offset-4 hover:underline font-medium"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+
+          <div className="text-balance text-center text-xs text-muted-foreground">
+            By clicking Sign up, you agree to our{' '}
+            <Link
+              href="/terms-of-service"
+              className="text-amber-700 hover:text-amber-800 underline-offset-4 hover:underline"
+            >
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link
+              href="/privacy-policy"
+              className="text-amber-700 hover:text-amber-800 underline-offset-4 hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </div>
+        </form>
       </div>
     </div>
   );

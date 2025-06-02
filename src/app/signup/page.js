@@ -23,20 +23,18 @@ export default async function SignUpPage() {
   const env = process.env.NODE_ENV;
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-background">
-      <div className="flex w-full max-w-sm flex-col gap-6">
+    <div className="flex min-h-svh flex-col items-center justify-center px-4 py-8 bg-background">
+      <div className="w-full max-w-md mx-auto space-y-8">
         <div className="flex items-center justify-center">
           <Image
             src="/capybara.png"
             alt="Fincapy"
-            width={64}
-            height={64}
+            width={128}
+            height={128}
             className="rounded-full"
           />
         </div>
-        <div className="flex flex-col items-center justify-center -mt-4 gap-1">
-          <PasswordSignupForm />
-        </div>
+        <PasswordSignupForm />
       </div>
     </div>
   );

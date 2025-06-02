@@ -96,117 +96,119 @@ export function SignInForm() {
   };
 
   return (
-    <div
-      className={cn(
-        'flex flex-col items-center justify-center -mt-4 gap-1 w-[100vw]'
-      )}
-    >
-      <div className="flex flex-col items-center gap-0 mb-2">
-        <h2 className="text-2xl text-center font-semibold tracking-tight">
-          Welcome back!
-        </h2>
-      </div>
-      <div className="flex flex-col gap-6 w-full items-center">
-        <Card className="bg-card w-[95%] sm:w-96 flex flex-col items-center border">
-          <CardContent className="pt-6 w-full">
-            <div className="grid gap-6">
-              {/* Google Sign-in Button */}
-              <GoogleSignInButton source="signin">
-                Continue with Google
-              </GoogleSignInButton>
+    <div className="w-full space-y-6">
+      <div className="space-y-6">
+        {/* Google Sign-in Button */}
+        <div className="w-full">
+          <GoogleSignInButton
+            source="signin"
+            className="w-full h-12 text-base font-medium"
+          >
+            Continue with Google
+          </GoogleSignInButton>
+        </div>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                  </span>
-                </div>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator className="w-full" />
+          </div>
+          <div className="relative flex justify-center text-sm uppercase">
+            <span className="bg-background px-3 text-muted-foreground font-medium">
+              Or
+            </span>
+          </div>
+        </div>
+
+        {/* Email/Password Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+            />
+
+            <div className="space-y-2">
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-12 text-base bg-white border border-gray-300 rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary placeholder:text-muted-foreground"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(email);
+                    setResetDialogOpen(true);
+                    setResetEmailSent(false);
+                  }}
+                  className="text-sm text-amber-700 hover:text-amber-800 underline-offset-4 hover:underline font-medium"
+                >
+                  Forgot password?
+                </button>
               </div>
-
-              {/* Email/Password Form */}
-              <form onSubmit={handleSubmit}>
-                <div className="grid gap-6">
-                  <div className="grid gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="m@example.com"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex items-center">
-                        <Label htmlFor="password">Password</Label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setResetEmail(email);
-                            setResetDialogOpen(true);
-                            setResetEmailSent(false);
-                          }}
-                          className="ml-auto text-sm underline-offset-4 hover:underline"
-                        >
-                          Forgot your password?
-                        </button>
-                      </div>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    {error && (
-                      <Alert variant="destructive">
-                        <AlertDescription>{error}</AlertDescription>
-                      </Alert>
-                    )}
-                    <SubmitButton
-                      type="submit"
-                      className="w-full text-sm"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        </>
-                      ) : (
-                        'Sign in'
-                      )}
-                    </SubmitButton>
-                  </div>
-                  <div className="text-center text-sm">
-                    Don&apos;t have an account?{' '}
-                    <Link
-                      href="/signup"
-                      className="underline underline-offset-4"
-                    >
-                      Sign up
-                    </Link>
-                  </div>
-                </div>
-              </form>
             </div>
-          </CardContent>
-        </Card>
+
+            {error && (
+              <Alert variant="destructive" className="border border-red-300">
+                <AlertDescription className="text-base">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <SubmitButton
+              type="submit"
+              className={`w-full h-12 text-base font-semibold rounded-lg transition-colors ${
+                !email || !password
+                  ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed hover:bg-gray-300'
+                  : ''
+              }`}
+              disabled={loading || !email || !password}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign in'
+              )}
+            </SubmitButton>
+          </div>
+
+          <div className="text-center">
+            <p className="text-base text-muted-foreground">
+              Don&apos;t have an account?{' '}
+              <Link
+                href="/signup"
+                className="text-amber-700 hover:text-amber-800 underline-offset-4 hover:underline font-medium"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </form>
       </div>
 
       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
         <DialogContent
-          className="sm:max-w-md sm:w-md w-[95%] rounded-lg bg-card"
+          className="sm:max-w-md w-[95%] mx-auto rounded-lg bg-white shadow-lg border-0"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
-            <DialogDescription>
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-xl font-semibold">
+              Reset Password
+            </DialogTitle>
+            <DialogDescription className="text-base text-muted-foreground">
               {!resetEmailSent
                 ? "Enter your email address and we'll send you a link to reset your password if you have an account."
                 : 'Check your email for a password reset link. The link will expire in 1 hour.'}
@@ -227,25 +229,27 @@ export function SignInForm() {
                   setResetLoading(false);
                 }
               }}
-              className="flex flex-col gap-4"
+              className="space-y-4"
             >
-              <div className="grid gap-2">
-                <Label htmlFor="resetEmail">Email</Label>
+              <div className="space-y-2">
+                <Label htmlFor="resetEmail" className="text-base font-medium">
+                  Email
+                </Label>
                 <Input
                   id="resetEmail"
                   type="email"
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
-                  placeholder="m@example.com"
-                  className="bg-background"
+                  placeholder="Enter your email address"
+                  className="h-12 text-base bg-white border shadow-sm rounded-lg px-4 focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   required
                 />
               </div>
 
-              <DialogFooter className="sm:justify-between">
+              <DialogFooter>
                 <SubmitButton
                   type="submit"
-                  className="text-sm w-full"
+                  className="w-full h-12 text-base font-semibold rounded-lg"
                   disabled={resetLoading || !resetEmail}
                 >
                   {resetLoading ? (
@@ -263,7 +267,7 @@ export function SignInForm() {
             <DialogFooter>
               <Button
                 onClick={() => setResetDialogOpen(false)}
-                className="w-full"
+                className="w-full h-12 text-base font-semibold rounded-lg"
               >
                 Close
               </Button>

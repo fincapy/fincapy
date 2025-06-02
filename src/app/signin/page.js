@@ -35,8 +35,8 @@ export default async function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-background">
-      <div className="flex w-full max-w-sm flex-col gap-6">
+    <div className="flex min-h-svh flex-col items-center justify-center px-4 py-8 bg-background">
+      <div className="w-full max-w-md mx-auto space-y-8">
         <div className="flex items-center justify-center">
           <Image
             src="/capybara.png"
@@ -46,15 +46,7 @@ export default async function SignInPage() {
             className="rounded-full"
           />
         </div>
-        <div className="flex flex-col items-center gap-0 mb-2">
-          {/* <Suspense
-            fallback={
-              <Skeleton className="h-[282px] w-[95%] sm:w-96 bg-background" />
-            }
-          > */}
-          <SignInForm />
-          {/* </Suspense> */}
-        </div>
+        <SignInForm />
       </div>
     </div>
   );

@@ -86,3 +86,6 @@ export const currentUserRoleAtom = atom(null);
 export const nonceAtom = atom(null);
 
 export const billingStatusAtom = atom(null);
+
+export const tabLoadingAtom = atom(false);
+export const tabLoadingTimerAtom = atom(null);

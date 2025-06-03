@@ -220,6 +220,42 @@ describe('Sign In Form Server Actions', () => {
       expect(result).toBe(false);
       expect(console.log).toHaveBeenCalledWith('User Rate limit exceeded');
     });
+
+    it('should fail with Google auth provider user', async () => {
+      // Create a user with Google auth provider
+      const googleUserId = uuidv4();
+      const googleTenantId = uuidv4();
+      const googleTestEmail = `${googleUserId}@test.com`;
+
+      const redisAdapter = new RedisAdapter({ redisClient });
+      const transactionManager = new TransactionManager({
+        redisAdapter,
+      });
+      const setupNewTenantService = new SetupNewTenantService({
+        transactionManager,
+      });
+      await setupNewTenantService.execute({
+        tenantId: googleTenantId,
+        userId: googleUserId,
+        email: googleTestEmail,
+        password: 'dummy-password', // Google users still have a password field but shouldn't use it
+        name: 'Google Test User',
+        whitelistBilling: true,
+        authProvider: 'google',
+      });
+
+      const result = await authenticateEmailPassword({
+        email: googleTestEmail,
+        password: 'any-password',
+      });
+
+      expect(result).toBe(false);
+      expect(cookies().set).not.toHaveBeenCalled();
+      expect(redirect).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        'Cannot authenticate Google user with email/password'
+      );
+    });
   });
 
   describe('sendPasswordResetEmail', () => {

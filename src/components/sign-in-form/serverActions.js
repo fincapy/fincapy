@@ -84,6 +84,13 @@ async function authenticateEmailPassword(rawInput) {
         userRepository,
       });
       const user = await userRepository.getByEmail({ email });
+
+      // Don't allow email/password authentication for Google users
+      if (user?.authProvider === 'google') {
+        console.log('Cannot authenticate Google user with email/password');
+        return false;
+      }
+
       const result = await authenticator.authenticate({
         unauthenticatedPassword: password,
         password: user?.password,

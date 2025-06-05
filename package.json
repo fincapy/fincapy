@@ -16,7 +16,7 @@
     "test:model": "node model_test.js"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.6.0",
+    "@auth0/nextjs-auth0": "^4.6.1",
     "@aws-sdk/client-bedrock": "^3.821.0",
     "@aws-sdk/client-bedrock-runtime": "^3.821.0",
     "@aws-sdk/client-ses": "^3.821.0",

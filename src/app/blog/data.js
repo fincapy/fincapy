@@ -1,6 +1,52 @@
 // Blog post data that can be shared across components
 export const blogPosts = [
   {
+    slug: 'how-to-track-your-grocery-expenses',
+    title:
+      'How to Track Your Grocery Expenses Without Losing Your Mind (or Buying a Third Jar of Olives)',
+    subheading: 'A guide to mindful grocery spending',
+    date: '2025-06-06',
+    image: '/blog/capyman-grocery-store.png',
+    imageAlt: 'Capyman buying groceries at the store',
+    author: {
+      name: 'Ryan Wible',
+      avatar: '/goats.png',
+    },
+    content: `
+      <p>Here&apos;s the short version:</p>
+      <ul>
+        <li>Track every grocery purchase—use any tool that won&apos;t burn you out (app, spreadsheet, even a notes app).</li>
+        <li>Review weekly for patterns, not perfection.</li>
+        <li>Adjust based on what you actually buy and value—not just a fantasy budget.</li>
+        <li>Focus on emotional triggers, not just dollars.</li>
+      </ul>
+
+      <p>Now here&apos;s why that matters.</p>
+
+      <h2>The Wanter</h2>
+      
+      <p>I am a notorious grocery overspender. To my wife&apos;s dismay I will often come home with a second bottle of ketchup even though we already have a perfectly good one in the fridge. I just can&apos;t seem to remember what we have, and my wanter never bothers to care.</p>
+
+      <p>I came from a relatively wealthy family where I didn&apos;t need to worry about food on the table. I&apos;m grateful for that. Unfortunately, it means that I just don&apos;t pay attention enough to what I&apos;m buying at the store, and it&apos;s led to chronic overspending on groceries when I didn&apos;t need to. I get to the store and think &quot;well, I can just have whatever I want, right?&quot;. Which might be true to a certain extent, but isn&apos;t helpful when I&apos;m trying to stick to a certain spending range.</p>
+
+      <p>There&apos;s always a part of me that wants to live without limits, to reach for the boundless abundance that this world has to offer and wring it out like a wet towel. I can feel that part of me kick in when I&apos;m at the store, and the fear that I&apos;ll never have enough to have all of the things I want. The wanter in me is boundless. He wants to eat the world. It&apos;s up to me to tame him.</p>
+
+      <h2>Why Do I Overspend?</h2>
+
+      <p>This may seem hyperbolic for a simple trip to the grocery store, and it is. But the human drama that plays out within me is easier to see when it is dialed up to eleven. We&apos;re all riding subconscious currents in our most mundane moments. The undertow can drag us moment by moment to a place we never wanted to go.</p>
+
+      <p>The tracking is just a means to an end. When I can see my expenses laid out, I can start to examine what&apos;s going on inside me that is misaligned with what I say that I want. Why did I spend $100 when I went to the store just trying to get a loaf of bread?</p>
+
+      <p>The answer is inevitably that my wanter wanted, so he got. I combat my wanter every time I go to the store. Sometimes his desires align with mine, and that&apos;s great! But sometimes he wants to buy that third jar of olives because it&apos;s convenient, and then I have to say &quot;hold the phone there buddy.&quot;</p>
+
+      <h2>What Is Your Struggle?</h2>
+
+      <p>Having a running tally of my spending is invaluable in guarding against the undertow of overspending. But maybe your undertow is different. Maybe there&apos;s a voice in your head that says &quot;We can&apos;t afford that&quot; while the logical part of your brain knows full well that you can. Maybe you need a more expansive persona to take hold in the grocery store so that you can enjoy that $30 steak without self flagellation.</p>
+
+      <p>Our grocery store struggles are personal. For me, a lot of my subconscious instincts come out at the grocery store, and that&apos;s why tracking is so essential. I need to see what I&apos;m doing and see if I&apos;m living beyond my means simply for the sake of tracking. It&apos;s how I stay true to the life I say I want when the undertow of desire pulls the other way.</p>
+    `,
+  },
+  {
     slug: 'conscious-spending-plan',
     title: "Why I love Ramit Sethi's Conscious Spending Plan",
     subheading: 'The best way to manage your money',

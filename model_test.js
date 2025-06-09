@@ -4,7 +4,15 @@ import {
   SystemContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
 
-async function main() {
+const transactionTypes = [
+  'spending',
+  'transfer',
+  'credit_card_payment',
+  'refund',
+  'income',
+];
+
+async function main_categorize() {
   const transactionEdits = [];
 
   // filter the new transaction edits so that they have unique descriptions, but always take the most recent edit
@@ -127,4 +135,97 @@ async function main() {
   console.log(`Total Tokens: ${totalTokens}`);
 }
 
-main();
+async function main_type() {
+  const transactionEdits = [];
+
+  const createPrompt = () => {
+    return `
+        Follow these rules:
+        1. The most recent edit's user_override_type with a description relevant to the transaction should be used.
+        2. Negative amounts indicate money going out of an account.
+        3. Positive amounts indicate money going into an account.
+
+        Past edits from least recent to most recent:
+
+        Transaction:
+        - Amount: -3168.89
+        - Description: Servicemac
+
+        Account:
+        - Type: checking
+        - Subtype: depository
+      `;
+  };
+
+  const prompt = createPrompt();
+
+  // Format for Bedrock Converse API
+  const requestBody = {
+    modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+    system: [
+      {
+        text: 'You are a transaction type categorizer. Always call the "categorize_transaction_type" tool with the correct parameters. Think deeply through your reasoning step by step. Do not output any text. Do not explain your decision.',
+      },
+    ],
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            text: prompt,
+          },
+        ],
+      },
+    ],
+    inferenceConfig: {
+      maxTokens: 3000,
+      temperature: 1,
+    },
+    additionalModelRequestFields: {
+      reasoning_config: {
+        type: 'enabled',
+        budget_tokens: 1024,
+      },
+    },
+    toolConfig: {
+      tools: [
+        {
+          toolSpec: {
+            name: 'categorize_transaction_type',
+            description:
+              'Categorize a transaction type given a transaction and a list of past user edits',
+            inputSchema: {
+              json: {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    description: 'Type of the transaction.',
+                    enum: transactionTypes,
+                  },
+                },
+                required: ['type'],
+              },
+            },
+          },
+        },
+      ],
+    },
+  };
+
+  const client = new BedrockRuntimeClient({ region: 'us-east-1' });
+  const command = new ConverseCommand(requestBody);
+
+  const response = await client.send(command);
+  console.log('response', response.output.message);
+  let toolCall = response.output.message.content[1].toolUse.input;
+  let { inputTokens, outputTokens, totalTokens } = response.usage;
+
+  console.log('original toolCall', toolCall);
+  console.log(`Input Tokens: ${inputTokens}`);
+  console.log(`Output Tokens: ${outputTokens}`);
+  console.log(`Total Tokens: ${totalTokens}`);
+}
+
+main_categorize();
+main_type();

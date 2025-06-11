@@ -142,18 +142,11 @@ async function main_type() {
     return `
         Follow these rules:
         1. The most recent edit's user_override_type with a description relevant to the transaction should be used.
-        2. Negative amounts indicate money going out of an account.
-        3. Positive amounts indicate money going into an account.
 
         Past edits from least recent to most recent:
 
         Transaction:
-        - Amount: -3168.89
         - Description: Servicemac
-
-        Account:
-        - Type: checking
-        - Subtype: depository
       `;
   };
 

@@ -31,41 +31,64 @@ class IngestTransactionUpdatesService {
    * Determine transaction type based on Plaid's transaction details
    * @private
    */
-  _determineTransactionType(plaidTransactions, plaidTransaction) {
+  _determineTransactionType(
+    plaidTransactions,
+    plaidTransaction,
+    transactionTypeEdits
+  ) {
+    let type = null;
     const detailedCategory =
       plaidTransaction.personal_finance_category.detailed;
 
     // Credit card payment
     if (detailedCategory === 'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT') {
-      return 'credit_card_payment';
+      if (
+        plaidTransaction.personal_finance_category.confidence_level === 'LOW'
+      ) {
+        type = 'spending';
+      } else {
+        type = 'credit_card_payment';
+      }
     }
 
     // Account transfers with potential matching transactions
     if (detailedCategory === 'TRANSFER_IN_ACCOUNT_TRANSFER') {
-      return this._handleTransferIn(plaidTransactions, plaidTransaction);
+      type = this._handleTransferIn(plaidTransactions, plaidTransaction);
     }
 
     if (detailedCategory === 'TRANSFER_OUT_ACCOUNT_TRANSFER') {
-      return this._handleTransferOut(plaidTransactions, plaidTransaction);
+      type = this._handleTransferOut(plaidTransactions, plaidTransaction);
     }
 
     // Income categories
     if (this._isIncomeCategory(detailedCategory)) {
-      return 'income';
+      type = 'income';
     }
 
     // Spending categories
     if (this._isSpendingCategory(detailedCategory)) {
-      return 'spending';
+      type = 'spending';
     }
 
     // Other transfers
     if (detailedCategory.startsWith('TRANSFER_')) {
-      return 'transfer';
+      type = 'transfer';
     }
 
     // Default cases based on amount
-    return plaidTransaction.amount < 0 ? 'refund' : 'spending';
+    type = plaidTransaction.amount < 0 ? 'refund' : 'spending';
+
+    // Find the most recent transaction type edit for this description
+    // transactionTypeEdits is already sorted by most recent first
+    const edit = transactionTypeEdits.find(
+      (edit) =>
+        edit.oldTransactionDescription === plaidTransaction.original_description
+    );
+    if (edit) {
+      type = edit.newTransactionType;
+    }
+
+    return type;
   }
 
   /**
@@ -142,11 +165,18 @@ class IngestTransactionUpdatesService {
     plaidTransaction,
     plan,
     uniqueTransactionEditsString,
-    categoryIdToNameMap
+    categoryIdToNameMap,
+    plaidItemId
   ) {
+    // Get transaction type edits, sorted by most recent first
+    const transactionTypeEdits = plan.transactionEdits
+      .filter((edit) => edit.oldTransactionType !== edit.newTransactionType)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     const transactionType = this._determineTransactionType(
       plaidTransactions,
-      plaidTransaction
+      plaidTransaction,
+      transactionTypeEdits
     );
     let transactionCategory;
 
@@ -209,6 +239,7 @@ class IngestTransactionUpdatesService {
         : plaidTransaction.original_description,
       type: transactionType,
       createdByUser: false,
+      plaidItemId: plaidItemId,
     });
 
     if (
@@ -251,12 +282,19 @@ class IngestTransactionUpdatesService {
     plaidTransaction,
     plan,
     uniqueTransactionEditsString,
-    categoryIdToNameMap
+    categoryIdToNameMap,
+    plaidItemId
   ) {
+    // Get transaction type edits, sorted by most recent first
+    const transactionTypeEdits = plan.transactionEdits
+      .filter((edit) => edit.oldTransactionType !== edit.newTransactionType)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     // First, determine transaction type
     const transactionType = this._determineTransactionType(
       plaidTransactions,
-      plaidTransaction
+      plaidTransaction,
+      transactionTypeEdits
     );
 
     // Get the category from OpenAI
@@ -286,6 +324,7 @@ class IngestTransactionUpdatesService {
         : plaidTransaction.original_description,
       type: transactionType,
       createdByUser: false,
+      plaidItemId: plaidItemId,
     });
 
     plan.transactions = plan.transactions.filter(
@@ -343,6 +382,129 @@ class IngestTransactionUpdatesService {
         );
       });
     });
+  }
+
+  /**
+   * Check if a plaid item has any transactions and send rolling notifications (5, 15, 30 days)
+   * @private
+   */
+  async _checkAndNotifyStaleConnection(plaidItem, tenant) {
+    const now = new Date();
+    const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Find the most recent transaction for this plaid item
+    let mostRecentTransactionDate = null;
+
+    for (const plan of tenant.plans) {
+      // Check plan-level transactions
+      for (const transaction of plan.transactions) {
+        if (transaction.plaidItemId === plaidItem.plaidItemId) {
+          const transactionDate = new Date(transaction.date);
+          if (
+            !mostRecentTransactionDate ||
+            transactionDate > mostRecentTransactionDate
+          ) {
+            mostRecentTransactionDate = transactionDate;
+          }
+        }
+      }
+
+      // Check category and subcategory transactions
+      for (const category of plan.categories) {
+        // Check category-level transactions
+        for (const transaction of category.transactions) {
+          if (transaction.plaidItemId === plaidItem.plaidItemId) {
+            const transactionDate = new Date(transaction.date);
+            if (
+              !mostRecentTransactionDate ||
+              transactionDate > mostRecentTransactionDate
+            ) {
+              mostRecentTransactionDate = transactionDate;
+            }
+          }
+        }
+
+        // Check subcategory transactions
+        for (const subcategory of category.subcategories) {
+          for (const transaction of subcategory.transactions) {
+            if (transaction.plaidItemId === plaidItem.plaidItemId) {
+              const transactionDate = new Date(transaction.date);
+              if (
+                !mostRecentTransactionDate ||
+                transactionDate > mostRecentTransactionDate
+              ) {
+                mostRecentTransactionDate = transactionDate;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // If we found recent transactions (within 5 days), reset notification tracking
+    if (mostRecentTransactionDate && mostRecentTransactionDate >= fiveDaysAgo) {
+      plaidItem.lastStaleNotificationLevel = null;
+      plaidItem.lastStaleNotificationSentAt = null;
+      return;
+    }
+
+    // Determine what level of notification to send
+    let notificationLevel = null;
+    let subject = '';
+    let message = '';
+
+    if (
+      mostRecentTransactionDate &&
+      mostRecentTransactionDate < thirtyDaysAgo
+    ) {
+      // 30+ days without transactions
+      if (plaidItem.lastStaleNotificationLevel !== '30-day') {
+        notificationLevel = '30-day';
+        subject = 'Fincapy - Connection Issue: 30 Days Without Transactions';
+        message = `We haven't detected any transactions from ${plaidItem.institutionName} in over 30 days. Your connection likely needs attention. Please refresh your connection on the Financial Institutions page.`;
+      }
+    } else if (
+      mostRecentTransactionDate &&
+      mostRecentTransactionDate < fifteenDaysAgo
+    ) {
+      // 15+ days without transactions
+      if (
+        plaidItem.lastStaleNotificationLevel !== '15-day' &&
+        plaidItem.lastStaleNotificationLevel !== '30-day'
+      ) {
+        notificationLevel = '15-day';
+        subject = 'Fincapy - No Transactions for 15 Days';
+        message = `We haven't detected any new transactions from ${plaidItem.institutionName} in 15 days. This might indicate that your connection needs to be refreshed. Please check the Financial Institutions page.`;
+      }
+    } else if (
+      !mostRecentTransactionDate ||
+      mostRecentTransactionDate < fiveDaysAgo
+    ) {
+      // 5+ days without transactions (or no transactions found)
+      if (!plaidItem.lastStaleNotificationLevel) {
+        notificationLevel = '5-day';
+        subject = 'Fincapy - No Recent Transactions Detected';
+        message = `We haven't detected any new transactions from ${plaidItem.institutionName} in the past 5 days. This might indicate that your connection needs to be refreshed, or maybe you just haven't bought anything! If you're not sure, refresh your connection on the Financial Institutions page.`;
+      }
+    }
+
+    // Send notification if we determined we should
+    if (notificationLevel) {
+      const primaryEmail = tenant.users.find((user) => user.role === 'owner')
+        .emails[0].email;
+
+      await this.sesAdapter.sendEmail({
+        to: primaryEmail,
+        subject: subject,
+        text: message,
+      });
+
+      // Update notification tracking
+      plaidItem.lastStaleNotificationLevel = notificationLevel;
+      plaidItem.lastStaleNotificationSentAt = new Date();
+    }
   }
 
   async execute({ tenantId, plaidItemId }) {
@@ -420,7 +582,8 @@ class IngestTransactionUpdatesService {
                     plaidTransaction,
                     plan,
                     uniqueTransactionEditsString,
-                    categoryIdToNameMap
+                    categoryIdToNameMap,
+                    plaidItem.plaidItemId
                   )
                 )
               );
@@ -432,7 +595,8 @@ class IngestTransactionUpdatesService {
                 plaidTransaction,
                 plan,
                 uniqueTransactionEditsString,
-                categoryIdToNameMap
+                categoryIdToNameMap,
+                plaidItem.plaidItemId
               );
             }
 
@@ -456,6 +620,9 @@ class IngestTransactionUpdatesService {
             });
           }
         }
+
+        // Check if no transactions have been ingested for 5 days
+        await this._checkAndNotifyStaleConnection(plaidItem, tenant);
       }
       await tenantRepository.set({ tenantId, tenant });
       return true;

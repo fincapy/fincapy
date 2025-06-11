@@ -7,6 +7,7 @@ class Transaction {
     type,
     status,
     createdByUser,
+    plaidItemId = null,
   }) {
     this.transactionId = transactionId;
     this.amount = amount;
@@ -15,6 +16,7 @@ class Transaction {
     this.type = type;
     this.status = status;
     this.createdByUser = createdByUser;
+    this.plaidItemId = plaidItemId;
   }
 }
 

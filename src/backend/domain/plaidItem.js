@@ -8,6 +8,8 @@ class PlaidItem {
     cursor,
     status,
     lastIngestedAt,
+    lastStaleNotificationLevel = null,
+    lastStaleNotificationSentAt = null,
   }) {
     this.userId = userId;
     this.plaidItemId = plaidItemId;
@@ -17,6 +19,8 @@ class PlaidItem {
     this.cursor = cursor;
     this.status = status;
     this.lastIngestedAt = lastIngestedAt;
+    this.lastStaleNotificationLevel = lastStaleNotificationLevel;
+    this.lastStaleNotificationSentAt = lastStaleNotificationSentAt;
   }
 }
 

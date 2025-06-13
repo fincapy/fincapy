@@ -120,7 +120,7 @@ export default async function PostPage({ params }) {
         </div>
 
         <article
-          className="prose prose-lg max-w-none text-black prose-headings:text-gray-900 prose-a:text-amber-700 prose-a:no-underline prose-img:rounded-md prose-h2:text-xl prose-p:font-serif prose-p:leading-relaxed prose-ul:-mt-[16px] prose-li:marker:text-black"
+          className="prose prose-lg max-w-none text-black prose-headings:text-gray-900 prose-img:rounded-md prose-p:font-serif prose-p:leading-relaxed prose-ul:-mt-[16px] prose-li:marker:text-black"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>

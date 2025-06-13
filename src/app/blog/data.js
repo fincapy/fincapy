@@ -1,6 +1,63 @@
 // Blog post data that can be shared across components
 export const blogPosts = [
   {
+    slug: 'best-personal-finance-blogs',
+    title: 'The Best Personal Finance Blogs for 2025',
+    subheading: 'Find wisdom that resonates, then put it into practice',
+    date: '2025-06-13',
+    image: '/blog/capyman-coffee.png',
+    imageAlt:
+      'Capyman reading different financial blog newspapers while sipping coffee in a cafe',
+    author: {
+      name: 'Ryan Wible',
+      avatar: '/goats.png',
+    },
+    content: `
+      <h2>For the Mindful Spender: Mastering the Art of Intentionality</h2>
+
+      <h3><a href="https://affordanything.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Afford Anything</a></h3>
+      
+      <p>There&apos;s always a part of me that wants to live without limits. Paula Pant, the mind behind Afford Anything, gets this. Her philosophy isn&apos;t about saying &quot;no&quot; to everything. It&apos;s built on a more powerful idea: &quot;You can afford anything, but not everything.&quot; This simple phrase is a powerful tool against the wanter. It forces a choice. What do I actually want? Her blog is a masterclass in making deliberate choices, especially around big goals like real estate and financial independence, so you can build a life you truly want.</p>
+
+      <h3><a href="https://apurplelife.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">A Purple Life</a></h3>
+      
+      <p>What does life actually look like when you get your finances right? This blog is the anonymous, transparent, and oddly calming journey of a woman who retired at 30. She shares her actual spending, her travels, and her reflections on a life free from mandatory work. It&apos;s less of a &quot;how-to&quot; guide and more of a &quot;here&apos;s what it feels like&quot; story. For anyone who fears they won&apos;t have enough, her journey is a powerful, real-world antidote.</p>
+
+      <h2>For the Financial Feminist: Building Wealth on Your Own Terms</h2>
+
+      <h3><a href="https://herfirst100k.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Her First $100K</a></h3>
+      
+      <p>There&apos;s a pernicious message sent to women in our culture: &quot;You aren&apos;t good with money&quot;. Tori Dunlap is here to burn that idea to the ground. A self-proclaimed &quot;financial feminist,&quot; her work isn&apos;t just about budgeting; it&apos;s about fighting the patriarchy by making women rich. Her content is bold, actionable, and geared towards closing the wealth gap. If you&apos;re ready to negotiate your salary, start investing, and build real, sustainable wealth, start here.</p>
+
+      <h3><a href="https://thefinancialdiet.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">The Financial Diet</a></h3>
+      
+      <p>Talking about money can feel awkward and isolating. The Financial Diet turns that conversation into a brunch with your smartest, funniest friends. It&apos;s sleek, engaging, and covers everything from the nitty-gritty of saving to the complex emotions tied to money. It makes financial literacy feel accessible and, dare I say, cool.</p>
+
+      <h2>For the Those Who Crave Data</h2>
+
+      <h3><a href="https://ofdollarsanddata.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Of Dollars and Data</a></h3>
+      
+      <p>When my anxiety is running rampant, I want someone to show me that if I follow a reasonable framework, I&apos;ll be okay. Nick Maggiulli does exactly that, but with elegant charts and compelling data. He answers questions like &quot;When is the best time to invest?&quot; or &quot;How much do I really need to retire?&quot; not with opinion, but with evidence. His work cuts through the noise and provides a sense of calm certainty that your efforts are enough.</p>
+
+      <h2>For the FIRE Seeker: Redefining the Rules of Work and Money</h2>
+
+      <h3><a href="https://mrmoneymustache.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Mr. Money Mustache</a></h3>
+      
+      <p>This blog is the OG of the FIRE movement. The writing is witty, opinionated, and unapologetically frugal. At first glance, it might seem intense, but at its core, it&apos;s about a powerful idea: reclaiming your life from mindless consumerism. It challenges you to question what you truly need to be happy and shows you the &quot;shockingly simple math&quot; to get there faster than you thought.</p>
+
+      <h3><a href="https://financialsamurai.com" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Financial Samurai</a></h3>
+      
+      <p>Written by a former investment banker, Financial Samurai is for when you&apos;re ready to move beyond the basics. It&apos;s dense, detailed, and offers advanced strategies for building wealth through investing, real estate, and career negotiation. It&apos;s the place to go when you want to sharpen your financial sword and take your journey to the next level.</p>
+
+      <h2>Your Philosophy, Your Tool</h2>
+      <p>Finding a blog that resonates is like finding a good therapist. They give you a framework to understand yourself. They provide the &quot;why.&quot; But you still need a tool for the &quot;what.&quot;</p>
+
+      <p>That&apos;s where Fincapy comes in. It&apos;s the place to see if your spending is actually aligned with the life that&apos;s resonating with you. It shows you, without judgment, what you&apos;re actually doing as opposed to what you say you&apos;re doing.</p>
+
+      <p>The goal isn&apos;t to follow any one guru perfectly. It&apos;s to use their wisdom to stay true to the life you say you want when the undertow of desire pulls the other way.</p>
+    `,
+  },
+  {
     slug: 'how-to-track-your-grocery-expenses',
     title:
       'How to Track Your Grocery Expenses Without Losing Your Mind (or Buying a Third Jar of Olives)',

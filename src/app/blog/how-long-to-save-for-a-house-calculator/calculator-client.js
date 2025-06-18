@@ -586,6 +586,17 @@ export default function HouseSavingsCalculatorClient() {
             factors. Consider consulting with a mortgage professional for
             personalized advice.
           </p>
+
+          <p>
+            The journey to homeownership is as much about psychology as it is
+            about numbers. Sticking to a long-term savings plan can be tough.
+            Understanding{' '}
+            <a href="/blog/why-is-personal-finance-dependent-upon-your-behavior">
+              the psychology behind our financial decisions
+            </a>{' '}
+            can help you stay motivated and bridge the gap between your goals
+            and your behavior.
+          </p>
         </article>
       </div>
     </>

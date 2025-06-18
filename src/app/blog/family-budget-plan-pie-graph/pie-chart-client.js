@@ -592,7 +592,13 @@ export default function FamilyBudgetPieChartClient() {
           <p>
             Remember, a good budget reflects your values and priorities. Use
             this visualization tool to ensure your spending aligns with what
-            matters most to your family&apos;s financial goals.
+            matters most to your family&apos;s financial goals. Often, the
+            biggest challenge isn&apos;t knowing what to do, but actually doing
+            it. Understanding{' '}
+            <a href="/blog/why-is-personal-finance-dependent-upon-your-behavior">
+              the psychology behind our financial decisions
+            </a>{' '}
+            is the key to bridging that gap.
           </p>
         </article>
       </div>

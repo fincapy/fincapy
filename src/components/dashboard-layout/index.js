@@ -32,7 +32,7 @@ import { UsersContext } from './usersContext';
 import { PlaidItemsContext } from './plaidItemsContext';
 import { PageContext } from './pageContext';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   HandCoins,
   PiggyBank,
@@ -317,17 +317,21 @@ export default function DashboardLayout({
     return pageParam || 'spending';
   };
 
-  const newPlan = new Plan({
-    ...plan,
-    categories: plan.categories.map((category) => {
-      return new Category({
-        ...category,
-        subcategories: category.subcategories.map((subcategory) => {
-          return new Subcategory({ ...subcategory });
+  const newPlan = useMemo(
+    () =>
+      new Plan({
+        ...plan,
+        categories: plan.categories.map((category) => {
+          return new Category({
+            ...category,
+            subcategories: category.subcategories.map((subcategory) => {
+              return new Subcategory({ ...subcategory });
+            }),
+          });
         }),
-      });
-    }),
-  });
+      }),
+    [plan]
+  );
   // get starting date of current month
   const startDate = new Date();
   startDate.setDate(1);
@@ -374,7 +378,7 @@ export default function DashboardLayout({
       url.searchParams.delete('page');
       window.history.replaceState({}, '', url);
     }
-  }, []); // Run once on mount
+  }, [searchParams]); // Run once on mount
 
   useEffect(() => {
     const getPlan = async () => {
@@ -433,7 +437,27 @@ export default function DashboardLayout({
     };
 
     execute();
-  }, [startDateState, endDateState, triggerRefresh]);
+  }, [
+    startDateState,
+    endDateState,
+    triggerRefresh,
+    billingStatus,
+    currentUser,
+    newPlan,
+    nonce,
+    plaidItems,
+    setBillingStatus,
+    setCurrentUser,
+    setCurrentUserId,
+    setCurrentUserRole,
+    setNonce,
+    setPlaidItemsState,
+    setPlanState,
+    setUsersState,
+    userId,
+    userRole,
+    users,
+  ]);
 
   const scrollAreaRef = useRef(null);
 

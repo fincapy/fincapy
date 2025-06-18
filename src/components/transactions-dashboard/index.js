@@ -525,7 +525,7 @@ const TransactionsDashboard = () => {
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [transactions]);
+  }, [transactions, setIsLoading]);
 
   return (
     <>

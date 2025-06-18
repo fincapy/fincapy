@@ -253,7 +253,7 @@ export default function Dashboard() {
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [usersState]);
+  }, [usersState, setIsLoading]);
 
   return (
     <>

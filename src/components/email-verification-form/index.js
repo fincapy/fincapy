@@ -50,7 +50,7 @@ const EmailVerificationForm = () => {
         return () => clearInterval(timerRef.current);
       }
     }
-  }, []);
+  }, [router, timeLeft]);
 
   const handleOTPComplete = async (otp) => {
     setIsSubmitting(true);

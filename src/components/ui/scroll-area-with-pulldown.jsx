@@ -20,7 +20,8 @@ const ScrollAreaWithPulldown = React.forwardRef(
     const RESISTANCE_FACTOR = 2;
 
     const calculateProgressiveResistance = (distance) => {
-      const resistance = distance / (1 + distance / (THRESHOLD * RESISTANCE_FACTOR));
+      const resistance =
+        distance / (1 + distance / (THRESHOLD * RESISTANCE_FACTOR));
       return Math.min(resistance, THRESHOLD * 1.2);
     };
 
@@ -62,7 +63,11 @@ const ScrollAreaWithPulldown = React.forwardRef(
         const touch = e.touches[0];
         const delta = touch.clientY - pullRef.current.startY;
         // only intercept downward drags at the very top
-        if (pullRef.current.active && scrollRef.current?.scrollTop <= 0 && delta > 0) {
+        if (
+          pullRef.current.active &&
+          scrollRef.current?.scrollTop <= 0 &&
+          delta > 0
+        ) {
           e.preventDefault();
           updatePull(touch.clientY);
         } else {
@@ -98,18 +103,18 @@ const ScrollAreaWithPulldown = React.forwardRef(
       // we want to catch touch events and call e.preventDefault()
       const opts = { passive: false };
       el.addEventListener('touchstart', handleTouchStart, opts);
-      el.addEventListener('touchmove',  handleTouchMove,  opts);
-      el.addEventListener('touchend',   handleTouchEnd,   opts);
+      el.addEventListener('touchmove', handleTouchMove, opts);
+      el.addEventListener('touchend', handleTouchEnd, opts);
 
       return () => {
         el.removeEventListener('touchstart', handleTouchStart, opts);
-        el.removeEventListener('touchmove',  handleTouchMove,  opts);
-        el.removeEventListener('touchend',   handleTouchEnd,   opts);
+        el.removeEventListener('touchmove', handleTouchMove, opts);
+        el.removeEventListener('touchend', handleTouchEnd, opts);
         if (pullRef.current.rafId) {
           cancelAnimationFrame(pullRef.current.rafId);
         }
       };
-    }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+    }, [handleTouchStart, handleTouchMove, handleTouchEnd, pullRef]);
 
     return (
       <ScrollAreaPrimitive.Root

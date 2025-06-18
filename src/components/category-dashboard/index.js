@@ -2045,7 +2045,7 @@ export default function CategoryDashboard({ type, categories }) {
       const timer = setTimeout(() => {
         setIsLoading(false);
       }, 300);
-      const newCategoryNames = Object.values(categoriesState)
+      const newCategoryNames = Object.values(categories)
         .map((category) =>
           category.subcategories.map((subcategory) => {
             return {
@@ -2056,7 +2056,7 @@ export default function CategoryDashboard({ type, categories }) {
           })
         )
         .flat();
-      Object.values(categoriesState).forEach((category) => {
+      Object.values(categories).forEach((category) => {
         newCategoryNames.push({
           name: category.name,
           id: category.categoryId,
@@ -2077,7 +2077,7 @@ export default function CategoryDashboard({ type, categories }) {
       setCategoryNames(newCategoryNames);
       return () => clearTimeout(timer);
     }
-  }, [categories]);
+  }, [categories, setIsLoading]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -203,7 +203,7 @@ const AccountPage = ({ setPage, userEmail }) => {
         duration: 5000,
       });
     }
-  }, []); // Empty dependency array - only run on mount
+  }, [toast]); // Empty dependency array - only run on mount
 
   // Return loading state if currentUser is not available yet
   if (!currentUser) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import BlogPageNavbar from '../blogPageNavbar';
 import {
@@ -203,17 +203,17 @@ export default function FamilyBudgetPieChartClient() {
     '#f5deb3',
   ];
 
-  useEffect(() => {
-    calculateTotal();
-  }, [categories]);
-
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     const total = categories.reduce((sum, cat) => {
       const amount = parseFloat(cat.amount) || 0;
       return sum + amount;
     }, 0);
     setTotalBudget(total);
-  };
+  }, [categories]);
+
+  useEffect(() => {
+    calculateTotal();
+  }, [calculateTotal]);
 
   // Transform categories into Recharts data format
   const getChartData = () => {
@@ -595,9 +595,9 @@ export default function FamilyBudgetPieChartClient() {
             matters most to your family&apos;s financial goals. Often, the
             biggest challenge isn&apos;t knowing what to do, but actually doing
             it. Understanding{' '}
-            <a href="/blog/why-is-personal-finance-dependent-upon-your-behavior">
+            <Link href="/blog/why-is-personal-finance-dependent-upon-your-behavior">
               the psychology behind our financial decisions
-            </a>{' '}
+            </Link>{' '}
             is the key to bridging that gap.
           </p>
         </article>

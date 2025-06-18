@@ -422,7 +422,7 @@ export default function FinancialInstitutionsDashboard() {
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [plaidItemsState]);
+  }, [plaidItemsState, setIsLoading]);
 
   return (
     <div className="flex w-full flex-col h-full">

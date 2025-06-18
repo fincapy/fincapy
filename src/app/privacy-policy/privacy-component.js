@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage({ nonce }) {
       // Clean up when unmounting
       script.remove();
     };
-  }, []);
+  }, [nonce]);
 
   return (
     <div

@@ -482,13 +482,13 @@ export default function DashboardLayout({
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
-            <div className="top-0 h-[7%] fixed w-full flex items-center justify-center bg-emerald-600">
+            <div className="top-0 h-[6%] fixed w-full flex items-center justify-center bg-emerald-600">
               <h1 className="text-lg font-bold text-white select-none">
                 {displayTitle}
               </h1>
             </div>
             <ScrollAreaWithPulldown
-              className={`h-[93%] w-full fixed`}
+              className={`h-[84%] w-full fixed`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {
@@ -496,7 +496,7 @@ export default function DashboardLayout({
               }}
               isRefreshing={isRefreshing}
               style={{
-                top: '7%',
+                top: '6%',
               }}
             >
               {children}

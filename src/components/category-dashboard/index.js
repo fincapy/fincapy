@@ -343,7 +343,7 @@ const CreateCategoryDialogue = () => {
       <DialogTrigger asChild>
         <Button
           size="icon"
-          className="bg-card shadow-md hover:shadow-xl text-gray-800 hover:bg-card hover:text-amber-600"
+          className="bg-card shadow-sm hover:shadow-xl text-gray-800 hover:bg-card hover:text-amber-600"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <PlusIcon size={20} />
@@ -1872,7 +1872,7 @@ const CategoryCardCollapsible = ({
       onOpenChange={setAreSubcategoriesOpen}
       ref={setNodeRef}
       style={style}
-      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none relative shadow-md rounded-xl`}
+      className={`${isGrabbing ? 'z-50' : 'z-40'} select-none relative shadow-sm rounded-xl`}
     >
       <CategoryCard
         category={category}
@@ -1955,7 +1955,7 @@ const DatePickers = () => {
         <PopoverTrigger asChild>
           <Button
             className={cn(
-              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-md hover:shadow-xl text-gray-800 hover:bg-card hover:text-amber-600',
+              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-sm hover:shadow-xl text-gray-800 hover:bg-card hover:text-amber-600',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -1989,7 +1989,7 @@ const DatePickers = () => {
         <PopoverTrigger asChild>
           <Button
             className={cn(
-              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-md hover:shadow-xl hover:bg-card hover:text-amber-600',
+              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-sm hover:shadow-xl hover:bg-card hover:text-amber-600',
               !endDate && 'text-muted-foreground'
             )}
           >

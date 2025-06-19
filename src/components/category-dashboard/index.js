@@ -1631,7 +1631,7 @@ const CategoryCard = ({
           <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
             <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
               <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
-                <Icon className={`mr-1 ${color}`} />
+                <Icon className={`mr-1 ${color.text}`} />
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
@@ -1673,7 +1673,7 @@ const CategoryCard = ({
               progressPercent={progress}
               rawValue={category.currentNet}
               goal={category.proratedGoal}
-              color={color}
+              color={color.bg}
             />
           </div>
           <div className="flex flex-row justify-between pt-1 text-gray-500">
@@ -1802,7 +1802,7 @@ const SubcategoryCard = forwardRef(
             <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
               <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
                 <span className="flex items-center text-md break-words max-w-[90%] font-bold text-gray-800">
-                  <Icon className={`mr-1 ${color}`} />
+                  <Icon className={`mr-1 ${color.text}`} />
                   {subcategory.name}
                 </span>
                 <ActionMenu contextId={subcategory.subcategoryId}>
@@ -1832,7 +1832,7 @@ const SubcategoryCard = forwardRef(
                 progressPercent={progress}
                 rawValue={subcategory.currentNet}
                 goal={subcategory.proratedGoal}
-                color={color}
+                color={color.bg}
                 mutedColor={mutedColor}
               />
             </div>
@@ -1899,7 +1899,7 @@ const CategoryCardCollapsible = ({
 
   const colorKey =
     currentUser?.categoryColors?.[category.categoryId] || 'primary';
-  const color = colorOptions[colorKey]?.text || 'text-primary';
+  const color = colorOptions[colorKey] || 'text-primary';
   const mutedColor = progressBarColors[colorKey]?.muted || 'bg-primary/20';
 
   const categoryCardRef = useRef(null);

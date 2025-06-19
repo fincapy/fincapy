@@ -140,7 +140,7 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-amber-600 -mb-[2px]'
-            : `text-muted/65 ${hoverClass} -mb-[2px]`
+            : `text-muted/50 ${hoverClass} -mb-[2px]`
         }
       />
       <span
@@ -149,7 +149,7 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-[13px] font-bold text-amber-600 select-none'
-            : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
+            : `text-[13px] font-bold text-muted/50 ${hoverClass} select-none`
         }
       >
         Account
@@ -194,14 +194,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'spending'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/65 ${hoverClass} -mb-[2px]`
+                  : `text-muted/50 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'spending'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/50 ${hoverClass} select-none`
               }
             >
               Spending
@@ -216,14 +216,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'income'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/65 ${hoverClass} -mb-[2px]`
+                  : `text-muted/50 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'income'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/50 ${hoverClass} select-none`
               }
             >
               Income
@@ -238,14 +238,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'savings'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/65 ${hoverClass} -mb-[2px]`
+                  : `text-muted/50 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'savings'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/50 ${hoverClass} select-none`
               }
             >
               Savings
@@ -260,14 +260,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'transactions'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/65 ${hoverClass} -mb-[2px]`
+                  : `text-muted/50 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'transactions'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/50 ${hoverClass} select-none`
               }
             >
               Transactions

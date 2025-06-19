@@ -140,7 +140,7 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-amber-600 -mb-[2px]'
-            : `text-muted/80 ${hoverClass} -mb-[2px]`
+            : `text-muted/65 ${hoverClass} -mb-[2px]`
         }
       />
       <span
@@ -149,7 +149,7 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
           page === 'manage-users' ||
           page === 'financial-institutions'
             ? 'text-[13px] font-bold text-amber-600 select-none'
-            : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
+            : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
         }
       >
         Account
@@ -181,10 +181,9 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full gap-1 fixed m-0 touch-none h-[10%] select-none`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full gap-1 fixed m-0 touch-none h-[10%] select-none shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]`}
     >
-      <Separator className="w-full h-[1px] bg-border" />
-      <div className="flex flex-row justify-center items-start lg:w-[33.33%] md:w-[50%] w-[95%] select-none h-full">
+      <div className="flex flex-row justify-center items-start lg:w-[33.33%] md:w-[50%] w-[95%] select-none h-full mt-1">
         <div className="flex flex-row justify-between items-center flex-1">
           <TapButton
             onTap={() => changePage('spending')}
@@ -195,14 +194,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'spending'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/80 ${hoverClass} -mb-[2px]`
+                  : `text-muted/65 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'spending'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
               }
             >
               Spending
@@ -217,14 +216,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'income'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/80 ${hoverClass} -mb-[2px]`
+                  : `text-muted/65 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'income'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
               }
             >
               Income
@@ -239,14 +238,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'savings'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/80 ${hoverClass} -mb-[2px]`
+                  : `text-muted/65 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'savings'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
               }
             >
               Savings
@@ -261,14 +260,14 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
               className={
                 page === 'transactions'
                   ? 'text-amber-600 -mb-[2px]'
-                  : `text-muted/80 ${hoverClass} -mb-[2px]`
+                  : `text-muted/65 ${hoverClass} -mb-[2px]`
               }
             />
             <span
               className={
                 page === 'transactions'
                   ? 'text-[13px] font-bold text-amber-600 select-none'
-                  : `text-[13px] font-bold text-muted/80 ${hoverClass} select-none`
+                  : `text-[13px] font-bold text-muted/65 ${hoverClass} select-none`
               }
             >
               Transactions
@@ -472,7 +471,7 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-background"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe pb-safe bg-gray-200"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >

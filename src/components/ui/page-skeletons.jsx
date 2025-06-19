@@ -14,7 +14,7 @@ export const TestSkeleton = () => (
 );
 
 export const SpendingSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
         <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -36,7 +36,7 @@ export const SpendingSkeleton = () => (
 );
 
 export const IncomeSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
         <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -58,7 +58,7 @@ export const IncomeSkeleton = () => (
 );
 
 export const SavingsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
         <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -79,7 +79,7 @@ export const SavingsSkeleton = () => (
 );
 
 export const TransactionsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
         <div className="flex flex-row flex-wrap gap-2 items-center">
@@ -101,7 +101,7 @@ export const FinancialInstitutionsSkeleton = () => (
         <Skeleton className="h-8 w-64 mb-1 bg-gray-300" />
         <Skeleton className="h-4 w-96 bg-gray-300" />
       </div>
-      <div className="bg-card rounded-xl border border-border p-6 shadow-md mt-6 w-full">
+      <div className="bg-card rounded-xl border border-border p-6 shadow-md mt-6 w-full mb-2">
         <div className="flex items-center gap-4 mb-4">
           <Skeleton className="h-8 w-8 bg-gray-300" />
           <Skeleton className="h-6 w-40 bg-gray-300" />
@@ -120,7 +120,7 @@ export const FinancialInstitutionsSkeleton = () => (
 );
 
 export const ManageUsersSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
+  <div className="flex flex-col w-full flex-grow gap-4 items-center">
     <div className="w-[95%] flex flex-row justify-end">
       <Skeleton className="h-9 w-9 bg-gray-300" />
     </div>
@@ -131,7 +131,7 @@ export const ManageUsersSkeleton = () => (
 );
 
 export const AccountSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-4 items-center">
+  <div className="flex flex-col w-full flex-grow gap-4 items-center">
     <div className="w-[95%] max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
         <Skeleton className="h-12 w-12 rounded-full bg-gray-300" />

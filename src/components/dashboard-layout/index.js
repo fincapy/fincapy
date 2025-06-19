@@ -181,7 +181,7 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-card z-20 w-full gap-1 fixed m-0 touch-none h-[10%] select-none shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]`}
+      className={`flex flex-col items-center justify-center bg-card z-20 w-full gap-1 fixed m-0 touch-none h-[10%] select-none shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] bottom-0`}
     >
       <div className="flex flex-row justify-center items-start lg:w-[33.33%] md:w-[50%] w-[95%] select-none h-full mt-1">
         <div className="flex flex-row justify-between items-center flex-1">
@@ -478,24 +478,27 @@ export default function DashboardLayout({
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe bg-[linear-gradient(to_bottom,theme(colors.emerald.600)_160px,theme(colors.gray.200)_160px)]"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
+            <div className="top-0 h-[7%] fixed w-full flex items-center justify-center bg-emerald-600">
+              <h1 className="text-lg font-bold text-white select-none">
+                {displayTitle}
+              </h1>
+            </div>
             <ScrollAreaWithPulldown
-              className={`h-[90%] w-full fixed top-0`}
+              className={`h-[93%] w-full fixed`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
               triggerRefresh={() => {
                 setTriggerRefresh(!triggerRefresh);
               }}
               isRefreshing={isRefreshing}
+              style={{
+                top: '7%',
+              }}
             >
-              <div className="pt-2 pb-2">
-                <h1 className="text-lg font-bold text-white text-center select-none">
-                  {displayTitle}
-                </h1>
-              </div>
               {children}
             </ScrollAreaWithPulldown>
             <NavBar page={page} setPage={setPage} userRole={userRole} />

@@ -2109,7 +2109,7 @@ export default function CategoryDashboard({ type, categories }) {
         value={{ categoriesState, setCategoriesState, setPreviousState }}
       >
         {isLoading ? (
-          <div className="flex flex-col w-full flex-grow gap-4 mt-2 mb-2">
+          <div className="flex flex-col w-full flex-grow gap-4 mb-2">
             <div className="flex flex-col justify-center items-center gap-2">
               <div
                 className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
@@ -2139,7 +2139,7 @@ export default function CategoryDashboard({ type, categories }) {
         ) : (
           <CategoryNamesContext.Provider value={categoryNames}>
             <TypeContext.Provider value={type}>
-              <div className="flex flex-col w-full h-full gap-4 mb-2 mt-2">
+              <div className="flex flex-col w-full h-full gap-4 mb-2">
                 <div className="flex flex-col justify-center items-center gap-2">
                   <div
                     className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"

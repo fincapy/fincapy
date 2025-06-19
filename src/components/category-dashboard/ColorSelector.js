@@ -6,12 +6,12 @@ import { Check } from 'lucide-react';
 
 // Using the progressBarColors from the main category dashboard component
 const colorOptions = {
-  amber: 'bg-amber-500', // primary
-  emerald: 'bg-emerald-500', // secondary
-  blue: 'bg-blue-500',
-  pink: 'bg-pink-500',
-  cyan: 'bg-cyan-500',
-  violet: 'bg-violet-500',
+  amber: { bg: 'bg-amber-500', text: 'text-amber-500' },
+  emerald: { bg: 'bg-emerald-500', text: 'text-emerald-500' },
+  blue: { bg: 'bg-blue-500', text: 'text-blue-500' },
+  pink: { bg: 'bg-pink-500', text: 'text-pink-500' },
+  cyan: { bg: 'bg-cyan-500', text: 'text-cyan-500' },
+  violet: { bg: 'bg-violet-500', text: 'text-violet-500' },
 };
 
 export function getRandomColor() {
@@ -27,12 +27,12 @@ const ColorSelector = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-wrap gap-2 mt-1">
-      {Object.entries(colorOptions).map(([colorName, colorClass]) => (
+      {Object.entries(colorOptions).map(([colorName, colorValue]) => (
         <button
           key={colorName}
           type="button"
           className={cn(
-            colorClass,
+            colorValue.bg,
             'w-8 h-8 rounded-full flex items-center justify-center transition-all',
             value === colorName
               ? 'ring-2 ring-black ring-offset-2'

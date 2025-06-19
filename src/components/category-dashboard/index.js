@@ -1591,7 +1591,7 @@ const CategoryCard = ({
   };
 
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
-  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [currentUser] = useAtom(currentUserAtom);
 
   const progress = Math.min(
     (category.currentNet / category.proratedGoal) * 100,
@@ -1631,7 +1631,7 @@ const CategoryCard = ({
           <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
             <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
               <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
-                <Icon className={`mr-2 ${color.replace('bg-', 'text-')}`} />
+                <Icon className={`mr-1 ${color}`} />
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
@@ -1802,7 +1802,7 @@ const SubcategoryCard = forwardRef(
             <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
               <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
                 <span className="flex items-center text-md break-words max-w-[90%] font-bold text-gray-800">
-                  <Icon className={`mr-2 ${color.replace('bg-', 'text-')}`} />
+                  <Icon className={`mr-1 ${color}`} />
                   {subcategory.name}
                 </span>
                 <ActionMenu contextId={subcategory.subcategoryId}>
@@ -1899,7 +1899,7 @@ const CategoryCardCollapsible = ({
 
   const colorKey =
     currentUser?.categoryColors?.[category.categoryId] || 'primary';
-  const color = colorOptions[colorKey] || 'bg-primary';
+  const color = colorOptions[colorKey]?.text || 'text-primary';
   const mutedColor = progressBarColors[colorKey]?.muted || 'bg-primary/20';
 
   const categoryCardRef = useRef(null);

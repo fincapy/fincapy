@@ -136,7 +136,7 @@ export const iconOptions = {
 export const IconSelector = ({ value, onChange }) => {
   return (
     <div className="max-h-40 overflow-y-auto p-1">
-      <div className="grid grid-cols-8 gap-2">
+      <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
         {Object.entries(iconOptions).map(([name, Icon]) => (
           <button
             key={name}
@@ -148,7 +148,7 @@ export const IconSelector = ({ value, onChange }) => {
             }`}
             onClick={() => onChange(name)}
           >
-            <Icon className="w-5 h-5" />
+            <Icon className="w-6 h-6" />
           </button>
         ))}
       </div>

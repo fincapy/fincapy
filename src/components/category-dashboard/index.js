@@ -1712,7 +1712,7 @@ const SubcategoryCard = forwardRef(
     return (
       <Card
         ref={setNodeRef}
-        className={`shadow-none bg-card-subcategory/60 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
+        className={`shadow-none bg-card/60 ${getRoundedStyle()} select-none z-10 ${isGrabbing && 'z-30'} relative border-t border-neutral-300`}
         style={style}
       >
         <CardHeader className="p-0" />

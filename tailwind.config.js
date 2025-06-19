@@ -9,6 +9,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        gray: {
+          150: 'hsl(var(--gray-150))',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

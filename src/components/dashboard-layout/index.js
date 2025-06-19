@@ -466,12 +466,19 @@ export default function DashboardLayout({
     }
   };
 
+  const pageTitles = {
+    'manage-users': 'Manage Users',
+    'financial-institutions': 'Financial Institutions',
+  };
+  const title = page.charAt(0).toUpperCase() + page.slice(1);
+  const displayTitle = pageTitles[page] || title;
+
   return (
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
         <PageContext.Provider value={{ page, setPage }}>
           <main
-            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe bg-gray-200"
+            className="w-full h-full overflow-hidden fixed inset-0 touch-none pt-safe pl-safe pr-safe bg-[linear-gradient(to_bottom,theme(colors.emerald.600)_160px,theme(colors.gray.200)_160px)]"
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
@@ -484,6 +491,11 @@ export default function DashboardLayout({
               }}
               isRefreshing={isRefreshing}
             >
+              <div className="pt-2 pb-2">
+                <h1 className="text-lg font-bold text-white text-center select-none">
+                  {displayTitle}
+                </h1>
+              </div>
               {children}
             </ScrollAreaWithPulldown>
             <NavBar page={page} setPage={setPage} userRole={userRole} />

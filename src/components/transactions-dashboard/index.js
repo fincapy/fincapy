@@ -407,9 +407,9 @@ const CreateTransactionDialogue = () => {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="bg-card hover:bg-card hover:border-primary hover:text-primary"
+          className="bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary"
         >
           <PlusIcon />
         </Button>
@@ -456,9 +456,9 @@ const DatePickers = () => {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant={'outline'}
+            variant={'ghost'}
             className={cn(
-              'w-[135px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[135px] text-md flex items-center bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary',
               !startDate && 'text-muted-foreground'
             )}
           >
@@ -486,9 +486,9 @@ const DatePickers = () => {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant={'outline'}
+            variant={'ghost'}
             className={cn(
-              'w-[135px] text-md flex items-center bg-card hover:bg-card hover:border-primary hover:text-primary',
+              'w-[135px] text-md flex items-center bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary',
               !endDate && 'text-muted-foreground'
             )}
           >

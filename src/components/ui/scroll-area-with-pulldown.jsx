@@ -123,9 +123,15 @@ const ScrollAreaWithPulldown = React.forwardRef(
       >
         <ScrollAreaPrimitive.Viewport
           ref={scrollRef}
-          className="h-full w-full rounded-[inherit]"
+          className="h-full w-full rounded-[inherit] bg-[linear-gradient(to_bottom,theme(colors.emerald.600)_20%,transparent_20%)]"
           style={{ overscrollBehavior: 'contain' }}
         >
+          <div
+            className="absolute top-0 left-0 -z-10 w-full bg-emerald-600"
+            style={{
+              height: isRefreshing ? THRESHOLD / 1.5 : pullDistance,
+            }}
+          />
           {/* Pull-to-refresh indicator */}
           <div
             className={cn(
@@ -174,7 +180,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
                         width: '2px',
                         height: '6px', // Smaller, crisper petal
                         backgroundColor:
-                          isVisible || isRefreshing ? '#134e4a' : 'gray',
+                          isVisible || isRefreshing ? 'white' : 'gray',
                         borderRadius: '1px',
                         transform: `rotate(${angle}deg) translateY(-8px)`,
                         transition: 'background-color 0.2s',

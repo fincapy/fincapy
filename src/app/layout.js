@@ -70,7 +70,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#f9fafb',
+  themeColor: '#e5e7eb',
   minimumScale: 1,
   initialScale: 1,
   width: 'device-width',
@@ -81,7 +81,7 @@ export const viewport = {
 
 export default async function RootLayout({ children }) {
   return (
-    <html lang="en" className="overscroll-none bg-card">
+    <html lang="en" className="overscroll-none bg-gray-200">
       <head>
         {/* Apple PWA Splash Screens */}
         {/* iPhone 16 Pro Max, 15 Pro Max, 14 Pro Max - Portrait */}

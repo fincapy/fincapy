@@ -90,7 +90,6 @@ export const iconOptions = {
   baby: Baby,
   dumbbell: Dumbbell,
   shirt: Shirt,
-  heartbeat: Heartbeat,
   homeIcon: HomeIcon,
   shoppingBag: ShoppingBag,
   carIcon: CarIcon,
@@ -101,7 +100,6 @@ export const iconOptions = {
   pizza: Pizza,
   planeIcon: PlaneIcon,
   hotel: Hotel,
-  gasStation: GasStation,
   train: Train,
   wrench: Wrench,
   brush: Brush,
@@ -137,21 +135,29 @@ export const iconOptions = {
 
 export const IconSelector = ({ value, onChange }) => {
   return (
-    <div className="grid grid-cols-8 gap-2">
-      {Object.entries(iconOptions).map(([name, Icon]) => (
-        <button
-          key={name}
-          type="button"
-          className={`p-2 rounded-md flex items-center justify-center transition-all duration-200 ${
-            value === name
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary hover:bg-secondary/80'
-          }`}
-          onClick={() => onChange(name)}
-        >
-          <Icon className="w-5 h-5" />
-        </button>
-      ))}
+    <div className="max-h-40 overflow-y-auto p-1">
+      <div className="grid grid-cols-8 gap-2">
+        {Object.entries(iconOptions).map(([name, Icon]) => (
+          <button
+            key={name}
+            type="button"
+            className={`p-2 rounded-md flex items-center justify-center transition-all duration-200 ${
+              value === name
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-white dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-800'
+            }`}
+            onClick={() => onChange(name)}
+          >
+            <Icon className="w-5 h-5" />
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
+
+export function getRandomIcon() {
+  const iconNames = Object.keys(iconOptions);
+  const randomIndex = Math.floor(Math.random() * iconNames.length);
+  return iconNames[randomIndex];
+}

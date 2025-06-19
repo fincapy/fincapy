@@ -112,12 +112,20 @@ class Plan {
     category.deleteSubcategory({ subcategoryId });
   }
 
-  updateCategory({ categoryId, name, monthlyGoal }) {
+  updateCategory({ categoryId, name, monthlyGoal, icon }) {
     const category = this.categories.find(
       (category) => category.categoryId === categoryId
     );
     category.name = name;
     category.monthlyGoal = monthlyGoal;
+    category.icon = icon;
+
+    const generalSubcategory = category.subcategories.find(
+      (sub) => sub.isImmutable
+    );
+    if (generalSubcategory) {
+      generalSubcategory.icon = icon;
+    }
   }
 
   addCategory({
@@ -127,6 +135,7 @@ class Plan {
     monthlyGoal,
     type,
     isImmutable,
+    icon,
   }) {
     if (
       this.categories.find((category) => category.categoryId === categoryId)
@@ -142,12 +151,14 @@ class Plan {
       transactions: [],
       subcategories: [],
       rank: 100000,
+      icon,
     });
     category.createSubcategory({
       subcategoryId: otherSubcategoryId,
       name: 'General',
       monthlyGoal: monthlyGoal,
       isImmutable: true,
+      icon,
     });
     this.categories.push(category);
   }

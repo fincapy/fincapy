@@ -127,6 +127,7 @@ import OnboardingModal from './OnboardingModal';
 import { getOnboardingStatus } from './serverActions';
 import { Portal } from '@radix-ui/react-portal';
 import { ColorSelector, getRandomColor, colorOptions } from './ColorSelector';
+import { IconSelector, getRandomIcon, iconOptions } from './IconSelector';
 
 const progressBarColors = {
   cyan: { regular: 'bg-cyan-500', muted: 'bg-cyan-500/20' },
@@ -160,6 +161,7 @@ const createCategoryFormSchema = z.object({
     message: 'Enter a number between 0 and 1000000000',
   }),
   color: z.string().optional(),
+  icon: z.string().optional(),
 });
 
 const CreateCategoryForm = ({ setDialogOpen }) => {
@@ -173,6 +175,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       name: '',
       monthlyGoal: null,
       color: getRandomColor(),
+      icon: getRandomIcon(),
     },
   });
 
@@ -182,6 +185,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     otherSubcategoryId,
     monthlyGoal,
     color,
+    icon,
     oldPlan,
     setPlanState,
     values,
@@ -196,6 +200,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
           otherSubcategoryId,
           monthlyGoal,
           color,
+          icon,
           planId: 'initial',
           type,
         });
@@ -230,6 +235,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     );
     const name = values.name;
     const color = values.color;
+    const icon = values.icon;
     const categoryId = uuidv4();
     const otherSubcategoryId = categoryId + '_other';
     const oldPlan = planState.clone();
@@ -246,6 +252,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       type,
       isImmutable: false,
       otherSubcategoryId,
+      icon,
     });
     setCurrentUser(newCurrentUser);
     setPlanState(newPlan);
@@ -259,6 +266,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
       setPlanState,
       values,
       color,
+      icon,
       onSubmit,
     });
   }
@@ -322,6 +330,19 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
               <FormLabel>Color</FormLabel>
               <FormControl>
                 <ColorSelector value={field.value} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Icon</FormLabel>
+              <FormControl>
+                <IconSelector value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -489,6 +510,7 @@ const EditCategoryForm = ({
   monthlyGoal,
   categoryId,
   color,
+  icon,
   setDialogOpen,
 }) => {
   const [planState, setPlanState] = useAtom(planAtom);
@@ -530,6 +552,7 @@ const EditCategoryForm = ({
       name: categoryName,
       monthlyGoal: displayedMonthlyGoal.toString(),
       color: currentUser.categoryColors[categoryId] || color || 'amber',
+      icon: icon || 'badgeHelp',
     },
   });
 
@@ -538,6 +561,7 @@ const EditCategoryForm = ({
     categoryId,
     monthlyGoal,
     color,
+    icon,
     planId,
     setPlanState,
     oldPlan,
@@ -551,6 +575,7 @@ const EditCategoryForm = ({
           categoryId,
           monthlyGoal,
           color,
+          icon,
           planId,
         });
         if (!result) {
@@ -585,6 +610,7 @@ const EditCategoryForm = ({
   async function onSubmit(values) {
     const name = values.name || categoryName;
     const color = values.color;
+    const icon = values.icon;
     let goalToSubmit;
 
     if (isMonthlyGoalReadOnly) {
@@ -602,6 +628,7 @@ const EditCategoryForm = ({
       name,
       monthlyGoal: goalToSubmit,
       color,
+      icon,
     });
     const newCurrentUser = { ...currentUser };
     newCurrentUser.categoryColors[categoryId] = color;
@@ -613,6 +640,7 @@ const EditCategoryForm = ({
       categoryId,
       monthlyGoal: goalToSubmit,
       color,
+      icon,
       planId: 'initial',
       setPlanState,
       oldPlan,
@@ -681,6 +709,19 @@ const EditCategoryForm = ({
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Icon</FormLabel>
+              <FormControl>
+                <IconSelector value={field.value} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <DialogClose asChild>
           <SubmitButton>Save</SubmitButton>
         </DialogClose>
@@ -694,6 +735,7 @@ const EditCategoryDialogue = ({
   monthlyGoal,
   categoryId,
   color,
+  icon,
 }) => {
   const type = useContext(TypeContext);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -723,6 +765,7 @@ const EditCategoryDialogue = ({
           monthlyGoal={monthlyGoal}
           categoryId={categoryId}
           color={color}
+          icon={icon}
         />
       </div>
     </DialogContent>
@@ -761,6 +804,7 @@ const CreateSubcategoryForm = ({
     defaultValues: {
       name: '',
       monthlyGoal: '',
+      icon: getRandomIcon(),
     },
   });
 
@@ -785,6 +829,7 @@ const CreateSubcategoryForm = ({
     values,
     onSubmit,
     subcategoryId,
+    icon,
   }) {
     setTimeout(async () => {
       try {
@@ -794,6 +839,7 @@ const CreateSubcategoryForm = ({
           monthlyGoal,
           planId: 'initial',
           subcategoryId,
+          icon,
         });
         if (!result) {
           setPlanState(oldPlan);
@@ -825,6 +871,7 @@ const CreateSubcategoryForm = ({
       10
     );
     const name = values.name;
+    const icon = values.icon;
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
     const category = newPlan.categories.find(
@@ -836,6 +883,7 @@ const CreateSubcategoryForm = ({
       monthlyGoal,
       isImmutable: false,
       subcategoryId,
+      icon,
     });
     setPlanState(newPlan);
     setDialogOpen(false);
@@ -848,6 +896,7 @@ const CreateSubcategoryForm = ({
       values,
       onSubmit,
       subcategoryId,
+      icon,
     });
     setDropdownIsOpen(true);
   }
@@ -890,6 +939,19 @@ const CreateSubcategoryForm = ({
                   {...field}
                   value={formatValue(field.value)}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Icon</FormLabel>
+              <FormControl>
+                <IconSelector value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -971,6 +1033,7 @@ const EditSubcategoryForm = ({
     defaultValues: {
       name: subcategory.name,
       monthlyGoal: subcategory.monthlyGoal.toString(),
+      icon: subcategory.icon || 'badgeHelp',
     },
   });
 
@@ -996,6 +1059,7 @@ const EditSubcategoryForm = ({
     oldPlan,
     onSubmit,
     values,
+    icon,
   }) => {
     setTimeout(async () => {
       try {
@@ -1005,6 +1069,7 @@ const EditSubcategoryForm = ({
           subcategoryId,
           categoryId,
           planId,
+          icon,
         });
         if (!result) {
           setPlanState(oldPlan);
@@ -1041,6 +1106,7 @@ const EditSubcategoryForm = ({
       10
     );
     const name = values.name;
+    const icon = values.icon;
     const oldPlan = planState.clone();
     const newPlan = planState.clone();
     const category = newPlan.categories.find(
@@ -1050,6 +1116,7 @@ const EditSubcategoryForm = ({
       subcategoryId,
       name,
       monthlyGoal,
+      icon,
     });
     setPlanState(newPlan);
     setDialogOpen(false);
@@ -1063,6 +1130,7 @@ const EditSubcategoryForm = ({
       oldPlan,
       onSubmit,
       values,
+      icon,
     });
   }
 
@@ -1111,6 +1179,21 @@ const EditSubcategoryForm = ({
             </FormItem>
           )}
         />
+        {!subcategory.isImmutable && (
+          <FormField
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Icon</FormLabel>
+                <FormControl>
+                  <IconSelector value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <DialogClose asChild>
           <SubmitButton>Save</SubmitButton>
         </DialogClose>
@@ -1533,6 +1616,7 @@ const CategoryCard = ({
   };
 
   const progressPercentage = getProgressPercentage();
+  const Icon = iconOptions[category.icon] || iconOptions.badgeHelp;
 
   return (
     <Card
@@ -1547,9 +1631,7 @@ const CategoryCard = ({
           <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
             <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
               <span className="flex items-center text-lg break-words max-w-[90%] font-bold text-gray-800">
-                <span
-                  className={`inline-block w-3 h-3 rounded-full mr-[6px] ${colorOptions[currentUser.categoryColors[category.categoryId]] || 'bg-primary'}`}
-                />
+                <Icon className={`mr-2 ${color.replace('bg-', 'text-')}`} />
                 {category.name}
               </span>
               <ActionMenu contextId={category.categoryId}>
@@ -1559,6 +1641,7 @@ const CategoryCard = ({
                     monthlyGoal={category.monthlyGoal}
                     categoryId={category.categoryId}
                     color={null}
+                    icon={category.icon}
                   />
                 )}
                 {currentUserRole !== 'viewer' && (
@@ -1590,10 +1673,7 @@ const CategoryCard = ({
               progressPercent={progress}
               rawValue={category.currentNet}
               goal={category.proratedGoal}
-              color={
-                colorOptions[currentUser.categoryColors[category.categoryId]] ||
-                'bg-primary'
-              }
+              color={color}
             />
           </div>
           <div className="flex flex-row justify-between pt-1 text-gray-500">
@@ -1708,6 +1788,7 @@ const SubcategoryCard = forwardRef(
       return (subcategory.currentNet / subcategory.proratedGoal) * 100;
     };
     const progressPercentage = getProgressPercentage();
+    const Icon = iconOptions[subcategory.icon] || iconOptions.badgeHelp;
 
     return (
       <Card
@@ -1721,6 +1802,7 @@ const SubcategoryCard = forwardRef(
             <div className="flex w-full items-center mb-[2px] h-6 sm:mt-4 mt-3">
               <div className="flex flex-row items-center justify-between md:justify-start md:gap-[5px] h-auto w-full text-wrap break-words">
                 <span className="flex items-center text-md break-words max-w-[90%] font-bold text-gray-800">
+                  <Icon className={`mr-2 ${color.replace('bg-', 'text-')}`} />
                   {subcategory.name}
                 </span>
                 <ActionMenu contextId={subcategory.subcategoryId}>

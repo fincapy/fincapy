@@ -16,6 +16,7 @@ class Category {
     transactions,
     subcategories,
     rank,
+    icon,
   }) {
     this.categoryId = categoryId;
     this.name = name;
@@ -27,6 +28,7 @@ class Category {
     this.proratedGoal = 0;
     this.currentNet = 0;
     this.rank = rank;
+    this.icon = icon || 'badgeHelp';
   }
 
   getEffectiveMonthlyGoalForView() {
@@ -56,7 +58,7 @@ class Category {
     );
   }
 
-  createSubcategory({ name, monthlyGoal, isImmutable, subcategoryId }) {
+  createSubcategory({ name, monthlyGoal, isImmutable, subcategoryId, icon }) {
     this.subcategories.push(
       new Subcategory({
         name,
@@ -65,16 +67,18 @@ class Category {
         isImmutable,
         transactions: [],
         rank: 100000,
+        icon,
       })
     );
   }
 
-  updateSubcategory({ subcategoryId, name, monthlyGoal }) {
+  updateSubcategory({ subcategoryId, name, monthlyGoal, icon }) {
     const subcategory = this.subcategories.find(
       (subcategory) => subcategory.subcategoryId === subcategoryId
     );
     subcategory.name = name;
     subcategory.monthlyGoal = monthlyGoal;
+    subcategory.icon = icon;
   }
 
   toSavingsView(fractionOfMonths) {

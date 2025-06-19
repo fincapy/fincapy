@@ -38,6 +38,7 @@ const categorySchema = z.object({
   planId: z.string().min(1),
   type: z.string().min(1).max(100),
   color: z.string().min(1).max(100),
+  icon: z.string().optional(),
 });
 
 const updateCategorySchema = z.object({
@@ -46,6 +47,7 @@ const updateCategorySchema = z.object({
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
   color: z.string().min(1).max(100),
+  icon: z.string().optional(),
 });
 
 const deleteCategorySchema = z.object({
@@ -59,6 +61,7 @@ const subcategorySchema = z.object({
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
   subcategoryId: z.string().min(1),
+  icon: z.string().optional(),
 });
 
 const updateSubcategorySchema = z.object({
@@ -67,6 +70,7 @@ const updateSubcategorySchema = z.object({
   name: z.string().min(1).max(100),
   monthlyGoal: z.number().nonnegative(),
   planId: z.string().min(1),
+  icon: z.string().optional(),
 });
 
 const deleteSubcategorySchema = z.object({
@@ -74,6 +78,8 @@ const deleteSubcategorySchema = z.object({
   categoryId: z.string().min(1),
   planId: z.string().min(1),
   type: z.string().optional(),
+  color: z.string().optional(),
+  icon: z.string().optional(),
 });
 
 const reorderCategoriesSchema = z.object({
@@ -98,6 +104,7 @@ const createCategory = async ({
   planId,
   type,
   color,
+  icon,
 }) => {
   try {
     // Validate inputs
@@ -109,6 +116,7 @@ const createCategory = async ({
       planId,
       type,
       color,
+      icon,
     });
 
     // Sanitize string inputs
@@ -119,6 +127,7 @@ const createCategory = async ({
       planId: sanitizeInput(validatedData.planId),
       type: sanitizeInput(validatedData.type),
       color: sanitizeInput(validatedData.color),
+      icon: sanitizeInput(validatedData.icon),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -152,6 +161,7 @@ const createCategory = async ({
       isImmutable: false,
       planId: sanitizedData.planId,
       color: sanitizedData.color,
+      icon: sanitizedData.icon,
     });
   } catch (error) {
     console.error('Error in createCategory:', error);
@@ -166,6 +176,7 @@ const updateCategory = async ({
   monthlyGoal,
   planId,
   color,
+  icon,
 }) => {
   try {
     // Validate inputs
@@ -175,6 +186,7 @@ const updateCategory = async ({
       monthlyGoal,
       planId,
       color,
+      icon,
     });
 
     // Sanitize string inputs
@@ -184,6 +196,7 @@ const updateCategory = async ({
       name: sanitizeInput(validatedData.name),
       planId: sanitizeInput(validatedData.planId),
       color: sanitizeInput(validatedData.color),
+      icon: sanitizeInput(validatedData.icon),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -214,6 +227,7 @@ const updateCategory = async ({
       monthlyGoal: sanitizedData.monthlyGoal,
       planId: sanitizedData.planId,
       color: sanitizedData.color,
+      icon: sanitizedData.icon,
     });
   } catch (error) {
     console.error('Error in updateCategory:', error);
@@ -275,6 +289,7 @@ const createSubcategory = async ({
   monthlyGoal,
   planId,
   subcategoryId,
+  icon,
 }) => {
   try {
     // Validate inputs
@@ -284,6 +299,7 @@ const createSubcategory = async ({
       monthlyGoal,
       planId,
       subcategoryId,
+      icon,
     });
 
     // Sanitize string inputs
@@ -293,6 +309,7 @@ const createSubcategory = async ({
       name: sanitizeInput(validatedData.name),
       planId: sanitizeInput(validatedData.planId),
       subcategoryId: sanitizeInput(validatedData.subcategoryId),
+      icon: sanitizeInput(validatedData.icon),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -325,6 +342,7 @@ const createSubcategory = async ({
       isImmutable: false,
       planId: sanitizedData.planId,
       subcategoryId: sanitizedData.subcategoryId,
+      icon: sanitizedData.icon,
     });
   } catch (error) {
     console.error('Error in createSubcategory:', error);
@@ -339,6 +357,7 @@ const updateSubcategory = async ({
   name,
   monthlyGoal,
   planId,
+  icon,
 }) => {
   try {
     // Validate inputs
@@ -348,6 +367,7 @@ const updateSubcategory = async ({
       name,
       monthlyGoal,
       planId,
+      icon,
     });
 
     // Sanitize string inputs
@@ -357,6 +377,7 @@ const updateSubcategory = async ({
       categoryId: sanitizeInput(validatedData.categoryId),
       name: sanitizeInput(validatedData.name),
       planId: sanitizeInput(validatedData.planId),
+      icon: sanitizeInput(validatedData.icon),
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -388,6 +409,7 @@ const updateSubcategory = async ({
       name: sanitizedData.name,
       monthlyGoal: sanitizedData.monthlyGoal,
       planId: sanitizedData.planId,
+      icon: sanitizedData.icon,
     });
   } catch (error) {
     console.error('Error in updateSubcategory:', error);
@@ -401,6 +423,8 @@ const deleteSubcategory = async ({
   categoryId,
   planId,
   type,
+  color,
+  icon,
 }) => {
   try {
     // Validate inputs
@@ -409,6 +433,8 @@ const deleteSubcategory = async ({
       categoryId,
       planId,
       type,
+      color,
+      icon,
     });
 
     // Sanitize string inputs
@@ -418,6 +444,10 @@ const deleteSubcategory = async ({
       categoryId: sanitizeInput(validatedData.categoryId),
       planId: sanitizeInput(validatedData.planId),
       type: validatedData.type ? sanitizeInput(validatedData.type) : undefined,
+      color: validatedData.color
+        ? sanitizeInput(validatedData.color)
+        : undefined,
+      icon: validatedData.icon ? sanitizeInput(validatedData.icon) : undefined,
     };
 
     const redisAdapter = new RedisAdapter({ redisClient });
@@ -448,6 +478,8 @@ const deleteSubcategory = async ({
       categoryId: sanitizedData.categoryId,
       planId: sanitizedData.planId,
       type: sanitizedData.type,
+      color: sanitizedData.color,
+      icon: sanitizedData.icon,
     });
   } catch (error) {
     console.error('Error in deleteSubcategory:', error);

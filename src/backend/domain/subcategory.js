@@ -12,6 +12,7 @@ class Subcategory {
     isImmutable,
     transactions,
     rank,
+    icon,
   }) {
     this.subcategoryId = subcategoryId;
     this.name = name;
@@ -21,6 +22,7 @@ class Subcategory {
     this.proratedGoal = 0;
     this.currentNet = 0;
     this.rank = rank;
+    this.icon = icon || 'badgeHelp';
   }
 
   clone() {

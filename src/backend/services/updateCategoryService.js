@@ -11,6 +11,7 @@ class UpdateCategoryService {
     name,
     monthlyGoal,
     color,
+    icon,
   }) {
     await this.transactionManager.transaction(
       async ({ tenantRepository, userRepository }) => {
@@ -26,6 +27,7 @@ class UpdateCategoryService {
         );
         category.name = name;
         category.monthlyGoal = monthlyGoal;
+        category.icon = icon;
 
         if (color) {
           const tenantUser = tenant.users.find((user) => user.id === userId);

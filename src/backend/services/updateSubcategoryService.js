@@ -10,6 +10,7 @@ class UpdateSubcategoryService {
     monthlyGoal,
     planId,
     categoryId,
+    icon,
   }) {
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({
@@ -19,7 +20,7 @@ class UpdateSubcategoryService {
       const category = plan.categories.find(
         (category) => category.categoryId === categoryId
       );
-      category.updateSubcategory({ subcategoryId, name, monthlyGoal });
+      category.updateSubcategory({ subcategoryId, name, monthlyGoal, icon });
       await tenantRepository.set({ tenantId, tenant });
     });
   }

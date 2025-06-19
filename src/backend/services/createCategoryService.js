@@ -16,6 +16,7 @@ class CreateCategoryService {
     monthlyGoal,
     type,
     isImmutable,
+    icon,
   }) {
     await this.transactionManager.transaction(
       async ({ tenantRepository, userRepository }) => {
@@ -32,6 +33,7 @@ class CreateCategoryService {
           monthlyGoal,
           type,
           isImmutable,
+          icon,
         });
         const tenantUser = tenant.users.find((user) => user.id === userId);
         tenantUser.categoryColors = {

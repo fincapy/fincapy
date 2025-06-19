@@ -13,6 +13,7 @@ class CreateSubcategoryService {
     monthlyGoal,
     isImmutable,
     subcategoryId,
+    icon,
   }) {
     await this.transactionManager.transaction(async ({ tenantRepository }) => {
       const tenant = await tenantRepository.get({ tenantId });
@@ -28,6 +29,7 @@ class CreateSubcategoryService {
         monthlyGoal,
         isImmutable,
         subcategoryId,
+        icon,
       });
       await tenantRepository.set({ tenantId, tenant });
     });

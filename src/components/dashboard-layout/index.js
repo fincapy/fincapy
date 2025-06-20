@@ -482,7 +482,7 @@ export default function DashboardLayout({
             onTouchStart={handleScrollAreaFocus}
             onMouseDown={handleScrollAreaFocus}
           >
-            <div className="top-0 h-[6%] fixed w-full flex items-center justify-center bg-emerald-600">
+            <div className="top-0 h-[6%] pb-2 fixed w-full flex items-center justify-center bg-emerald-600">
               <h1 className="text-lg font-bold text-white select-none">
                 {displayTitle}
               </h1>

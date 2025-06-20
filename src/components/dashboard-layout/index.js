@@ -1250,7 +1250,7 @@ export default function DashboardLayout({
                   : 'h-[6%]'
               } border-b border-emerald-700`}
             >
-              <h1 className="text-lg font-bold text-white select-none">
+              <h1 className="text-lg font-bold text-white select-none sm:m-0 -mt-4">
                 {displayTitle}
               </h1>
               {showControlsContainer && (

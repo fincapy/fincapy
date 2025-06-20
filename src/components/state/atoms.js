@@ -1,27 +1,27 @@
 import { atom } from 'jotai';
 
-export const planAtom = atom(null);
-export const spendingViewAtom = atom((get) => {
+const planAtom = atom(null);
+const spendingViewAtom = atom((get) => {
   const plan = get(planAtom);
   return plan ? [...plan.toSpendingView()] : [];
 });
 
-export const incomeViewAtom = atom((get) => {
+const incomeViewAtom = atom((get) => {
   const plan = get(planAtom);
   return plan ? [...plan.toIncomeView()] : [];
 });
 
-export const savingsViewAtom = atom((get) => {
+const savingsViewAtom = atom((get) => {
   const plan = get(planAtom);
   return plan ? [...plan.toSavingsView()] : [];
 });
 
-export const transactionsViewAtom = atom((get) => {
+const transactionsViewAtom = atom((get) => {
   const plan = get(planAtom);
   return plan ? [...plan.toTransactionsView()] : [];
 });
 
-export const categoryNamesAtom = atom((get) => {
+const categoryNamesAtom = atom((get) => {
   const capitalize = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
@@ -55,13 +55,13 @@ export const categoryNamesAtom = atom((get) => {
   return categoryNames;
 });
 
-export const plaidItemsAtom = atom([]);
+const plaidItemsAtom = atom([]);
 
-export const usersAtom = atom([]);
+const usersAtom = atom([]);
 
-export const isLoadingAtom = atom(true);
+const isLoadingAtom = atom(true);
 
-export const plaidItemDisplayNamesAtom = atom((get) => {
+const plaidItemDisplayNamesAtom = atom((get) => {
   const plaidItems = get(plaidItemsAtom);
   const users = get(usersAtom);
   const plaidItemIdToName = {};
@@ -77,20 +77,20 @@ export const plaidItemDisplayNamesAtom = atom((get) => {
   return plaidItemIdToName;
 });
 
-export const currentUserIdAtom = atom(null);
+const currentUserIdAtom = atom(null);
 
-export const currentUserAtom = atom(null);
+const currentUserAtom = atom(null);
 
-export const currentUserRoleAtom = atom(null);
+const currentUserRoleAtom = atom(null);
 
-export const nonceAtom = atom(null);
+const nonceAtom = atom(null);
 
-export const billingStatusAtom = atom(null);
+const billingStatusAtom = atom(null);
 
-export const tabLoadingAtom = atom(false);
-export const tabLoadingTimerAtom = atom(null);
+const tabLoadingAtom = atom(false);
+const tabLoadingTimerAtom = atom(null);
 
-export const transactionSearchQueryAtom = atom('');
+const transactionSearchQueryAtom = atom('');
 
 export {
   planAtom,

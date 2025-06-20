@@ -102,12 +102,9 @@ const TransactionItem = ({ transaction }) => {
   return (
     <EditTransactionDialog transaction={transaction}>
       <div
-        className={cn(
-          'flex items-center justify-between p-4 cursor-pointer transition-shadow hover:shadow-lg',
-          {
-            'text-gray-400': isNoImpact,
-          }
-        )}
+        className={cn('flex items-center justify-between p-4 cursor-pointer', {
+          'text-gray-400': isNoImpact,
+        })}
       >
         <div className="flex items-center flex-1 min-w-0">
           <Icon

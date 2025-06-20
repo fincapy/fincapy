@@ -43,6 +43,7 @@ const NoImpactInfo = ({ reason }) => {
         <DialogContent
           onClick={(e) => e.stopPropagation()}
           onInteractOutside={(e) => e.stopPropagation()}
+          className="rounded-xl w-[95%] lg:max-w-[1152.5px]"
         >
           <DialogHeader>
             <DialogTitle>Why no budget impact?</DialogTitle>

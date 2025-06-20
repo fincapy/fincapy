@@ -14,17 +14,10 @@ export const TestSkeleton = () => (
 );
 
 export const SpendingSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
-        <div className="flex flex-row flex-wrap gap-2 items-center">
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-        </div>
-        <Skeleton className="h-9 w-9 bg-gray-300" />
-      </div>
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 4 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton
             key={index}
             className="h-[114.73px] w-full bg-gray-300 rounded-xl"
@@ -36,17 +29,10 @@ export const SpendingSkeleton = () => (
 );
 
 export const IncomeSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
-        <div className="flex flex-row flex-wrap gap-2 items-center">
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-        </div>
-        <Skeleton className="h-9 w-9 bg-gray-300" />
-      </div>
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton
             key={index}
             className="h-[114.73px] w-full bg-gray-300 rounded-xl"
@@ -58,16 +44,10 @@ export const IncomeSkeleton = () => (
 );
 
 export const SavingsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
-        <div className="flex flex-row flex-wrap gap-2 items-center">
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-        </div>
-      </div>
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: 1 }).map((_, index) => (
           <Skeleton
             key={index}
             className="h-[114.73px] w-full bg-gray-300 rounded-xl"
@@ -79,16 +59,9 @@ export const SavingsSkeleton = () => (
 );
 
 export const TransactionsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
+  <div className="flex flex-col w-full flex-grow gap-4 mt-6">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]">
-        <div className="flex flex-row flex-wrap gap-2 items-center">
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-          <Skeleton className="h-9 w-[135px] bg-gray-300" />
-        </div>
-        <Skeleton className="h-9 w-9 bg-gray-300" />
-      </div>
-      <Skeleton className="h-[70vh] w-[95%] lg:max-w-[1152.5px] bg-gray-300" />
+      <Skeleton className="h-[100vh] w-[95%] lg:max-w-[1152.5px] bg-gray-300 rounded-xl" />
     </div>
   </div>
 );

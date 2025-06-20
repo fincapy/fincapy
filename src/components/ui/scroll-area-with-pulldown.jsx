@@ -123,11 +123,11 @@ const ScrollAreaWithPulldown = React.forwardRef(
       >
         <ScrollAreaPrimitive.Viewport
           ref={scrollRef}
-          className="h-full w-full rounded-[inherit] bg-[linear-gradient(to_bottom,theme(colors.emerald.600)_20%,transparent_20%)]"
+          className="h-full w-full rounded-[inherit] bg-[linear-gradient(to_bottom,theme(colors.emerald.700)_20%,transparent_20%)]"
           style={{ overscrollBehavior: 'contain' }}
         >
           <div
-            className="absolute top-0 left-0 -z-10 w-full bg-emerald-600"
+            className="absolute top-0 left-0 -z-10 w-full bg-emerald-700"
             style={{
               height: isRefreshing ? THRESHOLD / 1.5 : pullDistance,
             }}
@@ -216,7 +216,7 @@ const ScrollBarWithPulldown = React.forwardRef(
       ref={ref}
       orientation={orientation}
       className={cn(
-        'flex touch-none select-none transition-colors',
+        'flex touch-none select-none transition-colors z-50',
         orientation === 'vertical' &&
           'h-full w-2.5 border-l border-l-transparent p-[1px]',
         orientation === 'horizontal' &&

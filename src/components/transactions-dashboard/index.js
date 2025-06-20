@@ -15,7 +15,7 @@ import { ChevronDown, Eye, Grip, Pen, Trash2 } from 'lucide-react';
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
 import { Progress } from '../ui/progress';
-import TransactionTable from '../transaction-table';
+import TransactionList from '../transaction-list';
 import {
   Collapsible,
   CollapsibleContent,
@@ -48,7 +48,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransaction } from './serverActions';
 import { v4 as uuidv4 } from 'uuid';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { CategoryNamesContext } from './categoryNamesContext';
 import {
@@ -88,11 +88,13 @@ import {
   EndDateContext,
 } from '../dashboard-layout/datesContext';
 import { useAtom, useAtomValue } from 'jotai';
-import { planAtom, isLoadingAtom } from '../state/atoms';
 import {
+  planAtom,
+  isLoadingAtom,
+  currentUserAtom,
   transactionsViewAtom,
-  categoryNamesAtom,
   currentUserRoleAtom,
+  transactionSearchQueryAtom,
 } from '../state/atoms';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ToastAction } from '@/components/ui/toast';
@@ -106,416 +108,71 @@ import {
 } from '@/components/ui/select';
 import { transactionTypes } from '@/backend/domain/transaction';
 import SubmitButton from '@/components/SubmitButton';
-
-export function SelectDemo({ field }) {
-  const categoryNames = useAtomValue(categoryNamesAtom);
-
-  return (
-    <Select onValueChange={field.onChange} defaultValue={field.value}>
-      <FormControl>
-        <SelectTrigger>
-          <SelectValue placeholder="None" />
-        </SelectTrigger>
-      </FormControl>
-      <SelectContent className="bg-card">
-        {categoryNames.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
-
-const recategorizeFormSchema = z.object({
-  category: z.string(),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
-    message: 'Enter a date in the format YYYY-MM-DD',
-  }),
-  description: z
-    .string()
-    .min(1, {
-      message: 'Description must be at least 1 character.',
-    })
-    .max(100, {
-      message: 'Description should be less than 100 characters',
-    }),
-  status: z.string(),
-  type: z.string(),
-  amount: z.union([
-    z.number().refine((value) => /^\d+(\.\d{1,2})?$/.test(value.toString()), {
-      message: 'Must be a valid currency format (up to two decimal places)',
-    }),
-    z
-      .string()
-      .regex(
-        /^\d+(\.\d{1,2})?$/,
-        'Must be a valid currency format (up to two decimal places)'
-      ),
-  ]),
-});
-
-const DatePickerFormField = ({ form, name, label }) => {
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    'w-full pl-3 text-left font-normal',
-                    !field.value && 'text-muted-foreground'
-                  )}
-                >
-                  {field.value ? (
-                    format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto p-0 bg-card z-[9999]"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={
-                  field.value
-                    ? parse(field.value, 'yyyy-MM-dd', new Date())
-                    : undefined
-                }
-                onSelect={(date) => {
-                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
-                }}
-                disabled={false}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-};
-
-const CreateTransactionForm = ({ setDialogOpen }) => {
-  const { toast } = useToast();
-  const [planState, setPlanState] = useAtom(planAtom);
-  const form = useForm({
-    resolver: zodResolver(recategorizeFormSchema),
-    defaultValues: {
-      // initialize the picker to today in YYYY-MM-DD
-      date: format(new Date(), 'yyyy-MM-dd'),
-    },
-  });
-
-  const handleServerCreateTransaction = ({
-    oldPlanState,
-    onSubmit,
-    values,
-    transactionId,
-  }) => {
-    setTimeout(async () => {
-      try {
-        const result = await createTransaction({
-          planId: 'initial',
-          categoryId: values.category,
-          date: values.date,
-          description: values.description,
-          status: values.status,
-          type: values.type,
-          amount: parseFloat(values.amount, 10),
-          transactionId,
-        });
-        if (!result) {
-          setPlanState(oldPlanState);
-          toast({
-            variant: 'outline',
-            title: 'Uh oh! Something went wrong.',
-            description: 'There was a problem with your request.',
-            action: (
-              <ToastAction
-                altText="Try again"
-                onClick={() => {
-                  onSubmit(values);
-                }}
-              >
-                Try again
-              </ToastAction>
-            ),
-          });
-        }
-      } catch (error) {
-        setPlanState(oldPlanState);
-        toast({
-          variant: 'outline',
-          title: 'Network Error',
-          description: 'There was an issue connecting to the server.',
-          action: (
-            <ToastAction altText="Try again" onClick={() => onSubmit(values)}>
-              Try again
-            </ToastAction>
-          ),
-        });
-      }
-    }, 0);
-  };
-
-  const onSubmit = async (values) => {
-    const oldPlanState = planState.clone();
-    const newPlanState = planState.clone();
-    const transactionId = uuidv4();
-    newPlanState.createTransaction({
-      categoryId: values.category,
-      date: values.date,
-      description: values.description,
-      status: values.status,
-      type: values.type,
-      amount: parseFloat(values.amount, 10),
-      transactionId,
-    });
-    setPlanState(newPlanState);
-    setDialogOpen(false);
-    handleServerCreateTransaction({
-      oldPlanState: oldPlanState,
-      onSubmit,
-      values,
-      transactionId,
-      planId: 'initial',
-      newCategoryId: values.category,
-    });
-  };
-
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3 h-full"
-      >
-        <DatePickerFormField form={form} name="date" label="Transaction Date" />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <Input
-                type="text"
-                placeholder="Your Description"
-                autoComplete="off"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  {transactionTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <SelectDemo field={field} />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <Input
-                type="text"
-                placeholder="0.00"
-                {...field}
-                autoComplete="off"
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogClose asChild>
-          <SubmitButton>Create</SubmitButton>
-        </DialogClose>
-      </form>
-    </Form>
-  );
-};
-
-const CreateTransactionDialogue = () => {
-  const type = useContext(TypeContext);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary"
-        >
-          <PlusIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl">
-        <DialogHeader>
-          <DialogTitle>Create Transaction</DialogTitle>
-          <DialogDescription>Add a new custom transaction</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <CreateTransactionForm setDialogOpen={setDialogOpen} />
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const DatePickers = () => {
-  const { startDateState, setStartDateState } = useContext(StartDateContext);
-  const { endDateState, setEndDateState } = useContext(EndDateContext);
-  const startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
-  const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
-
-  const setStartDate = (date) => {
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-    if (parsedDate <= endDate) {
-      setStartDateState(date);
-    } else {
-      alert('Start date cannot be after the end date.');
-    }
-  };
-
-  const setEndDate = (date) => {
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-    if (parsedDate >= startDate) {
-      setEndDateState(date);
-    } else {
-      alert('End date cannot be before the start date.');
-    }
-  };
-
-  return (
-    <div className="flex flex-row flex-wrap gap-2 items-center h-[37.73px]">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant={'ghost'}
-            className={cn(
-              'w-[135px] text-md flex items-center bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary',
-              !startDate && 'text-muted-foreground'
-            )}
-          >
-            <CalendarIcon />
-            {startDate ? (
-              format(startDate, 'LLL dd, y')
-            ) : (
-              <span>Start Date</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-card" align="start">
-          <Calendar
-            mode="single"
-            selected={startDate}
-            onSelect={(date) => {
-              if (date) {
-                setStartDate(date.toISOString().split('T')[0]);
-              }
-            }}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant={'ghost'}
-            className={cn(
-              'w-[135px] text-md flex items-center bg-card hover:bg-card shadow-sm hover:shadow-xl hover:text-primary',
-              !endDate && 'text-muted-foreground'
-            )}
-          >
-            <CalendarIcon />
-            {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-card" align="start">
-          <Calendar
-            mode="single"
-            selected={endDate}
-            onSelect={(date) => {
-              if (date) {
-                setEndDate(date.toISOString().split('T')[0]);
-              }
-            }}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-};
+import { colorOptions } from '../category-dashboard/ColorSelector';
 
 const TransactionsDashboard = () => {
-  const [transactions, setTransactions] = useAtom(transactionsViewAtom);
+  const [rawTransactions, setTransactions] = useAtom(transactionsViewAtom);
   const [currentUserRole, setCurrentUserRole] = useAtom(currentUserRoleAtom);
+  const [plan] = useAtom(planAtom);
+  const [currentUser] = useAtom(currentUserAtom);
+  const searchQuery = useAtom(transactionSearchQueryAtom);
+
+  const transactions = useMemo(() => {
+    if (!rawTransactions || !plan || !currentUser?.categoryColors) {
+      return (
+        rawTransactions
+          ?.map((tx) => ({
+            ...tx,
+            icon: 'badgeHelp',
+            color: 'amber',
+          }))
+          .filter(
+            (tx) =>
+              tx.description
+                .toLowerCase()
+                .includes(searchQuery[0].toLowerCase()) ||
+              tx.amount
+                .toString()
+                .toLowerCase()
+                .includes(searchQuery[0].toLowerCase())
+          ) || []
+      );
+    }
+
+    const categoryMap = new Map();
+    plan.categories.forEach((cat) => {
+      categoryMap.set(cat.categoryId, cat);
+      cat.subcategories.forEach((sub) => {
+        categoryMap.set(sub.subcategoryId, { ...sub, parentCategory: cat });
+      });
+    });
+
+    return rawTransactions.map((tx) => {
+      const id = tx.subcategoryId || tx.categoryId;
+      const categoryOrSubcategory = categoryMap.get(id);
+
+      if (categoryOrSubcategory) {
+        const parentCategory =
+          categoryOrSubcategory.parentCategory || categoryOrSubcategory;
+        const icon =
+          categoryOrSubcategory.icon || parentCategory.icon || 'badgeHelp';
+        const colorName =
+          currentUser.categoryColors[parentCategory.categoryId] || 'amber';
+
+        return {
+          ...tx,
+          icon: icon,
+          color: colorName,
+        };
+      }
+
+      return {
+        ...tx,
+        icon: 'badgeHelp',
+        color: 'amber',
+      };
+    });
+  }, [rawTransactions, plan, currentUser, searchQuery]);
 
   const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   useEffect(() => {
@@ -532,36 +189,14 @@ const TransactionsDashboard = () => {
       {isLoading ? (
         <div className="flex flex-col w-full flex-grow gap-4 mb-2">
           <div className="flex flex-col justify-center items-center gap-2">
-            <div
-              className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
-              key="create-category-dialogue-skeleton"
-            >
-              <div className="flex flex-row flex-wrap gap-2 items-center">
-                <Skeleton className="h-9 w-[135px] bg-card" />
-                <Skeleton className="h-9 w-[135px] bg-card" />
-              </div>
-              <Skeleton className="h-9 w-9 bg-card" />
-            </div>
             <Skeleton className="h-[70vh] w-[95%] lg:max-w-[1152.5px] bg-card" />
           </div>
         </div>
       ) : (
-        <div className="flex flex-col w-full h-full gap-4 mb-2">
+        <div className="flex flex-col w-full h-full gap-4 mt-6">
           <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
-            <div
-              className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
-              key="create-transaction-dialogue"
-            >
-              <DatePickers />
-              {currentUserRole !== 'viewer' && <CreateTransactionDialogue />}
-            </div>
-            <div
-              className="grid w-[95%] lg:max-w-[1152.5px] h-full bg-card rounded-xl"
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-              onTouchEnd={(e) => e.stopPropagation()}
-            >
-              <TransactionTable transactions={transactions} />
+            <div className="grid w-[95%] lg:max-w-[1152.5px] h-full bg-card rounded-xl">
+              <TransactionList transactions={transactions} />
             </div>
           </div>
         </div>

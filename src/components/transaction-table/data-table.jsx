@@ -29,6 +29,12 @@ import { set } from 'zod';
 import { TransactionContext } from './transaction';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { sub } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function DataTable({ columns, data }) {
   const [sortingState, setSortingState] = useState([]);
@@ -103,16 +109,8 @@ export function DataTable({ columns, data }) {
   });
 
   return (
-    <TransactionContext.Provider value={data}>
-      <ScrollArea
-        ref={scrollAreaRef}
-        className="border rounded-xl w-full"
-        style={{ maxHeight: '70vh' }}
-        onScroll={handleScrollEvent}
-        onTouchMove={handleScrollEvent}
-        onTouchStart={handleScrollEvent}
-        onTouchEnd={handleScrollEvent}
-      >
+    <div className="h-full flex flex-col gap-2">
+      <div className="rounded-md border h-[calc(100%-60px)] overflow-y-auto">
         <Table className="text-md relative">
           <TableHeader className="sticky top-0 bg-background z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -160,7 +158,8 @@ export function DataTable({ columns, data }) {
           </TableBody>
         </Table>
         <ScrollBar orientation="horizontal" className="hidden" />
-      </ScrollArea>
-    </TransactionContext.Provider>
+      </div>
+      <DataTablePagination table={table} />
+    </div>
   );
 }

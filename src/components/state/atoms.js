@@ -89,3 +89,26 @@ export const billingStatusAtom = atom(null);
 
 export const tabLoadingAtom = atom(false);
 export const tabLoadingTimerAtom = atom(null);
+
+export const transactionSearchQueryAtom = atom('');
+
+export {
+  planAtom,
+  spendingViewAtom,
+  incomeViewAtom,
+  savingsViewAtom,
+  transactionsViewAtom,
+  categoryNamesAtom,
+  plaidItemsAtom,
+  usersAtom,
+  isLoadingAtom,
+  plaidItemDisplayNamesAtom,
+  currentUserIdAtom,
+  currentUserAtom,
+  currentUserRoleAtom,
+  nonceAtom,
+  billingStatusAtom,
+  tabLoadingAtom,
+  tabLoadingTimerAtom,
+  transactionSearchQueryAtom,
+};

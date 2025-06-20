@@ -257,7 +257,7 @@ const TransactionSearchBar = () => {
       placeholder="Search transactions"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
-      className="h-9 w-full bg-emerald-900 text-white placeholder:text-gray-300 rounded-md border-emerald-900"
+      className="h-9 w-full bg-emerald-900 text-white placeholder:text-gray-300 rounded-md border-emerald-900 mb-3"
     />
   );
 };
@@ -1239,7 +1239,11 @@ export default function DashboardLayout({
           >
             <div
               className={`top-0 fixed w-full flex items-center justify-center bg-emerald-700 z-10 ${
-                showDatePickers ? 'pt-2 pb-2 flex-col gap-2' : 'h-[6%]'
+                showDatePickers
+                  ? showTransactionSearch
+                    ? 'flex-col gap-2 h-[21.4%]'
+                    : 'flex-col gap-2 h-[15.1%]'
+                  : 'h-[6%]'
               } border-b border-emerald-700`}
             >
               <h1 className="text-lg font-bold text-white select-none">
@@ -1264,6 +1268,9 @@ export default function DashboardLayout({
                       )}
                     </div>
                   </div>
+                  {!showTransactionSearch && (
+                    <div className="h-[6px] bg-emerald-700" />
+                  )}
                   {showTransactionSearch && <TransactionSearchBar />}
                 </div>
               )}
@@ -1272,8 +1279,8 @@ export default function DashboardLayout({
               className={`w-full fixed ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'h-[72.5%]'
-                    : 'h-[78%]'
+                    ? 'h-[68.6%]'
+                    : 'h-[74.9%]'
                   : 'h-[84%]'
               }`}
               ref={scrollAreaRef}
@@ -1285,8 +1292,8 @@ export default function DashboardLayout({
               style={{
                 top: showDatePickers
                   ? showTransactionSearch
-                    ? '17.5%'
-                    : '12%'
+                    ? '21.4%'
+                    : '15.1%'
                   : '6%',
               }}
             >

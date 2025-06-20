@@ -1977,7 +1977,7 @@ export default function CategoryDashboard({ type, categories }) {
         ) : (
           <CategoryNamesContext.Provider value={categoryNames}>
             <TypeContext.Provider value={type}>
-              <div className="flex flex-col w-full h-full gap-4 mb-2 mt-6">
+              <div className="flex flex-col w-full h-full gap-4 mb-2">
                 <div className="flex flex-col justify-center items-center gap-2">
                   <DndContext
                     sensors={sensors}

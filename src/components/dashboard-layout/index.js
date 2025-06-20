@@ -1247,7 +1247,7 @@ export default function DashboardLayout({
                   ? showTransactionSearch
                     ? 'flex-col gap-2 h-[20.3%]'
                     : 'flex-col gap-2 h-[14.5%]'
-                  : 'h-[6%]'
+                  : 'h-[8.5%]'
               } border-b border-emerald-700`}
             >
               <h1 className="text-lg font-bold text-white select-none sm:m-0 -mt-4">
@@ -1282,7 +1282,7 @@ export default function DashboardLayout({
                   ? showTransactionSearch
                     ? 'h-[69.7%]'
                     : 'h-[75.5%]'
-                  : 'h-[84%]'
+                  : 'h-[81.5%]'
               }`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
@@ -1295,7 +1295,7 @@ export default function DashboardLayout({
                   ? showTransactionSearch
                     ? '20.3%'
                     : '14.5%'
-                  : '6%',
+                  : '8.5%',
               }}
             >
               {children}

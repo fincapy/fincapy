@@ -1949,20 +1949,7 @@ export default function CategoryDashboard({ type, categories }) {
         {isLoading ? (
           <div className="flex flex-col w-full flex-grow gap-4 mb-2">
             <div className="flex flex-col justify-center items-center gap-2">
-              <div
-                className="flex flex-row justify-between gap-4 w-[95%] lg:max-w-[1152.5px]"
-                key="create-category-dialogue-skeleton"
-              >
-                <div className="flex flex-row flex-wrap gap-2 items-center">
-                  <Skeleton className="h-9 w-[135px] bg-neutral-300" />
-                  <Skeleton className="h-9 w-[135px] bg-neutral-300" />
-                </div>
-                {(type === 'spending' || type === 'income') && (
-                  <Skeleton className="h-9 w-9 bg-neutral-300" />
-                )}
-              </div>
-
-              {Array.from({ length: type === 'savings' ? 1 : 7 }).map(
+              {Array.from({ length: type === 'savings' ? 1 : 6 }).map(
                 (_, index) => (
                   <div
                     className="flex flex-col w-[95%] lg:max-w-[1152.5px]"
@@ -1977,7 +1964,7 @@ export default function CategoryDashboard({ type, categories }) {
         ) : (
           <CategoryNamesContext.Provider value={categoryNames}>
             <TypeContext.Provider value={type}>
-              <div className="flex flex-col w-full h-full gap-4 mb-2">
+              <div className="flex flex-col w-full h-full gap-4 mb-3">
                 <div className="flex flex-col justify-center items-center gap-2">
                   <DndContext
                     sensors={sensors}

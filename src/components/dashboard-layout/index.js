@@ -44,6 +44,7 @@ import {
   CreditCard,
   LogOut,
   CalendarIcon,
+  Search,
 } from 'lucide-react';
 import { parse, format } from 'date-fns';
 import {
@@ -253,12 +254,15 @@ const TransactionSearchBar = () => {
   const [query, setQuery] = useAtom(transactionSearchQueryAtom);
 
   return (
-    <Input
-      placeholder="Search transactions"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-      className="h-9 w-full bg-emerald-900 text-white placeholder:text-gray-300 rounded-md border-emerald-900 mb-3"
-    />
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+      <Input
+        placeholder="Search transactions"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="h-9 w-full bg-emerald-900 text-white placeholder:text-gray-300 rounded-md border-emerald-900 pl-10"
+      />
+    </div>
   );
 };
 
@@ -1241,8 +1245,8 @@ export default function DashboardLayout({
               className={`top-0 fixed w-full flex items-center justify-center bg-emerald-700 z-10 ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'flex-col gap-2 h-[21.4%]'
-                    : 'flex-col gap-2 h-[15.1%]'
+                    ? 'flex-col gap-2 h-[20.4%]'
+                    : 'flex-col gap-2 h-[14.5%]'
                   : 'h-[6%]'
               } border-b border-emerald-700`}
             >
@@ -1268,9 +1272,6 @@ export default function DashboardLayout({
                       )}
                     </div>
                   </div>
-                  {!showTransactionSearch && (
-                    <div className="h-[6px] bg-emerald-700" />
-                  )}
                   {showTransactionSearch && <TransactionSearchBar />}
                 </div>
               )}
@@ -1279,8 +1280,8 @@ export default function DashboardLayout({
               className={`w-full fixed ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'h-[68.6%]'
-                    : 'h-[74.9%]'
+                    ? 'h-[69.6%]'
+                    : 'h-[75.5%]'
                   : 'h-[84%]'
               }`}
               ref={scrollAreaRef}
@@ -1292,8 +1293,8 @@ export default function DashboardLayout({
               style={{
                 top: showDatePickers
                   ? showTransactionSearch
-                    ? '21.4%'
-                    : '15.1%'
+                    ? '20.4%'
+                    : '14.5%'
                   : '6%',
               }}
             >

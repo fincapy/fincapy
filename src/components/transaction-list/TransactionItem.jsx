@@ -26,14 +26,14 @@ const TransactionItem = ({ transaction }) => {
   const amount = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(transaction.amount);
+  }).format(Math.abs(transaction.amount));
 
   const Icon = iconOptions[transaction.icon] || iconOptions.badgeHelp;
   const color = colorOptions[transaction.color] || colorOptions.amber;
 
   return (
     <div
-      className={cn('flex items-center justify-between p-4 bg-card', {
+      className={cn('flex items-center justify-between p-4', {
         'text-gray-400': isNoImpact,
       })}
     >

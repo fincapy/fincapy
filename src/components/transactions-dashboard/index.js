@@ -193,7 +193,7 @@ const TransactionsDashboard = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col w-full h-full gap-4">
+        <div className="flex flex-col w-full h-full gap-4 mb-2">
           <div className="flex flex-col justify-center items-center gap-2 flex-shrink">
             <div className="grid w-[95%] lg:max-w-[1152.5px] h-full bg-card rounded-xl">
               <TransactionList transactions={transactions} />

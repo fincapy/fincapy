@@ -24,15 +24,13 @@ const TransactionList = ({ transactions }) => {
   }, [transactions, searchTerm]);
 
   return (
-    <div className="flex flex-col h-full rounded-xl m-2 mb-3">
+    <div className="flex flex-col h-full rounded-xl mb-3">
       <div>
         {filteredTransactions.length > 0 ? (
           filteredTransactions.map((transaction, index) => (
             <React.Fragment key={transaction.transactionId}>
               <TransactionItem transaction={transaction} />
-              {index < filteredTransactions.length - 1 && (
-                <Separator className="w-[101.4%] ml-[-8px]" />
-              )}
+              {index < filteredTransactions.length - 1 && <Separator />}
             </React.Fragment>
           ))
         ) : (

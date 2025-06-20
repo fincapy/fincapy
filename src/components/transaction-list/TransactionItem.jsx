@@ -37,10 +37,17 @@ const TransactionItem = ({ transaction }) => {
         'text-gray-400': isNoImpact,
       })}
     >
-      <div className="flex items-center">
-        <Icon className={`mr-3 h-6 w-6 ${color.text}`} />
-        <div className="flex flex-col">
-          <span className="font-medium">{transaction.description}</span>
+      <div className="flex items-center flex-1 min-w-0">
+        <Icon
+          className={cn('mr-3 h-6 w-6 flex-shrink-0', {
+            [color.text]: !isNoImpact,
+            'text-gray-400': isNoImpact,
+          })}
+        />
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium break-words">
+            {transaction.description}
+          </span>
           <span className="text-sm text-gray-500">
             {format(
               parse(transaction.date, 'yyyy-MM-dd', new Date()),
@@ -49,10 +56,11 @@ const TransactionItem = ({ transaction }) => {
           </span>
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center flex-shrink-0 ml-4">
         <span
           className={cn('font-semibold', {
-            'text-emerald-700': isPositive,
+            'text-emerald-700': isPositive && !isNoImpact,
+            'text-gray-400': isNoImpact,
           })}
         >
           {isPositive ? `+${amount}` : amount}
@@ -61,10 +69,12 @@ const TransactionItem = ({ transaction }) => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className="h-4 w-4 ml-2 cursor-pointer" />
+                <div className="p-2 -m-2 cursor-pointer">
+                  <Info className="h-5 w-5 ml-2" />
+                </div>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>{noImpactReason}</p>
+              <TooltipContent className="bg-amber-100 text-amber-900 max-w-[250px] sm:max-w-xs p-2 rounded-md shadow-lg">
+                <p className="text-sm">{noImpactReason}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

@@ -14,7 +14,7 @@ export const TestSkeleton = () => (
 );
 
 export const SpendingSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -29,7 +29,7 @@ export const SpendingSkeleton = () => (
 );
 
 export const IncomeSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -44,7 +44,7 @@ export const IncomeSkeleton = () => (
 );
 
 export const SavingsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mb-2 mt-6">
+  <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
       <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
         {Array.from({ length: 1 }).map((_, index) => (
@@ -59,7 +59,7 @@ export const SavingsSkeleton = () => (
 );
 
 export const TransactionsSkeleton = () => (
-  <div className="flex flex-col w-full flex-grow gap-4 mt-6">
+  <div className="flex flex-col w-full flex-grow gap-4">
     <div className="flex flex-col justify-center items-center gap-2">
       <Skeleton className="h-[100vh] w-[95%] lg:max-w-[1152.5px] bg-gray-300 rounded-xl" />
     </div>

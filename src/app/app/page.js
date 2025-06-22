@@ -161,7 +161,7 @@ export default function Home({ searchParams }) {
         return (
           <div
             key={tabKey}
-            className={`w-full h-full transition-opacity duration-75 bg-[linear-gradient(to_bottom,theme(colors.emerald.700)_80px,theme(colors.gray.200)_80px)] ${
+            className={`w-full h-full transition-opacity duration-75 bg-[linear-gradient(to_bottom,theme(colors.emerald.700)_30px,theme(colors.gray.200)_30px)] ${
               isCurrentTab ? 'block' : 'hidden'
             }`}
           >

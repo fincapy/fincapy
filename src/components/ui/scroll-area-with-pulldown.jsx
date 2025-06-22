@@ -123,7 +123,7 @@ const ScrollAreaWithPulldown = React.forwardRef(
       >
         <ScrollAreaPrimitive.Viewport
           ref={scrollRef}
-          className="h-full w-full rounded-[inherit] bg-[linear-gradient(to_bottom,theme(colors.emerald.700)_20%,transparent_20%)]"
+          className="h-full w-full rounded-[inherit] bg-[linear-gradient(to_bottom,theme(colors.emerald.700)_15%,transparent_15%)]"
           style={{ overscrollBehavior: 'contain' }}
         >
           <div

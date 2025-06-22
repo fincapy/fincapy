@@ -16,14 +16,14 @@ export const TestSkeleton = () => (
 export const SpendingSkeleton = () => (
   <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl">
           <Skeleton
             key={index}
-            className="h-[114.73px] w-full bg-gray-300 rounded-xl"
+            className="h-[127px] w-full bg-gray-300 rounded-xl"
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   </div>
 );
@@ -31,14 +31,14 @@ export const SpendingSkeleton = () => (
 export const IncomeSkeleton = () => (
   <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl">
           <Skeleton
             key={index}
-            className="h-[114.73px] w-full bg-gray-300 rounded-xl"
+            className="h-[127px] w-full bg-gray-300 rounded-xl"
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   </div>
 );
@@ -46,14 +46,14 @@ export const IncomeSkeleton = () => (
 export const SavingsSkeleton = () => (
   <div className="flex flex-col w-full flex-grow gap-4 mb-2">
     <div className="flex flex-col justify-center items-center gap-2">
-      <div className="w-[95%] lg:max-w-[1152.5px] space-y-4">
-        {Array.from({ length: 1 }).map((_, index) => (
+      {Array.from({ length: 1 }).map((_, index) => (
+        <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl">
           <Skeleton
             key={index}
-            className="h-[114.73px] w-full bg-gray-300 rounded-xl"
+            className="h-[127px] w-full bg-gray-300 rounded-xl"
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   </div>
 );

@@ -1812,100 +1812,6 @@ const CategoryCardCollapsible = ({
   );
 };
 
-const DatePickers = () => {
-  const { startDateState, setStartDateState } = useContext(StartDateContext);
-  const { endDateState, setEndDateState } = useContext(EndDateContext);
-  const startDate = parse(startDateState, 'yyyy-MM-dd', new Date());
-  const endDate = parse(endDateState, 'yyyy-MM-dd', new Date());
-
-  const setStartDate = (date) => {
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-    if (parsedDate <= endDate) {
-      setStartDateState(date);
-    } else {
-      alert('Start date cannot be after the end date.');
-    }
-  };
-
-  const setEndDate = (date) => {
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-    if (parsedDate >= startDate) {
-      setEndDateState(date);
-    } else {
-      alert('End date cannot be before the start date.');
-    }
-  };
-
-  return (
-    <div className="flex flex-row flex-wrap gap-2 items-center h-[37.73px]">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            className={cn(
-              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-sm hover:shadow-xl text-gray-800 hover:bg-card hover:text-amber-600',
-              !startDate && 'text-muted-foreground'
-            )}
-          >
-            <CalendarIcon />
-            {startDate ? (
-              format(startDate, 'LLL dd, y')
-            ) : (
-              <span>Start Date</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-auto p-0 bg-card z-50 text-card-foreground"
-          align="start"
-        >
-          <Calendar
-            mode="single"
-            selected={startDate}
-            defaultMonth={startDate}
-            onSelect={(date) => {
-              if (date) {
-                setStartDate(date.toISOString().split('T')[0]);
-              }
-            }}
-            initialFocus
-            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-gray-900"
-          />
-        </PopoverContent>
-      </Popover>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            className={cn(
-              'w-[135px] flex items-center text-card-foreground text-md bg-card shadow-sm hover:shadow-xl hover:bg-card hover:text-amber-600',
-              !endDate && 'text-muted-foreground'
-            )}
-          >
-            <CalendarIcon />
-            {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-auto p-0 bg-card z-50 text-card-foreground"
-          align="start"
-        >
-          <Calendar
-            mode="single"
-            selected={endDate}
-            defaultMonth={endDate}
-            onSelect={(date) => {
-              if (date) {
-                setEndDate(date.toISOString().split('T')[0]);
-              }
-            }}
-            initialFocus
-            className="[&_.rdp-day_focus]:bg-primary [&_.rdp-day_selected]:text-white"
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-};
-
 export default function CategoryDashboard({ type, categories }) {
   const { startDateState, setStartDateState } = useContext(StartDateContext);
   const { endDateState, setEndDateState } = useContext(EndDateContext);
@@ -1998,16 +1904,14 @@ export default function CategoryDashboard({ type, categories }) {
         {isLoading ? (
           <div className="flex flex-col w-full flex-grow gap-4 mb-2">
             <div className="flex flex-col justify-center items-center gap-2">
-              {Array.from({ length: type === 'savings' ? 1 : 6 }).map(
-                (_, index) => (
-                  <div
-                    className="flex flex-col w-[95%] lg:max-w-[1152.5px]"
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl">
+                  <Skeleton
                     key={index}
-                  >
-                    <Skeleton className="h-[120.73px] w-full rounded-xl bg-neutral-300" />
-                  </div>
-                )
-              )}
+                    className="h-[127px] w-full bg-gray-300 rounded-xl"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         ) : (

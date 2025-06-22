@@ -148,6 +148,22 @@ const progressBarColors = {
   sky: { regular: 'bg-sky-500', muted: 'bg-sky-500/20' },
 };
 
+const createCategoryFormSchema = z.object({
+  name: z
+    .string()
+    .min(1, {
+      message: 'Name must be at least 1 character.',
+    })
+    .max(20, {
+      message: 'Name must be less than 20 characters.',
+    }),
+  monthlyGoal: z.string().regex(/^[\d$,]+$/, {
+    message: 'Enter a number between 0 and 1000000000',
+  }),
+  color: z.string().optional(),
+  icon: z.string().optional(),
+});
+
 const DeleteCategoryDialogue = ({ categoryId }) => {
   const [planState, setPlanState] = useAtom(planAtom);
   const { toast } = useToast();
@@ -1134,7 +1150,7 @@ const ViewTransactionsDialogue = ({
   transactions,
   eyeSize,
   categoryId,
-  icon,
+  icons,
   color,
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -1143,15 +1159,17 @@ const ViewTransactionsDialogue = ({
     setDialogOpen(true);
   };
 
+  console.log('icons', icons);
+
   const processedTransactions = transactions.map((tx) => ({
     ...tx,
-    icon: icon || 'badgeHelp',
+    icon: icons[tx.categoryId] || 'badgeHelp',
     color,
   }));
 
   const content = (
     <DialogContent
-      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl flex flex-col"
+      className="max-w-[95vw] sm:max-w-[50vw] max-h-[80vh] bg-card rounded-xl flex flex-col"
       id="transaction-modal"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
@@ -1383,6 +1401,11 @@ const CategoryCard = ({
   const progressPercentage = getProgressPercentage();
   const Icon = iconOptions[category.icon] || iconOptions.badgeHelp;
 
+  const iconsObject = category.subcategories.reduce((acc, sub) => {
+    acc[sub.subcategoryId] = sub.icon;
+    return acc;
+  }, {});
+
   return (
     <Card
       ref={categoryCardRef}
@@ -1426,7 +1449,7 @@ const CategoryCard = ({
                     transactions={category.transactions}
                     eyeSize={18}
                     categoryId={category.categoryId}
-                    icon={category.icon}
+                    icons={iconsObject}
                     color={colorKey}
                   />
                 )}
@@ -1564,6 +1587,9 @@ const SubcategoryCard = forwardRef(
     };
     const progressPercentage = getProgressPercentage();
     const Icon = iconOptions[subcategory.icon] || iconOptions.badgeHelp;
+    const iconsObject = {
+      [subcategory.subcategoryId]: subcategory.icon,
+    };
 
     return (
       <Card
@@ -1596,7 +1622,7 @@ const SubcategoryCard = forwardRef(
                     transactions={subcategory.transactions}
                     eyeSize={17}
                     categoryId={subcategory.subcategoryId}
-                    icon={subcategory.icon}
+                    icons={iconsObject}
                     color={colorKey}
                   />
                 </ActionMenu>

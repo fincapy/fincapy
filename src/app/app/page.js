@@ -33,6 +33,10 @@ import {
   TestSkeleton,
 } from '@/components/ui/page-skeletons';
 
+export const viewport = {
+  themeColor: '#047857',
+};
+
 const SpendingCategoryDashboard = () => {
   const spendingView = useAtomValue(spendingViewAtom);
   return <CategoryDashboard type="spending" categories={spendingView} />;

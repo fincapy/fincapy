@@ -24,6 +24,7 @@ import { planAtom, categoryNamesAtom } from '../state/atoms';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { editTransaction } from '@/components/transaction-table/serverActions';
 import SubmitButton from '@/components/SubmitButton';
+import { Button } from '@/components/ui/button';
 
 export function SelectDemo({ field }) {
   const categoryNames = useAtomValue(categoryNamesAtom);
@@ -78,6 +79,8 @@ const EditTransactionForm = ({
   transaction,
   transactionId,
   setDialogIsOpen,
+  onDelete,
+  isDeleting,
 }) => {
   const { toast } = useToast();
   const [planState, setPlanState] = useAtom(planAtom);
@@ -284,6 +287,14 @@ const EditTransactionForm = ({
           )}
         />
         <SubmitButton>Save</SubmitButton>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={onDelete}
+          className="w-full text-white hover:bg-red-900 font-semibold text-md"
+        >
+          Delete
+        </Button>
       </form>
     </Form>
   );

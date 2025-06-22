@@ -1159,11 +1159,11 @@ const ViewTransactionsDialogue = ({
     setDialogOpen(true);
   };
 
-  console.log('icons', icons);
+  console.log('txs', transactions);
 
   const processedTransactions = transactions.map((tx) => ({
     ...tx,
-    icon: icons[tx.categoryId] || 'badgeHelp',
+    icon: icons[tx.subcategoryId || tx.categoryId] || 'badgeHelp',
     color,
   }));
 
@@ -1621,7 +1621,8 @@ const SubcategoryCard = forwardRef(
                   <ViewTransactionsDialogue
                     transactions={subcategory.transactions}
                     eyeSize={17}
-                    categoryId={subcategory.subcategoryId}
+                    categoryId={category.categoryId}
+                    subcategoryId={subcategory.subcategoryId}
                     icons={iconsObject}
                     color={colorKey}
                   />

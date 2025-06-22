@@ -59,7 +59,8 @@ class Subcategory {
         currentSpending += transaction.amount;
         category.currentNet += transaction.amount;
         transaction.categoryName = `${this.capitalize(category.type)} - ${category.name} - ${this.name}`;
-        transaction.categoryId = this.subcategoryId;
+        transaction.categoryId = category.categoryId;
+        transaction.subcategoryId = this.subcategoryId;
         transactions.push(transaction);
         category.transactions.push(transaction);
       }
@@ -82,6 +83,8 @@ class Subcategory {
         currentIncome += transaction.amount;
         category.currentNet += transaction.amount;
         transaction.categoryName = category.name + ' - ' + this.name;
+        transaction.categoryId = category.categoryId;
+        transaction.subcategoryId = this.subcategoryId;
         transactions.push(transaction);
         category.transactions.push(transaction);
       }

@@ -135,6 +135,7 @@ class Category {
       ) {
         currentIncome += transaction.amount;
         transaction.categoryName = this.name;
+        transaction.categoryId = this.categoryId;
         transactions.push(transaction);
       }
     });

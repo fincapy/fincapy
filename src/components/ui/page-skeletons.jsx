@@ -21,7 +21,7 @@ export const SpendingSkeleton = () => (
           key={index}
           className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl"
         >
-          <Skeleton className="h-[127px] w-full bg-gray-300 rounded-xl" />
+          <Skeleton className="sm:h-[127px] h-[109px] w-full bg-gray-300 rounded-xl" />
         </div>
       ))}
     </div>
@@ -36,7 +36,7 @@ export const IncomeSkeleton = () => (
           key={index}
           className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl"
         >
-          <Skeleton className="h-[127px] w-full bg-gray-300 rounded-xl" />
+          <Skeleton className="sm:h-[127px] h-[109px] w-full bg-gray-300 rounded-xl" />
         </div>
       ))}
     </div>
@@ -51,7 +51,7 @@ export const SavingsSkeleton = () => (
           key={index}
           className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl"
         >
-          <Skeleton className="h-[127px] w-full bg-gray-300 rounded-xl" />
+          <Skeleton className="sm:h-[127px] h-[109px] w-full bg-gray-300 rounded-xl" />
         </div>
       ))}
     </div>

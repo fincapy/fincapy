@@ -26,17 +26,9 @@ async function main_categorize() {
 
   const createPrompt = () => {
     return `
-      Categorize this transaction based solely on its description. Using your knowledge of business names and merchant patterns:
+      Categorize this transaction based solely on its description.
 
-      1. Identify the type of business or service (e.g., restaurant, gas station, retail store)
-      2. Look for context clues in abbreviated names - common prefixes like SQ* (Square), PP* (PayPal), TST* (Toast), etc.
-      3. For unclear descriptions, select the most likely category based on available information
-      4. Be consistent - categorize similar business types the same way
-      5. If completely uncertain, choose the most general applicable category
-
-      Select the category that best matches the identified business type.
-
-      Transaction Description: Servicemac
+      Transaction Description: Microsoft Xbox
     `;
   };
 
@@ -68,7 +60,7 @@ async function main_categorize() {
     ],
     inferenceConfig: {
       maxTokens: 3000,
-      temperature: 1,
+      temperature: 0,
     },
     toolConfig: {
       tools: [
@@ -86,9 +78,7 @@ async function main_categorize() {
                     enum: [
                       // 'none',
                       'spending.other',
-                      'spending.fixed_costs',
-                      'spending.guilt_free_spending',
-                      'spending.student_loans',
+                      'spending.fixed_costs.general',
                       'spending.fixed_costs.groceries',
                       'spending.fixed_costs.mortgage',
                       'spending.fixed_costs.dog_stuff',
@@ -99,6 +89,7 @@ async function main_categorize() {
                       'spending.fixed_costs.gas',
                       'spending.fixed_costs.insurance',
                       'spending.fixed_costs.wifi',
+                      'spending.guilt_free_spending.general',
                       'spending.guilt_free_spending.restaurants',
                       'spending.guilt_free_spending.date_night',
                       'spending.guilt_free_spending.fun_budget',
@@ -122,10 +113,14 @@ async function main_categorize() {
 
   const response = await client.send(command);
   console.log('response', response.output.message);
-  let toolCall = response.output.message.content[1].toolUse.input;
+  response.output.message.content.forEach((content) => {
+    if (content.toolUse) {
+      console.log('Tool Call:', content.toolUse);
+    } else {
+      console.log('Content:', content.text);
+    }
+  });
   let { inputTokens, outputTokens, totalTokens } = response.usage;
-
-  console.log('original toolCall', toolCall);
   console.log(`Input Tokens: ${inputTokens}`);
   console.log(`Output Tokens: ${outputTokens}`);
   console.log(`Total Tokens: ${totalTokens}`);
@@ -217,4 +212,4 @@ async function main_type() {
 }
 
 main_categorize();
-main_type();
+// main_type();

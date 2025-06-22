@@ -290,7 +290,7 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
       className="flex flex-col items-center gap-[0px] group outline-none"
     >
       <UserRound
-        size={23}
+        size={24}
         className={
           page === 'account' ||
           page === 'manage-users' ||
@@ -304,8 +304,8 @@ const AccountDropdown = React.memo(({ userRole, setPage, page }) => {
           page === 'account' ||
           page === 'manage-users' ||
           page === 'financial-institutions'
-            ? 'text-[11px] font-semibold text-amber-600 select-none'
-            : `text-[11px] font-semibold text-gray-500 ${hoverClass} select-none`
+            ? 'text-[12px] font-semibold text-amber-600 select-none'
+            : `text-[12px] font-semibold text-gray-500 ${hoverClass} select-none`
         }
       >
         Account
@@ -346,7 +346,7 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             className="flex flex-col items-center gap-[0px] group"
           >
             <HandCoins
-              size={23}
+              size={24}
               className={
                 page === 'spending'
                   ? 'text-amber-600 -mb-[2px]'
@@ -356,8 +356,8 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'spending'
-                  ? 'text-[11px] font-semibold text-amber-600 select-none'
-                  : `text-[11px] font-semibold text-gray-500 ${hoverClass} select-none`
+                  ? 'text-[12px] font-semibold text-amber-600 select-none'
+                  : `text-[12px] font-semibold text-gray-500 ${hoverClass} select-none`
               }
             >
               Spending
@@ -368,7 +368,7 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             className="flex flex-col items-center gap-[0px] group"
           >
             <CircleDollarSign
-              size={23}
+              size={24}
               className={
                 page === 'income'
                   ? 'text-amber-600 -mb-[2px]'
@@ -378,8 +378,8 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'income'
-                  ? 'text-[11px] font-semibold text-amber-600 select-none'
-                  : `text-[11px] font-semibold text-gray-500 ${hoverClass} select-none`
+                  ? 'text-[12px] font-semibold text-amber-600 select-none'
+                  : `text-[12px] font-semibold text-gray-500 ${hoverClass} select-none`
               }
             >
               Income
@@ -390,7 +390,7 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             className="flex flex-col items-center gap-[0px] group"
           >
             <PiggyBank
-              size={23}
+              size={24}
               className={
                 page === 'savings'
                   ? 'text-amber-600 -mb-[2px]'
@@ -400,8 +400,8 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'savings'
-                  ? 'text-[11px] font-semibold text-amber-600 select-none'
-                  : `text-[11px] font-semibold text-gray-500 ${hoverClass} select-none`
+                  ? 'text-[12px] font-semibold text-amber-600 select-none'
+                  : `text-[12px] font-semibold text-gray-500 ${hoverClass} select-none`
               }
             >
               Savings
@@ -412,7 +412,7 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             className="flex flex-col items-center gap-[0px] group"
           >
             <Table
-              size={23}
+              size={24}
               className={
                 page === 'transactions'
                   ? 'text-amber-600 -mb-[2px]'
@@ -422,8 +422,8 @@ const NavBar = React.memo(({ page, setPage, userRole }) => {
             <span
               className={
                 page === 'transactions'
-                  ? 'text-[11px] font-semibold text-amber-600 select-none'
-                  : `text-[11px] font-semibold text-gray-500 ${hoverClass} select-none`
+                  ? 'text-[12px] font-semibold text-amber-600 select-none'
+                  : `text-[12px] font-semibold text-gray-500 ${hoverClass} select-none`
               }
             >
               Transactions

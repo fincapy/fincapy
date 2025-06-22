@@ -1243,7 +1243,7 @@ export default function DashboardLayout({
               className={`top-0 fixed w-full flex items-center justify-center bg-emerald-700 z-10 ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'flex-col gap-1 h-[17.4%]'
+                    ? 'flex-col gap-1 h-[17.2%]'
                     : 'flex-col gap-1 h-[10.5%]'
                   : 'h-[5%]'
               } border-b border-emerald-700`}
@@ -1280,7 +1280,7 @@ export default function DashboardLayout({
               className={`w-full fixed ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'h-[72.6%]'
+                    ? 'h-[72.8%]'
                     : 'h-[79.5%]'
                   : 'h-[85%]'
               }`}
@@ -1293,7 +1293,7 @@ export default function DashboardLayout({
               style={{
                 top: showDatePickers
                   ? showTransactionSearch
-                    ? '17.4%'
+                    ? '17.2%'
                     : '10.5%'
                   : '5%',
               }}

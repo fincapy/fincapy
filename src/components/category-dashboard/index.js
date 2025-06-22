@@ -1905,11 +1905,11 @@ export default function CategoryDashboard({ type, categories }) {
           <div className="flex flex-col w-full flex-grow gap-4 mb-2">
             <div className="flex flex-col justify-center items-center gap-2">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl">
-                  <Skeleton
-                    key={index}
-                    className="h-[127px] w-full bg-gray-300 rounded-xl"
-                  />
+                <div
+                  key={index}
+                  className="flex flex-col w-[95%] lg:max-w-[1152.5px] rounded-xl"
+                >
+                  <Skeleton className="h-[127px] w-full bg-gray-300 rounded-xl" />
                 </div>
               ))}
             </div>

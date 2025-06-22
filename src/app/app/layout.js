@@ -10,6 +10,11 @@ import { SessionRepository } from '@/backend/adapters/repositories/sessionReposi
 import { SessionManager } from '@/backend/adapters/auth';
 import { UserRepository } from '@/backend/adapters/repositories/userRepository';
 import { User } from '@/backend/domain/user';
+
+export const viewport = {
+  themeColor: '#047857',
+};
+
 export default async function Layout({ children }) {
   const headersList = await headers();
   let planId;

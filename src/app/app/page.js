@@ -48,6 +48,7 @@ const SavingsCategoryDashboard = () => {
   return <CategoryDashboard type="savings" categories={savingsView} />;
 };
 
+// Main component for the application's dashboard.
 export default function Home({ searchParams }) {
   const { page } = useContext(PageContext);
   const [tabLoading, setTabLoading] = useAtom(tabLoadingAtom);

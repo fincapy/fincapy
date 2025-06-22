@@ -45,6 +45,7 @@ import {
   LogOut,
   CalendarIcon,
   Search,
+  CirclePlus,
 } from 'lucide-react';
 import { parse, format } from 'date-fns';
 import {
@@ -189,17 +190,17 @@ const DatePickers = () => {
   };
 
   return (
-    <div className="flex flex-row flex-wrap gap-2 items-center h-[37.73px]">
+    <div className="flex flex-row flex-wrap gap-2 items-center justify-center h-[37.73px]">
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant={'outline'}
             className={cn(
-              'w-[135px] text-md flex items-center shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white',
+              'w-[135px] text-md flex items-center justify-center gap-1 rounded-full shadow-none bg-white text-emerald-700 border-emerald-700 hover:bg-gray-100 hover:text-amber-600',
               !startDate && 'text-muted-foreground'
             )}
           >
-            <CalendarIcon />
+            <CalendarIcon className="h-4 w-4" />
             {startDate ? (
               format(startDate, 'LLL dd, y')
             ) : (
@@ -225,11 +226,11 @@ const DatePickers = () => {
           <Button
             variant={'outline'}
             className={cn(
-              'w-[135px] text-md flex items-center shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white',
+              'w-[135px] text-md flex items-center justify-center gap-1 rounded-full shadow-none bg-white text-emerald-700 border-emerald-700 hover:bg-gray-100 hover:text-amber-600',
               !endDate && 'text-muted-foreground'
             )}
           >
-            <CalendarIcon />
+            <CalendarIcon className="h-4 w-4" />
             {endDate ? format(endDate, 'LLL dd, y') : <span>End Date</span>}
           </Button>
         </PopoverTrigger>
@@ -659,11 +660,11 @@ const CreateCategoryDialogue = () => {
       <DialogTrigger asChild>
         <Button
           size="icon"
-          variant={'outline'}
-          className="bg-card shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white"
+          variant={'ghost'}
+          className="bg-card shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white [&_svg]:h-[22px] [&_svg]:w-[22px]"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon size={20} />
+          <CirclePlus size={24} />
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -1008,11 +1009,11 @@ const CreateTransactionDialogue = () => {
       <DialogTrigger asChild>
         <Button
           size="icon"
-          variant={'outline'}
-          className="bg-card shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white"
+          variant={'ghost'}
+          className="bg-card shadow-none hover:text-amber-300 hover:border-amber-300 bg-emerald-700 border-white text-white [&_svg]:h-[22px] [&_svg]:w-[22px]"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <PlusIcon />
+          <CirclePlus />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl">
@@ -1229,9 +1230,6 @@ export default function DashboardLayout({
 
   const showTransactionSearch = page === 'transactions';
 
-  const showControlsContainer =
-    showDatePickers || showHeaderControls || showTransactionSearch;
-
   return (
     <StartDateContext.Provider value={{ startDateState, setStartDateState }}>
       <EndDateContext.Provider value={{ endDateState, setEndDateState }}>
@@ -1245,34 +1243,36 @@ export default function DashboardLayout({
               className={`top-0 fixed w-full flex items-center justify-center bg-emerald-700 z-10 ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'flex-col gap-2 h-[20.3%]'
-                    : 'flex-col gap-2 h-[14.5%]'
-                  : 'h-[8.5%]'
+                    ? 'flex-col gap-1 h-[17.4%]'
+                    : 'flex-col gap-1 h-[10.5%]'
+                  : 'h-[5%]'
               } border-b border-emerald-700`}
             >
-              <h1 className="text-lg font-bold text-white select-none sm:m-0 -mt-4">
-                {displayTitle}
-              </h1>
-              {showControlsContainer && (
-                <div className="flex flex-col w-[95%] lg:max-w-[1152.5px] gap-2">
-                  <div
-                    className={`flex items-center w-full ${
-                      showHeaderControls ? 'justify-between' : 'justify-start'
-                    }`}
-                  >
-                    {showDatePickers && <DatePickers />}
-                    <div className="flex items-center gap-2">
-                      {showCreateCategoryButton && (
-                        <TypeContext.Provider value={page}>
-                          <CreateCategoryDialogue />
-                        </TypeContext.Provider>
-                      )}
-                      {showCreateTransactionButton && (
-                        <CreateTransactionDialogue />
-                      )}
-                    </div>
+              <div className="flex items-center justify-center relative w-[95%] lg:max-w-[1152.5px]">
+                <h1
+                  className={`text-lg font-bold text-white select-none ${!showDatePickers && !showTransactionSearch ? 'mb-3' : ''}`}
+                >
+                  {displayTitle}
+                </h1>
+                {showHeaderControls && (
+                  <div className="absolute right-0 flex items-center gap-2">
+                    {showCreateCategoryButton && (
+                      <TypeContext.Provider value={page}>
+                        <CreateCategoryDialogue />
+                      </TypeContext.Provider>
+                    )}
+                    {showCreateTransactionButton && (
+                      <CreateTransactionDialogue />
+                    )}
                   </div>
-                  {showTransactionSearch && <TransactionSearchBar />}
+                )}
+              </div>
+              {showDatePickers && <DatePickers />}
+              {!showTransactionSearch && <div className="mb-[10px]" />}
+              {showTransactionSearch && <div className="mb-[6px]" />}
+              {showTransactionSearch && (
+                <div className="w-[95%] lg:max-w-[1152.5px] mb-4">
+                  <TransactionSearchBar />
                 </div>
               )}
             </div>
@@ -1280,9 +1280,9 @@ export default function DashboardLayout({
               className={`w-full fixed ${
                 showDatePickers
                   ? showTransactionSearch
-                    ? 'h-[69.7%]'
-                    : 'h-[75.5%]'
-                  : 'h-[81.5%]'
+                    ? 'h-[72.6%]'
+                    : 'h-[79.5%]'
+                  : 'h-[85%]'
               }`}
               ref={scrollAreaRef}
               onTouchStart={handleScrollAreaFocus}
@@ -1293,9 +1293,9 @@ export default function DashboardLayout({
               style={{
                 top: showDatePickers
                   ? showTransactionSearch
-                    ? '20.3%'
-                    : '14.5%'
-                  : '8.5%',
+                    ? '17.4%'
+                    : '10.5%'
+                  : '5%',
               }}
             >
               {children}

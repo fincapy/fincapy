@@ -13,3 +13,6 @@ test-system-agent:
 test-all:
 	make test-integration-agent;
 	make test-system-agent;
+
+init-aider:
+	aider --model gemini/gemini-2.5-pro-preview-06-05 --thinking-tokens 32k --no-check-model-accepts-settings --no-auto-commit

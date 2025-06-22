@@ -33,7 +33,6 @@ export const GET = async (req, res) => {
 
   const url = new URL(req.url);
   const priceId = url.searchParams.get('priceId');
-  console.log('priceId', priceId);
   if (!priceId) {
     return new Response(JSON.stringify({ error: 'Price ID is required' }), {
       status: 400,

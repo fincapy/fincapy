@@ -1150,6 +1150,7 @@ const ViewTransactionsDialogue = ({
   transactions,
   eyeSize,
   categoryId,
+  subcategoryId,
   icons,
   color,
 }) => {
@@ -1158,8 +1159,6 @@ const ViewTransactionsDialogue = ({
   const handleOpenDialog = () => {
     setDialogOpen(true);
   };
-
-  console.log('txs', transactions);
 
   const processedTransactions = transactions.map((tx) => ({
     ...tx,
@@ -1202,7 +1201,7 @@ const ViewTransactionsDialogue = ({
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleOpenDialog}
             data-action="view"
-            data-context-id={categoryId}
+            data-context-id={subcategoryId || categoryId}
           >
             <Eye size={eyeSize} className="hover:text-primary" />
           </button>

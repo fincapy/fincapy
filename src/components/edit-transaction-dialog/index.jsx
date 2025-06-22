@@ -24,8 +24,6 @@ const EditTransactionDialog = ({ transaction, children }) => {
   const [isPending, startTransition] = useTransition();
   const [planState, setPlanState] = useAtom(planAtom);
 
-  console.log('transaction', transaction);
-
   function handleServerDeleteTransaction({
     oldPlanState,
     handleDeleteTransaction,

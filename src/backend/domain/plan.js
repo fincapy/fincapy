@@ -202,8 +202,6 @@ class Plan {
     newCategoryId,
     amount,
   }) {
-    console.log('transactionId', transactionId);
-    console.log('');
     // Find and remove transaction from its current location
     const { transaction, originalCategoryName } = this.findAndRemoveTransaction(
       transactionId,
@@ -252,8 +250,6 @@ class Plan {
   findAndRemoveTransaction(transactionId, categoryId, subcategoryId) {
     let transaction;
     let originalCategoryName = 'None';
-    console.log('categoryId', categoryId);
-    console.log('subcategoryId', subcategoryId);
 
     // Case 1: Transaction is at plan level
     if (!categoryId) {

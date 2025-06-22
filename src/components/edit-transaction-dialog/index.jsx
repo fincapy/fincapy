@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAtom } from 'jotai';
 import { planAtom } from '../state/atoms';
 import { Button } from '@/components/ui/button';
+import { ToastAction } from '../ui/toast';
 
 const EditTransactionDialog = ({ transaction, children }) => {
   const [isOpen, setIsOpen] = useState(false);

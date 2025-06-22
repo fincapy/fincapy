@@ -26,20 +26,17 @@ async function main_categorize() {
 
   const createPrompt = () => {
     return `
-        Follow this rule:
-        1. The most recent edit's user_override_category with a description relevant to the transaction should be used.
+      Categorize this transaction based solely on its description. Using your knowledge of business names and merchant patterns:
 
-        Past edits from least recent to most recent:
-        [
-          { "date": "2025-01-01", "original_description": "Whole Foods", "original_category": "spending.fixed_costs", "user_override_category": "spending.fixed_costs.groceries" },
-          { "date": "2025-01-02", "original_description": "Whole Foods", "original_category": "spending.fixed_costs.groceries", "user_override_category": "spending.guilt_free_spending.fun_budget" },
-          { "date": "2025-01-03", "original_description": "ConocoPhillips", "original_category": "spending.fixed_costs.gas", "user_override_category": "spending.guilt_free_spending.fun_budget" },
-        ]
+      1. Identify the type of business or service (e.g., restaurant, gas station, retail store)
+      2. Look for context clues in abbreviated names - common prefixes like SQ* (Square), PP* (PayPal), TST* (Toast), etc.
+      3. For unclear descriptions, select the most likely category based on available information
+      4. Be consistent - categorize similar business types the same way
+      5. If completely uncertain, choose the most general applicable category
 
-        Transaction:
-        - Amount: 29.99
-        - Description: Shell
-        - Plaid Suggested Category: TRANSPORTATION_GAS
+      Select the category that best matches the identified business type.
+
+      Transaction Description: Servicemac
     `;
   };
 
@@ -50,15 +47,15 @@ async function main_categorize() {
     modelId: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
     system: [
       {
-        text: 'You are a transaction categorizer. Always call the "categorize_transaction" tool with the correct parameters. Be succint in your reasoning. Do not output any text. Do not explain your decision.',
+        text: 'Always call the "categorize_transaction" tool',
       },
     ],
-    additionalModelRequestFields: {
-      reasoning_config: {
-        type: 'enabled',
-        budget_tokens: 1024,
-      },
-    },
+    // additionalModelRequestFields: {
+    //   reasoning_config: {
+    //     type: 'enabled',
+    //     budget_tokens: 1024,
+    //   },
+    // },
     messages: [
       {
         role: 'user',
@@ -78,8 +75,7 @@ async function main_categorize() {
         {
           toolSpec: {
             name: 'categorize_transaction',
-            description:
-              'Categorize a transaction given a transaction and a list of past user edits',
+            description: 'Categorize the transaction',
             inputSchema: {
               json: {
                 type: 'object',
@@ -88,8 +84,8 @@ async function main_categorize() {
                     type: 'string',
                     description: 'The category of the transaction.',
                     enum: [
-                      'none',
-                      'spending.uncategorized',
+                      // 'none',
+                      'spending.other',
                       'spending.fixed_costs',
                       'spending.guilt_free_spending',
                       'spending.student_loans',
@@ -106,9 +102,9 @@ async function main_categorize() {
                       'spending.guilt_free_spending.restaurants',
                       'spending.guilt_free_spending.date_night',
                       'spending.guilt_free_spending.fun_budget',
-                      'income.uncategorized',
-                      'income.uplight_paycheck',
-                      'income.habitat_paycheck',
+                      // 'income.uncategorized',
+                      // 'income.uplight_paycheck',
+                      // 'income.habitat_paycheck',
                     ],
                   },
                 },

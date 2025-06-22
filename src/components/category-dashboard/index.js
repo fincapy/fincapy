@@ -23,7 +23,7 @@ import {
 import { Pencil } from 'lucide-react';
 import { PlusIcon } from 'lucide-react';
 import { Progress } from '../ui/progress';
-import TransactionTable from '../transaction-table';
+import TransactionList from '../transaction-list';
 import {
   Collapsible,
   CollapsibleContent,
@@ -1130,10 +1130,12 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
   );
 };
 
-const OpenTransactionTableDialogue = ({
+const ViewTransactionsDialogue = ({
   transactions,
   eyeSize,
   categoryId,
+  icon,
+  color,
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -1141,9 +1143,15 @@ const OpenTransactionTableDialogue = ({
     setDialogOpen(true);
   };
 
+  const processedTransactions = transactions.map((tx) => ({
+    ...tx,
+    icon: icon || 'badgeHelp',
+    color,
+  }));
+
   const content = (
     <DialogContent
-      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl"
+      className="max-w-[95vw] max-h-[80vh] bg-card rounded-xl flex flex-col"
       id="transaction-modal"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
@@ -1157,8 +1165,8 @@ const OpenTransactionTableDialogue = ({
           </DialogDescription>
         </VisuallyHidden>
       </DialogHeader>
-      <div className="flex w-full h-full overflow-x-hidden">
-        <TransactionTable transactions={transactions} />
+      <div className="overflow-y-auto">
+        <TransactionList transactions={processedTransactions} />
       </div>
     </DialogContent>
   );
@@ -1210,7 +1218,7 @@ const ActionMenu = ({ children, mobileOnly = false, contextId = '' }) => {
       child.type === DeleteSubcategoryDialogue
     ) {
       return { type: 'delete', icon: <Trash2 size={18} className="mr-2" /> };
-    } else if (child.type === OpenTransactionTableDialogue) {
+    } else if (child.type === ViewTransactionsDialogue) {
       return { type: 'view', icon: <Eye size={18} className="mr-2" /> };
     }
     return null;
@@ -1329,6 +1337,7 @@ const CategoryCard = ({
   setIsGrabbing,
   color,
   mutedColor,
+  colorKey,
 }) => {
   const getRoundedStyle = () => {
     if (!areSubcategoriesOpen) {
@@ -1413,10 +1422,12 @@ const CategoryCard = ({
                 {category.type === 'savings' ? (
                   <div className="" />
                 ) : (
-                  <OpenTransactionTableDialogue
+                  <ViewTransactionsDialogue
                     transactions={category.transactions}
                     eyeSize={18}
                     categoryId={category.categoryId}
+                    icon={category.icon}
+                    color={colorKey}
                   />
                 )}
               </ActionMenu>
@@ -1505,7 +1516,15 @@ const CategoryCard = ({
 
 const SubcategoryCard = forwardRef(
   (
-    { subcategory, subcategoryLength, index, category, color, mutedColor },
+    {
+      subcategory,
+      subcategoryLength,
+      index,
+      category,
+      color,
+      mutedColor,
+      colorKey,
+    },
     ref
   ) => {
     const [isGrabbing, setIsGrabbing] = useState(false);
@@ -1573,10 +1592,12 @@ const SubcategoryCard = forwardRef(
                       categoryId={category.categoryId}
                     />
                   )}
-                  <OpenTransactionTableDialogue
+                  <ViewTransactionsDialogue
                     transactions={subcategory.transactions}
                     eyeSize={17}
                     categoryId={subcategory.subcategoryId}
+                    icon={subcategory.icon}
+                    color={colorKey}
                   />
                 </ActionMenu>
               </div>
@@ -1654,8 +1675,8 @@ const CategoryCardCollapsible = ({
   const [currentUser] = useAtom(currentUserAtom);
 
   const colorKey =
-    currentUser?.categoryColors?.[category.categoryId] || 'primary';
-  const color = colorOptions[colorKey] || 'text-primary';
+    currentUser?.categoryColors?.[category.categoryId] || 'amber';
+  const color = colorOptions[colorKey] || colorOptions['amber'];
   const mutedColor = progressBarColors[colorKey]?.muted || 'bg-primary/20';
 
   const categoryCardRef = useRef(null);
@@ -1724,6 +1745,7 @@ const CategoryCardCollapsible = ({
         isGrabbing={isGrabbing}
         setIsGrabbing={setIsGrabbing}
         color={color}
+        colorKey={colorKey}
         mutedColor={mutedColor}
       />
       <DndContext
@@ -1753,6 +1775,7 @@ const CategoryCardCollapsible = ({
                 subcategoryLength={subcategories.length}
                 index={index}
                 color={color}
+                colorKey={colorKey}
                 mutedColor={mutedColor}
               />
             </CollapsibleContent>

@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dialog';
 import { useState, useTransition } from 'react';
 import EditTransactionForm from '@/components/edit-transaction-form';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { deleteTransaction } from '../transaction-table/serverActions';
 import { toast } from '@/hooks/use-toast';
 import { useAtom } from 'jotai';
@@ -21,7 +20,6 @@ const EditTransactionDialog = ({ transaction, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
     useState(false);
-  const [isPending, startTransition] = useTransition();
   const [planState, setPlanState] = useAtom(planAtom);
 
   function handleServerDeleteTransaction({
@@ -95,21 +93,23 @@ const EditTransactionDialog = ({ transaction, children }) => {
           <div className="w-full">{children}</div>
         </DialogTrigger>
         <DialogContent
-          className="sm:max-w-[95%] bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%] rounded-xl"
+          className="sm:max-w-[95%] bg-card max-w-[95%] lg:max-w-[30%] md:max-w-[50%] rounded-xl border"
           onOpenAutoFocus={(e) => e.preventDefault()}
           onTouchStart={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
         >
-          <VisuallyHidden>
+          <DialogHeader className="border-b pb-4">
             <DialogTitle>Edit Transaction</DialogTitle>
-          </VisuallyHidden>
+            <DialogDescription>
+              Make changes to your transaction.
+            </DialogDescription>
+          </DialogHeader>
           <EditTransactionForm
             transaction={transaction}
             transactionId={transaction.transactionId}
             setDialogIsOpen={setIsOpen}
             onDelete={() => setIsConfirmDeleteDialogOpen(true)}
-            isDeleting={isPending}
           />
         </DialogContent>
       </Dialog>
@@ -121,10 +121,10 @@ const EditTransactionDialog = ({ transaction, children }) => {
           <DialogHeader>
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
-              Your transaction will be permanently deleted
+              Your transaction will be permanently deleted.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-y-2">
             <Button
               variant="outline"
               onClick={() => setIsConfirmDeleteDialogOpen(false)}

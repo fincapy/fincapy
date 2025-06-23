@@ -86,7 +86,6 @@ import { Label } from '@/components/ui/label';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -117,6 +116,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import TransactionCategorySelector from '../transaction-category-selector';
+import DatePickerFormField from '../date-picker-form-field';
 
 // define TapButton to require a quick tap on mobile
 const TapButton = React.memo(({ onTap, children, className, ...rest }) => {
@@ -144,9 +145,7 @@ const TapButton = React.memo(({ onTap, children, className, ...rest }) => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   useEffect(() => {
     // This check will only run on the client side.
-    setIsTouchDevice(
-      'ontouchstart' in window || navigator.maxTouchPoints > 0
-    );
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
   if (isMobile && isTouchDevice) {
@@ -482,7 +481,7 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     resolver: zodResolver(createCategoryFormSchema),
     defaultValues: {
       name: '',
-      monthlyGoal: null,
+      monthlyGoal: '',
       color: getRandomColor(),
       icon: getRandomIcon(),
     },
@@ -591,75 +590,83 @@ const CreateCategoryForm = ({ setDialogOpen }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
+        className="space-y-6 pt-4"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="Category Name"
-                  autoComplete="off"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="monthlyGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Monthly Goal</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="$0"
-                  {...field}
-                  autoComplete="off"
-                  value={formatValue(field.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="color"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Color</FormLabel>
-              <FormControl>
-                <ColorSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="icon"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Icon</FormLabel>
-              <FormControl>
-                <IconSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogClose asChild>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Category Name"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="monthlyGoal"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    placeholder="Monthly Goal"
+                    {...field}
+                    autoComplete="off"
+                    value={formatValue(field.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <ColorSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Icon</FormLabel>
+                <FormControl>
+                  <IconSelector value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <DialogFooter className="gap-y-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <SubmitButton>Create</SubmitButton>
-        </DialogClose>
+        </DialogFooter>
       </form>
     </Form>
   );
@@ -681,66 +688,22 @@ const CreateCategoryDialogue = () => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+        className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
         onPointerDown={(e) => e.stopPropagation()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => e.stopPropagation()}
       >
-        <DialogHeader>
+        <DialogHeader className="border-b pb-4">
           <DialogTitle>{`Create ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
           <DialogDescription>
             {`Add a new custom ${type} category`}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <CreateCategoryForm setDialogOpen={setDialogOpen} />
-        </div>
+        <CreateCategoryForm setDialogOpen={setDialogOpen} />
       </DialogContent>
     </Dialog>
-  );
-};
-
-const TransactionCategorySelector = ({ field }) => {
-  const [plan] = useAtom(planAtom);
-  const categoryNames = useMemo(() => {
-    if (!plan) return [];
-
-    const newCategoryNames = [];
-    plan.categories.forEach((category) => {
-      newCategoryNames.push({
-        name: category.name,
-        id: category.categoryId,
-      });
-      category.subcategories.forEach((subcategory) => {
-        newCategoryNames.push({
-          name: `${category.name} - ${subcategory.name}`,
-          id: subcategory.subcategoryId,
-        });
-      });
-    });
-
-    newCategoryNames.sort((a, b) => a.name.localeCompare(b.name));
-
-    return newCategoryNames;
-  }, [plan]);
-
-  return (
-    <Select onValueChange={field.onChange} defaultValue={field.value}>
-      <FormControl>
-        <SelectTrigger>
-          <SelectValue placeholder="None" />
-        </SelectTrigger>
-      </FormControl>
-      <SelectContent className="bg-card">
-        {categoryNames.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
   );
 };
 
@@ -772,68 +735,22 @@ const createTransactionFormSchema = z.object({
   ]),
 });
 
-const DatePickerFormField = ({ form, name, label }) => {
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    'w-full pl-3 text-left font-normal',
-                    !field.value && 'text-muted-foreground'
-                  )}
-                >
-                  {field.value ? (
-                    format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto p-0 bg-card z-[9999]"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={
-                  field.value
-                    ? parse(field.value, 'yyyy-MM-dd', new Date())
-                    : undefined
-                }
-                onSelect={(date) => {
-                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
-                }}
-                disabled={false}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-};
-
 const CreateTransactionForm = ({ setDialogOpen }) => {
   const { toast } = useToast();
   const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
     resolver: zodResolver(createTransactionFormSchema),
     defaultValues: {
-      date: format(new Date(), 'yyyy-MM-dd'),
+      date: '',
+      description: '',
+      status: undefined,
+      type: undefined,
+      category: undefined,
+      amount: '',
     },
   });
+
+  const transactionType = form.watch('type');
 
   const handleServerCreateTransaction = ({
     oldPlanState,
@@ -914,102 +831,110 @@ const CreateTransactionForm = ({ setDialogOpen }) => {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3 h-full"
-      >
-        <DatePickerFormField form={form} name="date" label="Transaction Date" />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <Input
-                type="text"
-                placeholder="Your Description"
-                autoComplete="off"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  {transactionTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <TransactionCategorySelector field={field} />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <Input
-                type="text"
-                placeholder="0.00"
-                {...field}
-                autoComplete="off"
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogClose asChild>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
+        <div className="space-y-4">
+          <DatePickerFormField form={form} name="date" />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  type="text"
+                  placeholder="Description"
+                  autoComplete="off"
+                  {...field}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="font-normal">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-card">
+                    <SelectItem value="PENDING">PENDING</SelectItem>
+                    <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="font-normal">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-card">
+                    {transactionTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <TransactionCategorySelector
+                  field={field}
+                  type={transactionType}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  type="text"
+                  placeholder="Amount"
+                  {...field}
+                  autoComplete="off"
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <DialogFooter className="gap-y-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <SubmitButton>Create</SubmitButton>
-        </DialogClose>
+        </DialogFooter>
       </form>
     </Form>
   );
@@ -1029,14 +954,12 @@ const CreateTransactionDialogue = () => {
           <CirclePlus />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-xl">
-        <DialogHeader>
+      <DialogContent className="max-w-[95%] lg:max-w-[30%] md:max-w-[50%] bg-card rounded-lg border">
+        <DialogHeader className="border-b pb-4">
           <DialogTitle>Create Transaction</DialogTitle>
           <DialogDescription>Add a new custom transaction</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <CreateTransactionForm setDialogOpen={setDialogOpen} />
-        </div>
+        <CreateTransactionForm setDialogOpen={setDialogOpen} />
       </DialogContent>
     </Dialog>
   );

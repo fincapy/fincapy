@@ -1,13 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import {
@@ -20,34 +19,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
-import { planAtom, categoryNamesAtom } from '../state/atoms';
+import { planAtom } from '../state/atoms';
 import { transactionTypes } from '@/backend/domain/transaction';
 import { editTransaction } from '@/components/transaction-table/serverActions';
 import SubmitButton from '@/components/SubmitButton';
 import { Button } from '@/components/ui/button';
+import TransactionCategorySelector from '../transaction-category-selector';
+import DatePickerFormField from '../date-picker-form-field';
+import { DialogFooter } from '../ui/dialog';
 
-export function SelectDemo({ field }) {
-  const categoryNames = useAtomValue(categoryNamesAtom);
-
-  return (
-    <Select onValueChange={field.onChange} defaultValue={field.value}>
-      <FormControl>
-        <SelectTrigger>
-          <SelectValue placeholder="None" />
-        </SelectTrigger>
-      </FormControl>
-      <SelectContent className="bg-card">
-        {categoryNames.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
-
-const recategorizeFormSchema = z.object({
+const editTransactionFormSchema = z.object({
   category: z.string().nullable(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Enter a date in the format YYYY-MM-DD',
@@ -80,14 +61,13 @@ const EditTransactionForm = ({
   transactionId,
   setDialogIsOpen,
   onDelete,
-  isDeleting,
 }) => {
   const { toast } = useToast();
   const [planState, setPlanState] = useAtom(planAtom);
   const form = useForm({
-    resolver: zodResolver(recategorizeFormSchema),
+    resolver: zodResolver(editTransactionFormSchema),
     defaultValues: {
-      category: transaction.subcategoryId ?? transaction.categoryId,
+      category: transaction.subcategoryId ?? transaction.categoryId ?? '',
       date: transaction.date,
       description: transaction.description,
       status: transaction.status,
@@ -95,6 +75,8 @@ const EditTransactionForm = ({
       amount: transaction.amount,
     },
   });
+
+  const transactionType = form.watch('type');
 
   const handleServerEditTransaction = ({
     oldPlanState,
@@ -180,121 +162,125 @@ const EditTransactionForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3 h-full"
+        className="space-y-6 pt-4 h-full flex flex-col"
       >
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <Input
-                type="text"
-                placeholder="YYYY-MM-DD"
-                autoComplete="off"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <Input
-                type="text"
-                placeholder="Your Description"
-                autoComplete="off"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-card">
-                  {transactionTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <SelectDemo field={field} />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <Input
-                type="text"
-                placeholder="0.00"
-                {...field}
-                autoComplete="off"
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <SubmitButton>Save</SubmitButton>
-        <Button
-          type="button"
-          variant="destructive"
-          onClick={onDelete}
-          className="w-full text-white hover:bg-red-900 font-semibold text-md"
-        >
-          Delete
-        </Button>
+        <div className="space-y-4">
+          <DatePickerFormField form={form} name="date" />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  type="text"
+                  placeholder="Description"
+                  autoComplete="off"
+                  {...field}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="font-normal">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-card">
+                    <SelectItem value="PENDING">PENDING</SelectItem>
+                    <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="font-normal">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-card">
+                    {transactionTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <TransactionCategorySelector
+                  field={field}
+                  type={transactionType}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  type="text"
+                  placeholder="Amount"
+                  {...field}
+                  autoComplete="off"
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row sm:justify-between pt-4 gap-2 mt-auto">
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onDelete}
+            className="w-full sm:w-auto text-white hover:bg-red-900"
+          >
+            Delete
+          </Button>
+          <div className="flex flex-col-reverse sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogIsOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <SubmitButton className="w-full sm:w-auto">Save</SubmitButton>
+          </div>
+        </DialogFooter>
       </form>
     </Form>
   );

@@ -228,7 +228,7 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
 
   const content = (
     <DialogContent
-      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
@@ -240,14 +240,18 @@ const DeleteCategoryDialogue = ({ categoryId }) => {
           associated with this category will be moved to uncategorized.
         </DialogDescription>
       </DialogHeader>
-      <Button
-        variant="destructive"
-        className="bg-destructive hover:bg-destructive-foreground text-white"
-        onClick={onClick}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        Delete
-      </Button>
+      <DialogFooter className="pt-4 gap-y-2">
+        <DialogClose asChild>
+          <Button variant="outline">Cancel</Button>
+        </DialogClose>
+        <Button
+          variant="destructive"
+          onClick={onClick}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          Delete
+        </Button>
+      </DialogFooter>
     </DialogContent>
   );
 
@@ -425,78 +429,86 @@ const EditCategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
+        className="space-y-6 pt-4"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        {categoryName !== 'Other' && categoryName !== 'Savings' && (
+        <div className="space-y-4">
+          {categoryName !== 'Other' && categoryName !== 'Savings' && (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="Category Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {!isMonthlyGoalReadOnly && (
+            <FormField
+              control={form.control}
+              name="monthlyGoal"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="Monthly Goal"
+                      {...field}
+                      value={formatValue(field.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={form.control}
-            name="name"
+            name="color"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Color</FormLabel>
                 <FormControl>
-                  <Input
-                    autoComplete="off"
-                    placeholder="Category Name"
-                    {...field}
+                  <ColorSelector
+                    value={field.value}
+                    onChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
-        {!isMonthlyGoalReadOnly && (
           <FormField
             control={form.control}
-            name="monthlyGoal"
+            name="icon"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Monthly Goal</FormLabel>
+                <FormLabel>Icon</FormLabel>
                 <FormControl>
-                  <Input
-                    autoComplete="off"
-                    placeholder="$0"
-                    {...field}
-                    value={formatValue(field.value)}
-                  />
+                  <IconSelector value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
-        <FormField
-          control={form.control}
-          name="color"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Color</FormLabel>
-              <FormControl>
-                <ColorSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="icon"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Icon</FormLabel>
-              <FormControl>
-                <IconSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogClose asChild>
+        </div>
+        <DialogFooter className="gap-y-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <SubmitButton>Save</SubmitButton>
-        </DialogClose>
+        </DialogFooter>
       </form>
     </Form>
   );
@@ -518,28 +530,26 @@ const EditCategoryDialogue = ({
 
   const content = (
     <DialogContent
-      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
       onOpenAutoFocus={(e) => e.preventDefault()}
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
     >
-      <DialogHeader>
+      <DialogHeader className="border-b pb-4">
         <DialogTitle>{`Edit ${type[0].toUpperCase() + type.slice(1)} Category`}</DialogTitle>
         <DialogDescription>
           {`Edit your existing ${type} category`}
         </DialogDescription>
       </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <EditCategoryForm
-          setDialogOpen={setDialogOpen}
-          categoryName={categoryName}
-          monthlyGoal={monthlyGoal}
-          categoryId={categoryId}
-          color={color}
-          icon={icon}
-        />
-      </div>
+      <EditCategoryForm
+        setDialogOpen={setDialogOpen}
+        categoryName={categoryName}
+        monthlyGoal={monthlyGoal}
+        categoryId={categoryId}
+        color={color}
+        icon={icon}
+      />
     </DialogContent>
   );
 
@@ -677,61 +687,66 @@ const CreateSubcategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
+        className="space-y-6 pt-4"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="Category Name"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="monthlyGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Monthly Goal</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="$0"
-                  {...field}
-                  value={formatValue(field.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="icon"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Icon</FormLabel>
-              <FormControl>
-                <IconSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogClose asChild>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="Subcategory Name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="monthlyGoal"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    placeholder="Monthly Goal"
+                    {...field}
+                    value={formatValue(field.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Icon</FormLabel>
+                <FormControl>
+                  <IconSelector value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <DialogFooter className="gap-y-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <SubmitButton>Create</SubmitButton>
-        </DialogClose>
+        </DialogFooter>
       </form>
     </Form>
   );
@@ -761,25 +776,23 @@ const CreateSubcategoryDialogue = ({ categoryId, setDropdownIsOpen }) => {
           </button>
         </DialogTrigger>
         <DialogContent
-          className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+          className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
           onOpenAutoFocus={(e) => e.preventDefault()}
           onTouchStart={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
         >
-          <DialogHeader>
+          <DialogHeader className="border-b pb-4">
             <DialogTitle>Create Subcategory</DialogTitle>
             <DialogDescription>
               {`Create a new subcategory for your ${type} category`}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <CreateSubcategoryForm
-              categoryId={categoryId}
-              setDropdownIsOpen={setDropdownIsOpen}
-              setDialogOpen={setDialogOpen}
-            />
-          </div>
+          <CreateSubcategoryForm
+            categoryId={categoryId}
+            setDropdownIsOpen={setDropdownIsOpen}
+            setDialogOpen={setDialogOpen}
+          />
         </DialogContent>
       </Dialog>
       {/* Hidden dialog for mobile menu click handling */}
@@ -910,65 +923,73 @@ const EditSubcategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
+        className="space-y-6 pt-4"
         onPointerDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
-        {!subcategoryId.includes('other') && (
+        <div className="space-y-4">
+          {!subcategoryId.includes('other') && (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="Subcategory Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={form.control}
-            name="name"
+            name="monthlyGoal"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input
                     autoComplete="off"
-                    placeholder="Subcategory Name"
+                    placeholder="Monthly Goal"
                     {...field}
+                    value={formatValue(field.value)}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
-        <FormField
-          control={form.control}
-          name="monthlyGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Monthly Spending Goal</FormLabel>
-              <FormControl>
-                <Input
-                  autoComplete="off"
-                  placeholder="$0"
-                  {...field}
-                  value={formatValue(field.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          {!subcategory.isImmutable && (
+            <FormField
+              control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Icon</FormLabel>
+                  <FormControl>
+                    <IconSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
-        {!subcategory.isImmutable && (
-          <FormField
-            control={form.control}
-            name="icon"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Icon</FormLabel>
-                <FormControl>
-                  <IconSelector value={field.value} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        <DialogClose asChild>
+        </div>
+        <DialogFooter className="gap-y-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <SubmitButton>Save</SubmitButton>
-        </DialogClose>
+        </DialogFooter>
       </form>
     </Form>
   );
@@ -987,25 +1008,23 @@ const EditSubcategoryDialogue = ({
 
   const content = (
     <DialogContent
-      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
       onOpenAutoFocus={(e) => e.preventDefault()}
       onPointerDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
     >
-      <DialogHeader>
+      <DialogHeader className="border-b pb-4">
         <DialogTitle>Edit Subcategory</DialogTitle>
         <DialogDescription>Edit your existing subcategory</DialogDescription>
       </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <EditSubcategoryForm
-          setDialogOpen={setDialogOpen}
-          subcategory={subcategory}
-          subcategoryId={subcategoryId}
-          categoryId={categoryId}
-        />
-      </div>
+      <EditSubcategoryForm
+        setDialogOpen={setDialogOpen}
+        subcategory={subcategory}
+        subcategoryId={subcategoryId}
+        categoryId={categoryId}
+      />
     </DialogContent>
   );
 
@@ -1104,7 +1123,7 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
 
   const content = (
     <DialogContent
-      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-xl bg-card"
+      className="max-w-[90%] lg:max-w-[30%] md:max-w-[50%] rounded-lg bg-card border"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
@@ -1115,14 +1134,18 @@ const DeleteSubcategoryDialogue = ({ subcategoryId, categoryId }) => {
           Are you sure you want to delete this subcategory?
         </DialogDescription>
       </DialogHeader>
-      <Button
-        variant="destructive"
-        className="bg-destructive hover:bg-destructive-foreground text-white"
-        onClick={onClick}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        Delete
-      </Button>
+      <DialogFooter className="pt-4 gap-y-2">
+        <DialogClose asChild>
+          <Button variant="outline">Cancel</Button>
+        </DialogClose>
+        <Button
+          variant="destructive"
+          onClick={onClick}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          Delete
+        </Button>
+      </DialogFooter>
     </DialogContent>
   );
 
@@ -1168,21 +1191,19 @@ const ViewTransactionsDialogue = ({
 
   const content = (
     <DialogContent
-      className="max-w-[95vw] sm:max-w-[50vw] max-h-[80vh] bg-card rounded-xl flex flex-col"
+      className="max-w-[95vw] sm:max-w-[50vw] max-h-[80vh] bg-card rounded-lg border flex flex-col"
       id="transaction-modal"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
     >
-      <DialogHeader>
-        <VisuallyHidden>
-          <DialogTitle>Transactions</DialogTitle>
-          <DialogDescription>
-            A list of transactions associated with this category
-          </DialogDescription>
-        </VisuallyHidden>
+      <DialogHeader className="border-b">
+        <DialogTitle>Transactions</DialogTitle>
+        <DialogDescription>
+          A list of transactions associated with this category
+        </DialogDescription>
       </DialogHeader>
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto flex-1 -mx-6 px-6 pt-4">
         <TransactionList transactions={processedTransactions} />
       </div>
     </DialogContent>
@@ -1640,7 +1661,14 @@ const SubcategoryCard = forwardRef(
               />
             </div>
             <div className="flex flex-row justify-between pt-1 text-gray-500">
-              <span>{progressPercentage.toFixed(0)}% spent</span>
+              <span>
+                {progressPercentage.toFixed(0)}%{' '}
+                {category.type === 'savings'
+                  ? 'saved'
+                  : category.type === 'spending'
+                    ? 'spent'
+                    : 'earned'}
+              </span>
               <div className="flex flex-row gap-1 items-center">
                 <span className="text-gray-500">
                   {`

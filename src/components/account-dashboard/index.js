@@ -1027,7 +1027,7 @@ const AccountPage = ({ setPage, userEmail }) => {
                   )}
                 </div>
                 <div className="mt-4 text-sm text-muted-foreground">
-                  Your name is visible to other users in your organization.
+                  Your name is visible to other users in your account.
                 </div>
               </div>
             </div>

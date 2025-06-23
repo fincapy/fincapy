@@ -124,20 +124,32 @@ const TapButton = React.memo(({ onTap, children, className, ...rest }) => {
   const startTimeRef = useRef(0);
   const movedRef = useRef(false);
   const threshold = 300; // ms threshold for tap vs press-and-hold
+
   const handleTouchStart = () => {
     startTimeRef.current = performance.now();
     movedRef.current = false;
   };
+
   const handleTouchMove = () => {
     movedRef.current = true;
   };
+
   const handleTouchEnd = () => {
     const duration = performance.now() - startTimeRef.current;
     if (!movedRef.current && duration < threshold) {
       onTap();
     }
   };
-  if (isMobile) {
+
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    // This check will only run on the client side.
+    setIsTouchDevice(
+      'ontouchstart' in window || navigator.maxTouchPoints > 0
+    );
+  }, []);
+
+  if (isMobile && isTouchDevice) {
     return (
       <button
         onTouchStart={handleTouchStart}
@@ -156,6 +168,7 @@ const TapButton = React.memo(({ onTap, children, className, ...rest }) => {
       </button>
     );
   }
+
   return (
     <button onClick={onTap} className={className} {...rest}>
       {children}

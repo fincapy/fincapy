@@ -45,21 +45,15 @@ class OpenaiAdapter {
 
   async getTransactionCategory({
     categoryIdToNameMap,
-    transactionEdits,
     transactionAmount,
     transactionOriginalDescription,
   }) {
     const createPrompt = () => {
       return `
-        Follow these rules:
-        1. The most recent edit's user_override_category with a description relevant to the transaction should be used.
+        Categorize this transaction based on its description and amount.
 
-        Past edits from least recent to most recent:
-        ${transactionEdits}
-
-        Transaction:
-        - Amount: ${transactionAmount}
-        - Description: ${transactionOriginalDescription}
+        Transaction Description: ${transactionOriginalDescription}
+        Transaction Amount: ${transactionAmount}
       `;
     };
 
@@ -104,7 +98,7 @@ class OpenaiAdapter {
               toolSpec: {
                 name: 'categorize_transaction',
                 description:
-                  'Categorize a transaction given a transaction and a list of past user edits',
+                  'Categorize a transaction given its description and amount',
                 inputSchema: {
                   json: {
                     type: 'object',

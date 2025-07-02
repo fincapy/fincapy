@@ -164,7 +164,7 @@ class IngestTransactionUpdatesService {
     plaidTransactions,
     plaidTransaction,
     plan,
-    uniqueTransactionEditsString,
+    uniqueCategoryChangeTransactionEdits,
     categoryIdToNameMap,
     plaidItemId
   ) {
@@ -190,12 +190,27 @@ class IngestTransactionUpdatesService {
 
       transactionCategory = await this.openaiAdapter.getTransactionCategory({
         categoryIdToNameMap: spendingCategoryIdToNameMap,
-        transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
         transactionOriginalDescription: plaidTransaction.original_description,
-        plaidSuggestedCategory:
-          plaidTransaction.personal_finance_category.detailed,
       });
+
+      const overrideEdit = uniqueCategoryChangeTransactionEdits.find(
+        (edit) =>
+          edit.oldTransactionDescription ===
+          plaidTransaction.original_description
+      );
+      if (overrideEdit) {
+        const overrideCategoryName = overrideEdit.newTransactionCategory;
+        const overrideCategoryId = Object.keys(
+          spendingCategoryIdToNameMap
+        ).find(
+          (key) => spendingCategoryIdToNameMap[key] === overrideCategoryName
+        );
+        if (overrideCategoryId) {
+          transactionCategory.category = overrideCategoryName;
+          transactionCategory.categoryId = overrideCategoryId;
+        }
+      }
     }
 
     if (
@@ -216,12 +231,25 @@ class IngestTransactionUpdatesService {
 
       transactionCategory = await this.openaiAdapter.getTransactionCategory({
         categoryIdToNameMap: incomeCategoryIdToNameMap,
-        transactionEdits: uniqueTransactionEditsString,
         transactionAmount: plaidTransaction.amount,
         transactionOriginalDescription: plaidTransaction.original_description,
-        plaidSuggestedCategory:
-          plaidTransaction.personal_finance_category.detailed,
       });
+
+      const overrideEdit = uniqueCategoryChangeTransactionEdits.find(
+        (edit) =>
+          edit.oldTransactionDescription ===
+          plaidTransaction.original_description
+      );
+      if (overrideEdit) {
+        const overrideCategoryName = overrideEdit.newTransactionCategory;
+        const overrideCategoryId = Object.keys(incomeCategoryIdToNameMap).find(
+          (key) => incomeCategoryIdToNameMap[key] === overrideCategoryName
+        );
+        if (overrideCategoryId) {
+          transactionCategory.category = overrideCategoryName;
+          transactionCategory.categoryId = overrideCategoryId;
+        }
+      }
     }
 
     let amount = plaidTransaction.amount;
@@ -281,7 +309,7 @@ class IngestTransactionUpdatesService {
     plaidTransactions,
     plaidTransaction,
     plan,
-    uniqueTransactionEditsString,
+    uniqueCategoryChangeTransactionEdits,
     categoryIdToNameMap,
     plaidItemId
   ) {
@@ -297,20 +325,81 @@ class IngestTransactionUpdatesService {
       transactionTypeEdits
     );
 
-    // Get the category from OpenAI
-    const transactionCategory = await this.openaiAdapter.getTransactionCategory(
-      {
-        categoryIdToNameMap,
-        transactionEdits: uniqueTransactionEditsString,
+    let transactionCategory;
+
+    if (['spending', 'refund'].includes(transactionType)) {
+      const spendingCategoryIdToNameMap = Object.fromEntries(
+        Object.entries(categoryIdToNameMap).filter(([key, value]) =>
+          value.startsWith('spending.')
+        )
+      );
+
+      transactionCategory = await this.openaiAdapter.getTransactionCategory({
+        categoryIdToNameMap: spendingCategoryIdToNameMap,
         transactionAmount: plaidTransaction.amount,
         transactionOriginalDescription: plaidTransaction.original_description,
-        plaidSuggestedCategory:
-          plaidTransaction.personal_finance_category.detailed,
+      });
+
+      const overrideEdit = uniqueCategoryChangeTransactionEdits.find(
+        (edit) =>
+          edit.oldTransactionDescription ===
+          plaidTransaction.original_description
+      );
+      if (overrideEdit) {
+        const overrideCategoryName = overrideEdit.newTransactionCategory;
+        const overrideCategoryId = Object.keys(
+          spendingCategoryIdToNameMap
+        ).find(
+          (key) => spendingCategoryIdToNameMap[key] === overrideCategoryName
+        );
+        if (overrideCategoryId) {
+          transactionCategory.category = overrideCategoryName;
+          transactionCategory.categoryId = overrideCategoryId;
+        }
       }
-    );
+    }
+
+    if (
+      transactionType === 'credit_card_payment' ||
+      transactionType === 'transfer'
+    ) {
+      transactionCategory = {
+        categoryId: null,
+      };
+    }
+
+    if (transactionType === 'income') {
+      const incomeCategoryIdToNameMap = Object.fromEntries(
+        Object.entries(categoryIdToNameMap).filter(([key, value]) =>
+          value.startsWith('income.')
+        )
+      );
+
+      transactionCategory = await this.openaiAdapter.getTransactionCategory({
+        categoryIdToNameMap: incomeCategoryIdToNameMap,
+        transactionAmount: plaidTransaction.amount,
+        transactionOriginalDescription: plaidTransaction.original_description,
+      });
+
+      const overrideEdit = uniqueCategoryChangeTransactionEdits.find(
+        (edit) =>
+          edit.oldTransactionDescription ===
+          plaidTransaction.original_description
+      );
+      if (overrideEdit) {
+        const overrideCategoryName = overrideEdit.newTransactionCategory;
+        const overrideCategoryId = Object.keys(incomeCategoryIdToNameMap).find(
+          (key) => incomeCategoryIdToNameMap[key] === overrideCategoryName
+        );
+        if (overrideCategoryId) {
+          transactionCategory.category = overrideCategoryName;
+          transactionCategory.categoryId = overrideCategoryId;
+        }
+      }
+    }
 
     let amount = plaidTransaction.amount;
-    if (incomeTransactionTypes.includes(transactionCategory.type)) {
+    if (incomeTransactionTypes.includes(transactionType)) {
       amount = Math.abs(amount);
     }
 
@@ -559,16 +648,7 @@ class IngestTransactionUpdatesService {
                     self.findIndex(
                       (t) => t.description === edit.description
                     ) === index
-                )
-                .sort(
-                  (a, b) => new Date(a.created_at) - new Date(b.created_at)
                 );
-
-            const uniqueTransactionEditsString = JSON.stringify(
-              uniqueCategoryChangeTransactionEdits,
-              null,
-              2
-            );
 
             const batchSize = 5;
             const addedTransactions = plaidTransactions.added;
@@ -581,7 +661,7 @@ class IngestTransactionUpdatesService {
                     plaidTransactions,
                     plaidTransaction,
                     plan,
-                    uniqueTransactionEditsString,
+                    uniqueCategoryChangeTransactionEdits,
                     categoryIdToNameMap,
                     plaidItem.plaidItemId
                   )
@@ -594,7 +674,7 @@ class IngestTransactionUpdatesService {
                 plaidTransactions,
                 plaidTransaction,
                 plan,
-                uniqueTransactionEditsString,
+                uniqueCategoryChangeTransactionEdits,
                 categoryIdToNameMap,
                 plaidItem.plaidItemId
               );

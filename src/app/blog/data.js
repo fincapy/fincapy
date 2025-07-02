@@ -1,6 +1,76 @@
 // Blog post data that can be shared across components
 export const blogPosts = [
   {
+    slug: 'mint-personal-finance-alternatives-in-2025',
+    title: 'Mint Personal Finance Alternatives In 2025',
+    subheading:
+      'Many of us still long for the days when Mint was still alive. The good news is that the market is full of powerful alternatives, each with its own philosophy. The key is to find the one that fits you.',
+    date: '2025-06-25',
+    image: '/blog/capyman-alternatives.png',
+    imageAlt:
+      'Capyman looking at different personal finance app alternatives on a computer screen',
+    author: {
+      name: 'Ryan Wible',
+      avatar: '/goats.png',
+    },
+    content: `
+      <p>Here&apos;s the short answer—the best Mint alternatives based on who you are:</p>
+      <ul>
+        <li><strong>For the "Classic Mint" User who wants an all-in-one view:</strong> <a href="https://www.monarchmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Monarch Money</a> is the best all-around replacement, with a clean interface and the most robust data import to save your history.</li>
+        <li><strong>For the Mindful Spender:</strong> <a href="https://fincapy.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Fincapy</a> is built to help you understand yourself and your finances. It shows you your spending, income, and savings in an intuitive and customizable way to help you get and stay on track with your money.</li>
+        <li><strong>For the Optimizer who wants to direct every dollar:</strong> <a href="https://www.ynab.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">YNAB (You Need A Budget)</a> is a powerful system for intentional spending, but be prepared for its steep learning curve.</li>
+        <li><strong>For the Future-Focused Investor tracking net worth and retirement:</strong> <a href="https://www.empower.com/personal-wealth" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Empower Personal Dashboard</a> offers the best free investment analysis tools, hands down.</li>
+        <li><strong>For the Spreadsheet Lover who wants full control:</strong> <a href="https://www.tillerhq.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Tiller</a> is your answer. It automatically feeds all your financial data into a Google Sheet or Excel file you own.</li>
+        <li><strong>For the Subscription Conscious trying to cut recurring costs:</strong> <a href="https://www.rocketmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Rocket Money</a> excels at finding and canceling unwanted subscriptions and negotiating bills.</li>
+      </ul>
+      <p>Now, for the deeper story.</p>
+      <h2>Why Mint Had To Go</h2>
+      <p>Mint&apos;s business model was flawed from the start. It was a classic case of "if the product is free, you are the product." Mint didn&apos;t charge us a subscription; it made money by showing us ads for credit cards and loans.</p>
+      <p>This created a fundamental conflict of interest. Was the app&apos;s goal to help us get our finances in order, or was it to sell us more products? The answer, ultimately, is what led to its demise. The model was unsustainable.</p>
+      <p>Paying a subscription is definitely costlier, but it also aligns the business to you. Providing a great product is the goal, and those of us who provide said products make money when we help you with your finances. The truth is, businesses have to make money to keep going, but hopefully, we&apos;re not just in it for the money. Check out one of these personal finance apps and see which one resonates with you.</p>
+      <h2>Finding Your New App</h2>
+      <p>The new landscape of Mint alternatives is crowded and specialized. Here&apos;s a more detailed look at the best options.</p>
+      <h3>For the "Classic Mint" User</h3>
+      <p>You loved Mint&apos;s simplicity. You want one place to see your net worth, track your spending, and get a bird&apos;s-eye view of your financial life without a lot of fuss.</p>
+      <h4>Top Pick: <a href="https://www.monarchmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Monarch Money</a> ($99.99/year)</h4>
+      <p>Monarch is the heir apparent, built by a former Mint product manager. It does everything Mint did, but better. The interface is clean and modern, it has powerful budgeting and investment tracking, and its standout feature lets you collaborate with a partner at no extra cost. Crucially, it has the best Mint data import tool on the market, allowing you to bring both transactions and account balance history with you.</p>
+      <h4>Runner-Up: <a href="https://www.quicken.com/products/simplifi/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Quicken Simplifi</a> (~$48/year)</h4>
+      <p>If you want a straightforward, ad-free experience from a trusted brand without the premium price tag, Simplifi is your answer. It&apos;s clean, easy to use, and focuses on a simple "Spending Plan" to keep you on track. It also has a solid Mint data import feature, making it a fantastic value.</p>
+      <h3>For the Mindful Spender</h3>
+      <p>You know you should look at your money, but a part of you recoils. You don&apos;t want to be shamed for a $9 coffee; you just want to know if you&apos;re generally on the right track so you can grow with your finances, not fight them.</p>
+      <h4>Top Pick: <a href="https://fincapy.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Fincapy</a></h4>
+      <p>Fincapy is a budgeting app built for people who want to understand themselves and their finances. It&apos;s designed to be as shame-free as possible, acknowledging that our financial lives are messy and emotional. The goal isn&apos;t perfection, but gentle awareness. It helps you see where your money is actually going so you can check if you&apos;re living the life you say you want, without the judgment. It&apos;s a tool built to work with your human brain, not against it.</p>
+      <h3>For the Optimizer</h3>
+      <p>You&apos;re not content to just watch your money. You want to actively direct it. You want a system to give every dollar a job, and you want to manage that system. It makes you feel in control and competent.</p>
+      <h4>Top Pick: <a href="https://www.ynab.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">YNAB (You Need A Budget)</a> ($109/year)</h4>
+      <p>YNAB isn&apos;t just an app; it&apos;s a financial methodology. It&apos;s built on a zero-based budgeting system that forces you to be intentional with every dollar. It has a notoriously steep learning curve, but its followers are evangelical for a reason—it works. Note: It&apos;s designed for you to start fresh and doesn&apos;t import historical Mint transactions.</p>
+      <h3>For the Future-Focused Investor</h3>
+      <p>Your day-to-day spending is under control. Your real anxiety comes from the big question: "Will I have enough for the future?" You need tools that can analyze your portfolio and track your progress toward retirement.</p>
+      <h4>Top Pick: <a href="https://www.empower.com/personal-wealth" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Empower Personal Dashboard</a> (Free)</h4>
+      <p>Formerly Personal Capital, Empower offers the most powerful free investment analysis tools available. Its Retirement Planner and Fee Analyzer are best-in-class. The catch? It&apos;s a lead generator for their paid advisory services. It also has no Mint data import feature.</p>
+      <h3>For the Spreadsheet Lover</h3>
+      <p>You believe in ultimate control and want to own your financial data in a format that can&apos;t be taken away from you.</p>
+      <h4>Top Pick: <a href="https://www.tillerhq.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Tiller</a> ($79/year)</h4>
+      <p>Tiller is unique. It automatically pipes all your daily transactions and balances directly into your own private Google Sheets or Microsoft Excel spreadsheets. It gives you the automation of an app with the infinite power and flexibility of a spreadsheet. It also has a great Mint import tool.</p>
+      <h3>For the Subscription Conscious</h3>
+      <p>You feel like your bank account is getting nibbled to death by recurring charges. You need a tool that specializes in finding and eliminating them.</p>
+      <h4>Top Pick: <a href="https://www.rocketmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Rocket Money</a> (Freemium, Premium ~$72-$144/year)</h4>
+      <p>Rocket Money excels at finding and monitoring all your recurring subscriptions. Its premium version even includes a concierge service to cancel them for you. It has since grown into a full-featured budget app and includes a tool to import your Mint transactions.</p>
+      <h2>The Elephant in the Room: Your Data History</h2>
+      <p>The most emotional part of this transition is the fear of losing years of carefully categorized data. It&apos;s your financial story, and you shouldn&apos;t have to give it up.</p>
+      <p>First, before you do anything else, download your Mint data. You can request it from your Intuit account settings under "Data &amp; Privacy." It can take some time, but this step is critical.</p>
+      <p>Be prepared: no import process is perfect. You will likely need to reformat the CSV file from Mint to match the template of your new app.</p>
+      <ul>
+        <li><strong>Best for Data History:</strong> <a href="https://www.monarchmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Monarch Money</a> and <a href="https://www.quicken.com/products/simplifi/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Quicken Simplifi</a> are the clear winners here.</li>
+        <li><strong>Good for Transactions:</strong> <a href="https://www.tillerhq.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Tiller</a> and <a href="https://www.rocketmoney.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Rocket Money</a> have solid tools for importing your transaction CSV.</li>
+        <li><strong>Start Fresh:</strong> <a href="https://www.empower.com/personal-wealth" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">Empower</a> and <a href="https://www.ynab.com/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-800 no-underline hover:underline font-medium transition-colors">YNAB</a> have no or limited import features.</li>
+      </ul>
+      <h2>Your Tool, Your Philosophy</h2>
+      <p>The fall of Mint was a disruption, but it&apos;s also a necessary evolution. The best tool isn&apos;t the one with the longest feature list. It&apos;s the one that feels like a true partner. It&apos;s the one that gives you a framework to understand yourself and your habits.</p>
+      <p>No matter which tool you choose to gather the data, that&apos;s where the real work begins. The goal is to build a system that honors the person you are and supports the life you want to live—one where you can look at your money without shame or fear.</p>
+    `,
+  },
+  {
     slug: 'best-personal-finance-blogs',
     title: 'The Best Personal Finance Blogs for 2025',
     subheading: 'Find wisdom that resonates, then put it into practice',
